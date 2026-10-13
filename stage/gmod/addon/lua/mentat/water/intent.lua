@@ -95,8 +95,13 @@ local function tokenize(text)
 end
 M.tokenize = tokenize
 
+-- Real English words one edit from a water noun. The typo tolerance below took "add a couch like this one" for "add a lake" ("like" is one edit from "lake"),
+-- and "make it look like a house" built a lake too (found 2026-10-13 by the solid-turns corpus). A word on this list is never read as a misspelt noun.
+local REAL_WORDS = { like = true, likes = true, liked = true, lace = true, lane = true, lame = true, lack = true, lark = true, polo = true,
+                     pole = true, poles = true, poor = true, pour = true, pours = true, pull = true, pooh = true, pony = true, pons = true, bond = true, pint = true }
+
 local function noun_of(w)
-  if NOT_AFTER[w] then return nil end
+  if NOT_AFTER[w] or REAL_WORDS[w] then return nil end
   for _, n in ipairs(NOUN_ORDER) do
     for _, v in ipairs(NOUNS[n]) do
       if w == v then return n end

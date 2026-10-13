@@ -482,7 +482,7 @@ can judge are at the end of the section. The character is original (nothing is q
 
 ### When he speaks (the director)
 
-He reacts to: **arrival** (a hat tip at once, then a fresh line instead of the canned "Here I am."; the canned line is the fallback if no line comes), a
+He reacts to: **arrival** (a hat tip at once, then a fresh line instead of the canned "Here I am."; the canned line is the fallback if no line comes), a **sign-off** when he is sent away (A7b: a hat tip and a short bank line from the same `/quip` route, counted against the day's new lines only if it needs a new synthesis and text only when the budget is spent; he stays until it is said, at most 9 s, then goes; the canned "Fine. Call me if you need me." if no line comes; a private wake name keeps its private goodbye), a
 **beam** (a found object's shape arrived: a flourish even when he has nothing to say; or failed), a **failed or refused lookup** (the bridge's `/resolve` answers are
 plumbed in through the hook `HolodeckResolve`), a **build** (he turns to look at the thing just placed and points at it), a **big pile** (30, 80, 160 standing things),
 a **splash** near you, **you jumping into water**, **you standing idle**, a **wake-name change** (that it changed, never to what), a **wake-word miss** (the microphone
@@ -559,7 +559,7 @@ deleted and nothing new is written), `forget that / today / everything`. The jou
 SkippyTel's persona file (personality and speaking style only; anything naming the Captain, devices or the TTS is dropped), the situation word, up to 8 notes of at most 120 characters, and his own last 8 lines
 (so he does not repeat himself). **Never** a SteamID, a player name, a wake name, chat, what a player typed, a position, or any other player's data: notes hold only object nouns that are one to three plain
 words and are not (part of) any online player's name or any wake name, else "something"; the bridge cleans the notes again (drops ids, links, key-like strings). The player's SteamID travels between the game and the LOCAL
-bridge only, as the rate-limit key. The voice synthesis then sends the finished line's text to the voice provider (ElevenLabs through SkippyTel) exactly as every spoken line already does.
+bridge only, as the rate-limit key. The voice synthesis then sends the finished line's text to the voice provider (ElevenLabs through SkippyTel) exactly as every spoken line already does. **Update (A7b, "Solid turns" section 4):** the model route for chat does send what a player typed to the model provider (with other players' names, wake names, links and long numbers removed), when a key is configured; the lines above are unchanged.
 
 ### Convars
 
@@ -618,6 +618,138 @@ The same two facts did break the wake names file and the faces file: fixed 2026-
 **Honest read of the animation** (front view, 25 frames): it reads as alive. The hat tip is unmistakable (the hat lifts and tips forward and settles back), the body leans and turns on a flourish, the free hand swings out and the whole figure sways while he sings, the head nods with the voice, and he turns toward the thing he looks at. It is not a full performance: it is the kit's rigid parts moving as a doll, so a conducting arm is a hand flick (the sleeve is part of the coat and does not follow), there are no eyes or brows to act with, and from the side the sway is less readable. The pictures cannot show timing or feel.
 **Only a person can verify:** how the voice sounds with capitals, stretched vowels and pauses (the Windows voice was used here; ElevenLabs was not reachable), whether the pace of remarks feels right over a real afternoon, whether the jokes land, the 3D position of the clips by ear, a second human client, and the real model route (no Anthropic key on this machine: the local model qwen3:8b was probed offline, 6 of 6 sample lines passed the validators, but it is not wired live).
 
+
+## Solid turns (A7b): was it for him, and what happens to it
+
+Aaron, 2026-10-13, "go with your suggestions": every turn reliable and cheap. Built and tested offline (`test_gmod_turns.py`, `test_gmod_turns_world.py`, `turn_eval.py`); run live once, hands-off (below). Three layers, deterministic first:
+
+| Piece | Where | What it does |
+|---|---|---|
+| `mentat/holodeck/turnlogic.lua` | pure, shared with the corpus score | the addressee score (documented weights), the route (ignore / parser / plan / talk) |
+| `mentat/avatar/turns.lua` | game server | gathers the signals (gaze, distance, his last words to the player, who else is talking), acts on the verdict, calls the bridge, keeps the decisions log |
+| `skippy_turns.py` (`POST /turn`) | the bridge | the model route: key, frontier model, local fallback, validation, caps, cache, the fallback line, the tiebreak |
+| `data/turn_corpus.json`, `build_turn_corpus.py`, `turn_eval.py` | offline | 343 labelled turns and the score |
+
+### 1. Was the line aimed at him? (addressee)
+
+A score from signals the server can measure; no model. Every path ends in `Holodeck.Handle`, and `Turns.Intercept` (in front of it, in `avatar.lua`) decides; a chat line with no wake name arrives by the hook `HolodeckOverheard`
+(`holodeck.lua`'s chat hook) and is scored the same way. Verdict **yes** at 60 or more, **maybe** 35 to 59, **no** below 35. **Only yes is answered.** "Maybe" is silence unless the window rule or the (optional) tiebreak says yes.
+
+| Signal | Points |
+|---|---|
+| push-to-talk (`+skippy` / the talk key) or the console | always yes (nothing else is looked at) |
+| the sentence **starts** with one of the speaker's own wake names (a few little words like "hey" may come first) | +100, and nothing else is weighed: a named line is his whatever the room is doing |
+| ... but his name is the subject of a remark ("Skippy is silly", "Skippy keeps floating") | -60 (then the signals below apply) |
+| his name only later in the sentence ("I think skippy broke it") | -10 |
+| the sentence starts with another player's name or a group call ("Bob, add a couch", "hey guys ...") | -70 |
+| gaze (angle between where the speaker looks and where he floats; only while he is in the world) | within 12 degrees +30, within 30 +20, within 60 +8, 100 or more -15 |
+| looking straight at another player (within 15 degrees, nearer to their line than to his) | -30 |
+| distance to him | within 300 HU (5.7 m) +15, within 700 +6, beyond 1500 -10 |
+| **conversation window**: he spoke to this player 8 s ago or less / within 20 s | +50 / +40 (a follow-up needs no wake word) |
+| two humans talking: another player spoke (typed, or voice chat) within 10 s and is within 600 HU | -30 |
+| text, only for an unnamed line | a one or two word interjection -15; 30 words or more -10; a question +4; "you" or an order +6 |
+
+**Window rule.** A maybe inside the 20 s window whose gaze is within 45 degrees or whose distance is within 400 HU becomes yes ("he just spoke to you and you look at him or stand by him"). Never promoted: a topic, a line addressed to another player,
+looking at another player, two humans talking. So the best possible score without his name, the window or the talk key is 55: **gaze and closeness alone never make a line his.** A follow-up without his name works while he is in the world (the gaze and
+distance need him there); with him away, only his name or the talk key does.
+
+A spoken line arrives only after the microphone bridge heard a wake name (or the talk key was down), so voice is "named" or "push-to-talk"; voice chat between players is not transcribed anywhere, but `IsSpeaking()` of a nearby player counts as chatter.
+
+**Optional tiebreak.** `mentat_skippy_tiebreak 1` (default 0): a maybe is sent to the cheap model (`claude-haiku-5-5`, one word, yes or no, default no) with a few booleans (window, gaze, near, others), the sentence with names removed; at most `mentat_skippy_tiebreak_per_day` (60) calls a day, one per player per 6 s. The answer arrives later; until then (and on any failure) the line is not answered.
+
+### 2. What happens to a line that is for him (route)
+
+1. **ignore**: nothing in it (noise, "um", `...`, a recogniser's silence hallucination such as "thank you" through the talk key). A bare wake name is a call: he answers.
+2. **parser**, first and unchanged: his own commands (come / go away, shush, roast level, notebook), wake-name commands, the water and physics words (claimed before the object parser, as `water.lua` / `world.lua` do), and any request the holodeck parser reads (add / remove / move /
+   undo / rooms, "another one" with the player's previous request, an unknown noun, which the object resolver looks up). A question is never an order ("what is a couch", "how do I clear everything" are questions); a polite order is ("can you add a lamp").
+3. **plan**: a vague wish ("make it cozy", "somewhere to relax", "furnish this place like a cabin") goes to the old `/plan` agent.
+4. **talk**: everything else (chat, a question, "help", "thanks") goes to `POST /turn`. The reply is `{say, mood, action?}`: `say` is shown and spoken like any answer, `mood` picks the body language, and `action` is either `{"name":"add","kind":<a library kind>,"count":1..12}` or `{"name":"undo"}`.
+   The game checks the action AGAIN (a number, a plain kind, in range) and runs it as the canonical sentence `add N kind` through the parser (never free text from the model), so the holodeck's own answer reports what really happened; the model's sentence is then not added on top.
+
+**Validation** (`skippy_turns.validate_turn`, adversarial table in `test_gmod_turns.py`): a JSON object with exactly `say`, `mood`, `action`; the action one of the two fixed ones, the kind resolving through the bridge's library resolver, the count an integer 1 to 12 (not a string, a float, a bool, or huge); the sentence the same line validator
+as his whim lines (25 words, plain English, no markup, links, secrets or talk of prompts, no bad language, no unvetted name, no number the facts or the player's words do not contain, nothing harsher than the player's roast level, no known-false physics) plus: **no invented capability**
+("I can add a pool" only if a pool is something he can make; "I'll add a dragon" is refused; a promise to build with no action behind it is refused; "I can fly / cook / order" is refused), **no physics quantity** without the world's readback (`sv_gravity` as a percent of Earth's is sent as a fact; the
+moon "about a sixth" and "everything falls at the same rate in a vacuum" are the allowed true statements), **no refusal that blames the player's wording** ("say it properly", "rephrase", "that is not a word", their grammar), no echo of a player's name, and a reply too like what he just said is retried. A refused reply
+is retried with the reason (at most **2 retries**, 3 attempts in all, switching to the local model if the frontier call itself failed); then a **fallback line** ("helpful first, then the barb": help, greetings, jokes, a clarifying push toward `add a couch`; every example command in the bank is checked against the real parser). Never silence, never a refusal. Thanks and "ok" are answered
+from the bank with no model call.
+
+### 3. The model route and the key
+
+`skippy_turns.py`: **frontier first** (Anthropic's Messages API, `SKIPPY_FRONTIER_MODEL`, default `claude-sonnet-5-5`; the legacy `SKIPPY_MODEL` is honoured when it starts with `claude-`, and the bridge's own Ollama model name stays `qwen3:8b` then), the cheaper `claude-haiku-5-5`
+(`SKIPPY_CHEAP_MODEL`) for the tiebreak, the **local Ollama model (qwen3:8b)** when there is no key, the cap is spent, the key was refused or the call fails. No `temperature` is sent (the current models refuse it; found live).
+
+**The key.** One variable, `ANTHROPIC_API_KEY`: the process environment first, else the vault file `G:\My Drive\vault\.env` (`SKIPPY_VAULT_ENV` overrides the path): the file is read line by line, only the line that sets that one variable is parsed and kept, nothing else of it is stored or returned. The value
+lives in a `Secret` that prints as `***`, is used only as the `x-api-key` header of the request, is never in an argument list, a log line, an exception text, a file, a cache or the request body, and every message is redacted before it is logged. The log says `key present: yes/no (environment | vault file | none)`. Tests use a fake file and a fake
+environment and assert the value never appears anywhere.
+`POST /turn {"kind":"status"}` reports the same (and the day's counts), never the value.
+
+**Caps and failure.** At most `mentat_skippy_frontier_per_day` (default 300; `SKIPPY_FRONTIER_PER_DAY`) frontier calls per local day, persisted with the day's token counts (counts only, no text) in `data/quips/turns_state.json`; a per-call timeout `mentat_skippy_turn_timeout` (8 s) inside a 16 s deadline per turn; a **401 or 403 pauses the frontier path for 10
+minutes** with a visible `WARNING` in the bridge's log and the local model takes over; a 429, 5xx or timeout fails that call only. The game also rations its bridge calls like any other (`holodeck_bridge_per_min`), and `holodeck_agent 0` forbids the model route entirely (the old flow answers).
+
+**Caches.** A reply is cached by the normalised text (case, punctuation, "please", "hey" ignored) + the situation key (gravity: low / normal / high) + the roast level, for 6 hours (400 entries): a repeated question is instant and free. **Never cached:** anything with a number, a personal word (my, me, I'm), a time or state word (time, today, now, how many, last, again, remember),
+a thing meant to vary (jokes, songs, roasts, "another one"), any reply that carries an action, and any fallback line. Resolved object phrases are cached by the existing resolver sessions (unchanged).
+
+### 4. What leaves the machine (update to "Skippy alive")
+
+With a key, a **talk** turn sends Anthropic: the character brief and rules, the roast level word, the names of the library's kinds and rooms, up to 6 short world facts ("gravity here is 100 percent of Earth's", "12 things are standing"), and **the player's sentence** with every online player's display name, every wake name,
+links, e-mail addresses and runs of six or more digits replaced (200 characters at most), between `<<<` and `>>>`. A tiebreak sends that sentence and four yes/no hints. **Never** a SteamID, a player name, a wake name, a position, the notebook, or the rest of the chat. The game hands the bridge the list of names to remove (`strip`) and the SteamID64 (only
+as the rate-limit key), on the local machine; neither is forwarded. Without a key nothing leaves the machine for a turn (the local Ollama model runs on this PC). This is the first time what a player TYPED leaves the machine (the whim lines of A7a never sent it): `mentat_skippy_turns 0` restores the old flow, and the bridge without a key never sends it.
+The voice synthesis is unchanged (a spoken line's text goes to the voice provider).
+
+### 5. The corpus and how to score it
+
+`data/turn_corpus.json` (built by `build_turn_corpus.py`): **343 original labelled turns**, each with the situation the server would know (his last words to the player, gaze, distance, who is near, who spoke) and the labels (addressee yes / no / maybe, route parser / plan / talk / ignore), in 29 categories: named commands, named chat and
+questions, custom and rude and other-script wake names, mishears, push-to-talk, the console, follow-ups inside the window (looking at him, standing by him), follow-ups that must not be answered (expired, he spoke to someone else, far and looking away), chatter between humans, lines addressed to other players (also nicknames with symbols or two words), his name as a topic or in passing,
+noise and silence hallucinations, ambiguous lines, rambles (up to 40 words), typos, polite orders, and a **stress set** (49 turns written in one sitting and run once, scored apart). Talk turns carry a rubric (non-empty, at most 25 words, no markdown or link, and for questions at least one helpful keyword).
+
+```bash
+python stage/gmod/holodeck/turn_eval.py                 # offline: addressee + route + the fallback floor; no network, no key (needs lupa, as the GMod tests do)
+python stage/gmod/holodeck/turn_eval.py --show 20       # list the first disagreements
+python stage/gmod/holodeck/turn_eval.py --model         # count the live model calls a sample would make; stops
+python stage/gmod/holodeck/turn_eval.py --model --go    # run a sample of 12 talk turns against the live route (--sample N; refuses a worst case above --max-calls 40)
+python stage/gmod/holodeck/build_turn_corpus.py         # rewrite the corpus
+```
+
+
+### 6. Scores, live pass, and what is unverified
+
+**The corpus, offline (`turn_eval.py`, 343 turns, the real rules and parser):** addressee precision 100 %, recall 100 %; **false-wake rate 0 % (0 of 150 lines that were not for him, or only maybe, got an answer)**; **missed-wake rate 0 % (0 of 187 lines for him got no answer)**; route accuracy 100 % (343 of 343);
+of 20 ambiguous lines 16 are recognised as "maybe" and the other 4 score "no", **none is answered**. The stress set alone (49 turns): 0 of 31, 0 of 18, 100 %. The fallback floor: 180 fallback lines (every talk turn, gentle and savage) pass the rubric (non-empty, 25 words, no markdown or link) and the line validator.
+**Read these numbers with care.** I wrote the corpus and then tuned the rules while looking at it, so 100 % is a regression gauge, not a measured error rate: the first run on 236 turns was false-wake 0 / 89, missed-wake 2 / 141 (1.4 %), route accuracy 91.1 %. About half of those 17 to 21 disagreements were
+my labels being wrong about what the parser and the world already do (a gravity question belongs to the world's readback, an object request in polite or question-like form to the resolver, "make that bigger" to chat); the rest were real: the route did not know the water and physics words, questions were treated as orders
+("what is a couch" built a couch), "another one" had no previous request, the topic rule swallowed "Skippy is the moon heavier than earth", a non-Latin wake name was not normalised in the scorer. The stress set was written in one sitting and run once: 5 of 49 wrong, all one bug (a bare "Skippy" got no answer: now he answers his own name). The synthetic contexts
+are my idea of how people behave; only a real afternoon with people measures the false-wake rate that matters.
+**A bug found on the way, fixed:** `water/intent.lua` read "like" as a typo of "lake": "add a couch like this one", "make it look like a house", "a lamp like that" made a LAKE ("lace", "pour", "pole", "pull" too); a list of real words that are one edit from a water noun is now never read as one (`add a poll` stays a pool, as its test says).
+
+**Live pass (2026-10-13, hands-off; `python stage/gmod/holodeck/turns_live.py`, tool `tools/turns_live.lua`, result `data/turns_live_result.json`).** A dedicated server (no window, no mouse, no focus taken; checked first that no hl2 / gmod / srcds was running; none left), two helper bots as the players "Alice" (the caller; a captain through `captain_sids.txt`) and "Bob" standing close to her, every line through the real chat hook
+(PlayerSay) or the voice path's entry (`Holodeck.Handle` with the source "voice" / "ptt"), the real bridge in this process with its own temporary state, the frontier model `claude-sonnet-5-5` with the key from the vault file (`key present: yes (vault file)`, never printed), and the local Ollama fallback available. Four runs; the first three found real defects (below); the fourth:
+
+| scene | line | decision | what happened |
+|---|---|---|---|
+| named command | "Skippy, add a couch" | yes / parser | a couch, "One couch." |
+| named question | "Skippy, why do things float in water" | yes / talk | frontier, 1 try, a correct buoyancy answer with a barb |
+| follow-up, no name, inside the window | "and why do some things sink then" | yes / talk (75) | frontier, 1 try |
+| chatter Bob to Alice, Alice to Bob | "did you see that jump", "lol nice one" | no / ignore | silent |
+| an order for Bob | "Bob, add a couch" | no / ignore (-94) | nothing built |
+| his name as a topic | "Skippy is silly" | no / ignore | silent |
+| the same follow-up after the window | "and why do some things sink then" | no / ignore | silent |
+| an order with no name | "add a lamp" | no / ignore | nothing built |
+| a maybe (looking at him, next to him, no name, no window) | "what is that hat made of" | maybe (39), tiebreak asked the small model: no | silent |
+| push-to-talk, a spoken line with his name, the console | "what can you build", "Skippy what is two plus two", "add a lamp" | yes | talk, talk, a lamp |
+| a bare name | "Skippy" | yes / talk | "You called? Say 'help' if you need the list." |
+| invalid model output (the driver makes the frontier model answer junk with an unknown field) | "Skippy, tell me about INVALIDOUTPUT please" | yes / talk | 3 attempts refused, the fallback line |
+| the same question again | "Skippy, why do things float in water" | yes / talk | cache, instant, no call |
+| the captain and a stranger | "how tall is a couch" / "... a lamp" | yes / talk | frontier, 1 try each (Alice's roast level savage, Bob's gentle: the captains' file was read live) |
+| sent away | "Skippy, go away" | | a sign-off line from the bank, then he left (`avatar active after: false`) |
+
+Run 4: 9 talk turns: 6 frontier (every one valid on the first try), 1 cache, 2 fallback (the bare name and the injected junk); 10 frontier calls (including 1 tiebreak), 7 668 input and 478 output tokens in all; 7 lines ignored; nothing built that should not have been. The captains' file of the dedicated server was backed up and restored byte for byte.
+**What the first three runs found (all fixed, each with a test):** (1) the current models refuse `temperature` (HTTP 400 "is deprecated for this model"): the first live call failed: no temperature is sent now, and an API refusal is logged with its own reason (never the key). (2) They think before answering by default and the thinking tokens come out of `max_tokens`: a 320-token budget came back with no text at all
+(several replies came back as "not a JSON object"): thinking is switched off in the way each model takes it (Sonnet `between_tools`, Haiku `disabled`), the other setting is tried once on a 400 about it, and the one that worked is remembered. (3) Replies ran over 25 words ("too long" three times in a row on a follow-up): the prompt now says a hard limit of 22 words and tightens on a retry,
+and a reply that still runs over is cut back to its whole leading sentences or clauses instead of being thrown away. (4) The fallback bank had "Use your words, monkey" (it blames the player; now banned by a test over every fallback line). (5) A reply said gravity was "point eight six of Earth's": the fact was computed from `sv_gravity` / 600, but Earth's gravity in the world is 515 HU/s2 (the engine default is 17 % stronger);
+the fact is now the world's own readback in m/s2 as a percent of Earth's (and no gravity fact at all when the world module is not running), and a number spelled out ("point eight", "half") is a physics quantity like a digit. (6) In run 3 the first call timed out (8 s, a cold connection) and the local model (qwen3:8b) answered: the fallback path, live.
+
+**Not verified.** How the replies SOUND in his voice; a second human on a real client; real players' gaze (the bots' view angles were set by the script, the angle arithmetic is unit tested); the tiebreak saying YES live (it said no once); a 401 pausing the frontier path (unit tested with a fake transport; the real key worked); a 429; the frontier latency over an afternoon (one call in ten took over 8 s);
+the 20-second window and the weights against real people (they are my choice, in one table, one edit from changing); whether the replies are funny; the cache hit rate (one in nine here). Design questions are at the end of the report that came with this work.
 
 ## Skippy's delivery (voice lab, 2026-10-13)
 

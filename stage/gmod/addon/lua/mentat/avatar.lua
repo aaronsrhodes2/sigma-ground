@@ -132,6 +132,7 @@ end
 -- ------------------------------------------------------------------------------------------------ calling and sending away
 --- Bring Skippy to `ply`. Returns true, or false and a reason.
 function Av.Summon(ply)
+  Av.summon_seq = (Av.summon_seq or 0) + 1        -- (a sign-off line still being said does not send away a Skippy called again meanwhile)
   if not cv_enabled:GetBool() then return false, "the avatar is switched off here" end
   if not is_player(ply) or not ply:Alive() then return false, "nobody to come to" end
   local bot, why = ensure_bot()
@@ -325,7 +326,16 @@ function Av.Command(ply, cmd, name)
     if Av.IsActive() then
       local mine = name and name ~= "skippy" and H and H.Wake and H.Wake.Wake and H.Wake.Wake.display(name)
       if mine and H.Tell then H.Tell(ply, "Fine, " .. mine .. ". Call me if you need me.", true)
-      else say("Fine. Call me if you need me.", cv_ack:GetBool()) end
+      else
+        local function canned() say("Fine. Call me if you need me.", cv_ack:GetBool()) end
+        -- director: a short sign-off line from the bank (he stays until it is said, at most a few seconds); else the canned one at once
+        local seq = Av.summon_seq
+        if not (Av.Director and Av.Director.Signoff and Av.Director.Signoff(ply, canned, function() if Av.summon_seq == seq and Av.IsActive() then Av.Dismiss() end end)) then
+          canned()
+          Av.Dismiss()
+        end
+        return
+      end
       Av.Dismiss()
     end
   end
@@ -368,6 +378,7 @@ local function install()
         if Av.Director and Av.Director.TryCommand and Av.Director.TryCommand(ply, said) then return nil end        -- (director: shush, roast me harder, what do you remember, forget that ...)
         local cmd = Logic.match_command(said)
         if cmd then Av.Command(ply, cmd, name); return nil end
+        if Av.Turns and Av.Turns.Intercept and Av.Turns.Intercept(ply, said, opts) then return nil end        -- (solid turns: was it for him? chat and questions go to the model route)
       end
       return orig(ply, text, opts)
     end
@@ -398,6 +409,7 @@ timer.Simple(0, install)
 timer.Create("Mentat.AvatarWrap", 2, 0, install)           -- a later Lua refresh of holodeck.lua brings back the plain functions
 
 Av.Director = include("mentat/avatar/director.lua")      -- Skippy alive: remarks, body language, the notebook (see director.lua)
+Av.Turns = include("mentat/avatar/turns.lua")            -- solid turns (A7b): who a line was for, and the model route for chat (see turns.lua)
 
 concommand.Add("skippy_come", function(ply) if is_player(ply) then Av.Command(ply, "summon") end end, nil, "Call Skippy to you")
 concommand.Add("skippy_go", function(ply) if is_player(ply) then Av.Command(ply, "dismiss") end end, nil, "Send Skippy away")

@@ -1759,8 +1759,8 @@ hook.Add("PlayerSay", "Holodeck.Chat", function(ply, text)
   local hide = ""                                                     -- a wake-name command is not shown to the other players (the name is private)
   if cv_wake:GetBool() then
     local ok, rest, name = H.Wake.strip(ply, text)
-    if not ok then return end                                         -- ordinary talk between players: leave it alone
-    local wopts = (name and name ~= "skippy") and { wake_name = name } or nil
+    if not ok then pcall(hook.Run, "HolodeckOverheard", ply, text); return end     -- ordinary talk between players: left alone (only Skippy's solid turns may judge it: a follow-up inside his conversation window)
+    local wopts = { src = "chat", woke = true, heard = text, wake_name = (name and name ~= "skippy") and name or nil }
     local secret = H.Wake.peek(ply, rest) ~= nil
     timer.Simple(0, function() if IsValid(ply) then H.Handle(ply, rest, wopts) end end)
     if secret then return hide end
@@ -1780,7 +1780,7 @@ net.Receive("holodeck_voice", function(_, ply)
   last_spoken[ply] = CurTime()
   local woke, rest, name = H.Wake.strip(ply, text)                    -- (the speaker's own names)
   if not woke then pcall(hook.Run, "HolodeckWakeMiss", ply) end        -- the microphone bridge heard a wake word, but none of this player's names came through
-  H.Handle(ply, woke and rest or text, (woke and name ~= "skippy") and { wake_name = name } or nil)
+  H.Handle(ply, woke and rest or text, { src = woke and "voice" or "ptt", woke = woke, heard = text, wake_name = (woke and name ~= "skippy") and name or nil })
 end)
 
 concommand.Add("holodeck", function(ply, _, args, line)

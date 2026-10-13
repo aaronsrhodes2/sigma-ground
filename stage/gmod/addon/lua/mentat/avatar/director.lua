@@ -123,12 +123,38 @@ local function set_pref(ply, key, value)
   Dr.SavePrefs()
 end
 
---- The roast level for this player: their own choice, else gentle (savage for the host of a listen server, single player, and the listed captains).
+-- The captains' file: data/mentat/captain_sids.txt, a plain .txt with one SteamID64 per line (blank lines and # comments allowed; never committed). Read through
+-- persist.lua's rules (a string value, a size cap, the .bak.txt fallback); a missing or unreadable file means no captains from the file. Re-read every 30 s.
+Dr.CAPTAIN_FILE = "mentat/captain_sids.txt"
+local captain_cache = { t = -1e9, set = {} }
+
+local function parse_captains(raw)
+  local set, n = {}, 0
+  for line in (tostring(raw) .. "\n"):gmatch("([^\r\n]*)[\r\n]") do
+    line = line:gsub("#.*$", ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if line ~= "" and Persist.sid_ok(line) and n < 200 then set[line] = true; n = n + 1 end
+  end
+  return set
+end
+Dr.parse_captains = parse_captains
+
+--- The SteamID64s listed in the captains' file (a set; empty when the file is missing).
+function Dr.CaptainSids()
+  local t = clock()
+  if t - captain_cache.t < 30 then return captain_cache.set end
+  captain_cache.t = t
+  captain_cache.set = Persist.load(Dr.CAPTAIN_FILE, parse_captains) or {}
+  return captain_cache.set
+end
+
+--- The roast level for this player: their own choice, else gentle (savage for the host of a listen server, single player, the ids in the convar
+--- mentat_skippy_captain_sids and the ids in data/mentat/captain_sids.txt).
 function Dr.DefaultRoast(ply)
   if not is_player(ply) then return "gentle" end
   if (ply.IsListenServerHost and ply:IsListenServerHost()) or (game.SinglePlayer and game.SinglePlayer()) then return "savage" end
   local me = sid_of(ply)
   for sid in CV.captains:GetString():gmatch("%d+") do if sid == me then return "savage" end end
+  if me and Dr.CaptainSids()[me] then return "savage" end
   return "gentle"
 end
 
@@ -433,6 +459,33 @@ function Dr.Arrival(ply, canned)
     log("arrive", ok, ok and "an arrival line" or why)
     if not ok and canned then canned() end
   end, true)
+  return true
+end
+
+--- He was sent away ("go away"): a short sign-off line from the bank (the same route as the arrival line: it is counted against the day's NEW lines only if it
+--- needs a new synthesis, and is text only when the budget is spent). He stays until it is said (at most a few seconds), then `finish()` sends him off.
+--- Returns true when the director took over (canned() runs only if no line comes), false when the caller should say the canned line and dismiss at once.
+function Dr.Signoff(ply, canned, finish)
+  local h = H()
+  if not CV.on:GetBool() or not CV.quips:GetBool() or not h or not h.BridgeAllow then return false end
+  local b = GetConVar("holodeck_bridge")
+  if not b or b:GetString() == "" then return false end
+  Dr.Cue("hat_tip", "musing")
+  local ev = { name = "dismiss", t0 = clock(), data = { ply = ply } }
+  local spoken, done = false, false
+  local function fin() if done then return end done = true; if finish then finish() end end
+  Dr.Quip(ply, ev, "dismiss", function(ok, why)
+    log("dismiss", ok, ok and "a sign-off line" or why)
+    if ok then
+      spoken = true
+      local dur = Dr.last_line and tonumber(Dr.last_line.dur) or 2
+      timer.Simple(math.max(1, math.min(dur, 5)) + 0.4, fin)
+    else
+      if canned and not done then canned() end
+      fin()
+    end
+  end, true)
+  timer.Simple(9, function() if not spoken and not done and canned then canned() end; fin() end)
   return true
 end
 

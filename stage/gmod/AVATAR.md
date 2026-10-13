@@ -135,6 +135,17 @@ Pictures: `holodeck/data/shots/dir_contact_sheet.jpg` (25 frames: `arrive`, `flo
 **Honest read:** it reads as alive from the front: the hat tip is unmistakable, he leans and turns on a flourish, the free hand swings and the figure sways while he sings, the head nods with the voice. It is a rigid doll, not a performance: the sleeve does not follow the conducting hand, there are no eyes or brows (the head is one mesh), and from the side the sway is less readable.
 **Only a person can verify:** the voice's prosody for capitals, stretched vowels and pauses (the Windows voice ran; ElevenLabs was unreachable), the pacing of remarks over a real afternoon, whether it is funny, the clip's 3D position by ear, a second human client, and the live model route (no Anthropic key on this machine; the local qwen3:8b passed the validators on 6 of 6 offline samples).
 
+## Solid turns (A7b, 2026-10-13): who a line was for, and a model route that never goes silent
+
+Built, tested offline and run live hands-off (dedicated server, two bots as players, the real bridge and the frontier model); the rules, the weights, the key handling, the caps, the caches, the corpus and its scores, and **what leaves the machine** are in `holodeck/README.md`, "Solid turns". What it adds to the avatar:
+
+* **`Holodeck.Handle` wrapper (avatar.lua):** after his own commands (come / go away, shush, roast level, notebook), `Mentat.Avatar.Turns.Intercept(ply, text, opts)` (`avatar/turns.lua`, rules in the pure `holodeck/turnlogic.lua`) decides whether the line was for him: his name at the start, push-to-talk and the console always; otherwise gaze at him, standing near him, and whether he spoke to the player in the last 20 s
+  (a follow-up needs no name), against chatter between humans, a line addressed to another player by name, and his name used as a topic. A maybe is never answered. A chat line without his name arrives by the new hook `HolodeckOverheard` (`holodeck.lua`'s chat hook); the chat and voice entry points now pass `{ src, woke, heard, wake_name }` in the options.
+* **Talk route:** what the parser does not own (chat, questions, "help", "thanks") goes to the bridge's `POST /turn`: a validated `{say, mood, action?}` from the frontier model, the local model, a cache, or a fallback line; an action is only "add one library kind 1 to 12 times" or "undo", re-checked in the game and run as a plain sentence through the parser.
+* **Sign-off:** "go away" now speaks a short sign-off line from the bank through the same `/quip` route as the arrival line (he stays until it is said, at most 9 s; the canned "Fine. Call me if you need me." if no line comes; a private wake name keeps its private goodbye). `Mentat.Director.Signoff`.
+* **Captains:** `Director.DefaultRoast` is savage for the listen-server host, the ids in `mentat_skippy_captain_sids`, and the SteamID64 lines of `data/mentat/captain_sids.txt` (a plain .txt, one id per line, read through `persist.lua`'s rules, a missing file tolerated, re-read every 30 s, never committed).
+* Switches: `mentat_skippy_turns 0` restores the old flow exactly; `holodeck_agent 0` forbids the model route. Console: `skippy_turn_log` (the last decisions: lengths, scores and reasons, never the words), `skippy_turns_status`. Tests: `test_gmod_turns_world.py`, `test_gmod_turns.py`.
+
 ## Live pass (2026-10-11): what the real game showed
 
 How it was run: `GMOD_DS_MAXPLAYERS=4 python stage/gmod/holodeck/run_tool.py avatar_live --timeout 300` (dedicated server, no human: one bot plays

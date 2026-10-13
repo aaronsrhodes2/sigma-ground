@@ -18,6 +18,11 @@ It runs on the machine that hosts the game server (or the game, for single playe
     POST /quip   {"situation": "beam_fail", "roast": "gentle", "notes": [...], "facts": {...}, "daily_limit": 20}
                  -> a line he says unprompted: audio/mpeg (metadata in X-Skippy-Quip) or JSON text-only; at most daily_limit NEW lines a
                  day, never a repeat, a model's line validated (all of it in skippy_quips.py; stage/gmod/holodeck/README.md "Skippy alive")
+    POST /turn   {"kind": "talk", "text": "what can you do", "roast": "gentle", "facts": [...], "sit": "g=norm", "strip": ["Bob"], "frontier_cap": 300, "timeout": 8}
+                 -> {"ok": true, "say": "...", "mood": "helpful", "action": null | {"name":"add","kind":"couch","count":2} | {"name":"undo"}, "source": "frontier|local|cache|bank|fallback"}
+                 Solid LLM turns (skippy_turns.py, stage/gmod/holodeck/README.md "Solid turns"): a validated {say, mood, action?} from the frontier model (Anthropic Messages API, the key
+                 from ANTHROPIC_API_KEY or the vault file, never printed), else the local model, else a short in-character line: never silence. {"kind": "tiebreak"} asks the small model
+                 whether a "maybe" line was for him (budget-limited, default no); {"kind": "status"} reports the key (yes/no, where from), the caps and the day's counts.
     POST /resolve {"noun": "fire hydrant", "audience": "game", "who": "..."}
                  -> {"ok": true, "place": bool, "status": "exact|alias|synonym|closest|not_found|too_big|needs_size|...",
                      "say": "<Skippy's honest sentence>", "kind": <a planner kind (Hammer units) or null>, "card": <summary or null>}
@@ -102,6 +107,8 @@ def _env_int(name: str, default: int) -> int:
 
 OLLAMA = os.environ.get("SKIPPY_OLLAMA", "http://127.0.0.1:11434")
 MODEL = os.environ.get("SKIPPY_MODEL", "qwen3:8b")
+if MODEL.startswith("claude-"):          # a frontier id in SKIPPY_MODEL is for skippy_turns.py (the Messages API); the local Ollama model stays qwen3:8b
+    MODEL = "qwen3:8b"
 SKIPPYTEL = os.environ.get("SKIPPY_TEL", "http://127.0.0.1:3003")
 # the persona lives in the SkippyTel checkout next to this repo; SKIPPY_PERSONA points anywhere else
 PERSONA_PATH = Path(os.environ.get("SKIPPY_PERSONA", str(HERE.parents[3] / "SkippyTel" / "services" / "flask-api" / "app" / "skippy_persona.md")))
@@ -1768,6 +1775,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, mesh_payload(body.get("card"), body.get("key"), _ctx.cancel, _ctx.deadline))
             except ValueError as e:
                 return self._json(400, {"ok": False, "error": str(e)[:200]})
+        if self.path == "/turn":                              # solid LLM turns: a validated model reply, cached, capped, never silent (skippy_turns.py)
+            import skippy_turns
+            return skippy_turns.route(self, body, who, sys.modules[__name__])
         if self.path == "/quip":                              # Skippy's whim lines: daily budget, no repeats, journal notes (skippy_quips.py)
             import skippy_quips
             return skippy_quips.route(self, body, who, sys.modules[__name__])

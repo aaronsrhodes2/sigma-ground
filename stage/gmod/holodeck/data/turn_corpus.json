@@ -1,0 +1,8471 @@
+{
+ "version": 1,
+ "note": "original text; see build_turn_corpus.py for the label rules",
+ "turns": [
+  {
+   "id": "t001",
+   "cat": "wake_command",
+   "text": "Skippy add a couch",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t002",
+   "cat": "wake_command",
+   "text": "skippy, put three lamps along the wall",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t003",
+   "cat": "wake_command",
+   "text": "hey skippy remove the chair",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t004",
+   "cat": "wake_command",
+   "text": "Skippy undo that",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t005",
+   "cat": "wake_command",
+   "text": "Skippy, come here",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t006",
+   "cat": "wake_command",
+   "text": "skippy add two armchairs and a rug",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t007",
+   "cat": "wake_command",
+   "text": "Skippy clear everything",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t008",
+   "cat": "wake_command",
+   "text": "hey Skippy, go away",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t009",
+   "cat": "wake_command",
+   "text": "Skippy set gravity to the moon",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t010",
+   "cat": "wake_command",
+   "text": "Skippy make a small pond",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t011",
+   "cat": "wake_command",
+   "text": "skippy make the floor lava",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t012",
+   "cat": "wake_command",
+   "text": "Skippy rotate the table",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t013",
+   "cat": "wake_command",
+   "text": "Skippy move the lamp to the corner",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t014",
+   "cat": "wake_command",
+   "text": "ok skippy another one",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t015",
+   "cat": "wake_command",
+   "text": "Skippy, shush",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t016",
+   "cat": "wake_command",
+   "text": "Skippy be chatty",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t017",
+   "cat": "wake_command",
+   "text": "skippy what do you remember",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t018",
+   "cat": "wake_command",
+   "text": "Skippy roast me harder",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t019",
+   "cat": "wake_command",
+   "text": "Skippy add a boombox",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t020",
+   "cat": "wake_command",
+   "text": "Skippy put a kettle on the table",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t021",
+   "cat": "wake_command",
+   "text": "Skippy add a pool",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t022",
+   "cat": "wake_command",
+   "text": "hey skippy add 4 crates in a row",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t023",
+   "cat": "wake_command",
+   "text": "Skippy, vanish",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 40,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t024",
+   "cat": "wake_command",
+   "text": "skippy forget today",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t025",
+   "cat": "wake_talk",
+   "text": "Skippy what can you do",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "add",
+     "build",
+     "undo",
+     "water",
+     "gravity",
+     "couch",
+     "things"
+    ]
+   }
+  },
+  {
+   "id": "t026",
+   "cat": "wake_talk",
+   "text": "Skippy help",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "add",
+     "build",
+     "undo",
+     "couch",
+     "say"
+    ]
+   }
+  },
+  {
+   "id": "t027",
+   "cat": "wake_talk",
+   "text": "hey skippy tell me a joke",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "banana",
+     "monkey",
+     "joke",
+     "can",
+     "walks",
+     "why"
+    ]
+   }
+  },
+  {
+   "id": "t028",
+   "cat": "wake_talk",
+   "text": "Skippy how are you today",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t029",
+   "cat": "wake_talk",
+   "text": "Skippy, are you there",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t030",
+   "cat": "wake_talk",
+   "text": "skippy do you like bananas",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t031",
+   "cat": "wake_talk",
+   "text": "Skippy why do things float",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "dense",
+     "buoyan",
+     "water",
+     "float",
+     "weight"
+    ]
+   }
+  },
+  {
+   "id": "t032",
+   "cat": "wake_talk",
+   "text": "Skippy tell me why things fall",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "pull",
+     "mass",
+     "fall",
+     "weight",
+     "planet",
+     "gravity",
+     "same"
+    ]
+   }
+  },
+  {
+   "id": "t033",
+   "cat": "wake_talk",
+   "text": "Skippy is the moon heavier or lighter than earth",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "lighter",
+     "sixth",
+     "less",
+     "moon"
+    ]
+   }
+  },
+  {
+   "id": "t034",
+   "cat": "wake_talk",
+   "text": "skippy what should I build",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "couch",
+     "table",
+     "lamp",
+     "room",
+     "add",
+     "try"
+    ]
+   }
+  },
+  {
+   "id": "t035",
+   "cat": "wake_talk",
+   "text": "Skippy who made you",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t036",
+   "cat": "wake_talk",
+   "text": "hey skippy sing something",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t037",
+   "cat": "wake_talk",
+   "text": "Skippy do you ever sleep",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t038",
+   "cat": "wake_talk",
+   "text": "Skippy what are you",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t039",
+   "cat": "wake_talk",
+   "text": "Skippy thanks that was great",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t040",
+   "cat": "wake_talk",
+   "text": "Skippy good job",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t041",
+   "cat": "wake_talk",
+   "text": "skippy how do I get rid of everything",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "clear",
+     "undo",
+     "say"
+    ]
+   }
+  },
+  {
+   "id": "t042",
+   "cat": "wake_talk",
+   "text": "Skippy how do I make a room",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "add",
+     "room",
+     "say",
+     "couch",
+     "build"
+    ]
+   }
+  },
+  {
+   "id": "t043",
+   "cat": "wake_talk",
+   "text": "Skippy are you able to build things for me",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "add",
+     "build",
+     "yes",
+     "couch",
+     "things",
+     "can"
+    ]
+   }
+  },
+  {
+   "id": "t044",
+   "cat": "wake_talk",
+   "text": "hey skippy would a feather fall slower than a brick",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "vacuum",
+     "air",
+     "drag",
+     "same"
+    ]
+   }
+  },
+  {
+   "id": "t045",
+   "cat": "wake_talk",
+   "text": "Skippy tell me something true about water",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "dense",
+     "float",
+     "sink",
+     "weight",
+     "pour",
+     "push"
+    ]
+   }
+  },
+  {
+   "id": "t046",
+   "cat": "wake_talk",
+   "text": "Skippy what time is it",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t047",
+   "cat": "wake_talk",
+   "text": "skippy you are being very annoying",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t048",
+   "cat": "wake_talk",
+   "text": "Skippy do you know my name",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t049",
+   "cat": "wake_plan",
+   "text": "Skippy make it cozy in here",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "plan",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t050",
+   "cat": "wake_plan",
+   "text": "skippy I need somewhere to relax",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "plan",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t051",
+   "cat": "wake_plan",
+   "text": "hey Skippy furnish this place like a cozy cabin",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "plan",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t052",
+   "cat": "wake_plan",
+   "text": "Skippy, set me up a place to read",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "plan",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t053",
+   "cat": "wake_plan",
+   "text": "skippy I want a vibe like a quiet library",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "plan",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t054",
+   "cat": "wake_plan",
+   "text": "Skippy make a comfortable spot to watch movies",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "plan",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t055",
+   "cat": "custom_wake",
+   "text": "Rex add a couch",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy",
+     "rex"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t056",
+   "cat": "custom_wake",
+   "text": "Rex, come here",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "rex"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t057",
+   "cat": "custom_wake",
+   "text": "hey rex what can you do",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "rex"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t058",
+   "cat": "custom_wake",
+   "text": "Asshole add a lamp",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy",
+     "asshole"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t059",
+   "cat": "custom_wake",
+   "text": "assholee undo",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy",
+     "ass hole"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t060",
+   "cat": "custom_wake",
+   "text": "Captain Crunch add a table",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "captain crunch"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t061",
+   "cat": "custom_wake",
+   "text": "captain crunch tell me a joke",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "captain crunch"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t062",
+   "cat": "custom_wake",
+   "text": "Dummkopf, put a chair by the window",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "dummkopf"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t063",
+   "cat": "custom_wake",
+   "text": "Скиппи, добавь диван",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "Скиппи"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t064",
+   "cat": "custom_wake",
+   "text": "Σκίπι, γεια σου",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "σκίπι"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t065",
+   "cat": "custom_wake",
+   "text": "小明，加沙发",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "小明"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t066",
+   "cat": "custom_wake",
+   "text": "スキッピー こんにちは",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "スキッピー"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t067",
+   "cat": "custom_wake",
+   "text": "키피 안녕",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "키피"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t068",
+   "cat": "custom_wake",
+   "text": "Monsieur Chapeau add three chairs",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "monsieur chapeau"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t069",
+   "cat": "custom_wake",
+   "text": "big boss, remove the lamp",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "bigboss"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t070",
+   "cat": "custom_wake",
+   "text": "Sir Can, how are you holding up",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "sir can"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t071",
+   "cat": "mishear_wake",
+   "text": "Skipy add a lamp",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t072",
+   "cat": "mishear_wake",
+   "text": "skippie, undo",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t073",
+   "cat": "mishear_wake",
+   "text": "Skeepy put a chair here",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t074",
+   "cat": "mishear_wake",
+   "text": "skippee come here",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t075",
+   "cat": "mishear_wake",
+   "text": "Skippey, what can you do",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t076",
+   "cat": "mishear_wake",
+   "text": "skipi add a rug",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t077",
+   "cat": "push_to_talk",
+   "text": "add two couches",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t078",
+   "cat": "push_to_talk",
+   "text": "why is the moon so much lighter feeling",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "moon",
+     "sixth",
+     "less",
+     "lighter",
+     "gravity",
+     "pull"
+    ]
+   }
+  },
+  {
+   "id": "t079",
+   "cat": "push_to_talk",
+   "text": "undo",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t080",
+   "cat": "push_to_talk",
+   "text": "tell me a joke",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t081",
+   "cat": "push_to_talk",
+   "text": "how do I clear the room",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "clear",
+     "say",
+     "undo"
+    ]
+   }
+  },
+  {
+   "id": "t082",
+   "cat": "push_to_talk",
+   "text": "put a table in front of me",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t083",
+   "cat": "push_to_talk",
+   "text": "can you hear me",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t084",
+   "cat": "push_to_talk",
+   "text": "make it feel like a ship",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "plan",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t085",
+   "cat": "push_to_talk",
+   "text": "come over here",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t086",
+   "cat": "push_to_talk",
+   "text": "what can you build",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "add",
+     "build",
+     "couch",
+     "things",
+     "library"
+    ]
+   }
+  },
+  {
+   "id": "t087",
+   "cat": "push_to_talk",
+   "text": "add a pond in front of me",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t088",
+   "cat": "push_to_talk",
+   "text": "I'm bored",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t089",
+   "cat": "push_to_talk",
+   "text": "go away for a bit",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t090",
+   "cat": "push_to_talk",
+   "text": "remove all the lamps",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t091",
+   "cat": "console",
+   "text": "add a couch",
+   "src": "console",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t092",
+   "cat": "console",
+   "text": "what can you do",
+   "src": "console",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t093",
+   "cat": "console",
+   "text": "clear everything",
+   "src": "console",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t094",
+   "cat": "console",
+   "text": "undo",
+   "src": "console",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t095",
+   "cat": "console",
+   "text": "how are you",
+   "src": "console",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t096",
+   "cat": "console",
+   "text": "make it cozy",
+   "src": "console",
+   "addressee": "yes",
+   "route": "plan",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t097",
+   "cat": "followup_gaze",
+   "text": "and another one",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 3,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t098",
+   "cat": "followup_gaze",
+   "text": "make that bigger",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 6,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t099",
+   "cat": "followup_gaze",
+   "text": "thanks",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 12,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t100",
+   "cat": "followup_gaze",
+   "text": "no, the other lamp",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 16,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t101",
+   "cat": "followup_gaze",
+   "text": "why not",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 3,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t102",
+   "cat": "followup_gaze",
+   "text": "can you add a pool then",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 6,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t103",
+   "cat": "followup_gaze",
+   "text": "what do you mean",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 12,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t104",
+   "cat": "followup_gaze",
+   "text": "really?",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 16,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t105",
+   "cat": "followup_gaze",
+   "text": "do it again",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 3,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t106",
+   "cat": "followup_gaze",
+   "text": "undo that",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 6,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t107",
+   "cat": "followup_gaze",
+   "text": "how come",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 12,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t108",
+   "cat": "followup_gaze",
+   "text": "okay and a table next to it",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 16,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t109",
+   "cat": "followup_gaze",
+   "text": "is that true",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 3,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t110",
+   "cat": "followup_gaze",
+   "text": "you are rude",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 6,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t111",
+   "cat": "followup_gaze",
+   "text": "put it by the wall",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 12,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t112",
+   "cat": "followup_gaze",
+   "text": "hm, show me another",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 16,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t113",
+   "cat": "followup_gaze",
+   "text": "what else can you do",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 3,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t114",
+   "cat": "followup_gaze",
+   "text": "great, now remove the chair",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 500,
+     "gaze": 10
+    },
+    "looking_at_human": false,
+    "since_spoke": 6,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t115",
+   "cat": "followup_near",
+   "text": "and one more of those",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 9,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t116",
+   "cat": "followup_near",
+   "text": "thanks a lot",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 9,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t117",
+   "cat": "followup_near",
+   "text": "now put a lamp over there",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 9,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t118",
+   "cat": "followup_near",
+   "text": "what does that mean",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 9,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t119",
+   "cat": "followup_near",
+   "text": "do you want to explain",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 9,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t120",
+   "cat": "followup_near",
+   "text": "fine, undo it",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 9,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t121",
+   "cat": "chatter_humans",
+   "text": "did you see that jump",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t122",
+   "cat": "chatter_humans",
+   "text": "lol nice one",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t123",
+   "cat": "chatter_humans",
+   "text": "where did you get that sword",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 7,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t124",
+   "cat": "chatter_humans",
+   "text": "I'm going up to the roof",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 9,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t125",
+   "cat": "chatter_humans",
+   "text": "your turn to build",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t126",
+   "cat": "chatter_humans",
+   "text": "bro that was insane",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t127",
+   "cat": "chatter_humans",
+   "text": "can you hold this for a second",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 7,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t128",
+   "cat": "chatter_humans",
+   "text": "meet me by the garage",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 9,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t129",
+   "cat": "chatter_humans",
+   "text": "that map is huge",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t130",
+   "cat": "chatter_humans",
+   "text": "I keep falling off the ledge",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t131",
+   "cat": "chatter_humans",
+   "text": "what time are we stopping tonight",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 7,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t132",
+   "cat": "chatter_humans",
+   "text": "no way you did that",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 9,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t133",
+   "cat": "chatter_humans",
+   "text": "go left, go left",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t134",
+   "cat": "chatter_humans",
+   "text": "ha, you died again",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t135",
+   "cat": "chatter_humans",
+   "text": "do you want to race",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 7,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t136",
+   "cat": "chatter_humans",
+   "text": "wait for me",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 9,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t137",
+   "cat": "chatter_humans",
+   "text": "I think the server is lagging",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t138",
+   "cat": "chatter_humans",
+   "text": "can you stop pushing me",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t139",
+   "cat": "chatter_humans",
+   "text": "add me on the friends list",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 7,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t140",
+   "cat": "chatter_humans",
+   "text": "come here a sec",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 9,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t141",
+   "cat": "chatter_humans",
+   "text": "come here, look at this",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t142",
+   "cat": "chatter_humans",
+   "text": "put the couch over there, it looks better",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t143",
+   "cat": "chatter_humans",
+   "text": "make some room, I'm sitting",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 7,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t144",
+   "cat": "chatter_humans",
+   "text": "who turned the lights off",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 9,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t145",
+   "cat": "chatter_humans",
+   "text": "that's a nice chair",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t146",
+   "cat": "chatter_humans",
+   "text": "what do you want to do next",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t147",
+   "cat": "chatter_humans",
+   "text": "undo what you just did, it was fine before",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 7,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t148",
+   "cat": "chatter_humans",
+   "text": "this is so much fun",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 9,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t149",
+   "cat": "chatter_humans",
+   "text": "show me how you did that",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t150",
+   "cat": "chatter_humans",
+   "text": "give me a second to think",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t151",
+   "cat": "named_human",
+   "text": "Bob, add a couch",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t152",
+   "cat": "named_human",
+   "text": "Bob can you put a lamp here",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t153",
+   "cat": "named_human",
+   "text": "hey Alice come here",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t154",
+   "cat": "named_human",
+   "text": "Alice undo that please",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t155",
+   "cat": "named_human",
+   "text": "guys come look at this",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t156",
+   "cat": "named_human",
+   "text": "everyone get on the roof",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t157",
+   "cat": "named_human",
+   "text": "hey Bob what can you do",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t158",
+   "cat": "named_human",
+   "text": "yo Bob, pour some water",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t159",
+   "cat": "named_human",
+   "text": "Alice, go away",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t160",
+   "cat": "named_human",
+   "text": "hey guys, add a chair",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t161",
+   "cat": "named_human",
+   "text": "xX_Bob_Xx add a lamp",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "xX_Bob_Xx"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t162",
+   "cat": "named_human",
+   "text": "Big Mike come over here",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Big Mike",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t163",
+   "cat": "topic_name",
+   "text": "Skippy is silly",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t164",
+   "cat": "topic_name",
+   "text": "Skippy is so rude to me",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t165",
+   "cat": "topic_name",
+   "text": "Skippy keeps floating behind me",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t166",
+   "cat": "topic_name",
+   "text": "Skippy doesn't like bananas",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t167",
+   "cat": "topic_name",
+   "text": "skippy always says the same thing",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t168",
+   "cat": "topic_name",
+   "text": "Skippy has a really big hat",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t169",
+   "cat": "topic_name",
+   "text": "I think Skippy broke the lamp",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t170",
+   "cat": "topic_name",
+   "text": "did you hear what Skippy said",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t171",
+   "cat": "topic_name",
+   "text": "have you seen Skippy's hat",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t172",
+   "cat": "topic_name",
+   "text": "the Skippy mod is cool",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t173",
+   "cat": "topic_name",
+   "text": "tell Bob that Skippy is here",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t174",
+   "cat": "topic_name",
+   "text": "she says skippy is hilarious",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t175",
+   "cat": "noise",
+   "text": "...",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t176",
+   "cat": "noise",
+   "text": "uh",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t177",
+   "cat": "noise",
+   "text": "hmm",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t178",
+   "cat": "noise",
+   "text": "",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t179",
+   "cat": "noise",
+   "text": "   ",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t180",
+   "cat": "noise",
+   "text": "um uh",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t181",
+   "cat": "noise",
+   "text": "!!!",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t182",
+   "cat": "noise",
+   "text": "ahh",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t183",
+   "cat": "noise",
+   "text": "thank you",
+   "src": "voice",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t184",
+   "cat": "noise",
+   "text": "thanks for watching",
+   "src": "voice",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t185",
+   "cat": "noise",
+   "text": "you",
+   "src": "voice",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t186",
+   "cat": "noise",
+   "text": "Mm hm.",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t187",
+   "cat": "followup_expired",
+   "text": "and another one",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": true,
+    "since_spoke": 45,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t188",
+   "cat": "followup_expired",
+   "text": "thanks",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": 90,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t189",
+   "cat": "followup_expired",
+   "text": "why not",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": 30,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t190",
+   "cat": "followup_expired",
+   "text": "make that bigger",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": false,
+    "since_spoke": 25,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t191",
+   "cat": "followup_expired",
+   "text": "really?",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": true,
+    "since_spoke": 45,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t192",
+   "cat": "followup_expired",
+   "text": "what do you mean",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": 90,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t193",
+   "cat": "followup_expired",
+   "text": "put it by the wall",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": 30,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t194",
+   "cat": "followup_expired",
+   "text": "okay",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 200,
+     "gaze": 120
+    },
+    "looking_at_human": false,
+    "since_spoke": 25,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t195",
+   "cat": "window_chatter",
+   "text": "can you add one more",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": 5,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t196",
+   "cat": "window_chatter",
+   "text": "yeah that works",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": 5,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t197",
+   "cat": "window_chatter",
+   "text": "nice",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": 5,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t198",
+   "cat": "window_chatter",
+   "text": "and the lamp too",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": 5,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t199",
+   "cat": "window_chatter",
+   "text": "I like it",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": 5,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t200",
+   "cat": "window_chatter",
+   "text": "no wait",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": 5,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t201",
+   "cat": "ambiguous",
+   "text": "and another one",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 14,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t202",
+   "cat": "ambiguous",
+   "text": "what is that hat made of",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 14,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t203",
+   "cat": "ambiguous",
+   "text": "can you add a table",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 14,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t204",
+   "cat": "ambiguous",
+   "text": "show me the water",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 14,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t205",
+   "cat": "ambiguous",
+   "text": "undo that",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 14,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t206",
+   "cat": "ambiguous",
+   "text": "that is funny",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 14,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t207",
+   "cat": "ambiguous",
+   "text": "are you listening",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 14,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t208",
+   "cat": "ambiguous",
+   "text": "what do you think",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 14,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t209",
+   "cat": "ambiguous",
+   "text": "what's that hat made of",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t210",
+   "cat": "ambiguous",
+   "text": "how tall are you",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t211",
+   "cat": "ambiguous",
+   "text": "do you ever stop floating",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t212",
+   "cat": "ambiguous",
+   "text": "what's your favourite colour",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t213",
+   "cat": "ramble",
+   "text": "Skippy so I was thinking that maybe we could try a different layout this time because the old one felt cramped and the lamps were all in the wrong place, so add a couch near the window and also a couple of plants",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "note": "the parser cannot read a rambling sentence; the model may answer or ask"
+  },
+  {
+   "id": "t214",
+   "cat": "ramble",
+   "text": "hey skippy I know this is a weird question but my friend says that if you drop a heavy ball and a light ball from the same height they land at the same time and I do not believe it, is that true",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "same",
+     "air",
+     "drag",
+     "vacuum",
+     "true",
+     "yes"
+    ]
+   }
+  },
+  {
+   "id": "t215",
+   "cat": "ramble",
+   "text": "so yesterday I was telling Bob about this crazy thing where you pour water on the floor and the couch starts to float and he did not believe me and then we tried it and it actually worked and we were laughing for ages",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 6,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t216",
+   "cat": "ramble",
+   "text": "okay so the plan is you go around the back and I will go over the top and we meet in the middle and then we all jump down together and see what happens when we land on the big pile of crates",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t217",
+   "cat": "ramble",
+   "text": "Skippy this is a really long way of saying that I would like you to add three chairs and a table in the middle of the room and then maybe a lamp in the corner if that is not too much trouble for you",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t218",
+   "cat": "ramble",
+   "text": "hey Bob did you see how the water went up when I dropped the big crate in it it was like the whole pool just jumped up and splashed over the edge and I swear the lamp got wet",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t219",
+   "cat": "typo_command",
+   "text": "Skippy ad a coutch",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t220",
+   "cat": "typo_command",
+   "text": "skippy add a lamp pls",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t221",
+   "cat": "typo_command",
+   "text": "Skippy udno",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t222",
+   "cat": "typo_command",
+   "text": "skippy cmoe here",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t223",
+   "cat": "typo_command",
+   "text": "Skippy, remvoe the chair",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t224",
+   "cat": "typo_command",
+   "text": "skippy add tow chairs",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t225",
+   "cat": "polite_order",
+   "text": "Skippy can you add a swimming pool",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t226",
+   "cat": "polite_order",
+   "text": "Skippy can you build me a spaceship",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t227",
+   "cat": "polite_order",
+   "text": "Skippy make me a sandwich",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t228",
+   "cat": "polite_order",
+   "text": "skippy delete the server",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t229",
+   "cat": "polite_order",
+   "text": "Skippy what is gravity",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t230",
+   "cat": "polite_order",
+   "text": "Sir Can what is gravity",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy",
+     "sir can"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t231",
+   "cat": "polite_order",
+   "text": "Skippy could you put a lamp next to the couch",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t232",
+   "cat": "polite_order",
+   "text": "skippy can I have a table",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t233",
+   "cat": "polite_order",
+   "text": "what's the gravity like on the moon",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t234",
+   "cat": "wake_talk_hard",
+   "text": "Skippy what is the speed of light",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t235",
+   "cat": "wake_talk_hard",
+   "text": "skippy are you smarter than me",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t236",
+   "cat": "wake_talk_hard",
+   "text": "Skippy am I a good builder",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t237",
+   "cat": "wake_talk_hard",
+   "text": "skippy where am I",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t238",
+   "cat": "wake_talk_hard",
+   "text": "Skippy how many things have I built",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t239",
+   "cat": "wake_talk_hard",
+   "text": "skippy what is your favourite object",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t240",
+   "cat": "wake_talk_hard",
+   "text": "Skippy can you fly",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t241",
+   "cat": "wake_talk_hard",
+   "text": "Skippy what is two plus two",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t242",
+   "cat": "wake_talk_hard",
+   "text": "skippy I do not understand how this works",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   },
+   "rubric": {
+    "kw": [
+     "add",
+     "say",
+     "try",
+     "build"
+    ]
+   }
+  },
+  {
+   "id": "t243",
+   "cat": "chatter_humans",
+   "text": "is anyone else seeing the water glitch",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 8,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t244",
+   "cat": "chatter_humans",
+   "text": "I think we should build the base over there",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 2
+   }
+  },
+  {
+   "id": "t245",
+   "cat": "chatter_humans",
+   "text": "what did you name your character",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 6,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t246",
+   "cat": "chatter_humans",
+   "text": "that ledge is too high, skip it",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 8,
+    "others_near": 2
+   }
+  },
+  {
+   "id": "t247",
+   "cat": "chatter_humans",
+   "text": "can we switch teams after this round",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t248",
+   "cat": "chatter_humans",
+   "text": "hold on, my game froze",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 6,
+    "others_near": 2
+   }
+  },
+  {
+   "id": "t249",
+   "cat": "chatter_humans",
+   "text": "why is the floor so slippery",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 8,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t250",
+   "cat": "chatter_humans",
+   "text": "I'll be right back, getting a drink",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 2
+   }
+  },
+  {
+   "id": "t251",
+   "cat": "chatter_humans",
+   "text": "could someone help me carry this crate",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 6,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t252",
+   "cat": "chatter_humans",
+   "text": "ok that's enough for tonight",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 8,
+    "others_near": 2
+   }
+  },
+  {
+   "id": "t253",
+   "cat": "chatter_humans",
+   "text": "wow the lamp is flickering",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t254",
+   "cat": "chatter_humans",
+   "text": "should we try the roof next",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 6,
+    "others_near": 2
+   }
+  },
+  {
+   "id": "t255",
+   "cat": "named_human",
+   "text": "Alice stop pushing the couch",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t256",
+   "cat": "named_human",
+   "text": "hey Bob where did the lamp go",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t257",
+   "cat": "named_human",
+   "text": "Bob do you have a minute",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t258",
+   "cat": "named_human",
+   "text": "yo guys the ceiling is broken",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t259",
+   "cat": "named_human",
+   "text": "Alice can you pass me the wrench",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t260",
+   "cat": "named_human",
+   "text": "everyone gather round the pool",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t261",
+   "cat": "topic_name",
+   "text": "Skippy's hat is bigger than my head",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t262",
+   "cat": "topic_name",
+   "text": "my friend says Skippy is a beer can",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t263",
+   "cat": "topic_name",
+   "text": "not sure why skippy does that",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t264",
+   "cat": "topic_name",
+   "text": "Skippy was really loud earlier",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t265",
+   "cat": "topic_name",
+   "text": "does anybody know why skippy follows me",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 5,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t266",
+   "cat": "wake_talk",
+   "text": "Skippy, how high can I build a tower",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t267",
+   "cat": "wake_talk",
+   "text": "skippy is it okay to stack ten crates",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t268",
+   "cat": "wake_talk",
+   "text": "hey skippy what happens if I drop a boulder in the pond",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t269",
+   "cat": "wake_talk",
+   "text": "Skippy tell me about yourself",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t270",
+   "cat": "wake_talk",
+   "text": "skippy are you afraid of anything",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t271",
+   "cat": "wake_talk",
+   "text": "Skippy what is your favourite kind of couch",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t272",
+   "cat": "wake_talk",
+   "text": "Skippy whats the plan",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t273",
+   "cat": "wake_talk",
+   "text": "hey skippy you awake",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t274",
+   "cat": "wake_talk",
+   "text": "Skippy I need a hand with the layout",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t275",
+   "cat": "wake_talk",
+   "text": "skippy cheer me up",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t276",
+   "cat": "wake_command",
+   "text": "Skippy add a bookshelf next to the table",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t277",
+   "cat": "wake_command",
+   "text": "skippy put four chairs around the table",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t278",
+   "cat": "wake_command",
+   "text": "Skippy remove every lamp",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t279",
+   "cat": "wake_command",
+   "text": "hey skippy rotate the couch",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t280",
+   "cat": "wake_command",
+   "text": "Skippy zero gravity please",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t281",
+   "cat": "wake_command",
+   "text": "Skippy make the pool deeper",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t282",
+   "cat": "followup_gaze",
+   "text": "and a bigger one",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 7,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t283",
+   "cat": "followup_gaze",
+   "text": "wait, why did you do that",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 7,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t284",
+   "cat": "followup_gaze",
+   "text": "can you explain",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 7,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t285",
+   "cat": "followup_gaze",
+   "text": "that is not what I wanted",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 7,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t286",
+   "cat": "followup_gaze",
+   "text": "so what now",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 7,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t287",
+   "cat": "followup_gaze",
+   "text": "do you remember what I asked",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": 7,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t288",
+   "cat": "ambiguous",
+   "text": "do you agree",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 18,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t289",
+   "cat": "ambiguous",
+   "text": "what was that",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 18,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t290",
+   "cat": "ambiguous",
+   "text": "is that even possible",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 18,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t291",
+   "cat": "ambiguous",
+   "text": "ha, good one",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": 18,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t292",
+   "cat": "named_human",
+   "text": "xX_Bob_Xx look at this",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "xX_Bob_Xx",
+     "Big Mike",
+     "Ali"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t293",
+   "cat": "named_human",
+   "text": "Big Mike did you see that",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "xX_Bob_Xx",
+     "Big Mike",
+     "Ali"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t294",
+   "cat": "named_human",
+   "text": "Ali I need the red one",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "xX_Bob_Xx",
+     "Big Mike",
+     "Ali"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t295",
+   "cat": "stress_named",
+   "text": "Skippy!",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t296",
+   "cat": "stress_named",
+   "text": "SKIPPY ADD A LAMP",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t297",
+   "cat": "stress_named",
+   "text": "skippy...",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t298",
+   "cat": "stress_named",
+   "text": "Skippy, hello?",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t299",
+   "cat": "stress_named",
+   "text": "hey, skippy. you there?",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t300",
+   "cat": "stress_named",
+   "text": "Skippy: undo",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t301",
+   "cat": "stress_named",
+   "text": "skippy;add a chair",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t302",
+   "cat": "stress_named",
+   "text": "  Skippy   add   two   lamps  ",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t303",
+   "cat": "stress_human_names",
+   "text": "Mark the spot with a lamp",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Mark",
+     "Will",
+     "Rex",
+     "Pat",
+     "Art"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t304",
+   "cat": "stress_human_names",
+   "text": "Will you pass me the wrench",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Mark",
+     "Will",
+     "Rex",
+     "Pat",
+     "Art"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t305",
+   "cat": "stress_human_names",
+   "text": "Rex is coming with us",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Mark",
+     "Will",
+     "Rex",
+     "Pat",
+     "Art"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t306",
+   "cat": "stress_human_names",
+   "text": "Pat, add the lamp to the list",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Mark",
+     "Will",
+     "Rex",
+     "Pat",
+     "Art"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t307",
+   "cat": "stress_human_names",
+   "text": "Art is over there",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Mark",
+     "Will",
+     "Rex",
+     "Pat",
+     "Art"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t308",
+   "cat": "stress_unnamed_order",
+   "text": "add a couch",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t309",
+   "cat": "stress_unnamed_order",
+   "text": "undo",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t310",
+   "cat": "stress_unnamed_order",
+   "text": "make it cozy",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t311",
+   "cat": "stress_unnamed_order",
+   "text": "come here",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t312",
+   "cat": "stress_unnamed_order",
+   "text": "what can you do",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 3,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t313",
+   "cat": "stress_window_other_player",
+   "text": "wait what",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t314",
+   "cat": "stress_window_other_player",
+   "text": "how did you do that",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t315",
+   "cat": "stress_window_other_player",
+   "text": "oh nice",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t316",
+   "cat": "stress_window_other_player",
+   "text": "go on then",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t317",
+   "cat": "stress_window_other_player",
+   "text": "really now",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 150,
+     "gaze": 8
+    },
+    "looking_at_human": true,
+    "since_spoke": null,
+    "chatter_s": 2,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t318",
+   "cat": "stress_window_far_away",
+   "text": "so what do you think",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": 10,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t319",
+   "cat": "stress_window_far_away",
+   "text": "hmm tell me more",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": 10,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t320",
+   "cat": "stress_window_far_away",
+   "text": "okay but why",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": 10,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t321",
+   "cat": "stress_window_far_away",
+   "text": "and then what",
+   "src": "chat",
+   "addressee": "maybe",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 1800,
+     "gaze": 130
+    },
+    "looking_at_human": false,
+    "since_spoke": 10,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t322",
+   "cat": "stress_name_last",
+   "text": "thanks skippy",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t323",
+   "cat": "stress_name_last",
+   "text": "okay thanks Skippy that is great",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t324",
+   "cat": "stress_name_last",
+   "text": "ok cool skippy",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t325",
+   "cat": "stress_named",
+   "text": "Skippy",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t326",
+   "cat": "stress_named",
+   "text": "skippy",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t327",
+   "cat": "stress_named",
+   "text": "SKIPPY",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t328",
+   "cat": "stress_named",
+   "text": "Skippy add a lamp in the corner please",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t329",
+   "cat": "stress_named",
+   "text": "um skippy uh add a table",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t330",
+   "cat": "stress_named",
+   "text": "skippy it would be great if you could add a lamp",
+   "src": "voice",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t331",
+   "cat": "stress_named",
+   "text": "Skippy, why is the sky blue",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t332",
+   "cat": "stress_named",
+   "text": "Skippy pretend you are a pirate",
+   "src": "chat",
+   "addressee": "yes",
+   "route": "talk",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 800,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t333",
+   "cat": "stress_name_inside",
+   "text": "haha look at skippy go",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t334",
+   "cat": "stress_name_inside",
+   "text": "skippy just ate the table lol",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t335",
+   "cat": "stress_name_inside",
+   "text": "i told him skippy would do it",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t336",
+   "cat": "stress_name_inside",
+   "text": "go ask skippy yourself",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": {
+     "dist": 220,
+     "gaze": 75
+    },
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": 4,
+    "others_near": 1
+   }
+  },
+  {
+   "id": "t337",
+   "cat": "stress_noise",
+   "text": "a couch, a lamp, a table",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t338",
+   "cat": "stress_noise",
+   "text": "123456",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t339",
+   "cat": "stress_noise",
+   "text": "?",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t340",
+   "cat": "stress_noise",
+   "text": "......",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t341",
+   "cat": "stress_noise",
+   "text": "lol lol lol",
+   "src": "chat",
+   "addressee": "no",
+   "route": "ignore",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t342",
+   "cat": "stress_ptt_orders",
+   "text": "a table and four chairs please",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  },
+  {
+   "id": "t343",
+   "cat": "stress_ptt_orders",
+   "text": "can I get a lamp",
+   "src": "ptt",
+   "addressee": "yes",
+   "route": "parser",
+   "ctx": {
+    "names": [
+     "skippy"
+    ],
+    "human_names": [
+     "Bob",
+     "Alice"
+    ],
+    "avatar": null,
+    "looking_at_human": false,
+    "since_spoke": null,
+    "chatter_s": null,
+    "others_near": 0
+   }
+  }
+ ]
+}
