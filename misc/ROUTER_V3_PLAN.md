@@ -25,19 +25,19 @@ validation; `tools/tweak_pairs.py` reports **PAIRED, 0 gaps for both `trained` a
 
 `tools/run_router_sweep.sh` (sizes smallest first, so the pipeline is proven on a run under an hour
 before the 8b trains for about three). Measured = from the v2 run's recorded stage times; estimate =
-scaled from them (parameter count, 33k vs 26.5k examples) — the 50-step pilot of each size replaces the
+scaled from them (parameter count, about 36k vs 26.5k examples) — the 50-step pilot of each size replaces the
 estimate with a measurement and the pipeline stops if the projection exceeds `MAX_TRAIN_H` (6 h).
 
 | stage | uses | 1.7b | 4b | 8b |
 |---|---|---|---|---|
 | recipes_v3, declines, hardval, pairs | CPU, done or minutes | done | — | — |
-| dataset (teacher `qwen2.5:14b` rewrites 2,856 new seeds; v2's rewrites reused) | whole GPU | ≈ 70 min, once | — | — |
+| dataset (teacher `qwen2.5:14b`: 8,568 rewrites for 2,856 new seeds; v2's 5,146 cached rewrites reused, checked to line up) | whole GPU | ≈ 70 min, once | — | — |
 | ablate_v2 (v2 model, cascade off) | shared GPU | ≈ 10 min, once | — | — |
-| pilot + train | whole GPU | ≈ 45 min (est.) | ≈ 95 min (est.) | ≈ 185 min (est.; v2 measured 148 at 26.5k) |
+| pilot + train | whole GPU | ≈ 45 min (est.) | ≈ 95 min (est.) | ≈ 200 min (est.; v2 measured 148 at 26.5k examples, v3 has about 36k) |
 | merge + GGUF + create + smoke | CPU/disk, then GPU | ≈ 8 min | ≈ 8 min | 8 min (measured) |
 | eval_val, eval_hard (tool-first and free) | shared GPU | ≈ 10 min | ≈ 12 min | ≈ 20 min (measured) |
 | baseline_stock + benchmark (up to 7 runs, 3 at a time) | shared GPU + CPU | ≈ 25 min | ≈ 25 min | ≈ 25 min |
-| **total** | | **≈ 1.6 h** | **≈ 2.6 h** | **≈ 5.6 h** → ≈ **10 h** with the data stage |
+| **total** | | **≈ 1.6 h** | **≈ 2.6 h** | **≈ 5.8 h** → ≈ **10 h** with the data stage |
 
 The whole sweep needs the GPU for most of that, so `skippytel-ollama` is stopped for the duration
 (`DOCKER_OLLAMA=skippytel-ollama`; restarted by the script on exit, also on failure) — unless a second

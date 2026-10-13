@@ -169,6 +169,8 @@ stage_in() {   # stage_in <state dir> <name> <function>
   local dt=$(( $(date +%s) - t0 ))
   echo "$dt" > "$sd/$name.done"
   log "done  $name in $((dt / 60)) min $((dt % 60)) s"
+  # STOP_AFTER=<stage>: rehearse the early (CPU) stages without reaching the GPU ones
+  if [[ -n "${STOP_AFTER:-}" && "$name" == "$STOP_AFTER" ]]; then log "STOP_AFTER=$name: stopping here"; exit 0; fi
 }
 shared() { stage_in "$DSTATE" "$1" "$2"; }
 stage()  { stage_in "$STATE" "$1" "$2"; }
@@ -199,6 +201,7 @@ preflight() {
   check "WSL disk >= 60 GB free" "wsl_run 'test \$(df -BG --output=avail \$HOME | tail -1 | tr -dc 0-9) -ge 60'"
   check "D: >= 20 GB free" "test \$(df -BG --output=avail '$CACHE' | tail -1 | tr -dc 0-9) -ge 20"
   log "  settings: PER_RECIPE=$PER_RECIPE VARIANTS=$VARIANTS TEACHER=$TEACHER DOCKER_OLLAMA=${DOCKER_OLLAMA:-none} TRAIN_GPU=${TRAIN_GPU:-all} SERVE_GPU=${SERVE_GPU:-all} PORT=$PORT"
+  log "  free RAM: $(python -c 'import psutil; print(round(psutil.virtual_memory().available / 2**30, 1))' 2>/dev/null || echo '?') GB of 32 (WSL training needs about 10)"
   log "  benchmark profiles: $BENCH_PROFILES (each runs only if its tweaks are paired with training data)"
   log "  shared stages done: $(cd "$DSTATE" && ls -- *.done 2>/dev/null | tr '\n' ' ')"
   log "  $SIZE stages done: $(cd "$STATE" && ls -- *.done 2>/dev/null | tr '\n' ' ')"
@@ -249,16 +252,21 @@ profile_ok() {   # profile_ok <profile>
   [[ -f "$ROOT/pairs_$1.ok" ]]
 }
 do_ablate_v2() {   # the v2 model without its cascade: which groups did the cascade really carry?
+  # Analysis only: if it fails the training must still go ahead, so it never fails the pipeline.
   [[ "$ABLATE_V2" == 1 ]] || return 0
   ollama_up
   gpu_guard ablate_v2 shared
   local out="$RESULTS/router_mentat_router_v2_free_model-only_run.json"
-  "$PY" -u -m sigma_ground.mcp.benchmark.run_sigma_ground --ollama-url "$HARNESS_URL" --router --router-plan v2 \
-    --router-format free --model mentat-router-v2 --tweaks model-only --output "$out" > "$LOGS/ablate_v2.log" 2>&1 || return 1
-  "$PY" -m sigma_ground.mcp.benchmark.score >> "$LOGS/ablate_v2.log" 2>&1 || true
-  "$PY" "$REPO/tools/tweak_ablation.py" legacy="$RESULTS/router_mentat_router_v2_free_run.json" \
-    model_only="$out" --json "$ROOT/ablation_v2.json" > "$ROOT/ablation_v2.md"
-  tee -a "$LOGS/pipeline.log" < "$ROOT/ablation_v2.md"
+  if "$PY" -u -m sigma_ground.mcp.benchmark.run_sigma_ground --ollama-url "$HARNESS_URL" --router --router-plan v2 \
+       --router-format free --model mentat-router-v2 --tweaks model-only --output "$out" > "$LOGS/ablate_v2.log" 2>&1 \
+     && "$PY" -m sigma_ground.mcp.benchmark.score >> "$LOGS/ablate_v2.log" 2>&1 \
+     && "$PY" "$REPO/tools/tweak_ablation.py" legacy="$RESULTS/router_mentat_router_v2_free_run.json" \
+          model_only="$out" --json "$ROOT/ablation_v2.json" > "$ROOT/ablation_v2.md"; then
+    tee -a "$LOGS/pipeline.log" < "$ROOT/ablation_v2.md"
+  else
+    log "  ablate_v2 did not complete (analysis only; training continues): see $LOGS/ablate_v2.log"
+  fi
+  return 0
 }
 
 # ── per size: train, export, evaluate ──
