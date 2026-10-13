@@ -57,6 +57,36 @@ and passes the field on (`"$1.mass_kg"`, the plan format v3 already has).
    regime split across the range ("below about 10 kg bare it cannot go critical; above it, it can"), which
    is still an answer, not a question.
 
+## Derive before you default: select a mass and a material (the Captain, 2026-10-13)
+
+Most of the "missing" values are not independent. Pick a mass and a material and nearly everything about a
+body follows, so the table of priors shrinks to what cannot be derived (a throw speed, a launch angle, an
+ambient temperature) and everything else comes from a closure (Golden Rule 1: derive, don't assume). Checked
+against the code, for a 0.145 kg iron object:
+
+* **quarksum** (`sigma_ground.inventory`, `build_quick_structure(material, mass_kg)`) fills the composition:
+  4.07e25 protons, 4.07e25 electrons, 8.76e25 baryons, quark counts, `GM` = 9.68e-12 m^3/s^2, the mass defect,
+  mass closure to 1e-5. It does **not** give geometry: `radius_m`, `v_escape_m_s` and `sigma_surface` come
+  back `None` (a radius exists only for the nine default loads in `defaults.py`).
+* **the materials tools** give density (7874 kg/m^3), Young's modulus (211 GPa), melting point (1811 K),
+  refractive index, and the rest of the per-material tables.
+* **the missing link is geometry**: V = m/rho, then for a sphere r = (3V/4pi)^(1/3) = 1.64 cm and
+  cross-section 8.43e-4 m^2 for this object. Nothing in Mentat composes these today, so a question about "a
+  0.145 kg iron ball" cannot get its radius, area, moment of inertia (2/5 m r^2), heat capacity (m c_p), or drag
+  area from one place.
+
+So the first thing to build is **`object_properties(material, mass_kg, shape="sphere")`**: geometry from the
+density, the material's own tables, quarksum's census, and (setting the derived radius) quarksum's own
+`v_escape_m_s` and `GM`. The plan looks the object up once and passes fields on (`"$1.radius_m"`), which the
+v3 plan format already supports, and the server fills a tool's missing area, radius, volume, specific heat,
+modulus and the like from the same object. The scenario prior table (`typical_values`) then only has to say
+what object a scenario *is*: "a thrown ball" -> a material, a mass range, a speed range, an angle.
+
+What this does not cover, so it is not over-claimed: shapes other than the sphere, box and cylinder need a
+declared shape factor; composites and layered bodies need the layered structures quarksum already has; and
+a question that mentions neither a mass nor a material still needs a scenario prior (a typical object) before
+anything can be derived.
+
 ## Grounded in reality (the Captain's reading of why this matters)
 
 Today the groundedness gate says an *answer* came from a tool. This rule lets it say the same of the
