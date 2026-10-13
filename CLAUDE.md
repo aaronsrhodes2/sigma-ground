@@ -64,6 +64,11 @@ session a double-take every time. **Cleanup trigger:** the moment a
 worktree's branch merges into master, remove the worktree and delete the
 branch in the same sitting — don't leave it "for later."
 
+**Long jobs get a watchdog (the Captain, 2026-10-12).** Any job expected to run more than ~20 minutes is launched with a driver that retries failed workers and
+logs exit codes, and with `scripts/jobwatch.py` attached as a tracked background command (`run_in_background`), so the session is woken the moment the driver
+dies, a worker logs a traceback, no progress is made for the stall limit, or the job finishes. Silent deaths have cost hours three times. Presets:
+`--preset shootout` and `--preset fair`; state and event log in `<state-dir>/<name>.status.json` / `.jsonl`.
+
 **What counts as physics here (the Captain, 2026-10-11): data alone.**
 - A claim stays in the model only if it can be disproved and has survived the test. A disproved claim is not part of the model; at most it is
   speculation about ourselves.
