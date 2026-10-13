@@ -95,5 +95,39 @@ class TestSystem(unittest.TestCase):
         self.assertLess(np.linalg.norm(locked - base - extra), 1e-6 * np.linalg.norm(extra[0]) + 1e-18)
 
 
+@unittest.skipUnless(__import__("pathlib").Path("D:/datasets/jpl/de440s.bsp").exists(), "DE440s kernel not available")
+class TestOrientationAgainstDE440(unittest.TestCase):
+    """The IAU rotation model must put the Moon's long axis along the true direction to the Earth on average, with the optical libration (2e = 6.3 deg at 27.55 d) as the oscillation."""
+
+    def test_libration_in_longitude(self):
+        from jplephem.spk import SPK
+        k = SPK.open("D:/datasets/jpl/de440s.bsp")
+        jds = np.arange(2455197.5, 2455197.5 + 3 * 365.25, 0.5)
+        lon = []
+        for jd in jds:
+            moon = k[0, 3].compute(jd) + k[3, 301].compute(jd)
+            earth = k[0, 3].compute(jd) + k[3, 399].compute(jd)
+            x, y, z = lf.moon_axes(jd)
+            d = earth - moon
+            d /= np.linalg.norm(d)
+            lon.append(np.degrees(np.arctan2(d @ y, d @ x)))
+        lon = np.array(lon)
+        t = jds - jds[0]
+        self.assertLess(abs(lon.mean()), 0.2)                                    # a wrong prime-meridian constant shows up as a mean offset
+        w = 2 * np.pi / 27.5546
+        c, *_ = np.linalg.lstsq(np.column_stack([np.ones_like(t), np.cos(w * t), np.sin(w * t)]), lon, rcond=None)
+        self.assertAlmostEqual(float(np.hypot(c[1], c[2])), 6.3, delta=0.3)       # theory: 2 e rad with e = 0.0549
+
+    def test_axes_are_orthonormal_and_right_handed(self):                       # BY CONSTRUCTION
+        x, y, z = lf.moon_axes(2455197.5)
+        self.assertAlmostEqual(float(x @ y), 0.0, delta=1e-14)
+        self.assertAlmostEqual(float(np.linalg.norm(x)), 1.0, delta=1e-14)
+        self.assertLess(float(np.linalg.norm(np.cross(x, y) - z)), 1e-14)
+
+    def test_the_prime_meridian_rate_is_the_sidereal_rate(self):               # BUG: 360 deg / 27.321661 d = 13.17636 deg/d
+        r = (lf.moon_prime_meridian_deg(2455197.5 + 100.0) - lf.moon_prime_meridian_deg(2455197.5)) / 100.0
+        self.assertAlmostEqual(r, 360.0 / 27.321661, delta=0.002)
+
+
 if __name__ == "__main__":
     unittest.main()
