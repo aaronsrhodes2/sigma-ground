@@ -5,7 +5,7 @@ floats (3D, with proximity voice's range, wall and whisper rules). Built and tes
 
 ## What it does
 
-- **Call:** "Skippy, come here" / "come over" / "come closer" / "follow me" / "show yourself", typed in chat, spoken to the voice
+- **Call:** "Skippy, come here" (or `<name>, come here` with any wake name the player gave him: holodeck/README.md, "Wake words (per player)") / "come over" / "come closer" / "follow me" / "show yourself", typed in chat, spoken to the voice
   bridge, `holodeck come here` in the console, or `skippy_come`. Typos are tolerated ("cmoe here", "come hear"). A sentence that
   asks for anything else is never a call: "add a couch", "come up with a name", "move the couch here", "get me a couch".
 - **Send away:** "Skippy, go away" / "dismiss" / "go home" / "leave me alone" / "vanish" / "get lost", or `skippy_go`.

@@ -4,8 +4,8 @@
 --     Skippy built things, so everyone near hears it from that spot and nobody needs any extra software to listen.
 --   * The player speaks: while the player is transmitting on voice chat, this writes data/mentat/ptt.txt. The optional
 --     `skippy_ears.py` (on the player's own PC) records the microphone ONLY while that file says "transmitting", has the speech
---     recognised by the local Whisper, and hands back only sentences that start with the wake word "Skippy" as
---     data/mentat/voice_in.json. This file sends those to the server like a chat request. Everything else the player says to
+--     recognised by the local Whisper, and hands back only sentences that start with one of YOUR names for Skippy ("Skippy" unless you
+--     changed it: the server sends your own list, see below) as data/mentat/voice_in.json. This file sends those to the server like a chat request. Everything else the player says to
 --     other players is neither kept nor sent anywhere.
 --   * `+skippy` (bind a key to it) is a push-to-talk for Skippy alone: it records without opening voice chat, no wake word needed.
 if not CLIENT then return end
@@ -101,6 +101,30 @@ timer.Create("Mentat.SkippyHearing", 0.25, 0, function()
     net.SendToServer()
     chat.AddText(Color(130, 130, 130), "[you, aloud] ", Color(230, 230, 230), obj.text)
   end
+end)
+
+-- the names Skippy answers to FOR THIS PLAYER, sent by the server to this client alone (on join, on every change, and when asked):
+-- written where the microphone bridge reads them. Missing or unreadable means the bridge falls back to "Skippy".
+local NAMES_FILE = DIR .. "/wake_names.json"
+local have_names = false
+net.Receive("holodeck_wake_names", function()
+  local count = math.min(net.ReadUInt(4), 8)
+  local names = {}
+  for _ = 1, count do
+    local s = string.sub((tostring(net.ReadString() or ""):gsub("[%cW]", " ")), 1, 40)
+    if s:find("%S") then names[#names + 1] = s end
+  end
+  if #names == 0 then names[1] = "skippy" end
+  have_names = true
+  file.Write(NAMES_FILE, util.TableToJSON({ version = 1, names = names, ts = os.time() }))
+end)
+-- ask once the game has loaded (a few tries: the first can be sent before the server is listening); the server also pushes on join
+hook.Add("InitPostEntity", "Mentat.SkippyAskNames", function()
+  timer.Create("Mentat.SkippyAskNames", 5, 5, function()
+    if have_names then timer.Remove("Mentat.SkippyAskNames"); return end
+    local me = LocalPlayer()
+    if IsValid(me) then net.Start("holodeck_wake_sync"); net.SendToServer() end
+  end)
 end)
 
 -- ------------------------------------------------------------------------------------------------ Skippy speaks

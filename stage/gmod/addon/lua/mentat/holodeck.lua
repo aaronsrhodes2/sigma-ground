@@ -23,6 +23,11 @@ local raw_catalog = include("mentat/holodeck/catalog.lua")
 local cv_content = CreateConVar("holodeck_content", "all", FCVAR_ARCHIVE, "all = every model this server has | hl2 = only Half-Life 2 models (what every player owns)")
 
 H.parse_mod, H.plan_mod, H.layout, H.library = Parse, Plan, Layout, Library
+-- the names Skippy answers to, one private list per player (wakenames.lua); Parse.strip_wake stays the matcher for the default "Skippy"
+H.Wake = include("mentat/holodeck/wakenames.lua")
+H.Wake.init({ tell = function(ply, text) return H.Tell(ply, text) end,
+              default_strip = function(text) return Parse.strip_wake(text) end,
+              is_noun = function(w) local pr = H.parser; return (pr and pr.noun and pr.noun[w] ~= nil) or false end })
 
 --- Where a model stands in the CURRENT variant list of a kind: its index and variant, or nil when the library no longer has it.
 --- The one place a model becomes an index, so a stale index can never name a different variant.
@@ -1586,6 +1591,12 @@ function H.Handle(ply, text, opts)
     if opts.done then opts.done(res) end
     return res
   end
+  -- "answer to Rex", "what are your names", "reset your names": a player's own wake names, said with any of their names or none
+  if IsValidPlayer(ply) and not (cv_admin:GetBool() and not ply:IsAdmin()) and H.Wake and H.Wake.try_command(ply, heard) then
+    local res = { action = "wake_names", fixed = true, placements = {} }
+    if opts.done then opts.done(res) end
+    return res
+  end
   if opts.was_player and not manages_all(ply) then
     -- the rest between requests is checked first, so refusing a request costs nothing either
     local key, now = player_key(ply), CurTime()
@@ -1734,13 +1745,19 @@ end
 
 -- ------------------------------------------------------------------------------------------------ chat and console
 hook.Add("PlayerSay", "Holodeck.Chat", function(ply, text)
+  local hide = ""                                                     -- a wake-name command is not shown to the other players (the name is private)
   if cv_wake:GetBool() then
-    local ok, rest = Parse.strip_wake(text)
+    local ok, rest, name = H.Wake.strip(ply, text)
     if not ok then return end                                         -- ordinary talk between players: leave it alone
-    timer.Simple(0, function() if IsValid(ply) then H.Handle(ply, rest) end end)
+    local wopts = (name and name ~= "skippy") and { wake_name = name } or nil
+    local secret = H.Wake.peek(ply, rest) ~= nil
+    timer.Simple(0, function() if IsValid(ply) then H.Handle(ply, rest, wopts) end end)
+    if secret then return hide end
     return
   end
+  local secret = H.Wake.peek(ply, text) ~= nil
   timer.Simple(0, function() if IsValid(ply) then H.Handle(ply, text) end end)
+  if secret then return hide end
 end)
 
 -- what a player said aloud, after their own microphone bridge heard the wake word (see skippy_client.lua)
@@ -1750,8 +1767,8 @@ net.Receive("holodeck_voice", function(_, ply)
   if #text == 0 or #text > 300 then return end
   if last_spoken[ply] and CurTime() - last_spoken[ply] < 1.0 then return end
   last_spoken[ply] = CurTime()
-  local woke, rest = Parse.strip_wake(text)
-  H.Handle(ply, woke and rest or text)
+  local woke, rest, name = H.Wake.strip(ply, text)                    -- (the speaker's own names)
+  H.Handle(ply, woke and rest or text, (woke and name ~= "skippy") and { wake_name = name } or nil)
 end)
 
 concommand.Add("holodeck", function(ply, _, args, line)

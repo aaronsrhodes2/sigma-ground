@@ -16,7 +16,8 @@ How it works, and what it does NOT do:
   * When you stop transmitting, the sentence you just said (and only that) goes to the LOCAL Whisper in SkippyTel
     (`POST /translate/audio`, never through an HTTP proxy; audio never leaves your machine). The recording exists only in memory.
     Recognition happens on a worker thread, so the next sentence is heard even while the last one is still being recognised.
-  * If the text starts with the wake word "Skippy" (or you used +skippy), the rest is written to `data/mentat/voice_in.json`, which
+  * If the text starts with one of your names for Skippy (default "Skippy"; each player has their own list, which the game writes to
+    `data/mentat/wake_names.json`, see wakewords.py) or you used +skippy, the rest is written to `data/mentat/voice_in.json`, which
     the game picks up and sends to the server like a chat request (a request the game has not picked up within 15 s is withdrawn).
     Otherwise it is dropped on the floor: what you say to other players is neither kept nor sent.
 Needs ffmpeg on the PATH for the microphone (Windows DirectShow). No Python packages beyond the standard library.
@@ -41,6 +42,9 @@ import urllib.request
 import uuid
 import wave
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))   # wakewords.py lives next to this file
+import wakewords  # noqa: E402  (the names Skippy answers to, per player; twin of the game's wakewords.lua)
 
 HERE = Path(__file__).resolve().parent
 RATE = 16000                       # samples per second the microphone is read at (mono, 16 bit)
@@ -102,8 +106,16 @@ def _is_wake(word: str) -> bool:
     return 5 <= len(w) <= 7 and w[:2] in ("sk", "sc") and w not in NOT_WAKE and difflib.SequenceMatcher(None, w, "skippy").ratio() >= 0.8
 
 
-def strip_wake(text: str) -> tuple[bool, str]:
-    """(True, what follows the wake word) when the sentence begins with 'Skippy' (speech recognition spells it several ways)."""
+def strip_wake(text: str, names: list[str] | None = None) -> tuple[bool, str]:
+    """(True, what follows the wake word) when the sentence begins with one of the player's names for Skippy: 'Skippy' (speech
+    recognition spells it several ways) unless the player changed the list (see current_names). Only the START is looked at."""
+    if names and names != [wakewords.DEFAULT]:
+        woke, rest, _ = wakewords.strip(text, names, default_strip=_strip_skippy)
+        return woke, rest
+    return _strip_skippy(text)
+
+
+def _strip_skippy(text: str) -> tuple[bool, str]:
     raw = text.strip()
     m = _LEAD.match(raw)
     if m and m.group(1).lower() in LEAD_WORDS:
@@ -116,6 +128,27 @@ def strip_wake(text: str) -> tuple[bool, str]:
     if m2 and not raw[m.end():m2.start(1)].strip() and (m.group(1) + m2.group(1)).lower() in WAKE_WORDS:
         return True, _TIDY.sub("", raw[m2.end():])
     return False, raw
+
+
+_NAMES_CACHE: dict = {}
+
+
+def current_names(data_dir: Path) -> list[str]:
+    """The names this player's game wrote to data/mentat/wake_names.json (the server's list for them, sent to their client alone).
+    Re-read whenever the file changes; missing, oversized or corrupt means the default ['skippy'], so the bridge never breaks."""
+    path = Path(data_dir) / "wake_names.json"
+    try:
+        st = path.stat()
+        stamp = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        _NAMES_CACHE.pop(str(path), None)
+        return [wakewords.DEFAULT]
+    cached = _NAMES_CACHE.get(str(path))
+    if cached and cached[0] == stamp:
+        return list(cached[1])
+    names = wakewords.load_names(path)
+    _NAMES_CACHE[str(path)] = (stamp, names)
+    return list(names)
 
 
 # --------------------------------------------------------------------------------------------- the local Whisper
@@ -202,7 +235,7 @@ def handle_speech(wav_bytes: bytes, api: str, data_dir: Path, direct: bool, log=
     heard = transcribe(wav_bytes, api)
     if not heard:
         return None
-    woke, after = strip_wake(heard)
+    woke, after = strip_wake(heard, current_names(data_dir))
     ok, rest = (True, after if woke else heard) if direct else (woke, after)
     if not ok or not rest:
         log(f"[ears] not for me ({len(heard)} characters, discarded)")

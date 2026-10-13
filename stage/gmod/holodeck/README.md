@@ -12,7 +12,7 @@ It never asks a clarifying question. Whatever is unclear resolves to the most se
 
 ## Using it
 
-- **Chat or voice:** any sentence that starts with **Skippy** is a request. Everything else players say is left alone, so players with
+- **Chat or voice:** any sentence that starts with **Skippy** (or another name you gave him: see "Wake words (per player)") is a request. Everything else players say is left alone, so players with
   a live mic talk normally. In the console, `holodeck <words>` needs no wake word. Also `holodeck_status`, `holodeck_undo`, `holodeck_clear`,
   `holodeck_reload` (superadmin; re-reads which models the server has).
 - **What it can build:** 46 kinds of everyday thing (seats, tables, beds, storage, lamps, appliances, bathroom, electronics, containers,
@@ -88,6 +88,44 @@ it costs API credit per character, capped by the bridge's daily allowance), `ele
 free; the bridge's own default when you start it by hand). The game prints "Skippy's voice is now: elevenlabs" (or sapi) when the voice that
 speaks changes. A dedicated server reaches the bridge on localhost with `-allowlocalhttp` (already in `gmod_ds_ctl.sh`);
 a game that hosts its own world must use the machine's Tailscale address (the engine's flag works on servers only).
+
+## Wake words (per player)
+
+Every player has their own list of names Skippy answers to. The default is **Skippy** (with the spellings speech recognition makes of it).
+You may add any name you like, rude ones included: it is your right, and it is private to you. Nobody else's sentences are ever matched
+against your list, and everything Skippy says about it goes to you alone (a private line, never spoken aloud, never shown to those near
+you). A name command typed in public chat is hidden from the other players' chat.
+
+| Say (typed, aloud or in the console; start with any of your names, the console needs none) | Effect |
+|---|---|
+| `Skippy, answer to Rex` / `call yourself Rex` / `your name is also Rex` | add a name |
+| `stop answering to Rex` / `forget the name Rex` | remove one (any, `Skippy` too, but never the last) |
+| `only answer to Rex` | replace the whole list |
+| `what do you answer to` / `what are your names` | he lists them, privately |
+| `reset your names` | back to Skippy |
+| console: `skippy_wake_add Rex`, `skippy_wake_remove`, `skippy_wake_only`, `skippy_wake_list`, `skippy_wake_reset` | the same |
+
+Rules: 1 to 3 words, 2 to 24 characters, letters, digits, apostrophe, hyphen, space (case, quotes and accents do not matter); at most 8
+names; a name must not be a word the parser needs (a command such as `add` or `come`, an object such as `couch`, a number, a pronoun),
+because a sentence beginning with it would wake him by accident: he refuses that one politely and says why. Nothing is refused for being
+rude. Only the **start** of a sentence counts, so a name later in a sentence does not wake him; `Rex's couch is ugly` talks about Rex and
+only wakes him before an order. Spoken forms are tolerated by a conservative edit-distance rule scaled by the name's length (none under
+5 letters, one slip from 5, two from 10; the first letter must match), and `ass hole` is the same as `asshole`.
+
+How it is wired (three places, one list per player):
+
+1. **The server** (`addon/lua/mentat/holodeck/wakenames.lua`, `wakewords.lua`): `Holodeck.Wake.strip(ply, text)` replaces the old
+   `Parse.strip_wake` call at the chat hook and for what a player said aloud; `Parse.strip_wake` is still the matcher for the default
+   name. The lists live in `data/mentat/wake_words.json` (by SteamID64; written through a temp file and read back; capped; any corruption
+   means the default). `Holodeck.Handle` catches the name commands before the parser sees anything.
+2. **The microphone bridge** (`skippy_ears.py`, `wakewords.py` is its twin of `wakewords.lua`): the server sends the list to its owner's
+   client alone (net `holodeck_wake_names`, on join, on every change, and when the client asks), `skippy_client.lua` writes it to the
+   client's `data/mentat/wake_names.json`, and the bridge re-reads that file when it changes (missing or corrupt means `Skippy`), so a
+   sentence beginning with your name is passed on exactly like one beginning with Skippy. `+skippy` / the talk key is unchanged.
+3. **The avatar** (`avatar.lua`): "`<name>, come here`" and "`<name>, go away`" use the speaker's names; when called by a custom name he
+   answers privately ("Here I am, Rex.") instead of saying anything near others.
+
+Tests: `sigma_ground/radiance/tests/test_gmod_wake.py` (Lua and Python share `wake_vectors.json`).
 
 ## Found objects: anything in the SkippyVerse inventory, as a labelled placeholder box
 
@@ -313,7 +351,7 @@ bash stage/gmod/skippy_play.sh --selftest-voice "add two couches" --stop-after  
 `play.py` checks SkippyTel's Whisper, Ollama, ffmpeg, your microphone and your Tailscale address, starts the bridge behind a fresh token,
 starts the game as a small listen server, connects the game to the bridge (`mentat/tools/skippy_play.lua`, run through the same
 `data/mentat/tool.txt` mechanism as every other tool) and starts the microphone bridge. Then **hold X and say what you want** (no wake
-word; `--key` or the `skippy_key` setting picks another key), or hold V and start with "Skippy". The key is read by the game itself,
+word; `--key` or the `skippy_key` setting picks another key), or hold V and start with "Skippy" (or one of your own names for him). The key is read by the game itself,
 because the server may not bind keys for a player. The self-test speaks a request with Windows speech to the microphone bridge's own
 recogniser (the real Whisper), lets the game pick it up and checks that things were built and Skippy's answer played in the game;
 only the physical microphone and the key press are left to a human. Sentences longer than about 4 seconds are compressed before they

@@ -295,8 +295,10 @@ end
 -- ------------------------------------------------------------------------------------------------ words
 local last_cmd = setmetatable({}, { __mode = "k" })
 
---- Act on a recognised command from a player ("summon" | "dismiss"). Answers in his own voice.
-function Av.Command(ply, cmd)
+--- Act on a recognised command from a player ("summon" | "dismiss"). Answers in his own voice. `name` is the wake name the player used
+--- when it is one of their own (not "skippy"): the answer then names it, but ONLY to that player (a private line, never said aloud
+--- or shown to those near by: the name is theirs).
+function Av.Command(ply, cmd, name)
   if CurTime() - (last_cmd[ply] or -10) < 1 then return end              -- one command a second per player
   last_cmd[ply] = CurTime()
   local H = Holodeck
@@ -310,10 +312,15 @@ function Av.Command(ply, cmd)
   end
   if cmd == "summon" then
     local ok, why = Av.Summon(ply)
-    if ok then say("Here I am.", cv_ack:GetBool()) elseif H and H.Tell then H.Tell(ply, why or "I cannot come right now.") end
+    local mine = name and name ~= "skippy" and H and H.Wake and H.Wake.Wake and H.Wake.Wake.display(name)
+    if ok and mine then
+      if H.Tell then H.Tell(ply, "Here I am, " .. mine .. ".") end
+    elseif ok then say("Here I am.", cv_ack:GetBool()) elseif H and H.Tell then H.Tell(ply, why or "I cannot come right now.") end
   elseif cmd == "dismiss" then
     if Av.IsActive() then
-      say("Fine. Call me if you need me.", cv_ack:GetBool())
+      local mine = name and name ~= "skippy" and H and H.Wake and H.Wake.Wake and H.Wake.Wake.display(name)
+      if mine and H.Tell then H.Tell(ply, "Fine, " .. mine .. ". Call me if you need me.")
+      else say("Fine. Call me if you need me.", cv_ack:GetBool()) end
       Av.Dismiss()
     end
   end
@@ -341,8 +348,16 @@ local function install()
   wrap(H, "Handle", function(orig)
     return function(ply, text, opts)
       if is_player(ply) and cv_enabled:GetBool() then
-        local cmd = Logic.match_command(text)
-        if cmd then Av.Command(ply, cmd); return nil end
+        -- the player's OWN names are the wake words ("Rex, come here"): the chat and voice paths have stripped theirs already, the
+        -- console has not
+        local name = opts and opts.wake_name
+        local said = text
+        if H.Wake and type(text) == "string" then
+          local woke, rest, who = H.Wake.strip(ply, text)
+          if woke then said, name = rest, who end
+        end
+        local cmd = Logic.match_command(said)
+        if cmd then Av.Command(ply, cmd, name); return nil end
       end
       return orig(ply, text, opts)
     end

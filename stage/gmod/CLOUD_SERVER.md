@@ -55,7 +55,7 @@ I will build exactly that.
 - `holodeck_content hl2` restricts it to the Half-Life 2 models (about 72 of 127), which every player has. The default `all` uses
   everything the server has; a player without Counter-Strike: Source would see error models for the rest. Set it before launch
   with `+holodeck_content hl2`, or at any time with `holodeck_content hl2` then `holodeck_reload` (superadmin).
-- Chat: any sentence that starts with **Skippy** is a request (`Skippy, add three couches`). Everything else players say is left
+- Chat: any sentence that starts with **Skippy** (or a name the player gave him, see holodeck/README.md "Wake words (per player)") is a request (`Skippy, add three couches`). Everything else players say is left
   alone. Players with a live mic talk normally; only the wake word starts the holodeck.
 - Proximity voice is native to the server. It is installed as the gamemode's own `PlayerCanHearPlayersVoice`, wrapped around the
   rule the gamemode already had, so a gag or mute addon (a hook that returns false) always wins and the game's own refusal still
