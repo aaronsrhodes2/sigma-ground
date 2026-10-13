@@ -3797,3 +3797,51 @@ This is the "validation high, benchmark worse" surprise the study said not to pu
 - [ ] Measure and remove the fixed per-question overhead in the harness before comparing latencies.
 - [ ] Clean-up that is safe once the Captain agrees: the 16 GB duplicate base in the main checkout's
       `local-cache/router`, and the 32 GB of merge intermediates under `~/router` in WSL.
+
+
+## Session 39 — 2026-10-12 — Router v2 results, the tweaks audit, and v3 staged (nothing run on the GPU)
+
+### Router v2 result (measured, `local-cache/router_v2/comparison.md`)
+Same 150 questions, cascade identical (86 answered before the model), scored by `score.py` unchanged.
+
+| run | overall | model-path correct (of 64) | grounded | router errors |
+|---|---|---|---|---|
+| chain, qwen3:8b | 134/150 | 50 | 62 | 0 |
+| stock router + index, free | **138/150** | **54** | 60 | 4 |
+| tuned v1, free | 135/150 | 51 | 58 | 4 |
+| tuned v2, tool-first | 130/150 | 46 | 50 | 13 |
+| tuned v2, free | 134/150 | 50 | 53 | 10 |
+
+v2 did not beat stock. Right in stock, wrong in tuned v2 free (9): atom_007, em_intro_001, em_intro_009, em_intro_010,
+mech_adv_004, mech_intro_010, nuc_003, optics_010, qm_004. The causes found earlier in the session were spurious second
+steps, a unit slip and tools it could not reach. Right in v2, wrong in stock (5): em_adv_001, em_adv_002, em_intro_014,
+mech_adv_005, nuc_005.
+
+### The tweaks audit (misc/MENTAT_TWEAKS_AUDIT.md)
+* 86 of 150 benchmark answers come from the cascade, 84 of them right; frontier, refusal and clarification fired 0 times.
+* Param aliasing and the body-name chain fired 0 times in five runs. The 15 hidden tools had 0 training examples.
+* **Four classifiers compute physics in the harness** (astro, optics, classical_intro, modern: 17 of the 150 questions when run
+  alone), against Platinum §21; the astro one uses a Sun temperature of 5778 K where the library says 5772 K.
+* Five no-input tools (age_of_universe, critical_density, eta_value_report, mond_a0_constant, holographic_matching_mass) cannot
+  be taught without training on a benchmark instance; their classifier stays and the pairing check says so.
+* `sigma_ground/mcp/benchmark/tweaks.py`: one switch per tweak, three profiles (legacy, trained, model-only), recorded in every
+  answer; `tools/tweak_pairs.py` refuses a profile whose removed tweaks the data does not teach (v2 data: 15 and 47 gaps; v3
+  preview: 0); `tools/tweak_ablation.py` says per cascade group whether the model alone matches it. End-to-end check against a
+  fake model: legacy 8 cascade + 22 model (alias silently fixed all 22), trained 22 reported unknown-parameter errors,
+  model-only 30 of 30 through the model.
+
+### A Mentat server fault (fixed in this branch)
+A fresh server's first pint-backed call (`convert_units`) hung: thread dump showed `import numpy` stuck in a worker thread. It is
+what made the v2 recipes stage take 15 minutes (put down to CPU contention). `server.main()` now imports numpy first; regression
+test `sigma_ground/mcp/test_server_first_call.py` (1.9 s).
+
+### v3 staged, not run (misc/ROUTER_V3_PLAN.md)
+* Plan format v3 (`"$n.field"`); 53 new recipes (20 hidden-tool, 17 contrast, 8 lookup, 7 drill, 1 ode), 391 declines, a
+  rewrite-cache alignment check, `tools/run_router_v3.sh` (per size, shared data stages, GPU pinning, profile gating) and
+  `tools/run_router_sweep.sh` (1.7b, 4b, 8b).
+* Downloaded at the Captain's word: Qwen3-4B and Qwen3-1.7B (WSL `~/models`), `qwen3:4b` and `qwen3:1.7b` (Ollama).
+* Estimated about 10 h for the whole sweep on one card (teacher pass 70 min, 8b training about 3 h); needs the Captain's go and
+  start time, and stops `skippytel-ollama` unless a second card takes it.
+* Tests: 321 benchmark tests and 97 MCP server tests pass; `test_targets.py::test_qa_matches_wolfram_on_subset_wa_got_right`
+  fails at 97 % against a 98 % target on `results/sigma_ground_scored.json`, unchanged since 2026-07-19 (not touched here).
+

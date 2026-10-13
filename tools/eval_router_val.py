@@ -136,10 +136,9 @@ def smoke(a) -> int:
     tokens and give the same reply. (Not under the schema: the chat and raw
     endpoints compile the schema into different grammars.)"""
     import httpx
-    from sigma_ground.mcp.benchmark.router_dataset import ROUTER_SYSTEM_PROMPT as V1_PROMPT
-    ROUTER_SYSTEM_PROMPT = RP.ROUTER_SYSTEM_PROMPT_V2 if a.plan == "v2" else V1_PROMPT
+    ROUTER_SYSTEM_PROMPT = RP.system_prompt(a.plan)
     names = asyncio.run(router_tool_names())
-    fmt = (RP.router_format(names, steps=(a.plan == "v2")) if a.format == "toolfirst"
+    fmt = (RP.router_format(names, steps=(a.plan in RP.MULTISTEP)) if a.format == "toolfirst"
            else _router_format(names))
     base = a.ollama_url.rstrip("/")
     opts = {"temperature": 0.0, "num_ctx": 4096}
@@ -218,7 +217,7 @@ def main() -> int:
                         "none: free generation; toolfirst: a schema whose keys are already "
                         "alphabetical in the training order (tool < tool_args), with the "
                         "tool-name enum (router_plan.router_format)")
-    p.add_argument("--plan", choices=["v1", "v2"], default="v1",
+    p.add_argument("--plan", choices=["v1", "v2", "v3"], default="v1",
                    help="the plan format the model was trained on; with --format toolfirst, "
                         "v2 also allows `steps`")
     p.add_argument("--num-predict", type=int, default=1024,
@@ -240,7 +239,7 @@ def main() -> int:
     if a.limit:
         recs = recs[:a.limit]
     names = asyncio.run(router_tool_names())
-    fmt = (RP.router_format(names, steps=(a.plan == "v2")) if a.format == "toolfirst"
+    fmt = (RP.router_format(names, steps=(a.plan in RP.MULTISTEP)) if a.format == "toolfirst"
            else _router_format(names))
     url = a.ollama_url.rstrip("/") + "/api/chat"
     rows = []

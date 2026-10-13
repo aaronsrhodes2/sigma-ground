@@ -82,6 +82,17 @@ def main() -> int:
               file=sys.stderr)
         return 1
 
+    # FastMCP runs a plain `def` tool in a worker thread. The first `import numpy` made from
+    # that thread (pint, sympy and scipy all pull it in) blocked in the loading of numpy's
+    # native library for minutes on this Windows machine: `convert_units` never came back
+    # (thread dump: numpy/_core/multiarray.py <- pint/_typing.py <- units._get_registry), and
+    # a fresh server's first such call was long put down to CPU contention. Imported once here,
+    # in the main thread, it is already loaded when a tool needs it.
+    try:
+        import numpy  # noqa: F401
+    except ImportError:
+        pass
+
     from sigma_ground.mcp.tools import constants as t_const
     from sigma_ground.mcp.tools import units as t_units
     from sigma_ground.mcp.tools import symbolic as t_sym

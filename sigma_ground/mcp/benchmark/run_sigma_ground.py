@@ -31,6 +31,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from sigma_ground.mcp.benchmark import tweaks as _tw
+
 
 _SYSTEM_PROMPT_BASE = """\
 You are a TRANSLATION LAYER between the user and the sigma-ground
@@ -671,7 +673,7 @@ def _ollama_tools(mcp_tools) -> list[dict]:
                           "description": t.description or "",
                           "parameters": t.inputSchema or {"type": "object",
                                                           "properties": {}}}}
-            for t in mcp_tools if t.name not in HIDDEN_FROM_LLM]
+            for t in mcp_tools if not (_tw.on("hidden_tools") and t.name in HIDDEN_FROM_LLM)]
 
 
 # ── Router mode: one shot, one JSON plan, Mentat does the rest ──────────────
@@ -699,10 +701,8 @@ def _router_system_prompt(tools_for_ollama: list[dict], with_index: bool,
     """The exact prompt the router fine-tune is trained on (plan="v1": the
     `args` format; "v2": `tool_args` and multi-step `steps`); `with_index` adds
     the tool index for a stock model, which has no catalogue in its weights."""
-    if plan == "v2":
-        from sigma_ground.mcp.benchmark.router_plan import ROUTER_SYSTEM_PROMPT_V2 as prompt
-    else:
-        from sigma_ground.mcp.benchmark.router_dataset import ROUTER_SYSTEM_PROMPT as prompt
+    from sigma_ground.mcp.benchmark import router_plan as RP
+    prompt = RP.system_prompt(plan)
     if not with_index:
         return prompt
     return prompt + "\n\n" + _build_tool_index(tools_for_ollama)
@@ -751,7 +751,7 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
     if router_format == "free":
         response = await http.post(ollama_url, json=body)
     else:
-        fmt = (RP.router_format(names, steps=(router_plan == "v2"))
+        fmt = (RP.router_format(names, steps=(router_plan in RP.MULTISTEP))
                if router_format == "toolfirst" else _router_format(names))
         response = await http.post(ollama_url, json={**body, "format": fmt})
         if response.status_code >= 400:     # an Ollama that can't take a schema
@@ -797,21 +797,33 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
     chain: list[dict] = []
     calls: list[dict] = []
     values: list[Any] = []
+    raws: list[Any] = []      # each step's whole `value`, for a "$n.field" reference (v3)
     for s in steps:
         name = s["tool"]
         try:
-            args = RP.resolve_args(s["args"], values)
+            args = RP.resolve_args(s["args"], values, raws)
         except RP.PlanError as e:
             return {**record(f"<router: bad reference: {e}>", router_error=f"bad reference: {e}"),
                     "tool_calls": calls}
         renames: list[str] = []
         chain_log: list[str] = []
+        unknown: list[str] = []
         if real_params_by_tool is not None and name in real_params_by_tool:
             from sigma_ground.mcp.benchmark.param_aliases import (
                 normalize_kwargs, resolve_body_name_chain)
-            args, renames = normalize_kwargs(args, real_params_by_tool[name])
-            args, chain_log = await resolve_body_name_chain(
-                session, args, real_params_by_tool[name])
+            real = real_params_by_tool[name]
+            if _tw.on("param_aliases"):
+                args, renames = normalize_kwargs(args, real)
+            if _tw.on("body_name_chain"):
+                args, chain_log = await resolve_body_name_chain(session, args, real)
+            # pydantic drops a parameter the tool does not have and runs on the default
+            unknown = sorted(set(args) - real)
+        if unknown and _tw.on("strict_params"):
+            calls.append({"name": name, "args": args, "result_text": "", "unknown_params": unknown,
+                          "renames_applied": renames, "chain_log": chain_log})
+            return {**record(f"<router: {name} has no parameter {', '.join(unknown)}>",
+                             router_error=f"unknown parameter: {name}({', '.join(unknown)})"),
+                    "tool_calls": calls}
         try:
             result = await asyncio.wait_for(session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
             tool_text = "\n".join(p.text for p in (result.content or [])
@@ -821,7 +833,8 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
         except Exception as e:
             tool_text = f"<TOOL ERROR: {e}>"
         calls.append({"name": name, "args": args, "result_text": tool_text[:2000],
-                      "renames_applied": renames, "chain_log": chain_log})
+                      "renames_applied": renames, "chain_log": chain_log,
+                      **({"unknown_params": unknown} if unknown else {})})
         step = {"name": name, "args": args, "result_text": tool_text}
         got = _tool_call_value(step, question)
         if got is None:
@@ -831,6 +844,10 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
         step["value"] = got
         chain.append(step)
         values.append(got[0])
+        try:
+            raws.append(json.loads(tool_text).get("value"))
+        except (ValueError, AttributeError):
+            raws.append(None)
     reason = "router plan" if len(chain) == 1 else f"router plan, {len(chain)} steps"
     return {**record(_chain_answer_text(chain, reason)),
             "tool_calls": calls, "extracted_value": chain[-1]["value"][0],
@@ -940,11 +957,12 @@ def _build_tool_index(tools_for_ollama: list[dict]) -> str:
         f"({len(tools_for_ollama)} tools, grouped by domain; "
         f"* = required parameter)",
         "",
-        "PATTERN HINTS (match question phrasing to the right section):",
     ]
-    for phrases, dom in _PATTERN_HINTS:
-        lines.append(f"  [{dom}] {phrases}")
-    lines.append("")
+    if _tw.on("pattern_hints"):
+        lines.append("PATTERN HINTS (match question phrasing to the right section):")
+        for phrases, dom in _PATTERN_HINTS:
+            lines.append(f"  [{dom}] {phrases}")
+        lines.append("")
 
     for dom in ordered_domains:
         tools = by_domain[dom]
@@ -1073,6 +1091,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
     import httpx
 
     t0 = time.time()
+    if not _tw.on("answer_key_hint"):
+        primary_tool_expected = None
 
     # Static tool-category flag: a leading /simulation /question /render pins the
     # visible tool set (or the run-wide --tools default), so routing is
@@ -1089,7 +1109,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     # from Qwen's flat list.
     from sigma_ground.mcp.benchmark.frontier_classifier import (
         classify_for_frontier, execute_frontier_match)
-    fr = classify_for_frontier(question)
+    fr = classify_for_frontier(question) if _tw.on("cascade.frontier") else None
     if fr is not None:
         val, units, answer_text = execute_frontier_match(fr)
         if val is not None:
@@ -1112,7 +1132,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     # from Qwen's tool list (see _amain) — they're reached only here.
     from sigma_ground.mcp.benchmark.new_tools_classifier import (
         classify_for_new_tools, execute_new_tool_match)
-    nt = classify_for_new_tools(question)
+    nt = classify_for_new_tools(question) if _tw.on("cascade.new_tools") else None
     if nt is not None:
         val, units, answer_text = execute_new_tool_match(nt)
         if val is not None:
@@ -1137,7 +1157,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
         classify_for_refusal,
         render_answer_text as _render_refusal_text,
     )
-    refusal = classify_for_refusal(question)
+    refusal = classify_for_refusal(question) if _tw.on("cascade.refusal") else None
     if refusal is not None:
         answer_text = _render_refusal_text(refusal, question)
         return {
@@ -1161,7 +1181,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
         classify_for_clarification,
         render_answer_text as _render_clarification_text,
     )
-    clarify = classify_for_clarification(question)
+    clarify = classify_for_clarification(question) if _tw.on("cascade.clarification") else None
     if clarify is not None:
         return {
             "answer_text":            _render_clarification_text(clarify, question),
@@ -1182,7 +1202,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
         classify_for_conversion,
         render_answer_text as _render_conversion_text,
     )
-    conversion = classify_for_conversion(question)
+    conversion = classify_for_conversion(question) if _tw.on("cascade.conversion") else None
     if conversion is not None:
         return {
             "answer_text":            _render_conversion_text(conversion),
@@ -1203,7 +1223,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.gr_classifier import (
         classify_for_gr, execute_gr_match,
     )
-    gr_match = classify_for_gr(question)
+    gr_match = classify_for_gr(question) if _tw.on("cascade.gr") else None
     if gr_match is not None:
         val, units, answer_text = execute_gr_match(gr_match)
         if val is not None:
@@ -1227,7 +1247,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.cosmology_classifier import (
         classify_for_cosmology, execute_cosmology_match,
     )
-    cos_match = classify_for_cosmology(question)
+    cos_match = classify_for_cosmology(question) if _tw.on("cascade.cosmology") else None
     if cos_match is not None:
         val, units, answer_text = execute_cosmology_match(cos_match)
         if val is not None:
@@ -1250,7 +1270,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.math_classifier import (
         classify_for_math, execute_math_match,
     )
-    math_match = classify_for_math(question)
+    math_match = classify_for_math(question) if _tw.on("cascade.math") else None
     if math_match is not None:
         val, units, answer_text = execute_math_match(math_match)
         if val is not None:
@@ -1271,7 +1291,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.thermo_classifier import (
         classify_for_thermo, execute_thermo_match,
     )
-    thermo_match = classify_for_thermo(question)
+    thermo_match = classify_for_thermo(question) if _tw.on("cascade.thermo") else None
     if thermo_match is not None:
         val, units, answer_text = execute_thermo_match(thermo_match)
         if val is not None:
@@ -1294,7 +1314,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.modern_classifier import (
         classify_for_modern, execute_modern_match,
     )
-    modern_match = classify_for_modern(question)
+    modern_match = classify_for_modern(question) if _tw.on("cascade.modern") else None
     if modern_match is not None:
         val, units, answer_text = execute_modern_match(modern_match)
         if val is not None:
@@ -1317,7 +1337,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.classical_intro_classifier import (
         classify_for_classical_intro, execute_classical_intro_match,
     )
-    ci_match = classify_for_classical_intro(question)
+    ci_match = classify_for_classical_intro(question) if _tw.on("cascade.classical_intro") else None
     if ci_match is not None:
         val, units, answer_text = execute_classical_intro_match(ci_match)
         if val is not None:
@@ -1338,7 +1358,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.optics_classifier import (
         classify_for_optics, execute_optics_match,
     )
-    opt_match = classify_for_optics(question)
+    opt_match = classify_for_optics(question) if _tw.on("cascade.optics") else None
     if opt_match is not None:
         val, units, answer_text = execute_optics_match(opt_match)
         if val is not None:
@@ -1362,7 +1382,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.astro_classifier import (
         classify_for_astro, execute_astro_match,
     )
-    astro_match = classify_for_astro(question)
+    astro_match = classify_for_astro(question) if _tw.on("cascade.astro") else None
     if astro_match is not None:
         val, units, answer_text = execute_astro_match(astro_match)
         if val is not None:
@@ -1385,7 +1405,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     # into a max-turns loop. Confident matches only; else fall through.
     try:
         from sigma_ground.mcp.benchmark.interpreter_demo import semantic_answer
-        sem = semantic_answer(question)
+        sem = semantic_answer(question) if _tw.on("cascade.semantic") else None
         if sem is not None:
             sem["elapsed_s"] = time.time() - t0
             return sem
@@ -1972,6 +1992,7 @@ async def _amain(args) -> int:
                     "id":     q["id"],
                     "system": "sigma_ground",
                     "model":  args.model,
+                    "tweaks": _tw.snapshot(),
                     **result,
                 }
                 out.append(rec)
@@ -2035,12 +2056,27 @@ def main() -> int:
                              "sorts a schema's keys, so the v1 schema forces \"args\" before "
                              "\"tool\" and a tool-first router does far worse under it "
                              "(see Session 38).")
-    parser.add_argument("--router-plan", default="v1", choices=["v1", "v2"],
+    parser.add_argument("--router-plan", default="v1", choices=["v1", "v2", "v3"],
                         help="with --router: which plan format the model was trained on. v1: "
                              "`args`, one call. v2: `tool_args`, plus `steps` for up to three "
                              "calls with \"$n\" references (router_plan.py). Sets the system "
                              "prompt; with 'toolfirst' it also sets the schema.")
+    parser.add_argument("--tweaks", default=None, metavar="PROFILE",
+                        help="tweak profile (tweaks.py): legacy (default; every result so far), "
+                             "trained (hidden tools shown, no parameter renaming, strict "
+                             "parameters), model-only (trained + the whole cascade off). "
+                             "Environment MENTAT_TWEAKS does the same.")
+    parser.add_argument("--tweaks-off", default="", metavar="NAMES",
+                        help="comma list of tweaks to switch off on top of the profile; "
+                             "'cascade.*' is a wildcard")
+    parser.add_argument("--tweaks-on", default="", metavar="NAMES",
+                        help="comma list of opt-in checks to switch on (strict_params)")
     args = parser.parse_args()
+    if args.tweaks or args.tweaks_off or args.tweaks_on:
+        _tw.configure(args.tweaks, [x for x in args.tweaks_off.split(",") if x],
+                      [x for x in args.tweaks_on.split(",") if x])
+    print(f"tweaks: {_tw.label(_tw.snapshot())}  off={_tw.snapshot()['off']}  on={_tw.snapshot()['on']}",
+          flush=True)
     if args.router_index and not args.router:
         parser.error("--router-index needs --router")
     if args.router_format != "schema" and not args.router:

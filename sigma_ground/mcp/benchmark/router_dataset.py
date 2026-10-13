@@ -701,7 +701,7 @@ def has_content(v: Any) -> bool:
 
 
 async def execute(session, name: str, args: dict, question: str = "",
-                  timeout_s: float = 15.0) -> dict | None:
+                  timeout_s: float = 15.0, keep_raw: bool = False) -> dict | None:
     """Run the gold call. Scalar answers go through the harness's own success
     test; others (expressions, catalogues, procedure step lists) must carry
     real content."""
@@ -729,7 +729,10 @@ async def execute(session, name: str, args: dict, question: str = "",
         shown = body if isinstance(body, str) else json.dumps(body, default=str)
         got = (shown[:200], parsed.get("units") or "")
     value = got[0] if isinstance(got[0], (int, float, str)) else str(got[0])
-    return {"value": value, "units": got[1], "source": parsed.get("source")}
+    out = {"value": value, "units": got[1], "source": parsed.get("source")}
+    if keep_raw:
+        out["raw"] = parsed.get("value")        # the whole result, for a "$n.field" reference
+    return out
 
 
 def classifier_route(question: str) -> tuple[str | None, str | None]:

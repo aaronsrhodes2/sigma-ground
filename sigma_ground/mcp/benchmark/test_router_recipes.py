@@ -18,6 +18,7 @@ import pytest
 from sigma_ground.mcp.benchmark import router_dataset as D
 from sigma_ground.mcp.benchmark import router_plan as RP
 from sigma_ground.mcp.benchmark import router_recipes as RR
+from sigma_ground.mcp.benchmark import router_recipes_v3 as RR3  # noqa: F401  (registers the v3 recipes)
 
 
 def test_recipe_ids_are_unique_and_there_are_enough():
@@ -36,16 +37,23 @@ def test_templates_and_plans_are_consistent(recipe):
         assert holes <= set(recipe.slots), (t, holes - set(recipe.slots))
         assert recipe.used_slots() <= holes, f"template lacks a slot the plan uses: {t}"
     for slot in recipe.slots:
-        assert slot in recipe.used_slots(), f"slot {slot!r} is sampled but never used by the plan"
+        assert slot in recipe.used_slots() or slot in recipe.distractors, \
+            f"slot {slot!r} is sampled but never used by the plan"
+    assert set(recipe.distractors) <= set(recipe.slots)
+    for t in recipe.templates:
+        assert set(recipe.distractors) <= set(re.findall(r"\{(\w+)\}", t)), \
+            f"a distractor is missing from a template of {recipe.id}: {t}"
     for i, (tool, spec) in enumerate(recipe.steps, start=1):
         for kind, x in spec.values():
-            assert kind in ("s", "r", "l")
+            assert kind in ("s", "r", "rf", "k", "l")
             if kind == "r":
                 assert x < i, f"{recipe.id}: step {i} refers to step {x}"
+            if kind == "rf":
+                assert x[0] < i, f"{recipe.id}: step {i} refers to step {x[0]}"
     for step_no in recipe.bounds:
         assert 1 <= step_no <= len(recipe.steps)
     if len(recipe.steps) > 1:
-        assert any(kind == "r" for _, spec in recipe.steps[1:] for kind, _ in spec.values()), \
+        assert any(kind in ("r", "rf") for _, spec in recipe.steps[1:] for kind, _ in spec.values()), \
             "a multi-step recipe must carry a value forward"
 
 

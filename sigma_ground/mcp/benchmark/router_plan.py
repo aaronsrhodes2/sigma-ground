@@ -25,7 +25,7 @@ import re
 from typing import Any
 
 MAX_STEPS = 3
-REF_RE = re.compile(r"^\$([1-9])$")
+REF_RE = re.compile(r"^\$([1-9])(?:\.([A-Za-z_][A-Za-z0-9_]*))?$")   # "$2" or "$1.mass_kg"
 
 ROUTER_SYSTEM_PROMPT_V2 = (
     "You are Mentat's router. Read the user's question and reply with ONE JSON "
@@ -43,6 +43,29 @@ ROUTER_SYSTEM_PROMPT_V2 = (
     "system.\n"
     "Never compute or recall the answer yourself; the tool does that."
 )
+
+
+# v3 = v2 + a field reference: a lookup tool returns several fields (solar_system_body: mass_kg,
+# radius_m, surface_temp_k, ...), and the plan names the one a later call needs. Before, the harness
+# guessed the field from the question's wording; a trained router says it.
+ROUTER_SYSTEM_PROMPT_V3 = ROUTER_SYSTEM_PROMPT_V2.replace(
+    '"$1" is the result of the first call, "$2" of the second.\n',
+    '"$1" is the result of the first call, "$2" of the second. When a call looks something up '
+    'and returns several fields (solar_system_body, named_star), "$1.<field>" is one of them, '
+    'e.g. "$1.mass_kg".\n')
+assert ROUTER_SYSTEM_PROMPT_V3 != ROUTER_SYSTEM_PROMPT_V2
+
+MULTISTEP = ("v2", "v3")        # plan versions whose model may write {"steps": [...]}
+
+
+def system_prompt(plan: str) -> str:
+    """The exact system prompt a router of this plan version is trained and run with."""
+    if plan == "v3":
+        return ROUTER_SYSTEM_PROMPT_V3
+    if plan == "v2":
+        return ROUTER_SYSTEM_PROMPT_V2
+    from sigma_ground.mcp.benchmark.router_dataset import ROUTER_SYSTEM_PROMPT
+    return ROUTER_SYSTEM_PROMPT
 
 
 class PlanError(ValueError):
@@ -92,9 +115,10 @@ def check_refs(steps: list[dict]) -> None:
                 raise PlanError(f"step {i} refers to ${r}, which has not run yet")
 
 
-def resolve_args(args: dict, values: list[Any]) -> dict:
-    """Replace "$n" with step n's value (values[0] is step 1's). Raises PlanError
-    if that step produced no number."""
+def resolve_args(args: dict, values: list[Any], raws: list[Any] | None = None) -> dict:
+    """Replace "$n" with step n's value (values[0] is step 1's) and "$n.field" with that
+    field of step n's whole result (raws[0] is step 1's; `values` when not given). Raises
+    PlanError if that step produced no number."""
     out = {}
     for k, v in (args or {}).items():
         if isinstance(v, str) and (m := REF_RE.match(v)):
@@ -102,6 +126,11 @@ def resolve_args(args: dict, values: list[Any]) -> dict:
             if n > len(values):
                 raise PlanError(f"${n} has not run yet")
             val = values[n - 1]
+            if m.group(2):
+                whole = (raws if raws is not None else values)[n - 1]
+                if not isinstance(whole, dict) or m.group(2) not in whole:
+                    raise PlanError(f"${n} has no field {m.group(2)!r}")
+                val = whole[m.group(2)]
             if isinstance(val, bool) or not isinstance(val, (int, float)):
                 raise PlanError(f"${n} is not a number: {val!r}")
             out[k] = val

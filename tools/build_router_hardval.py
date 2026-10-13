@@ -51,9 +51,12 @@ def resolve_macros(node):
     return node
 
 
+PLAN = "v2"      # which plan format's system prompt the records carry (--plan)
+
+
 def to_record(item: dict, plan: dict, verified: list) -> dict:
     return {"messages": [
-        {"role": "system", "content": RP.ROUTER_SYSTEM_PROMPT_V2},
+        {"role": "system", "content": RP.system_prompt(PLAN)},
         {"role": "user", "content": item["question"]},
         {"role": "assistant", "content": RP.dumps_plan(plan)}],
         "meta": {"group": item["id"], "source": "hard", "family": item["family"],
@@ -209,9 +212,13 @@ def main() -> int:
     p.add_argument("--out", type=Path, default=REPO / "local-cache" / "router_hardval")
     p.add_argument("--cache", type=Path, default=None,
                    help="verified results by question + plan (default: <out>/verified.json)")
+    p.add_argument("--plan", choices=["v2", "v3"], default="v2")
     p.add_argument("--no-guard", action="store_true")
     p.add_argument("--server-mem-gb", type=float, default=6)
-    return asyncio.run(_amain(p.parse_args()))
+    a = p.parse_args()
+    global PLAN
+    PLAN = a.plan
+    return asyncio.run(_amain(a))
 
 
 if __name__ == "__main__":

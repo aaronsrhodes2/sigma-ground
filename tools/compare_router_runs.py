@@ -20,6 +20,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
+from sigma_ground.mcp.benchmark import tweaks as T  # noqa: E402
 from sigma_ground.mcp.benchmark.score import score_run  # noqa: E402
 
 BENCH = REPO / "sigma_ground" / "mcp" / "benchmark"
@@ -33,10 +34,13 @@ def load(path: Path) -> dict:
     recs = {r["id"]: r for r in json.loads(path.read_text(encoding="utf-8"))}
     rows = {r.id: r for r in score_run(path, BENCH / "questions.json",
                                        BENCH / "ground_truth.json")}
+    snaps = {json.dumps(r.get("tweaks", {"profile": "legacy", "off": [], "on": []}), sort_keys=True)
+             for r in recs.values()}
+    tweaks = T.label(json.loads(next(iter(snaps)))) if len(snaps) == 1 else f"MIXED({len(snaps)})"
     mp = [i for i in recs if on_model_path(recs[i])]
     med = lambda xs: round(statistics.median(xs), 2) if xs else None  # noqa: E731
     return {
-        "recs": recs, "rows": rows, "model_path": set(mp),
+        "recs": recs, "rows": rows, "model_path": set(mp), "tweaks": tweaks,
         "overall": sum(r.correct for r in rows.values()), "total": len(rows),
         "mp_n": len(mp),
         "mp_correct": sum(rows[i].correct for i in mp if i in rows),
@@ -54,12 +58,12 @@ def main(argv: list[str]) -> int:
     for arg in argv:
         name, _, path = arg.partition("=")
         runs[name] = load(Path(path))
-    cols = ["overall", "mp_n", "mp_correct", "mp_grounded", "declines",
+    cols = ["tweaks", "overall", "mp_n", "mp_correct", "mp_grounded", "declines",
             "clarifications", "router_errors", "median_s_all", "median_s_mp"]
     print("| run | " + " | ".join(cols) + " |")
     print("|---|" + "---|" * len(cols))
     for name, r in runs.items():
-        cells = [f"{r['overall']}/{r['total']}"] + [str(r[c]) for c in cols[1:]]
+        cells = [r["tweaks"], f"{r['overall']}/{r['total']}"] + [str(r[c]) for c in cols[2:]]
         print(f"| {name} | " + " | ".join(cells) + " |")
     names = list(runs)
     for a in names:

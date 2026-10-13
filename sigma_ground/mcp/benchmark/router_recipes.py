@@ -86,8 +86,12 @@ def S(slot: str):    # plan argument = the slot's value
     return ("s", slot)
 
 
-def R(n: int):       # plan argument = "$n"
-    return ("r", n)
+def R(n: int, field: str | None = None):    # plan argument = "$n", or "$n.field" of a lookup result
+    return ("r", n) if field is None else ("rf", (n, field))
+
+
+def K(slot: str, index: int):    # plan argument = one element of a choice slot's value (a tuple)
+    return ("k", (slot, index))
 
 
 def L(value):        # plan argument = a literal
@@ -103,9 +107,11 @@ class Recipe:
     steps: list                       # [(tool, {param: S/R/L})]
     bounds: dict = field(default_factory=dict)      # step number -> (lo, hi) on its value
     per: int = 0                      # 0: use the command-line default
+    distractors: tuple = ()           # slots the question states but the plan does not use
 
     def used_slots(self) -> set:
-        return {a[1] for _, args in self.steps for a in args.values() if a[0] == "s"}
+        used = {a[1] for _, args in self.steps for a in args.values() if a[0] == "s"}
+        return used | {a[1][0] for _, args in self.steps for a in args.values() if a[0] == "k"}
 
 
 RECIPES: list = []
@@ -495,7 +501,9 @@ def build_plan(recipe: Recipe, args: dict) -> list:
     for tool, spec in recipe.steps:
         a = {}
         for param, (kind, x) in spec.items():
-            a[param] = args[x].value if kind == "s" else f"${x}" if kind == "r" else x
+            a[param] = (args[x].value if kind == "s" else f"${x}" if kind == "r"
+                        else f"${x[0]}.{x[1]}" if kind == "rf" else args[x[0]].value[x[1]]
+                        if kind == "k" else x)
         steps.append({"tool": tool, "args": a})
     return steps
 
@@ -509,12 +517,17 @@ async def run_plan(session, steps: list, question: str, bounds: dict):
     """Execute the plan; returns the list of step results or a drop reason."""
     values, results = [], []
     for i, s in enumerate(steps, start=1):
-        a = RP.resolve_args(s["args"], values)
-        res = await D.execute(session, s["tool"], a, question, timeout_s=120)
+        try:
+            a = RP.resolve_args(s["args"], values)
+        except RP.PlanError as e:
+            return None, f"{s['tool']}: bad reference ({e})"
+        res = await D.execute(session, s["tool"], a, question, timeout_s=120, keep_raw=True)
         if res is None:
             return None, f"{s['tool']} returned no value"
         v = res["value"]
-        if isinstance(v, bool) or not isinstance(v, (int, float)):
+        if isinstance(res.get("raw"), dict):
+            v = res["raw"]          # a lookup: a later call reads one field of it ("$1.mass_kg")
+        elif isinstance(v, bool) or not isinstance(v, (int, float)):
             if i < len(steps):
                 return None, f"{s['tool']} value is not a number"
         elif i in bounds and not (bounds[i][0] <= v <= bounds[i][1]):

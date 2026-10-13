@@ -37,13 +37,16 @@ from sigma_ground.mcp.benchmark import router_plan as RP  # noqa: E402
 PADDED_EXPONENT = re.compile(r"\d[eE][-+]?0\d")
 
 
+PLAN = "v2"            # plan format and system prompt the records carry; assemble() sets it
+
+
 def read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
 def record(question: str, plan: dict, meta: dict) -> dict:
     return {"messages": [
-        {"role": "system", "content": RP.ROUTER_SYSTEM_PROMPT_V2},
+        {"role": "system", "content": RP.system_prompt(PLAN)},
         {"role": "user", "content": question},
         {"role": "assistant", "content": RP.dumps_plan(plan)}],
         "meta": meta}
@@ -69,7 +72,7 @@ def args_of(seed: dict) -> list:
 def validate(rec: dict) -> None:
     """Raises AssertionError on anything the model must never be trained on."""
     sys_m, user_m, asst_m = rec["messages"]
-    assert sys_m["content"] == RP.ROUTER_SYSTEM_PROMPT_V2
+    assert sys_m["content"] == RP.system_prompt(PLAN)
     assert not PADDED_EXPONENT.search(asst_m["content"]), asst_m["content"]
     plan = json.loads(asst_m["content"])
     for s in (plan["steps"] if isinstance(plan.get("steps"), list) else [plan]):
@@ -91,7 +94,18 @@ def teacher_pass(seeds: list[dict], teacher: Callable[[str, int], str], variants
             if line.strip():
                 row = json.loads(line)
                 done[row["i"]] = row["rewrites"]
-        log(f"  resuming: {len(done)} of {len(seeds)} seeds already rewritten")
+        # The cache is indexed by seed. If the seeds moved (a recipe inserted before the cached
+        # ones), a rewrite would be attached to another question's plan -- a wrong label. A
+        # rewrite was checked against its own seed's numbers when it was made, so check it again.
+        for i, rewrites in done.items():
+            if i >= len(seeds):
+                raise RuntimeError(f"rewrite cache has seed {i}, but only {len(seeds)} seeds exist")
+            for rw in rewrites:
+                why = D.check_rewrite(seeds[i]["question"], rw, args_of(seeds[i]))
+                if why:
+                    raise RuntimeError(f"rewrite cache does not line up with the seeds at index {i} "
+                                       f"({why}); keep the old seeds first or delete the cache")
+        log(f"  resuming: {len(done)} of {len(seeds)} seeds already rewritten (cache lines up)")
     counts: Counter = Counter()
     out: list[dict] = []
     t0 = time.time()
@@ -99,6 +113,9 @@ def teacher_pass(seeds: list[dict], teacher: Callable[[str, int], str], variants
         for i, seed in enumerate(seeds):
             if i in done:
                 rewrites = done[i]
+            elif seed["meta"].get("no_rewrite"):
+                rewrites = []
+                f.write(json.dumps({"i": i, "rewrites": rewrites}, ensure_ascii=False) + "\n")
             else:
                 rewrites = []
                 for k in range(variants):
@@ -140,8 +157,12 @@ def teacher_pass(seeds: list[dict], teacher: Callable[[str, int], str], variants
     return out, counts
 
 
-def assemble(v1_dir: Path, recipes_dir: Path, out_dir: Path, teacher=None, variants: int = 3,
-             guard=None, val_pct: int = 10, log=print) -> dict:
+def assemble(v1_dir: Path, recipes_dir, out_dir: Path, teacher=None, variants: int = 3,
+             guard=None, val_pct: int = 10, log=print, plan: str = "v2") -> dict:
+    """`recipes_dir`: one folder of seeds.jsonl or several, read in the order given -- keep the
+    old seeds first and the teacher-rewrite cache (rewrites.jsonl, indexed by seed) stays valid."""
+    global PLAN
+    PLAN = plan
     out_dir.mkdir(parents=True, exist_ok=True)
     taken: set = set()
     train: list[dict] = []
@@ -155,7 +176,8 @@ def assemble(v1_dir: Path, recipes_dir: Path, out_dir: Path, teacher=None, varia
             bucket.append(new)
     v1_counts = {"train": len(train), "val": len(val)}
 
-    seeds = read_jsonl(recipes_dir / "seeds.jsonl")
+    dirs = [recipes_dir] if isinstance(recipes_dir, Path) else list(recipes_dir)
+    seeds = [sd for d in dirs for sd in read_jsonl(d / "seeds.jsonl")]
     kept_seeds = []
     for seed in seeds:
         key = D._norm(seed["question"])
@@ -201,8 +223,8 @@ def assemble(v1_dir: Path, recipes_dir: Path, out_dir: Path, teacher=None, varia
     if (v1_dir / "manifest.json").exists():
         v1_manifest = json.loads((v1_dir / "manifest.json").read_text(encoding="utf-8"))
     manifest = {
-        "format": "v2", "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-        "system_prompt": RP.ROUTER_SYSTEM_PROMPT_V2,
+        "format": plan, "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "system_prompt": RP.system_prompt(plan), "recipe_dirs": [str(d) for d in dirs],
         "v1_records": v1_counts, "v1_tool_surface_hash": v1_manifest.get("tool_surface_hash"),
         "recipe_seeds": len(kept_seeds), "teacher": bool(teacher), "variants": variants if teacher else 0,
         "rewrite_counts": dict(rewrite_counts),
@@ -216,7 +238,10 @@ def main() -> int:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--v1", type=Path, default=REPO / "local-cache" / "router_dataset")
-    p.add_argument("--recipes", type=Path, default=REPO / "local-cache" / "router_recipes")
+    p.add_argument("--recipes", type=Path, action="append",
+                   help="folder of seeds.jsonl; repeat to add more, old seeds first (default: router_recipes)")
+    p.add_argument("--plan", choices=["v2", "v3"], default="v2",
+                   help="v3 = v2 + \"$n.field\" references and the v3 system prompt")
     p.add_argument("--out", type=Path, default=REPO / "local-cache" / "router_dataset_v2")
     p.add_argument("--teacher-model", default="")
     p.add_argument("--teacher-url", default="http://127.0.0.1:11434")
@@ -225,7 +250,8 @@ def main() -> int:
     a = p.parse_args()
     teacher = D.ollama_teacher(a.teacher_url, a.teacher_model) if a.teacher_model else None
     guard = None if a.no_guard else D.BenchmarkGuard.from_repo()
-    m = assemble(a.v1, a.recipes, a.out, teacher, a.variants, guard)
+    m = assemble(a.v1, a.recipes or REPO / "local-cache" / "router_recipes", a.out, teacher,
+                 a.variants, guard, plan=a.plan)
     print(json.dumps({k: m[k] for k in ("v1_records", "recipe_seeds", "rewrite_counts")}, indent=2))
     print("train:", json.dumps(m["train"]))
     print("val:  ", json.dumps(m["val"]))
