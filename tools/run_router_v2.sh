@@ -24,6 +24,7 @@
 # Knobs: PER_RECIPE (70) VARIANTS (3) TEACHER (qwen2.5:14b) MAX_TRAIN_H (6) GPU_BUSY_MIB (4000)
 # GPU_WAIT_MIN (45) UNLOAD_MAIN V1DATA.
 set -euo pipefail
+export PYTHONIOENCODING=utf-8      # Windows consoles are cp1252; questions hold Ω, µ, °
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PY="$REPO/.venv/Scripts/python"
@@ -259,15 +260,18 @@ eval_both() {   # eval_both <data dir> <split> <name>
   local f fmt
   for f in toolfirst free; do
     fmt=$f; [[ $f == free ]] && fmt=none
+    [[ -s "$CACHE/eval_${3}_${MODEL}_$f.json" ]] && { log "  eval_$3 $f already done"; continue; }
     "$PY" -u "$REPO/tools/eval_router_val.py" --model "$MODEL" --ollama-url "$API" --data "$1" --split "$2" \
       --plan v2 --format "$fmt" --out "$CACHE/eval_${3}_${MODEL}_$f.json" > "$LOGS/eval_${3}_$f.log" 2>&1 || return 1
   done
 }
-do_eval_val() { ollama_up; gpu_guard eval_val exclusive; eval_both "$DATA" val val; }
-do_eval_hard() { ollama_up; gpu_guard eval_hard exclusive; eval_both "$HARD" hard hard; }
+# The tuned model is ~5 GB, so evaluation and the benchmark share the card with Skippy's Ollama
+# ("shared": no container stop, no wait for the GPU to empty). Latencies are then indicative only.
+do_eval_val() { ollama_up; gpu_guard eval_val shared; eval_both "$DATA" val val; }
+do_eval_hard() { ollama_up; gpu_guard eval_hard shared; eval_both "$HARD" hard hard; }
 do_benchmark() {
   ollama_up
-  gpu_guard benchmark exclusive
+  gpu_guard benchmark shared
   local h=(-m sigma_ground.mcp.benchmark.run_sigma_ground --ollama-url "$HARNESS_URL" --router --router-plan v2 --model "$MODEL")
   # Both formats at once: each starts its own Mentat server, whose first tool call costs minutes of
   # CPU on a busy machine, and the model is small. They share the one-slot Ollama in turn.
