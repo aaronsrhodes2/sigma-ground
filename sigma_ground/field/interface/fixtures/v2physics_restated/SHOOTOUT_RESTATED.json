@@ -1,0 +1,402 @@
+[
+ {
+  "body": "Mercury",
+  "lead": 1,
+  "r2": 0.29764932566096924,
+  "control": 0.010252537551886067,
+  "candidate": 0.004874167508696634,
+  "n": 16
+ },
+ {
+  "body": "Mercury",
+  "lead": 3,
+  "r2": 0.7393762743266141,
+  "control": 0.02939210766476552,
+  "candidate": 0.015858585747188302,
+  "n": 16
+ },
+ {
+  "body": "Mercury",
+  "lead": 5,
+  "r2": 1.3499420759997893,
+  "control": 0.02330487430477618,
+  "candidate": 0.02523974640136662,
+  "n": 16
+ },
+ {
+  "body": "Mercury",
+  "lead": 10,
+  "r2": 2.6298863918724504,
+  "control": null,
+  "candidate": 0.06530648434597892,
+  "n": 7
+ },
+ {
+  "body": "Mercury",
+  "lead": 20,
+  "r2": 5.841455101009596,
+  "control": null,
+  "candidate": 0.13031313756425073,
+  "n": 7
+ },
+ {
+  "body": "Venus",
+  "lead": 1,
+  "r2": 0.03476228761142058,
+  "control": 0.03622960422928755,
+  "candidate": 0.024512794665017115,
+  "n": 16
+ },
+ {
+  "body": "Venus",
+  "lead": 3,
+  "r2": 0.10241570027132935,
+  "control": 0.11935139433030967,
+  "candidate": 0.07065804154651233,
+  "n": 16
+ },
+ {
+  "body": "Venus",
+  "lead": 5,
+  "r2": 0.17660918897292488,
+  "control": 0.2045222436629771,
+  "candidate": 0.11402472184359595,
+  "n": 16
+ },
+ {
+  "body": "Venus",
+  "lead": 10,
+  "r2": 0.2798501048718605,
+  "control": null,
+  "candidate": 0.22736340483131504,
+  "n": 7
+ },
+ {
+  "body": "Venus",
+  "lead": 20,
+  "r2": 0.5933826956991018,
+  "control": null,
+  "candidate": 0.49282761138422093,
+  "n": 7
+ },
+ {
+  "body": "Earth",
+  "lead": 1,
+  "r2": 0.07654184268928971,
+  "control": 0.07653364771731969,
+  "candidate": 0.03693727426975245,
+  "n": 16
+ },
+ {
+  "body": "Earth",
+  "lead": 3,
+  "r2": 0.2965028401872713,
+  "control": 0.28271609104733025,
+  "candidate": 0.11567361719701888,
+  "n": 16
+ },
+ {
+  "body": "Earth",
+  "lead": 5,
+  "r2": 0.4505867337327282,
+  "control": 0.45285696496445105,
+  "candidate": 0.18941063936826996,
+  "n": 16
+ },
+ {
+  "body": "Earth",
+  "lead": 10,
+  "r2": 0.7654715498300685,
+  "control": null,
+  "candidate": 0.38484336816529474,
+  "n": 7
+ },
+ {
+  "body": "Earth",
+  "lead": 20,
+  "r2": 1.8871757926143282,
+  "control": null,
+  "candidate": 0.7862338902506826,
+  "n": 7
+ },
+ {
+  "body": "Moon",
+  "lead": 1,
+  "r2": 0.7591387992301388,
+  "control": 0.3074483055111477,
+  "candidate": 0.10013486927604057,
+  "n": 16
+ },
+ {
+  "body": "Moon",
+  "lead": 3,
+  "r2": 2.3044034587688804,
+  "control": 1.0301295521152878,
+  "candidate": 0.29578046876896935,
+  "n": 16
+ },
+ {
+  "body": "Moon",
+  "lead": 5,
+  "r2": 3.9012490617918223,
+  "control": 1.4469124558750692,
+  "candidate": 0.4266659320321555,
+  "n": 16
+ },
+ {
+  "body": "Moon",
+  "lead": 10,
+  "r2": 6.875265759242359,
+  "control": null,
+  "candidate": 0.7138948669413855,
+  "n": 7
+ },
+ {
+  "body": "Moon",
+  "lead": 20,
+  "r2": 14.666071750281377,
+  "control": null,
+  "candidate": 1.0095008999089166,
+  "n": 7
+ },
+ {
+  "body": "Mars",
+  "lead": 1,
+  "r2": 0.3750586787411243,
+  "control": 0.44863685529899455,
+  "candidate": 0.10829014187151781,
+  "n": 16
+ },
+ {
+  "body": "Mars",
+  "lead": 3,
+  "r2": 1.0254420198286145,
+  "control": 1.2754051985565638,
+  "candidate": 0.34224371759977534,
+  "n": 16
+ },
+ {
+  "body": "Mars",
+  "lead": 5,
+  "r2": 1.2575495634950404,
+  "control": 1.0298404636344238,
+  "candidate": 0.6494294219412575,
+  "n": 16
+ },
+ {
+  "body": "Mars",
+  "lead": 10,
+  "r2": 1.4906623696940116,
+  "control": null,
+  "candidate": 1.1802100742536215,
+  "n": 7
+ },
+ {
+  "body": "Mars",
+  "lead": 20,
+  "r2": 3.9183364055071057,
+  "control": null,
+  "candidate": 3.658201964555558,
+  "n": 7
+ },
+ {
+  "body": "Jupiter",
+  "lead": 1,
+  "r2": null,
+  "control": 0.294315995411685,
+  "candidate": 0.0645440364704839,
+  "n": 16
+ },
+ {
+  "body": "Jupiter",
+  "lead": 3,
+  "r2": null,
+  "control": 2.2565419666113145,
+  "candidate": 0.6908579333040659,
+  "n": 16
+ },
+ {
+  "body": "Jupiter",
+  "lead": 5,
+  "r2": null,
+  "control": 7.059143345350426,
+  "candidate": 2.0730098945048256,
+  "n": 16
+ },
+ {
+  "body": "Jupiter",
+  "lead": 10,
+  "r2": null,
+  "control": null,
+  "candidate": 4.738647114141108,
+  "n": 7
+ },
+ {
+  "body": "Jupiter",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 9.920340165313695,
+  "n": 7
+ },
+ {
+  "body": "Saturn",
+  "lead": 1,
+  "r2": null,
+  "control": 0.18850463093773454,
+  "candidate": 0.019220397292052677,
+  "n": 16
+ },
+ {
+  "body": "Saturn",
+  "lead": 3,
+  "r2": null,
+  "control": 1.029997626597712,
+  "candidate": 0.10936274053633871,
+  "n": 16
+ },
+ {
+  "body": "Saturn",
+  "lead": 5,
+  "r2": null,
+  "control": 1.3799265923409045,
+  "candidate": 0.15657088996023477,
+  "n": 16
+ },
+ {
+  "body": "Saturn",
+  "lead": 10,
+  "r2": null,
+  "control": null,
+  "candidate": 0.9770837326347638,
+  "n": 7
+ },
+ {
+  "body": "Saturn",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 2.114801843895836,
+  "n": 7
+ },
+ {
+  "body": "Uranus",
+  "lead": 1,
+  "r2": null,
+  "control": 0.1975298269052529,
+  "candidate": 0.03180508241638115,
+  "n": 16
+ },
+ {
+  "body": "Uranus",
+  "lead": 3,
+  "r2": null,
+  "control": 1.1019477645756592,
+  "candidate": 0.30783020601593675,
+  "n": 16
+ },
+ {
+  "body": "Uranus",
+  "lead": 5,
+  "r2": null,
+  "control": 1.302861930654966,
+  "candidate": 0.7832956451123076,
+  "n": 16
+ },
+ {
+  "body": "Uranus",
+  "lead": 10,
+  "r2": null,
+  "control": null,
+  "candidate": 3.0856592152034032,
+  "n": 7
+ },
+ {
+  "body": "Uranus",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 14.464244237732398,
+  "n": 7
+ },
+ {
+  "body": "Neptune",
+  "lead": 1,
+  "r2": null,
+  "control": 0.18899544509797944,
+  "candidate": 0.07266268319521019,
+  "n": 16
+ },
+ {
+  "body": "Neptune",
+  "lead": 3,
+  "r2": null,
+  "control": 1.154223701272571,
+  "candidate": 0.6195351324575166,
+  "n": 16
+ },
+ {
+  "body": "Neptune",
+  "lead": 5,
+  "r2": null,
+  "control": 1.845686494709342,
+  "candidate": 1.794746151024874,
+  "n": 16
+ },
+ {
+  "body": "Neptune",
+  "lead": 10,
+  "r2": null,
+  "control": null,
+  "candidate": 6.946758395618785,
+  "n": 7
+ },
+ {
+  "body": "Neptune",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 29.530196693471414,
+  "n": 7
+ },
+ {
+  "body": "Pluto",
+  "lead": 1,
+  "r2": null,
+  "control": 0.2153418905962815,
+  "candidate": 0.0920481483658994,
+  "n": 16
+ },
+ {
+  "body": "Pluto",
+  "lead": 3,
+  "r2": null,
+  "control": 1.3295451230494129,
+  "candidate": 0.83343679365727,
+  "n": 16
+ },
+ {
+  "body": "Pluto",
+  "lead": 5,
+  "r2": null,
+  "control": 2.9888406771415035,
+  "candidate": 2.3421991865524046,
+  "n": 16
+ },
+ {
+  "body": "Pluto",
+  "lead": 10,
+  "r2": null,
+  "control": null,
+  "candidate": 8.108462233979232,
+  "n": 7
+ },
+ {
+  "body": "Pluto",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 34.89942000368064,
+  "n": 7
+ }
+]
