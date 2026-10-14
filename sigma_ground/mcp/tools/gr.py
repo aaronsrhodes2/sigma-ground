@@ -5,9 +5,9 @@ sigma_ground source citation) and fall through to direct formula
 evaluation otherwise. All quantities are computed in SI internally;
 the user can convert via tools.units.convert.
 
-The SSBM-specific GR functions (page_time_sigma_ground,
-eta_as_bit_thread_fraction) are NOT exposed here. They live in the
-EXTENDED tier surfaced only when the user explicitly asks about SSBM.
+The σ-specific GR functions (page_time_sigma_ground,
+eta_as_bit_thread_fraction) are NOT exposed here: they are speculative
+hypotheses (misc/DISPROOF_LEDGER.md), not standard GR.
 """
 
 from __future__ import annotations

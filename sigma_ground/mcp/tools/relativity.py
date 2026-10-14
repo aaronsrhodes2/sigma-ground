@@ -5,8 +5,8 @@ implementations already handle the math and edge cases. We just add
 the MCP-side ToolResult, citations, and input validation.
 
 The σ-derived functions (`sigma_time_dilation`, `effective_liv_scale_gev`)
-live in the EXTENDED tier of the SSBM theoretical layer and are NOT
-exposed here per the MCP-positioning decision.
+are speculative hypotheses (misc/DISPROOF_LEDGER.md) and are NOT
+exposed here.
 """
 
 from __future__ import annotations

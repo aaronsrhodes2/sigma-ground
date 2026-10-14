@@ -80,8 +80,9 @@ def entanglements_to_pop_bubble(radius_m: float) -> ToolResult:
         value=N, units="",
         source="sigma-ground (holographic thread saturation)",
         formula="N = π R² / L_p²",
+        provenance_tag="SPECULATIVE-PENDING",
         inputs={"radius_m": radius_m},
-        notes=("Threads to pop a bubble of radius R. Smallest bubble "
+        notes=("[SPECULATIVE] physics hypothesis, not part of the model: the arithmetic is exact, the interpretation is untested (misc/DISPROOF_LEDGER.md section D). " "Threads to pop a bubble of radius R. Smallest bubble "
                 "(R=L_p) pops at N=π≈3 — the quantum of cavitation. "
                 "= the bubble's Bekenstein-Hawking pixel count."),
     )
@@ -102,8 +103,9 @@ def holographic_matching_mass() -> ToolResult:
         value=M, units="kg",
         source="sigma-ground (baryon-count = horizon-pixel crossover)",
         formula="M = ħ c / (4π G m_p)",
+        provenance_tag="SPECULATIVE-PENDING",
         inputs={},
-        notes=(f"r_s = {r_s:.3e} m (sub-proton). Above: disc has room; "
+        notes=("[SPECULATIVE] physics hypothesis, not part of the model: the arithmetic is exact, the interpretation is untested (misc/DISPROOF_LEDGER.md section D). " f"r_s = {r_s:.3e} m (sub-proton). Above: disc has room; "
                 f"below: matter overflows the horizon."),
     )
 
@@ -135,8 +137,9 @@ def baryon_vs_disc(mass_kg: float) -> ToolResult:
         units="",
         source="sigma-ground (holographic baryon accounting)",
         formula="n_disc = A/(4 L_p²);  n_baryons = M/m_p",
+        provenance_tag="SPECULATIVE-PENDING",
         inputs={"mass_kg": mass_kg},
-        notes=("Baryons ~ M, disc ~ M², so they cross at the matching mass "
+        notes=("[SPECULATIVE] physics hypothesis, not part of the model: the arithmetic is exact, the interpretation is untested (misc/DISPROOF_LEDGER.md section D). " "Baryons ~ M, disc ~ M², so they cross at the matching mass "
                 "(~2.25e10 kg). Below it, baryon info overflows the horizon."),
     )
 

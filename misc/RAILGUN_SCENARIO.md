@@ -78,7 +78,7 @@ State (V_c, I, x, v, dT, three Joule ledgers), stepped by `sg_solve_ivp(method='
 1. `energy_ledger`: bank energy = remaining capacitor energy + 1/2 L I^2 + kinetic + Joule (circuit, rails, armature), worst residual over the whole shot, tolerance 1e-3 of the bank energy.
 2. `armature_heat_balance`: armature Joule integral equals `m * integral c_p dT` over the recorded temperature history.
 3. `speed_below_energy_ceiling`: `v <= sqrt(2 E / m)`.
-4. `peak_force_vs_library_lorentz`: `electromagnetic_force_analysis(...)['magnetic_force_N']` with `q v = I * gap` and `B = L' I / (2 gap)` must equal the model's peak force. **Honest limit:** B is built from the same L', so this checks the force law, the factor 1/2 and the units against the library's cross product, not the value of L' itself.
+4. `peak_force_vs_library_lorentz`: `field.electrodynamics.magnetic_force(...)` (its magnitude; the tier-4 `electromagnetic_force_analysis` computes the same value) with `q v = I * gap` and `B = L' I / (2 gap)` must equal the model's peak force. **Honest limit:** B is built from the same L', so this checks the force law, the factor 1/2 and the units against the library's cross product, not the value of L' itself.
 5. `x_monotone`, `speed_monotone`, `no_negative_temperature` (T > 0 and non-decreasing), `no_loss_gain`.
 6. `shot_terminated`: the armature must reach the muzzle or melt; a shot that never clears the rails is refused.
 

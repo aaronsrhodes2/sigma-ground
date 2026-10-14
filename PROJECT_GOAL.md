@@ -1,94 +1,78 @@
-# sigma-ground / quarksum — Project Goal
+# sigma-ground / quarksum / Mentat — Project Goal
 
-## Mission
+## Mission (the Captain, 2026-10-13)
 
-**Build a physics professor assistant.**
+**Build a local computational-knowledge engine that contends with Wolfram|Alpha, in mathematics and physics first.**
+It runs on this PC, a small local model translates, Mentat computes, and every value carries its source.
+
+Order of conquest: **mathematics first** (the most immutable ground), then **physics**, then **chemistry**, then **biology**.
+A domain is not "done" until it passes the contender gate below. Training the front-end model is the **last** step, after the gate
+holds for the untrained system (`misc/CONTENDER_PLAN.md`).
 
 It must do two things well:
 
-### 1. One-liner Q&A (Q&A mode — current benchmark)
+### 1. One-liner Q&A (Q&A mode — the benchmark)
 
-Answer a standalone physics question in plain English with a single
-authoritative numerical answer, fully cited.
+Answer a standalone question — terse (`integrate x^2 sin x`, `density of copper`) or conversational ("how long does a dropped ball take to fall
+10 meters?") — with an authoritative, cited answer and the way the input was read.
 
-**Accuracy target: within 98% of Wolfram Alpha's accuracy on the same
-question set.** Wolfram is the canonical "right answer" reference for
-the topical breadth a physics undergrad would ask. We don't need to
-beat it on math; we need to match it on numbers and beat it on
-natural-language phrasing.
-
-What "within 98% of WA" means concretely:
-  - For any question WA can answer correctly, we want to answer it
-    correctly too (within the stated tolerance band of the question's
-    ground truth).
-  - For questions WA cannot parse (its NLP gives up on conversational
-    English), sigma-ground should still answer correctly — that's
-    where the differentiation is.
-  - On the 150-question physics-major curriculum, target ≥98% × max(WA, 1)
-    correct.
+Wolfram is the reference for accuracy on short, well-formed queries; a language-model front end is where we can beat it, on conversational
+phrasing and multi-step chains, without giving up its precision. What we owe on every answer:
+  - the value, its units, its source, its uncertainty, and the formula used;
+  - how the input was interpreted (and, where an input was missing, what was assumed and the listed alternatives);
+  - never a silently wrong parse: a reading Mentat is unsure of is refused or shown, not answered as something else.
 
 ### 2. Conversational physics (conversation mode — roadmap)
 
-Hold a casual back-and-forth physics conversation in natural human
-language, the way one would talk with a knowledgeable colleague.
-Persisted state across turns, with the sigma-ground + quarksum
-simulation engine as the playground.
+Hold a casual back-and-forth physics conversation in natural language, the way one would talk with a knowledgeable colleague.
+Persisted state across turns, with the sigma-ground + quarksum simulation engine as the playground.
 
-What this requires (not yet built):
+What this requires (partly built — see the playground and front-door tools):
   - Persisted conversation state across turns.
-  - Stateful tools that mutate a simulation (apply force, evolve a
-    system, change a boundary condition) — distinct from the current
-    immutable Q&A tool surface.
-  - Conversation-mode system prompt distinct from the Q&A switchboard
-    prompt.
-  - A way for the user to switch modes ("let's simulate this" vs
-    "what's the answer to ...").
-
-See `memory/project_mcp_modes.md` for the architectural distinction.
+  - Stateful tools that mutate a simulation (apply force, evolve a system, change a boundary condition).
+  - A conversation-mode system prompt distinct from the Q&A switchboard prompt.
+  - A way for the user to switch modes ("let's simulate this" vs "what's the answer to ...").
 
 ## What backs the assistant
 
-  - **sigma-ground** — the curated physics library. Constants,
-    formulas, named bodies, named stars, materials, with full
-    provenance on every value. Every tool returns
-    `(value, units, source, uncertainty, provenance_tag)`.
-  - **quarksum** — the simulation engine. Real-matter physics, σ-field,
-    SSBM scale dynamics, n-body with full GR corrections. Used by
-    conversation mode as the playground.
-  - **An LLM front-end** (currently qwen2.5:14b via Ollama) — the
-    translation layer between user language and library/simulation
-    calls. NOT the source of physics knowledge.
+  - **sigma-ground** — the curated physics library. Constants, formulas, named bodies, materials, with provenance on every value. Every tool
+    returns `(value, units, source, uncertainty, provenance_tag)`; a result also says how its input was read.
+  - **quarksum** — the particle inventory and mass-closure engine (materials → molecules → atoms → particles → quarks), plus the N-body engine
+    (relativistic, tidal, zonal, radiation) validated against JPL DE440. Used by conversation mode as the playground.
+  - **Mentat** — the MCP server, the public face: every tool, one contract (quantities with units, bounds, uniform errors, assumptions disclosed).
+  - **A local LLM front end** (a small model, Qwen3 today) — the translation layer between user language and tool calls.
+    NOT the source of physics or arithmetic: Mentat computes every number (PLATINUM §21).
 
 ## What this assistant is NOT
 
-  - Not a Wolfram Alpha replacement on symbolic-math breadth (we don't
-    do step-by-step integrals or arbitrary plots).
-  - Not an LLM tutor (we don't generate explanations beyond what tools
-    return). We can describe what we computed, not derive new physics.
+  - Not an LLM tutor: it describes what it computed; it does not derive new physics.
   - Not an interactive proof assistant.
+  - Not a source of speculative physics: hypotheses that have not survived a test are filed in `misc/DISPROOF_LEDGER.md`, served only on explicit
+    request, and always labelled.
+  - (Step-by-step solutions and plots are not goals today. If the contender gate shows Wolfram's lead there matters, they join the plan.)
 
-## Success metrics
+## Success metrics — the contender gate (all must hold before any training)
 
 | Metric | Where measured | Target |
 |---|---|---|
-| Q&A numerical accuracy | 150-Q corpus + daily_job | ≥98% of Wolfram on same Qs |
-| Q&A coverage of physics-major curriculum | corpus domains | 14 domains, all ≥80% |
-| Q&A latency (median per question) | run_sigma_ground.py | ≤30 s |
-| Library-gap rate ("Fitted due to incompetence") | IMPROVEMENT_PLAN.md | ≤5% of failures |
-| Conversation mode (to be built) | future eval | initial: 1-turn handoff |
+| Math, terse suite (≥500 questions) | `misc/CONTENDER_PLAN.md` gate 1; Wolfram free-tier trickle + historic data | final-answer accuracy ≥ Wolfram's on the same questions |
+| Math, silently wrong answers | notation suite (`test_mathparse.py`, contract census) | **zero** |
+| Physics, narrative benchmark (150) + terse suite (≥300) + adversarial set | daily_job; trickle | ≥ Wolfram, compared question by question (paired), not by totals |
+| One answer per question | material / constant conflict report | empty |
+| Ceiling and baselines | frontier model driving Mentat; P1-30B-A3B; Phi-4-mini-reasoning; stock Qwen3 | measured and recorded |
+| Latency | harness | median ≤ 5 s for a one-tool question, on this PC |
+| Deployed = measured | `tools/check_mentat_deploy.sh` | the live Mentat runs master |
 
-## Current state (as of 2026-05-17)
+## Current state (as of 2026-10-13)
 
-  - Q&A baseline: sigma-ground 28% / Wolfram 13.3% / Gemini-flash partial 63%.
-  - 5 systemic bugs identified and fixed (param aliases, body chain,
-    rad/s unit handling, multi-tool fallback, K↔C conversion). Rerun in flight.
-  - Daily job + IMPROVEMENT_PLAN.md established.
-  - Conversation mode: not started.
+  - 232 tools; 211 of 215 replayed tools return the full provenance record. Audit and plan: `misc/MENTAT_AUDIT_2026-10-13.md`, `misc/CONTENDER_PLAN.md`.
+  - Narrative benchmark (150): the v3 4B router scores 140 with its rule cascade (109 without it) against Wolfram's 30 as asked / 56 rephrased.
+  - Held-out math suite (329): the v3 4B router gets the right answer on 194; the notation audit found ordinary writings (`x²`, `√x`, `e^x`) read wrongly — the
+    first thing being fixed (the math kernel).
+  - Next: the math kernel, the tool contract, one materials database, the sky tools, the precision layer, the yardstick, then training.
 
 ## How this document is used
 
   - When making a design decision, ask "does this serve the goal?"
-  - When adding a tool, ask "does it close a gap that the daily_job
-    surfaced, or is it speculative?"
-  - When the conversation mode lands, this document gets an update
-    section, not a rewrite.
+  - When adding a tool, ask "does it close a gap the benchmark or the contender gate surfaced, or is it speculative?"
+  - Domains are added in order; this document gets an update section when a gate is passed.

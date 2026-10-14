@@ -116,16 +116,14 @@ re-run the gate.
 * Day 1: W0 (after the Captain's go on the merge), then W1 — the parser, the notation suite, `interpreted_as` —
   with the census script moved into `tools/` as the first contract test.
 
-## Decisions for the Captain
+## Decisions (the Captain, 2026-10-13, answered)
 
-1. **Merge `claude/router-v2` into master** so the contract work starts from one tree?
-2. **The stripped theory on the public face (F15)**: remove `entanglements_to_pop_bubble`,
-   `holographic_matching_mass`, `baryon_vs_disc` and the "SSBM" EXTENDED tier, or reword them as plain arithmetic?
-   Reword "pending SSBM re-derivation" in the n-body docs?
-3. **PROJECT_GOAL.md** says "not a Wolfram replacement on symbolic-math breadth". Update it to the contender goal
-   (physics and math, local)?
-4. **Wolfram API for the head-to-head**: the parity cases used the Wolfram MCP; the suites need a few thousand
-   queries captured once. Free tier or your key?
-5. **Baselines download**: P1-30B-A3B (a 30B MoE; about 18 GB at 4-bit, partly on the CPU) and
-   Phi-4-mini-reasoning (3.8B). Licence check before download, as usual.
-6. **Frontier ceiling**: running Sonnet or Opus as the front end on the suites costs API calls. Yes?
+1. **Merge `claude/router-v2` into master:** yes (done, ea64599).
+2. **Stripped theory on the public face (F15):** keep the three tools, file them as speculative physics hypotheses (SPECULATIVE-PENDING tag,
+   SPECULATIVE manifest tier, `misc/DISPROOF_LEDGER.md` section D). Stale "pending SSBM re-derivation" wording reworded.
+3. **PROJECT_GOAL.md:** updated to the contender goal. Math is next, "the most immutable step", then physics, chemistry, biology.
+4. **Wolfram:** no paid use. Historic data plus a **free-tier trickle**: SkippyTel keeps its own queue (`services/wa-trickle`), sends each question to
+   Wolfram once, on a daily budget (about 60, inside the free 2,000 a month), and the same question to Mentat; frozen Wolfram answers, Mentat re-asked
+   per version. This replaces the API head-to-head in W6.
+5. **Baselines:** download P1-30B-A3B (Apache-2.0) and Phi-4-mini-reasoning (MIT), once the GPU is free.
+6. **Frontier ceiling:** Sonnet through the API, under a hard spending cap the Captain names before the run.

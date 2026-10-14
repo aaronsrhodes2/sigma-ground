@@ -1,4 +1,4 @@
-"""N-body gravitational integrator for SSBM physics.
+"""N-body gravitational integrator (Newtonian core, optional GR / zonal / tidal / radiation layers).
 
 Two integration schemes:
   * step()             — velocity-Verlet, 2nd-order symplectic, fast
@@ -107,9 +107,9 @@ class PhysicsToggles:
     that overshoots truth, the same toggle can be flipped off to bisect
     the contribution and find the over-correction.
 
-    Borrowed-from-textbook flags are marked BORROWED in inline comments.
-    These are pending SSBM σ-field re-derivation per GOLDEN_RULES Rule 2.
-    Grep for "BORROWED FROM TEXTBOOK" to find every line awaiting derivation.
+    Flags that implement published textbook physics are marked BORROWED in inline comments, with the cited
+    source. That physics is the model (standard, tested against JPL DE440 in the fair contest); the mark is
+    the citation, not a placeholder. Grep for "BORROWED FROM TEXTBOOK" to list the cited terms.
     """
 
     gr_1pn:      bool = False   # test-particle 1PN Schwarzschild, attractor rest frame (Soffel 2003 -- BORROWED)
@@ -172,10 +172,10 @@ class CelestialBody:
 
     Immutable; use .replace() to evolve.
 
-    σ-field coupling (SSBM): effective gravitational mass scales as
-        M_eff = M_rest × e^σ
-    implemented via local_library.scale.scale_ratio(sigma_field).
-    This is the canonical SSBM mass-gravity coupling.
+    Optional σ parameter: effective gravitational mass M_eff = M_rest × e^σ, via
+    local_library.scale.scale_ratio(sigma_field). It is a PARAMETER, not a claim: σ = 0 reproduces standard
+    physics exactly, and nothing here asserts a value of σ or a mechanism that sets it
+    (see misc/DISPROOF_LEDGER.md for what the data did to the σ-field hypotheses).
 
     Attributes
     ----------
@@ -469,7 +469,7 @@ class NBodySystem:
 
                 if t.eih_cross:
                     # ┌──────────────────────────────────────────────────────┐
-                    # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION    │
+                    # │ BORROWED FROM TEXTBOOK -- STANDARD PHYSICS, CITED    │
                     # │ Full N-body 1PN Einstein-Infeld-Hoffmann equations   │
                     # │ in the GR specialization (β = γ = 1).                │
                     # │                                                      │
@@ -526,7 +526,7 @@ class NBodySystem:
                     # Still a single-body approximation: it uses body i's absolute velocity,
                     # so it is valid in the attractor's rest frame (use eih_cross otherwise).
                     # ┌──────────────────────────────────────────────────────┐
-                    # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION    │
+                    # │ BORROWED FROM TEXTBOOK -- STANDARD PHYSICS, CITED    │
                     # │ Source: Soffel et al. 2003, eq. 10.12                │
                     # │ (single-body 1PN Schwarzschild, solar-system limit)  │
                     # │ Coefficients 4 and 4 are EXACT from the Schwarzschild│
@@ -576,7 +576,7 @@ class NBodySystem:
         # ── J₂ zonal quadrupole (rotational oblateness) ───────────────────
         if t.j2_zonal:
             # ┌──────────────────────────────────────────────────────────────┐
-            # │ BORROWED FROM TEXTBOOK -- PENDING SSBM DERIVATION            │
+            # │ BORROWED FROM TEXTBOOK -- STANDARD PHYSICS, CITED            │
             # │ Source: Vallado 2013 "Fundamentals of Astrodynamics" §9.4    │
             # │ Vector form:                                                 │
             # │   a_J₂ = (3 G M_j R_j² J₂_j / (2 r⁵))                        │

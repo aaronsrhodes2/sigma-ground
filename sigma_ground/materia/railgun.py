@@ -352,7 +352,7 @@ def cp_tab_at(T, Tgrid, cp_tab):
 def check_rail_shot(sim: dict) -> dict:
     """Run the self-checks on a simulated shot.  Returns the validation dict;
     ``passed`` is False if ANY check fails (refusal on failure)."""
-    from ..mcp.tools.plasma_em import electromagnetic_force_analysis
+    from ..field import electrodynamics as _electrodynamics    # the library's own Lorentz force (field tier, not mcp)
 
     s, mo = sim["scalars"], sim["model"]
     tol = mo["tolerance"]
@@ -380,14 +380,13 @@ def check_rail_shot(sim: dict) -> dict:
     # B = half the rail-pair field, see module docstring)
     gap, Ipk = mo["gap_m"], s["I_at_peak_force_A"]
     B_at_armature = 0.5 * mo["L_prime_H_m"] * Ipk / gap
-    lib = electromagnetic_force_analysis(charge_c=Ipk * gap, velocity_m_s=1.0,
-                                         b_field_t=B_at_armature)
-    F_lib = lib["value"]["magnetic_force_N"]
+    F_vec = _electrodynamics.magnetic_force(Ipk * gap, (1.0, 0.0, 0.0), (0.0, 0.0, B_at_armature))
+    F_lib = math.sqrt(sum(float(c) ** 2 for c in F_vec))
     rel = abs(F_lib - s["peak_force_N"]) / max(s["peak_force_N"], 1e-300)
     checks["peak_force_vs_library_lorentz"] = {
         "passed": rel <= 1e-6, "F_model_N": s["peak_force_N"], "F_library_N": F_lib,
         "relative_difference": rel,
-        "note": "electromagnetic_force_analysis magnetic_force_N with q*v = I*gap "
+        "note": "field.electrodynamics.magnetic_force with q*v = I*gap "
                 "and B = L' I / (2 gap); checks the F = L' I^2 / 2 law and units"}
     # 4. physical sanity of the trajectory
     dx = np.diff(sim["x"])

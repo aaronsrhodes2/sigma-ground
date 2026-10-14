@@ -227,10 +227,34 @@ class TestManifest:
     def test_manifest_includes_positioning_guidance(self):
         r = t_manifest.get_manifest()
         positioning = r.value["positioning"]
-        assert "SSBM" in positioning
+        assert "SPECULATIVE" in positioning
         assert "PRIMARY" in positioning
-        # The positioning should explicitly say "do not volunteer SSBM"
-        assert "Do NOT volunteer" in positioning or "do not volunteer" in positioning
+        # The positioning must say never to volunteer the speculative tier (Captain, 2026-10-13)
+        assert "Never volunteer" in positioning or "never volunteer" in positioning
+
+    def test_speculative_tools_are_filed_as_such(self):
+        """The three holographic tools stay served but are tagged speculative everywhere."""
+        from sigma_ground.mcp.tools import frontier as t_front
+        r = t_manifest.get_manifest()
+        spec = {t["name"]: t for t in r.value["extended"]}
+        assert set(spec) == {"entanglements_to_pop_bubble", "holographic_matching_mass", "baryon_vs_disc"}
+        assert all(t["tier"] == "SPECULATIVE" for t in spec.values())
+        for res in (t_front.entanglements_to_pop_bubble(1e-9), t_front.holographic_matching_mass(),
+                    t_front.baryon_vs_disc(1.0e30)):
+            assert res.provenance_tag == "SPECULATIVE-PENDING"
+            assert res.notes.startswith("[SPECULATIVE]")
+
+    def test_manifest_reports_the_version_it_runs(self, monkeypatch):
+        t_manifest.mentat_version.cache_clear()
+        monkeypatch.setenv("SIGMA_GROUND_REF", "abc123def456")
+        try:
+            assert t_manifest.get_manifest().value["mentat_version"] == "abc123def456"
+        finally:
+            t_manifest.mentat_version.cache_clear()
+        monkeypatch.delenv("SIGMA_GROUND_REF")
+        v = t_manifest.mentat_version()          # a git checkout: the commit; anything else: "dev"
+        assert v == "dev" or (len(v) == 40 and all(c in "0123456789abcdef" for c in v))
+        t_manifest.mentat_version.cache_clear()
 
 
 # ── ToolResult dataclass ──────────────────────────────────────────────

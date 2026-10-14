@@ -248,6 +248,23 @@ sub-categories:
   execute under the sweep's auto-arg path, so the modules are partially
   covered today even before wiring.
 
+### N-body engine layers and dense matter (2026-10-13)
+
+Found by `test_coverage_ledger.py` on master (13 functions); excluded with reasons, two groups:
+
+- `field.interface.lunar_figure.{axisymmetric_T, c22_T, c22_extra_accelerations, moon_axes,
+  moon_prime_meridian_deg, quadrupole_acceleration}`, `field.interface.figure_forces.{axisymmetric_T, c22_T,
+  quadrupole_acceleration, sectoral_extra_accelerations}` (the same figure layers as an engine layer) and `field.interface.asteroid_perturbers.
+  {kepler_state_ecliptic, propagate_to}` — layers of the N-body engine (the Moon's triaxial figure,
+  the seven heaviest asteroids), driven through `NBodySystem` and the fair-contest runner. EXCLUDE
+  (simulation-pipeline plumbing). The Q&A-worthy outputs are planned as tools (`body_position`,
+  events) in `misc/CONTENDER_PLAN.md` W4.
+- `field.dense.{white_dwarf.white_dwarf_mass_radius, white_dwarf.white_dwarf_structure,
+  polytrope.polytrope_structure, tov.is_stable_branch, eos.first_law_error}` — real, validated
+  physics. `white_dwarf_*` and `polytrope_structure` are a **tracked wiring gap** (W4 wires them as
+  tools); `is_stable_branch` and `first_law_error` are solver diagnostics. Excluded for now so the
+  suite stays honest, not because they are non-capabilities.
+
 ## Pending EXCLUDE candidates (to confirm against uncovered.txt in later batches)
 
 Categories flagged during Phase-0 triage, to be enumerated function-by-function

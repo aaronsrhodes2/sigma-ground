@@ -6,14 +6,38 @@ calls return 'tool not found' errors.
 
 Two tiers:
   PRIMARY    -- standard physics, default-foregrounded
-  EXTENDED   -- SSBM theoretical layer, only invoked on explicit request
+  SPECULATIVE -- physics hypotheses (key "extended" in the manifest dict), only on explicit request
 
 See memory/project_mcp_server_positioning.md for the positioning rationale.
 """
 
 from __future__ import annotations
 
+import functools
+import os
+import subprocess
+from pathlib import Path
+
 from sigma_ground.mcp.provenance import ToolResult
+
+
+@functools.lru_cache(maxsize=1)
+def mentat_version() -> str:
+    """The sigma-ground commit this Mentat is running: env SIGMA_GROUND_REF (set in the
+    container image), else `git rev-parse HEAD` of the checkout, else "dev".
+    The deploy check (tools/check_mentat_deploy.sh) compares it with master."""
+    ref = os.environ.get("SIGMA_GROUND_REF", "").strip()
+    if ref:
+        return ref
+    try:
+        root = Path(__file__).resolve().parents[2]
+        out = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], capture_output=True,
+                             text=True, timeout=5)
+        if out.returncode == 0 and out.stdout.strip():
+            return out.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return "dev"
 
 
 _PRIMARY_TOOLS = [
@@ -1300,25 +1324,26 @@ _PRIMARY_TOOLS = [
 
 
 _EXTENDED_TOOLS: list[dict] = [
-    # SSBM theoretical layer — the holographic/cavitation tools. These are
-    # standard holography arithmetic, but framed in the SSBM language of
-    # bubble saturation and the baryon-vs-horizon crossover, so they live in
-    # EXTENDED and are not foregrounded for routine queries.
-    # See memory/project_mcp_server_positioning.md.
-    {"name": "entanglements_to_pop_bubble", "tier": "EXTENDED", "domain": "frontier",
+    # SPECULATIVE tier (the dict key stays "extended": build_qwen_context.py reads it).
+    # The holographic/cavitation tools: the arithmetic is exact (Bekenstein-Hawking pixel
+    # counting), but the framing (bubble saturation, the baryon-vs-horizon crossover) is a
+    # physics hypothesis that has not survived a test. Filed as speculative on 2026-10-13
+    # (the Captain): served, tagged SPECULATIVE-PENDING in every result, never foregrounded.
+    # Record: misc/DISPROOF_LEDGER.md section D.
+    {"name": "entanglements_to_pop_bubble", "tier": "SPECULATIVE", "domain": "frontier",
      "summary": "Entanglement threads to saturate (pop) a bubble of radius R: "
                 "N = π R² / L_p². Smallest bubble (R=L_p) pops at N=π≈3 — the "
                 "quantum of cavitation.",
      "inputs": {"radius_m": "float"}, "returns": "thread count (dimensionless)",
      "keywords": ["bubble pop", "cavitation quantum", "thread saturation",
                   "holographic pixel count"]},
-    {"name": "holographic_matching_mass", "tier": "EXTENDED", "domain": "frontier",
+    {"name": "holographic_matching_mass", "tier": "SPECULATIVE", "domain": "frontier",
      "summary": "The black-hole mass where baryon count equals horizon pixel "
                 "count: M = ħ c / (4π G m_p) ≈ 2.25e10 kg.",
      "inputs": {}, "returns": "mass in kg",
      "keywords": ["matching mass", "baryon-disc crossover",
                   "information paradox threshold"]},
-    {"name": "baryon_vs_disc", "tier": "EXTENDED", "domain": "frontier",
+    {"name": "baryon_vs_disc", "tier": "SPECULATIVE", "domain": "frontier",
      "summary": "Compare a black hole's baryon count to its horizon pixel "
                 "count; reports whether matter overflows the horizon or the "
                 "horizon has room to spare.",
@@ -1369,17 +1394,19 @@ def get_manifest() -> ToolResult:
     """
     return ToolResult(
         value={
+            "mentat_version": mentat_version(),
             "primary": _PRIMARY_TOOLS,
             "extended": _EXTENDED_TOOLS,
             "positioning": (
                 "PRIMARY tier is standard physics with rigorous provenance. "
-                "Foreground these for routine queries. EXTENDED tier is the "
-                "SSBM (Scale-Shifted Baryonic Matter) theoretical layer; "
-                "invoke only when the user explicitly asks about black hole "
-                "interior structure, cosmic-origin-as-BH hypothesis, sigma-"
-                "field dynamics, or wants to compare standard physics to an "
-                "alternative theoretical framework. Do NOT volunteer SSBM "
-                "framing for ordinary physics questions."
+                "Foreground these for routine queries. The SPECULATIVE tier "
+                "(listed under 'extended') holds physics hypotheses that have "
+                "not survived a test: the arithmetic is exact, the "
+                "interpretation is not established. Invoke only when the user "
+                "explicitly asks about such a hypothesis (holographic bubble "
+                "saturation, the baryon-vs-horizon crossover), and say in the "
+                "answer that it is speculative. Never volunteer it for "
+                "ordinary physics questions."
             ),
             "response_style": (
                 "Every answer should faithfully report the `source` and "

@@ -8,9 +8,9 @@ physics questions into structured tool calls and synthesize cited
 prose answers.
 
 The MCP layer is positioned as **standard physics with rigorous
-provenance**. The SSBM theoretical layer remains accessible but is
-NOT foregrounded for routine queries -- see
-misc/respa_attempt_2026-05-16.md and the MCP positioning memory.
+provenance**. A few speculative physics hypotheses are still served, fenced in the
+manifest's SPECULATIVE tier and tagged SPECULATIVE-PENDING in every result; they
+are never foregrounded for routine queries -- see misc/DISPROOF_LEDGER.md section D.
 
 Install:
     pip install sigma-ground[mcp]

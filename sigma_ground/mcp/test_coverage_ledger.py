@@ -222,6 +222,27 @@ EXCLUDE_SET = frozenset(
     + [_P + "detection." + n for n in (
         "detection_range_thermal", "detection_range_reflected",
     )]
+    # N-body engine internals (shoot-out work, 2026-10): the Moon's triaxial figure
+    # and the asteroid perturbers are LAYERS of the dynamics engine, driven through
+    # NBodySystem / the fair-contest runner, not scalar Q&A. The Q&A-worthy outputs
+    # (positions, events) are planned as `body_position` & co. (CONTENDER_PLAN W4).
+    + [_P + "lunar_figure." + n for n in (
+        "axisymmetric_T", "c22_T", "c22_extra_accelerations", "moon_axes",
+        "moon_prime_meridian_deg", "quadrupole_acceleration",
+    )]
+    + [_P + "figure_forces." + n for n in (      # the same figure layers, now an engine layer (PhysicsToggles.sectoral_c22)
+        "axisymmetric_T", "c22_T", "quadrupole_acceleration", "sectoral_extra_accelerations",
+    )]
+    + [_P + "asteroid_perturbers." + n for n in ("kepler_state_ecliptic", "propagate_to")]
+    # Dense-matter module (2026-10-11): real, validated physics (white dwarfs,
+    # polytropes, TOV stability) that is a TRACKED wiring gap, not a non-capability:
+    # CONTENDER_PLAN W4 wires white_dwarf_mass_radius / white_dwarf_structure /
+    # polytrope_structure as tools; first_law_error and is_stable_branch are
+    # diagnostics of the EOS / TOV solvers.
+    + ["sigma_ground.field.dense." + n for n in (
+        "eos.first_law_error", "polytrope.polytrope_structure", "tov.is_stable_branch",
+        "white_dwarf.white_dwarf_mass_radius", "white_dwarf.white_dwarf_structure",
+    )]
 )
 
 
