@@ -120,3 +120,31 @@ renderings).
 
 The ratchet that keeps it so: `tools/mentat_contract_census.py` (the audit's census as a tool) and `sigma_ground/mcp/test_contract_census.py`, which holds
 the numbers to `misc/contract_budget.json` (a number may only go down). Still open from the audit: F2–F16 (W2 contract, W3 materials, W4 sky tools).
+
+## Follow-up 2026-10-14 — W2, the tool contract (findings F4, F9, F11 closed; F10, F12 recorded)
+
+`sigma_ground/mcp/contract.py` (installed from `server.main()`, so it covers every tool and SkippyTel's Mentat) + `sigma_ground/field/bounds.py`
+(Golden Rule 2's SAFE/EDGE/WALL/BEYOND, which the rule cited but did not exist). 52 tests in `sigma_ground/mcp/test_contract.py`, including the real stdio protocol.
+
+| | before (audit) | after |
+|---|---|---|
+| unit-bearing float parameters that take a quantity ("54 km/h", "27 degC", "0.5 c") | 0 of 92 probed | 143 of 143 (pint; the conversion is echoed in `converted`; the wrong dimension is refused naming what was expected) |
+| parameters with a description | 74 of 545 | 544 of 545 (unit, meaning, definitional bounds, example) |
+| tools with an Args section / an example call | 16 / 37 of 232 | 232 / 232 |
+| a failure | pydantic prose, or `value: null` with the reason in `notes`, or an exception | one shape: `value: null` + `error {code, message, param, expected, got, example}`; codes `missing_argument`, `bad_type`, `bad_quantity`, `wrong_dimension`, `out_of_range`, `unknown_key`, `declined` |
+| an argument the tool does not have | silently dropped | reported in `ignored_arguments` with a "did you mean" |
+| impossible input (T < 0 K, emissivity 1.2) | tool-dependent | `out_of_range` (definitional limits only; a model's validity edge stays the model's business) |
+
+Regression check: 6,307 stored results of the router seeds (all tools with literal arguments, sampled up to 120 per tool) replay identically through the
+contract; the 20 differences are the SEMF fix of 2026-10-10 (3ace229, `nuclear_binding_energy`), not the contract. The router's error reader
+(`router_results.tool_error`) understands the new `error` shape. SkippyTel's REST/MCP adapter maps a caller's mistake to HTTP 400 / an MCP tool error with
+`detail`, as before, and a tool's own refusal to 200 with a code.
+
+Not done, on purpose: **renaming** parameters to one convention (`material_key_1` → `material_a` ...) — the router's training labels use today's names, so the
+renames wait for the relabel at W7 (`misc/CONTRACT_RENAMES.md` lists them and the tool overlaps to merge). **Defaults and `assumed`** are the next piece
+(`ToolResult.assumed` exists, nothing fills it yet): they need the one materials database (W3) to derive from.
+
+Found while building it (not fixed here): the deployed `/ask` front door of the live Mentat is Materia's falling-object simulator; a math or general physics
+question ("Work out d/dx(e^x sin(x))") gets a "clarify" about falling objects. The text-to-tool front door (cascade + router model) lives only in the
+dev-only benchmark harness. A deployed text front door is part of the contender (CONTENDER_PLAN W5) — until then the wa-trickle's Mentat column is the
+product as deployed, and the real comparison is the local evals joined by question id.
