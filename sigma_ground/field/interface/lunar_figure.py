@@ -1,4 +1,10 @@
-"""The Moon's triaxial figure: the C22 sectoral term of its gravity field, for a body that always points its long axis at the Earth.
+"""The Moon's triaxial figure: its C22 coefficient and rotation model, for the engine's sectoral-figure layer (PhysicsToggles.sectoral_c22).
+
+The force law lives in figure_forces.py (shared with the engine); this module holds what is specific to the Moon: the coefficient, the IAU rotation model that orients the long axis,
+and a helper that builds the Moon body fields. Use: body = CelestialBody(..., **moon_figure_fields()); NBodySystem(bodies, toggles=PhysicsToggles(sectoral_c22=True),
+epoch_jd_tdb=jd0, rotation_models={moon_index: moon_axes}).
+
+Background (unchanged): the C22 sectoral term of its gravity field, for a body that always points its long axis at the Earth.
 
 The N-body engine carries the Moon's axisymmetric J2 about its pole. The real Moon is triaxial (its long axis, the smallest moment A, points at the Earth; B > A across it; C about the spin axis),
 and because it is tidally locked that bulge never averages away: it adds an orbit-averaged quadrupole that changes the Moon's mean motion and the rate at which its perigee advances.
@@ -17,8 +23,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from sigma_ground.field.constants import G
-from sigma_ground.field.interface.nbody import NBodySystem
+from sigma_ground.field.interface.figure_forces import axisymmetric_T, c22_T, quadrupole_acceleration, sectoral_extra_accelerations  # noqa: F401  (re-exported)
 
 C22_MOON = 2.2382e-5            # [LIT] unnormalised, reference radius 1738 km (GRAIL GRGM660)
 R_REF_MOON_M = 1.738e6          # m, the reference radius the coefficient belongs to
@@ -55,70 +60,27 @@ def moon_axes(jd_tdb: float) -> tuple:
     return x, y, z
 
 
-def quadrupole_acceleration(r_vec: np.ndarray, T_inertial: np.ndarray) -> np.ndarray:
-    """Acceleration (m/s^2) of a test mass at r_vec (m, from the body) due to the traceless quadrupole T (kg m^2, inertial frame) of the body: 3 G [ (5 q / 2 r^7) r - T r / r^5 ]."""
-    r2 = float(r_vec @ r_vec)
-    r = np.sqrt(r2)
-    Tr = T_inertial @ r_vec
-    q = float(r_vec @ Tr)
-    return 3.0 * G * ((2.5 * q / (r2 * r2 * r2 * r)) * r_vec - Tr / (r2 * r2 * r))
-
-
-def axisymmetric_T(mass_kg: float, radius_m: float, j2: float, pole: np.ndarray) -> np.ndarray:
-    """Traceless inertia tensor of an axisymmetric body: (2/3) J2 M R^2 (3 n n^T - 1)/2... written as (J2 M R^2 / 3)(3 n n^T - 1)."""
-    n = pole / np.linalg.norm(pole)
-    return (j2 * mass_kg * radius_m ** 2 / 3.0) * (3.0 * np.outer(n, n) - np.eye(3))
-
-
-def c22_T(mass_kg: float, radius_m: float, c22: float, x_hat: np.ndarray, y_hat: np.ndarray) -> np.ndarray:
-    """The C22 part of the traceless inertia tensor: 2 C22 M R^2 (y y^T - x x^T), x the long axis (toward the Earth)."""
-    return 2.0 * c22 * mass_kg * radius_m ** 2 * (np.outer(y_hat, y_hat) - np.outer(x_hat, x_hat))
-
-
 def c22_extra_accelerations(bodies, moon_index: int, earth_index: int, c22: float = C22_MOON, ref_radius_m: float = R_REF_MOON_M, jd_tdb: float | None = None) -> np.ndarray:
-    """The accelerations (m/s^2, shape (n, 3)) that the Moon's C22 figure adds to every body, long axis locked toward the Earth, spin axis the Moon body's ``pole_axis_unit``.
+    """The accelerations (m/s^2, shape (n, 3)) that the Moon's C22 figure adds to every body, with the reaction on the Moon (sum m_i a_i = 0 to round-off).
 
-    Includes the reaction on the Moon, so sum(m_i a_i) = 0 to round-off (Newton III).
+    With ``jd_tdb`` the long axis comes from the IAU rotation model; without it the long axis is locked to the instantaneous direction to the Earth (a simplification kept for tests).
     """
     n = len(bodies)
-    extra = np.zeros((n, 3))
     if c22 == 0.0:
-        return extra
+        return np.zeros((n, 3))
     moon, earth = bodies[moon_index], bodies[earth_index]
-    if jd_tdb is not None:                                    # the real orientation: uniform rotation plus the IAU librations (the Earth direction oscillates about it by the optical libration)
+    if jd_tdb is not None:
         x_hat, y_hat, _ = moon_axes(jd_tdb)
-    else:                                                     # simplification: the long axis follows the instantaneous direction to the Earth
+    else:
         z = moon.pole_axis_unit / np.linalg.norm(moon.pole_axis_unit)
         d = earth.position_m - moon.position_m
         x_hat = d - (d @ z) * z
         x_hat /= np.linalg.norm(x_hat)
         y_hat = np.cross(z, x_hat)
     T = c22_T(moon.mass_kg, ref_radius_m, c22, x_hat, y_hat)
-    reaction = np.zeros(3)
-    for i, b in enumerate(bodies):
-        if i == moon_index:
-            continue
-        a_i = quadrupole_acceleration(b.position_m - moon.position_m, T)
-        extra[i] = a_i
-        reaction -= b.mass_kg * a_i
-    extra[moon_index] = reaction / moon.mass_kg
-    return extra
+    return sectoral_extra_accelerations(np.array([b.position_m for b in bodies]), np.array([b.mass_kg for b in bodies]), moon_index, T)
 
 
-class LockedMoonSystem(NBodySystem):
-    """NBodySystem plus the Moon's C22 figure (see ``c22_extra_accelerations``)."""
-
-    def __init__(self, bodies, *args, moon_index: int, earth_index: int, c22: float = C22_MOON, ref_radius_m: float = R_REF_MOON_M, jd0_tdb: float | None = None, **kw):
-        super().__init__(bodies, *args, **kw)
-        self.jd0_tdb = jd0_tdb                                # start epoch: with it the IAU orientation is used, without it the long axis is locked to the instantaneous Earth direction
-        self.moon_index = moon_index
-        self.earth_index = earth_index
-        self.c22 = c22
-        self.ref_radius_m = ref_radius_m
-
-    def compute_accelerations(self):
-        acc = super().compute_accelerations()
-        if self.c22 == 0.0:
-            return acc
-        jd = None if self.jd0_tdb is None else self.jd0_tdb + self._t_eval / 86400.0      # the instant of the positions being evaluated (the sub-step time inside a step)
-        return acc + c22_extra_accelerations(self.bodies, self.moon_index, self.earth_index, self.c22, self.ref_radius_m, jd)
+def moon_figure_fields() -> dict:
+    """Keyword arguments that give a CelestialBody the Moon's C22 figure (use with PhysicsToggles(sectoral_c22=True) and rotation_models={moon_index: moon_axes})."""
+    return {"c22": C22_MOON, "figure_ref_radius_m": R_REF_MOON_M}

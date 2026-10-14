@@ -12,7 +12,7 @@ import numpy as np
 
 from sigma_ground.field.constants import G
 from sigma_ground.field.interface import lunar_figure as lf
-from sigma_ground.field.interface.nbody import CelestialBody, NBodySystem, PhysicsToggles
+from sigma_ground.field.interface.nbody import CelestialBody
 
 M_MOON = 7.342e22
 R = 1.738e6
@@ -67,12 +67,6 @@ def _earth_moon(moon_pole=(0.0, 0.0, 1.0)):
 
 
 class TestSystem(unittest.TestCase):
-    def test_zero_c22_is_the_base_system(self):                                  # BY CONSTRUCTION
-        bodies = _earth_moon()
-        base = NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations()
-        locked = lf.LockedMoonSystem(bodies, toggles=PhysicsToggles(), moon_index=1, earth_index=0, c22=0.0).compute_accelerations()
-        self.assertTrue(np.array_equal(base, locked))
-
     def test_total_momentum_is_conserved_by_the_added_force(self):               # BUG: Newton's third law, tested on the extra force itself (no cancellation against the base)
         bodies = _earth_moon((0.1, 0.2, 0.97))
         extra = lf.c22_extra_accelerations(bodies, moon_index=1, earth_index=0)
@@ -86,13 +80,6 @@ class TestSystem(unittest.TestCase):
         expected = 9 * GM * lf.C22_MOON * lf.R_REF_MOON_M ** 2 / 3.844e8 ** 4
         self.assertAlmostEqual(extra[0][0] / expected, 1.0, delta=1e-12)
         self.assertGreater(extra[0][0], 0.0)
-
-    def test_the_subclass_adds_exactly_that_force_to_the_base_accelerations(self):   # BUG: tolerance set by round-off of the large base term (~1e-9 relative to the extra)
-        bodies = _earth_moon((0.1, 0.2, 0.97))
-        base = NBodySystem(bodies, toggles=PhysicsToggles()).compute_accelerations()
-        locked = lf.LockedMoonSystem(bodies, toggles=PhysicsToggles(), moon_index=1, earth_index=0).compute_accelerations()
-        extra = lf.c22_extra_accelerations(bodies, moon_index=1, earth_index=0)
-        self.assertLess(np.linalg.norm(locked - base - extra), 1e-6 * np.linalg.norm(extra[0]) + 1e-18)
 
 
 @unittest.skipUnless(__import__("pathlib").Path("D:/datasets/jpl/de440s.bsp").exists(), "DE440s kernel not available")
