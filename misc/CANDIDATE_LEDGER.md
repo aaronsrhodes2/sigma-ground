@@ -85,7 +85,7 @@ Other bodies unchanged (Mercury, Venus, Mars, Jupiter, Saturn < 0.001 km; Earth 
 Candidates for the remainder, not yet tested: the C22 coefficient and the reference radius convention, the tesseral and degree-3 lunar harmonics, the Earth's tidal response, and the Moon's J2 value.
 
 ### C3a engine layer + combined run (2026-10-13): C22 is now `PhysicsToggles.sectoral_c22`; the 24-case test against the vintages is MIXED for the Moon
-Engine: `sectoral_c22` toggle, per-body `c22` / `figure_ref_radius_m`, prescribed rotation models evaluated at the Forest-Ruth sub-step times (`figure_forces.py`, `nbody.py`; 11 layer tests). Equivalence with the earlier
+Engine: `sectoral_c22` toggle, per-body `c22` / `figure_ref_radius_m`, prescribed rotation models evaluated at the Forest-Ruth sub-step times (`figure_forces.py`, `nbody.py`; 7 layer tests). Equivalence with the earlier
 subclass path on a coarse case: worst difference over every body and lead = 0.0 (bit-identical). Merged to master; branch and worktree removed.
 
 Combined run: seven asteroids + C22 (IAU rotation), converged step 0.025 d, the same 24 cases as the C1 wide check (7 vintages, starts 2000 to 2015, 0 failures). Data: `fixtures/vintages/candidate_asteroids7_c22_wide24_dt0025.jsonl`.
