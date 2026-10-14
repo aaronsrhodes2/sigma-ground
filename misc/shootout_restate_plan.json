@@ -1,0 +1,191 @@
+[
+ {
+  "label": "cand_long",
+  "start": "j2000",
+  "horizon": 20,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_long",
+  "start": "j2001",
+  "horizon": 20,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_long",
+  "start": "j2002",
+  "horizon": 20,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_long",
+  "start": "j2003",
+  "horizon": 20,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_long",
+  "start": "j2004",
+  "horizon": 20,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_long",
+  "start": "j2005",
+  "horizon": 20,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_long",
+  "start": "j2006",
+  "horizon": 20,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2007",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2008",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2009",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2010",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2011",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2012",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2013",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2014",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2015",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2016",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2017",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2018",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2019",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "cand_short",
+  "start": "j2020",
+  "horizon": 5,
+  "asteroids": true,
+  "c22": true
+ },
+ {
+  "label": "base_dt0025",
+  "start": "j2005",
+  "horizon": 5,
+  "asteroids": false,
+  "c22": false
+ },
+ {
+  "label": "base_dt0025",
+  "start": "j2008",
+  "horizon": 5,
+  "asteroids": false,
+  "c22": false
+ },
+ {
+  "label": "base_dt0025",
+  "start": "j2011",
+  "horizon": 5,
+  "asteroids": false,
+  "c22": false
+ },
+ {
+  "label": "base_dt0025",
+  "start": "j2014",
+  "horizon": 5,
+  "asteroids": false,
+  "c22": false
+ },
+ {
+  "label": "base_dt0025",
+  "start": "j2017",
+  "horizon": 5,
+  "asteroids": false,
+  "c22": false
+ },
+ {
+  "label": "base_dt0025",
+  "start": "j2020",
+  "horizon": 5,
+  "asteroids": false,
+  "c22": false
+ }
+]

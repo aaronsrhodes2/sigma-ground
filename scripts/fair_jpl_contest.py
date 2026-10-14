@@ -23,6 +23,7 @@ import argparse
 import concurrent.futures as cf
 import json
 import math
+import re
 import statistics
 import sys
 import time
@@ -146,8 +147,26 @@ def run_one(args):
             system.bodies[i] = system.bodies[i].replace(pole_axis_unit=rs._iau_pole_unit(n, jd))
 
     t_now = e_jd
+    ckpt = Path(args[13]) if len(args) > 13 and args[13] else None      # long jobs: state after every lead, so a killed worker resumes instead of restarting
+    done_leads: list = []
+    if ckpt is not None and ckpt.exists():
+        try:
+            c = json.loads(ckpt.read_text())
+            if c["names"] == ORDER + [a_ for a_ in (args[8] or {})] and c["dt_days"] == dt_days:
+                system.bodies = [b.replace(position_m=np.array(c["pos"][i]), velocity_m_s=np.array(c["vel"][i])) for i, b in enumerate(system.bodies)]
+                system._time = c["time"]
+                system._t_eval = c["time"]
+                t_now, steps_done = c["t_now"], c["steps_done"]
+                done_leads = c["done_leads"]
+                for n in out:
+                    out[n] = {lead: c["out"][n][str(lead)] for lead in done_leads if str(lead) in c["out"][n]}
+        except Exception:
+            done_leads = []
+            t_now, steps_done = e_jd, 0
     kend = min(kv[0, 3].end_jd, kt[0, 3].end_jd)                 # a vintage kernel can end before the lead does (DE403s ends in 2011)
     for k in leads:
+        if k in done_leads:
+            continue
         target = e_jd + k * 365.25
         if target > kend:
             break
@@ -180,6 +199,13 @@ def run_one(args):
                 th = np.cross(nh, rh)
                 d = ours_geo - r_g
                 out[n][k]["rtn_km"] = [float(d @ rh), float(d @ th), float(d @ nh)]
+        done_leads.append(k)
+        if ckpt is not None:
+            tmp = ckpt.with_suffix(".tmp")
+            tmp.write_text(json.dumps({"names": ORDER + [a_ for a_ in (args[8] or {})], "dt_days": dt_days, "time": system._time, "t_now": t_now, "steps_done": steps_done,
+                                       "done_leads": done_leads, "pos": [b.position_m.tolist() for b in system.bodies], "vel": [b.velocity_m_s.tolist() for b in system.bodies],
+                                       "out": {n: {str(l): v for l, v in d.items()} for n, d in out.items()}}))
+            tmp.replace(ckpt)
     return {"vintage": vname, "start": key, "jd": e_jd, "bodies": out}
 
 
@@ -198,6 +224,10 @@ def main() -> int:
     ap.add_argument("--lunar-orientation", choices=["locked", "iau"], default="iau", help="C22 orientation; only the IAU rotation model (uniform rotation + librations) is an engine layer. 'locked' (long axis along the instantaneous Earth direction) was a superseded experiment and is rejected")
     ap.add_argument("--cases", nargs="*", default=None, help="explicit VINTAGE:start cases, e.g. DE405:j2001 DE421:j2009 (overrides --only-vintage/--starts)")
     ap.add_argument("--only-vintage", nargs="*", default=None)
+    ap.add_argument("--max-start-year", type=int, default=2015, help="latest start snapshot (2015 keeps vintage targets <= 2020; the DE440 control may go later)")
+    ap.add_argument("--horizon-years", type=int, default=5, help="yearly leads 1..N (the long shoot-out pass is 20)")
+    ap.add_argument("--checkpoint", action="store_true", help="save each job's state after every lead and resume from it")
+    ap.add_argument("--plan", type=Path, default=None, help="JSON list of DE440-start jobs {label,start,horizon,asteroids,c22}: one driver, mixed configurations, longest first (the shoot-out restatement)")
     ap.add_argument("--starts", nargs="*", default=None, help="restrict start snapshots, e.g. j2005 j2010")
     a = ap.parse_args()
     if a.worker:
@@ -209,17 +239,25 @@ def main() -> int:
         return 0
     from vintage_deviance_mesh import VINTAGES
     de = json.loads(FIXTURE.read_text())
-    keys = sorted(k for k in de["snapshots"] if k.startswith("j") and 2000 <= int(k[1:]) <= 2015)
+    keys = sorted(k for k in de["snapshots"] if k.startswith("j") and 2000 <= int(k[1:]) <= a.max_start_year)
     if a.starts:
         keys = [k for k in keys if k in a.starts]
     ast = json.loads(a.asteroids.read_text()) if a.asteroids else None
     def ast_for(key):
         return {n: {"gm_km3_s2": d["gm_km3_s2"], "radius_km": d["radius_km"], "state": d["states"][key]} for n, d in ast["asteroids"].items()} if ast else None
-    leads = [1, 2, 3, 4, 5] if not a.sample_days else [round(i * a.sample_days / 365.25, 9) for i in range(1, int(5 * 365.25 / a.sample_days) + 1)]
+    leads = list(range(1, a.horizon_years + 1)) if not a.sample_days else [round(i * a.sample_days / 365.25, 9) for i in range(1, int(5 * 365.25 / a.sample_days) + 1)]
     if a.lunar_c22 and a.lunar_orientation == "locked":
         ap.error("--lunar-orientation locked was the superseded subclass experiment (data: moon_atlas_control_c22_locked.json); use iau")
     jobs = []
-    if a.validate:
+    if a.plan:
+        if any(e.get("asteroids") for e in json.loads(a.plan.read_text())) and not ast:
+            ap.error("--plan with asteroids needs --asteroids PATH")
+        for e in sorted(json.loads(a.plan.read_text()), key=lambda e: -e["horizon"]):
+            k = e["start"]
+            jobs.append((f"DE440(control)|{e['label']}", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, list(range(1, e["horizon"] + 1)), None, de["snapshots"][k],
+                         ast_for(k) if e.get("asteroids") else None, None, False, a.lunar_c22 if e.get("c22") else None, a.lunar_orientation))
+        a.validate = True
+    elif a.validate:
         for k in keys:
             jobs.append(("DE440(control)", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, leads, None, de["snapshots"][k], ast_for(k), a.pole_update_days, bool(a.sample_days), a.lunar_c22, a.lunar_orientation))
     else:
@@ -249,8 +287,8 @@ def main() -> int:
     jobdir.mkdir(exist_ok=True)
     queue = []
     for j in todo:
-        tagname = f"{j[0]}_{j[2]}".replace("(", "").replace(")", "")
-        (jobdir / f"{tagname}.job.json").write_text(json.dumps({"args": list(j)}))
+        tagname = re.sub(r'[<>:"/\|?*()\s]', "", f"{j[0]}_{j[2]}")          # a label may carry characters Windows forbids in file names
+        (jobdir / f"{tagname}.job.json").write_text(json.dumps({"args": list(j) + [str(jobdir / f"{tagname}.ckpt.json") if a.checkpoint else None]}))
         queue.append([j, jobdir / f"{tagname}.job.json", jobdir / f"{tagname}.result.json", 0])
     running, finished = [], 0
     while queue or running:
@@ -279,11 +317,14 @@ def main() -> int:
             else:
                 print(f"[{time.time() - t0:6.0f}s] GAVE UP {item[0][0]}/{item[0][2]} exit code {proc.returncode}", flush=True)
     (a.out / f"fair_contest_{tag}.json").write_text(json.dumps({"dt_days": a.dt_days, "results": results}, indent=0))
+    if a.plan:                                                   # mixed configurations: the shoot-out restatement report groups them by label
+        print(f"plan finished: {len(results)} propagations", flush=True)
+        return 0
     # ---- summary ---------------------------------------------------------------------------------------------------------
     summ = {}
     for n in [b for b in ORDER if b != "Sun"]:
         summ[n] = {}
-        for k in (1, 2, 3, 4, 5):
+        for k in range(1, a.horizon_years + 1):
             rows = [r["bodies"][n][k] if k in r["bodies"][n] else r["bodies"][n].get(str(k)) for r in results]
             rows = [x for x in rows if x is not None]
             if not rows:
@@ -295,7 +336,7 @@ def main() -> int:
     print("\nmedian km at +1 / +3 / +5 yr:   ours eO | vintage eV | dynamics gap | initial offset e0   (ours wins = runs where eO < eV)")
     for n, d in summ.items():
         line = []
-        for k in ("1", "3", "5"):
+        for k in [x for x in ("1", "3", "5", "10", "20") if x in d]:
             if k in d:
                 x = d[k]
                 line.append(f"+{k}: {x['eO_med']:8.2f} | {x['eV_med']:8.2f} | {x['dyn_med']:8.2f} | {x['e0_med']:8.2f} ({x['ours_wins']}/{x['n']})")
