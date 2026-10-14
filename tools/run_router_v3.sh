@@ -15,13 +15,17 @@
 #   SIZE=8b tools/run_router_v3.sh --dry-run          # preflight only, no GPU
 #   SIZE=8b DOCKER_OLLAMA=skippytel-ollama tools/run_router_v3.sh
 #   tools/run_router_sweep.sh                         # 8b, 4b, 1.7b in turn
+# v3.1 (FAMILY=v31): the same pipeline on the v3 data plus the math and parameter-coverage seeds; see the
+# launch line in misc/ROUTER_V31_PLAN.md. FAMILY names the data version (dirs, model, results all follow it),
+# PREV_DATA is the earlier data whose teacher-rewrite cache is reused, SEED_DIRS lists the seed folders in
+# order (OLD SEEDS FIRST: the cache is indexed by seed), SKIP_BASELINE_STOCK=1 reuses the stock-model runs.
 # Knobs: SIZE (8b) PER_RECIPE (70) VARIANTS (3) TEACHER (qwen2.5:14b) MAX_TRAIN_H (6) GPU_BUSY_MIB (4000)
 # GPU_WAIT_MIN (45) TRAIN_GPU SERVE_GPU PORT (11435) DOCKER_OLLAMA UNLOAD_MAIN ABLATE_V2 (1)
 # BENCH_PROFILES ("legacy trained model-only") BENCH_PAR (3)
 set -euo pipefail
 export PYTHONIOENCODING=utf-8      # Windows consoles are cp1252; questions hold Ω, µ, °
 
-FAMILY=v3
+FAMILY="${FAMILY:-v3}"
 PLAN=v3
 SIZE="${SIZE:-8b}"
 case "$SIZE" in
@@ -43,6 +47,12 @@ V2DATA="$REPO/local-cache/router_dataset_v2"
 RECIPES_V2="$REPO/local-cache/router_recipes"
 RECIPES_V3="$REPO/local-cache/router_recipes_v3"
 DECLINES="$REPO/local-cache/router_declines"
+MATH_V31="$REPO/local-cache/router_math_v31"
+PARAMS_V31="$REPO/local-cache/router_params_v31"
+MATH_SUITE="$REPO/local-cache/router_math_suite.json"
+PREV_DATA="${PREV_DATA:-$V2DATA}"                     # data whose rewrites.jsonl (indexed by seed) is reused
+SEED_DIRS="${SEED_DIRS:-$RECIPES_V2 $RECIPES_V3 $DECLINES}"
+SKIP_BASELINE_STOCK="${SKIP_BASELINE_STOCK:-0}"
 DATA="$REPO/local-cache/router_dataset_$FAMILY"
 HARD="$REPO/local-cache/router_hardval_$FAMILY"
 RESULTS="$REPO/sigma_ground/mcp/benchmark/results"
@@ -184,8 +194,8 @@ preflight() {
   check "repo venv + v3 recipes, declines, tweaks" \
     "'$PY' -c 'import httpx, sigma_ground.mcp.benchmark.router_recipes_v3, sigma_ground.mcp.benchmark.router_refusals, sigma_ground.mcp.benchmark.tweaks'"
   check "v1 dataset (train, val)" "test -s '$V1DATA/train.jsonl' && test -s '$V1DATA/val.jsonl'"
-  check "v2 seeds + teacher-rewrite cache (reused: v2 seeds stay first)" \
-    "test -s '$RECIPES_V2/seeds.jsonl' && test -s '$V2DATA/rewrites.jsonl'"
+  check "seed folders present, in order, and the teacher-rewrite cache of $PREV_DATA (reused: old seeds stay first)" \
+    "test -s '$RECIPES_V2/seeds.jsonl' && test -s '$PREV_DATA/rewrites.jsonl'"
   check "hard validation spec" "test -s '$REPO/sigma_ground/mcp/benchmark/router_hardval.json'"
   check "baseline runs for the comparison" \
     "test -s '$RESULTS/chain_qwen3_8b_run.json' && test -s '$RESULTS/router_qwen3_8b_stock_free_run.json' && test -s '$RESULTS/router_mentat_router_v2_free_run.json'"
@@ -224,9 +234,11 @@ do_dataset() {
   mkdir -p "$DATA"
   # Seeds are read v2, v3 recipes, declines -- in that order -- so the v2 teacher rewrites (indexed by
   # seed) stay valid: copy them in. build_router_v2.py checks every cached rewrite against its seed.
-  [[ -s "$DATA/rewrites.jsonl" ]] || cp "$V2DATA/rewrites.jsonl" "$DATA/rewrites.jsonl"
+  [[ -s "$DATA/rewrites.jsonl" ]] || cp "$PREV_DATA/rewrites.jsonl" "$DATA/rewrites.jsonl"
+  local recipe_args=() d
+  for d in $SEED_DIRS; do [[ -s "$d/seeds.jsonl" ]] || die "seed folder $d has no seeds.jsonl"; recipe_args+=(--recipes "$d"); done
   "$PY" -u "$REPO/tools/build_router_v2.py" --plan "$PLAN" --v1 "$V1DATA" \
-    --recipes "$RECIPES_V2" --recipes "$RECIPES_V3" --recipes "$DECLINES" --out "$DATA" \
+    "${recipe_args[@]}" --out "$DATA" \
     --teacher-model "$TEACHER" --teacher-url "$API" --variants "$VARIANTS" > "$LOGS/dataset.log" 2>&1
   [[ -s "$DATA/manifest.json" ]] || return 1
   OLLAMA_HOST="127.0.0.1:$PORT" ollama stop "$TEACHER" >/dev/null 2>&1 || true
@@ -247,9 +259,10 @@ do_pairs() {   # CPU only: which tweak profiles the data supports
   done
   return 0       # an unpaired profile is skipped later, loudly; it does not stop the training
 }
-profile_ok() {   # profile_ok <profile>
-  [[ "$1" == legacy ]] && return 0
-  [[ -f "$ROOT/pairs_$1.ok" ]]
+profile_ok() {   # profile_ok <profile>; "model-only+sr" is judged as model-only
+  local base="${1%%+*}"
+  [[ "$base" == legacy ]] && return 0
+  [[ -f "$ROOT/pairs_$base.ok" ]]
 }
 do_ablate_v2() {   # the v2 model without its cascade: which groups did the cascade really carry?
   # Analysis only: if it fails the training must still go ahead, so it never fails the pipeline.
@@ -344,6 +357,17 @@ eval_both() {   # eval_both <data dir> <split> <name>
 # ("shared": no container stop, no wait for the GPU to empty). Latencies are then indicative only.
 do_eval_val() { ollama_up; gpu_guard eval_val shared; eval_both "$DATA" val val; }
 do_eval_hard() { ollama_up; gpu_guard eval_hard shared; eval_both "$HARD" hard hard; }
+do_eval_math() {   # held-out math questions (never trained on), end to end through the real tools. Analysis only.
+  [[ -s "$MATH_SUITE" ]] || { log "  no math suite at $MATH_SUITE: skipped"; return 0; }
+  ollama_up
+  gpu_guard eval_math shared
+  if ! "$PY" -u "$REPO/tools/eval_math_suite.py" --model "$MODEL" --ollama-url "$API" --plan "$PLAN" --suite "$MATH_SUITE" \
+         --out "$CACHE/eval_math_$MODEL.json" > "$LOGS/eval_math.log" 2>&1; then
+    log "  eval_math did not complete (analysis only; the pipeline goes on): see $LOGS/eval_math.log"
+  fi
+  tail -n 25 "$LOGS/eval_math.log" | tee -a "$LOGS/pipeline.log"
+  return 0
+}
 
 # Benchmark runs. A run is: <label> <ollama model> <plan> <format> <profile> [--router-index]. Output
 # goes to $RESULTS/router_<label>_<profile>_run.json. At most BENCH_PAR run at once (each starts its own
@@ -353,12 +377,14 @@ bench_pids=()
 bench_fail=0
 bench_launch() {   # bench_launch <label> <model> <plan> <format> <profile> [extra harness args]
   local label=$1 model=$2 plan=$3 fmt=$4 profile=$5; shift 5
-  local out="$RESULTS/router_${label}_${profile}_run.json"
-  if [[ -s "$out" ]]; then log "  benchmark $label / $profile already done"; return 0; fi
-  log "  benchmark $label / $profile ($model, plan $plan, $fmt)"
+  local base="${profile%%+*}" name="${profile//+/-}" extra=()
+  [[ "$profile" == *+sr ]] && extra=(--tweaks-on structured_results)
+  local out="$RESULTS/router_${label}_${name}_run.json"
+  if [[ -s "$out" ]]; then log "  benchmark $label / $name already done"; return 0; fi
+  log "  benchmark $label / $name ($model, plan $plan, $fmt)"
   "$PY" -u -m sigma_ground.mcp.benchmark.run_sigma_ground --ollama-url "$HARNESS_URL" --router \
-    --router-plan "$plan" --router-format "$fmt" --model "$model" --tweaks "$profile" "$@" \
-    --output "$out" > "$LOGS/benchmark_${label}_${profile}.log" 2>&1 &
+    --router-plan "$plan" --router-format "$fmt" --model "$model" --tweaks "$base" "${extra[@]}" "$@" \
+    --output "$out" > "$LOGS/benchmark_${label}_${name}.log" 2>&1 &
   bench_pids+=($!)
   if (( ${#bench_pids[@]} >= BENCH_PAR )); then
     wait "${bench_pids[0]}" || bench_fail=1
@@ -372,11 +398,12 @@ bench_wait() {
   return "$bench_fail"
 }
 do_baseline_stock() {   # the base model with no training, in the same profiles, for a fair comparison
+  if [[ "$SKIP_BASELINE_STOCK" == 1 ]]; then log "  stock baselines reused from the earlier sweep (SKIP_BASELINE_STOCK=1)"; return 0; fi
   ollama_up
   gpu_guard baseline_stock shared
   local p
   for p in $BENCH_PROFILES; do
-    profile_ok "$p" || { log "  SKIPPED stock / $p: its tweaks are not paired with training data (see $ROOT/pairs_$p.txt)"; continue; }
+    profile_ok "$p" || { log "  SKIPPED stock / $p: its tweaks are not paired with training data (see $ROOT/pairs_${p%%+*}.txt)"; continue; }
     bench_launch "stock_${SIZE}_free" "$STOCK" v1 free "$p" --router-index
   done
   bench_wait
@@ -387,7 +414,7 @@ do_benchmark() {
   local p
   for p in $BENCH_PROFILES; do
     if ! profile_ok "$p"; then
-      log "  SKIPPED profile $p: the training data does not teach what it removes (see $ROOT/pairs_$p.txt)"
+      log "  SKIPPED profile $p: the training data does not teach what it removes (see $ROOT/pairs_${p%%+*}.txt)"
       continue
     fi
     bench_launch "${MODEL//[:.]/_}_free" "$MODEL" "$PLAN" free "$p"
@@ -399,10 +426,13 @@ do_score() {
   "$PY" -m sigma_ground.mcp.benchmark.score > "$LOGS/score.log" 2>&1 || return 1
   local args=(chain="$RESULTS/chain_qwen3_8b_run.json" stock_v1_8b="$RESULTS/router_qwen3_8b_stock_free_run.json"
               tuned_v2="$RESULTS/router_mentat_router_v2_free_run.json") p r label
+  local kv name
+  for kv in ${COMPARE_EXTRA:-}; do args+=("$kv"); done
   for p in $BENCH_PROFILES; do
+    name="${p//+/-}"
     for r in "stock_${SIZE}_free:stock_$SIZE" "${MODEL//[:.]/_}_free:tuned_${SIZE}" "${MODEL//[:.]/_}_toolfirst:tuned_${SIZE}_toolfirst"; do
-      label="${r#*:}_$p"
-      [[ -s "$RESULTS/router_${r%%:*}_${p}_run.json" ]] && args+=("$label=$RESULTS/router_${r%%:*}_${p}_run.json")
+      label="${r#*:}_$name"
+      [[ -s "$RESULTS/router_${r%%:*}_${name}_run.json" ]] && args+=("$label=$RESULTS/router_${r%%:*}_${name}_run.json")
     done
   done
   "$PY" "$REPO/tools/compare_router_runs.py" "${args[@]}" > "$CACHE/comparison.md"
@@ -410,6 +440,11 @@ do_score() {
   if [[ -s "$l" && -s "$m" ]]; then
     "$PY" "$REPO/tools/tweak_ablation.py" legacy="$l" model_only="$m" --json "$CACHE/ablation.json" > "$CACHE/ablation.md"
     cat "$CACHE/ablation.md" >> "$CACHE/comparison.md"
+  fi
+  local m2="$RESULTS/router_${MODEL//[:.]/_}_free_model-only-sr_run.json"
+  if [[ -s "$l" && -s "$m2" ]]; then
+    "$PY" "$REPO/tools/tweak_ablation.py" legacy="$l" model_only="$m2" --json "$CACHE/ablation_sr.json" > "$CACHE/ablation_sr.md"
+    { echo; echo "## cascade off, structured_results on"; cat "$CACHE/ablation_sr.md"; } >> "$CACHE/comparison.md"
   fi
   tee -a "$LOGS/pipeline.log" < "$CACHE/comparison.md"
 }
@@ -424,6 +459,11 @@ fi
 stage preflight preflight
 rm -f "$STATE/preflight.done"          # always rerun
 [[ $DRY == 1 ]] && { log "dry run: stopping after preflight"; exit 0; }
+if [[ "$FAMILY" != v3 ]]; then   # v3.1: the v3 recipe and decline seeds are already on disk, and their order is what the cache indexes
+  for m in recipes_v3 declines; do
+    [[ -f "$DSTATE/$m.done" ]] || { echo 0 > "$DSTATE/$m.done"; log "  $m: reused from v3 (not regenerated)"; }
+  done
+fi
 shared recipes_v3   do_recipes_v3
 shared declines     do_declines
 shared dataset      do_dataset
@@ -438,6 +478,7 @@ stage  create       do_create
 stage  smoke        do_smoke
 stage  eval_val     do_eval_val
 stage  eval_hard    do_eval_hard
+stage  eval_math    do_eval_math
 stage  baseline_stock do_baseline_stock
 stage  benchmark    do_benchmark
 stage  score        do_score

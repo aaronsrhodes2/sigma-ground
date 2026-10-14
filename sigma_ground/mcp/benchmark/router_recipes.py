@@ -527,6 +527,8 @@ async def run_plan(session, steps: list, question: str, bounds: dict):
         v = res["value"]
         if isinstance(res.get("raw"), dict):
             v = res["raw"]          # a lookup: a later call reads one field of it ("$1.mass_kg")
+            if any(x is None for x in v.values()):
+                return None, f"{s['tool']} result has empty fields"       # e.g. a material key the tool does not know
         elif isinstance(v, bool) or not isinstance(v, (int, float)):
             if i < len(steps):
                 return None, f"{s['tool']} value is not a number"

@@ -87,6 +87,33 @@ declared shape factor; composites and layered bodies need the layered structures
 a question that mentions neither a mass nor a material still needs a scenario prior (a typical object) before
 anything can be derived.
 
+## The materials database is the empirical reference (the Captain, 2026-10-13)
+
+"We have a materials database as well; I want to make sure that is referenceable as empirical properties."
+A property of a material that was measured (a refractive index, a melting or boiling point, a density, a
+Young's modulus, a band gap, a resistivity) lives in that database and **nowhere else**: not in the model's
+memory, not in a training label, not in a default table. A plan gets the value by calling the lookup tool and
+passing the result on (`"$1"`, or `"$1.field"` for a record), so the number that reaches the physics tool
+is the table's number and the answer can name the table.
+
+* **Precedence.** (1) a value the user gave; (2) a measured value from the database, by lookup; (3) a value
+  derived from (2) (V = m/rho, then r); (4) a scenario prior, marked `assumed` in the answer. Only (4) is a
+  judgement call, and only (4) needs the `needs review` mark.
+* **Provenance** gains a kind: `db` (table and key, for example `refractive_index: glass`). The answer says
+  "using the database's refractive index for glass" the way it says "assuming 0.145 kg".
+* **v3.1 trains this for seven chains** (`router_recipes_v31.py`, family `db`, 255 training records): critical
+  angle and Snell's law between two media (two `refractive_index` lookups), wavelength in a medium, peak
+  blackbody wavelength at a melting point, thermal energy per molecule at a boiling point, Carnot efficiency
+  between two boiling points, and floating in a fluid (the fluid's `density` into `buoyancy_analysis`). In
+  every one the question names materials and no number, and the plan contains no measured value. The
+  recipes run against the real server: a material key the database does not know yields an empty record
+  and the example is dropped (the generator will not label a plan the server cannot answer).
+* **Still to do.** The same rule for the rest of the property tables (moduli, resistivities, band gaps) and
+  a lint that fails any training plan with a literal in a slot a lookup tool fills (a refractive index
+  typed as `1.33`), so a measured value from memory cannot be taught by accident.
+* **Why it matters for grounding.** The model cannot suggest a far-out value for a property the table
+  holds: it has no number to write, only a lookup to call.
+
 ## Grounded in reality (the Captain's reading of why this matters)
 
 Today the groundedness gate says an *answer* came from a tool. This rule lets it say the same of the
