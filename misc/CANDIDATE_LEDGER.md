@@ -103,3 +103,9 @@ DE413 gets WORSE in every case (e.g. j2011 0.31 -> 1.20 km; its Moon was already
 Reading (not yet tested): the C22 term closes the gap to DE440-like lunar physics (the DE440-start control: 2.15 -> 0.44 km), while each older vintage carries its own lunar figure and initial state, so a vintage whose Moon is already close to ours without C22 moves away from it.
 The test that would separate "our model got better" from "the vintage differs": compare the same runs with DE440 as the reference (the DE440-start control already does, and shows the improvement). So C3a stays SUPPORTED against DE440 and is NOT a uniform improvement against the old vintages.
 Remaining Moon items unchanged: the steady -0.10 km/yr along-track drift, C22 coefficient and reference-radius convention, tesseral and degree-3 harmonics.
+
+### C1 + C3a in the shoot-out (2026-10-14): restated at step 0.025 d from DE440 starts, 27 propagations, 0 failures
+Data and tables: `fixtures/v2physics_restated/` (README has the attribution and the wording). Medians over the six windows that have all three versions, +5 yr, km, r2 (0.05 d) -> control (0.025 d, no asteroids/C22) -> candidate:
+Mercury 1.41 -> 0.02 -> 0.03; Venus 0.19 -> 0.21 -> 0.12; Earth 0.45 -> 0.45 -> 0.17; Moon 3.70 -> 1.45 -> 0.48; Mars 1.03 -> 1.03 -> 0.57. The step accounts for Mercury and half of the Moon; the asteroids + C22 for the rest of the Moon and for Earth, Mars and Venus.
+Over all 16 windows the candidate beats r2 in every window for Mercury and the Moon (16 of 16 at +1, +3, +5 yr). At +20 yr (7 windows) Moon 14.7 -> 1.0 km, Earth 1.89 -> 0.79; Mars 3.92 -> 3.66 (barely moved).
+Remaining, untested: Mars beyond +5 yr (the other asteroids?), Uranus/Neptune/Pluto at +20 yr (14, 30, 35 km), Jupiter 9.9 km at +20 yr.
