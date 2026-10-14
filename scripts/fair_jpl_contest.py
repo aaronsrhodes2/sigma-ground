@@ -85,6 +85,7 @@ def run_one(args):
     vname, vfile, key, e_jd, dt_days, leads = args[:6]
     toggle_names = args[6] if len(args) > 6 else None
     import sigma_ground.field.interface.rolling_shootout as rs
+    import sigma_ground.field.interface.lunar_figure as _lf
     from jplephem.spk import SPK
     from sigma_ground.field.interface.nbody import CelestialBody, NBodySystem
     from sigma_ground.field.constants import G
@@ -105,9 +106,12 @@ def run_one(args):
             cb = CelestialBody(mass_kg=gm[n] / G, position_m=p * KM, velocity_m_s=v * KM / DAY, radius_m=base.radius_m, love_number_k2=0.0,
                                area_m2=base.area_m2, reflectivity=base.reflectivity, j2=0.0, j3=0.0, j4=0.0, pole_axis_unit=base.pole_axis_unit)
         else:
+            fig = _lf.moon_figure_fields() if (n == "Moon" and len(args) > 11 and args[11]) else {}
+            if fig:
+                fig = {"c22": float(args[11]), "figure_ref_radius_m": fig["figure_ref_radius_m"]}      # --lunar-c22 VALUE overrides the literature coefficient
             cb = CelestialBody(mass_kg=gm[n] / G, position_m=p * KM, velocity_m_s=v * KM / DAY, radius_m=base.radius_m,
                                love_number_k2=base.love_number_k2, area_m2=base.area_m2, reflectivity=base.reflectivity, j2=base.j2, j3=base.j3,
-                               j4=base.j4, pole_axis_unit=base.pole_axis_unit)
+                               j4=base.j4, pole_axis_unit=base.pole_axis_unit, **fig)
         bodies.append(cb)
         e0[n] = float(np.linalg.norm(p - pos(kt, n, e_jd)))
     asteroid_states = args[8] if len(args) > 8 else None
@@ -123,11 +127,11 @@ def run_one(args):
         import dataclasses
         toggles = type(pred.toggles)(**{f.name: (f.name in toggle_names) for f in dataclasses.fields(pred.toggles) if isinstance(getattr(pred.toggles, f.name), bool)})
     c22 = args[11] if len(args) > 11 else None
-    if c22:                                                      # candidate C3a: the Moon's triaxial figure (sectoral C22), long axis locked to the Earth
-        from sigma_ground.field.interface.lunar_figure import LockedMoonSystem
-        system = LockedMoonSystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None,
-                                  moon_index=ORDER.index("Moon"), earth_index=ORDER.index("Earth"), c22=float(c22),
-                                  jd0_tdb=(e_jd if (len(args) > 12 and args[12] == "iau") else None))
+    if c22:                                                      # candidate C3a: the Moon's triaxial figure (sectoral C22) as an engine layer, bulge following the IAU rotation
+        import dataclasses
+        toggles = dataclasses.replace(toggles, sectoral_c22=True)
+        system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None,
+                             epoch_jd_tdb=e_jd, rotation_models={ORDER.index("Moon"): _lf.moon_axes})
     else:
         system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None)
     out = {n: {} for n in ORDER if n != "Sun"}
@@ -191,7 +195,7 @@ def main() -> int:
     ap.add_argument("--pole-update-days", type=float, default=None, help="candidate C2: refresh the IAU spin axes of the zonal bodies every this many days")
     ap.add_argument("--sample-days", type=float, default=None, help="sample every this many days (residual atlas) instead of yearly; also records the Moon gap as R/T/N")
     ap.add_argument("--lunar-c22", type=float, default=None, help="candidate C3a: add the Moon's C22 figure term with this coefficient (e.g. 2.2382e-5)")
-    ap.add_argument("--lunar-orientation", choices=["locked", "iau"], default="locked", help="C22 orientation: long axis locked to the instantaneous Earth direction, or the IAU rotation model (uniform rotation + librations)")
+    ap.add_argument("--lunar-orientation", choices=["locked", "iau"], default="iau", help="C22 orientation; only the IAU rotation model (uniform rotation + librations) is an engine layer. 'locked' (long axis along the instantaneous Earth direction) was a superseded experiment and is rejected")
     ap.add_argument("--cases", nargs="*", default=None, help="explicit VINTAGE:start cases, e.g. DE405:j2001 DE421:j2009 (overrides --only-vintage/--starts)")
     ap.add_argument("--only-vintage", nargs="*", default=None)
     ap.add_argument("--starts", nargs="*", default=None, help="restrict start snapshots, e.g. j2005 j2010")
@@ -212,6 +216,8 @@ def main() -> int:
     def ast_for(key):
         return {n: {"gm_km3_s2": d["gm_km3_s2"], "radius_km": d["radius_km"], "state": d["states"][key]} for n, d in ast["asteroids"].items()} if ast else None
     leads = [1, 2, 3, 4, 5] if not a.sample_days else [round(i * a.sample_days / 365.25, 9) for i in range(1, int(5 * 365.25 / a.sample_days) + 1)]
+    if a.lunar_c22 and a.lunar_orientation == "locked":
+        ap.error("--lunar-orientation locked was the superseded subclass experiment (data: moon_atlas_control_c22_locked.json); use iau")
     jobs = []
     if a.validate:
         for k in keys:

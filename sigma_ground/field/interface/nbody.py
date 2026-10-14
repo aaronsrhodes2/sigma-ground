@@ -53,6 +53,7 @@ from numpy.typing import NDArray
 
 from ..constants import G as _G_SI, C as _C_SI, L_SUN_W as _L_SUN_W
 from ..scale import scale_ratio as _scale_ratio
+from .figure_forces import c22_T as _c22_T, sectoral_extra_accelerations as _sectoral_extra
 
 # ── derived (not magic) constants ─────────────────────────────────────────
 _G   = _G_SI                  # m³ kg⁻¹ s⁻²
@@ -119,6 +120,7 @@ class PhysicsToggles:
     j3_zonal:    bool = False   # zonal J₃ (asymmetric, e.g. Earth's pear shape -- BORROWED)
     j4_zonal:    bool = False   # zonal J₄ (gas giants -- BORROWED)
     tidal_force: bool = False   # equilibrium tidal bulge: Love-number k₂ induced quadrupole + reaction (Love 1911)
+    sectoral_c22: bool = False  # triaxial figure (C22) of each body with body.c22 != 0; its long axis comes from system.rotation_models (MacCullagh quadrupole, figure_forces.py)
     gw_damping:  bool = False   # GW energy loss (Peters 1964, binaries only -- BORROWED)
     # Future toggles to be added when their physics is implemented:
     #   yarkovsky:        bool = False    # NEA thermal recoil
@@ -206,6 +208,10 @@ class CelestialBody:
                       WRONG for Uranus (97° obliquity), Pluto (122°), and Triton
                       (retrograde) — callers should supply real IAU pole vectors.
                       Auto-normalized in __post_init__ if not unit length.
+    c22             : sectoral (m = 2) quadrupole coefficient C22 = (B − A)/(4 M R²), the triaxial part of the figure of a body whose
+                      long axis (smallest moment A) points along the first axis returned by its rotation model (the Moon: toward the Earth).
+                      Default 0.0. Moon: 2.2382e-5 (GRAIL, reference radius 1738 km). Used only with toggles.sectoral_c22.
+    figure_ref_radius_m : the reference radius of c22 (0 → radius_m).
     love_number_h2  : displacement Love number h₂ (surface amplitude of the tide), used by
                       compute_tidal_deformation. None (default) = hydrostatic value 1 + k₂,
                       exact for fluid bodies; supply it for elastic ones (Earth 0.6078,
@@ -225,6 +231,8 @@ class CelestialBody:
     j4:             float = 0.0   # zonal J₄ coefficient (next-order oblateness)
     pole_axis_unit: NDArray[np.float64] | None = None  # default → +z axis in __post_init__
     love_number_h2: float | None = None   # displacement Love number; None → 1 + k₂ (hydrostatic)
+    c22:            float = 0.0   # sectoral quadrupole coefficient (B - A)/(4 M R²); needs toggles.sectoral_c22 and a rotation model for this body
+    figure_ref_radius_m: float = 0.0   # reference radius the c22 coefficient belongs to; 0 → radius_m
 
     def __post_init__(self) -> None:
         if self.position_m.shape != (3,):
@@ -333,6 +341,9 @@ class NBodySystem:
         parent_attractor_indices: list[int | None] | None = None,
         # Legacy kwargs (deprecated, accepted for backward compatibility):
         include_gr:         bool  = False,
+        # Time-dependent figure (toggles.sectoral_c22):
+        epoch_jd_tdb:       float | None = None,
+        rotation_models:    dict | None = None,
     ) -> None:
         self.bodies             = list(bodies)
         self.softening_m        = softening_m
@@ -369,6 +380,14 @@ class NBodySystem:
                 j2_zonal=j2_data_present,
             )
         self.toggles = toggles
+        # Sectoral-figure layer: the body's orientation is a function of time supplied by the caller, rotation_models[i](jd_tdb) -> (x_hat, y_hat, z_hat) in the
+        # inertial frame (x the long axis). The system clock is seconds since epoch_jd_tdb; forces are evaluated at _t_eval (the sub-step time inside a step).
+        self.epoch_jd_tdb = epoch_jd_tdb
+        self.rotation_models = dict(rotation_models or {})
+        if toggles.sectoral_c22:
+            for i, b in enumerate(self.bodies):
+                if b.c22 != 0.0 and (epoch_jd_tdb is None or i not in self.rotation_models):
+                    raise ValueError(f"body {i} has c22 = {b.c22} and toggles.sectoral_c22 is on: pass epoch_jd_tdb and rotation_models[{i}] (jd_tdb -> (x, y, z) axes)")
         # Legacy attribute access (some callers / tests inspect .include_gr directly).
         self.include_gr = self.toggles.gr_1pn
 
@@ -752,6 +771,18 @@ class NBodySystem:
                                                                   - 2.0 * r_dot_n * n_hat_tidal)
                     acc[k] += a_k
                     acc[i] -= (self.bodies[k].mass_kg / M_i) * a_k
+
+        # ── Sectoral (C22) figure of a body, long axis from its rotation model ─────────────────────────
+        # DERIVED: MacCullagh quadrupole of T = 2 C22 M R² (ŷŷᵀ − x̂x̂ᵀ) (figure_forces.py); the reaction on the body is included, so momentum is conserved.
+        # The orientation is evaluated at the sub-step time _t_eval (a rotating figure evaluated at the step's start acts like a constant lag).
+        if t.sectoral_c22:
+            for j, bj in enumerate(self.bodies):
+                if bj.c22 == 0.0:
+                    continue
+                x_hat, y_hat, _ = self.rotation_models[j](self.epoch_jd_tdb + self._t_eval / 86400.0)
+                R_ref = bj.figure_ref_radius_m if bj.figure_ref_radius_m > 0.0 else bj.radius_m
+                T_j = _c22_T(bj.mass_kg, R_ref, bj.c22, x_hat, y_hat)
+                acc += _sectoral_extra(np.array([b.position_m for b in self.bodies]), np.array([b.mass_kg for b in self.bodies]), j, T_j)
 
         # ── Solar radiation pressure ──────────────────────────────────────
         # Gated by both toggles.srp AND solar_luminosity_W > 0 (need a value
