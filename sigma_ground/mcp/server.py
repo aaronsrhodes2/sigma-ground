@@ -198,38 +198,44 @@ def main() -> int:
 
     # ── symbolic math ────────────────────────────────────────────────
     @server.tool()
-    def solve_equation(equation: str, variable: str) -> dict[str, Any]:
-        """Symbolic solve via sympy. Accepts 'expr' (= 0) or 'lhs = rhs'.
+    def solve_equation(equation: str, variable: str | None = None) -> dict[str, Any]:
+        """Symbolic solve. Accepts 'expr' (= 0) or 'lhs = rhs'; writes like a textbook: x^2, x², 2x, sqrt/√, pi/π, e^x, |x|, sin x.
 
         Args:
-            equation: Expression set to zero, or 'lhs = rhs' form.
-            variable: Symbol name to solve for.
+            equation: Expression set to zero, or 'lhs = rhs' form, e.g. "x^2 - 4" or "2x + 1 = 7".
+            variable: Symbol name to solve for. Optional when the equation has one free symbol.
         """
         return t_sym.solve_equation(equation, variable).to_dict()
 
     @server.tool()
-    def integrate_expr(expression: str, variable: str,
+    def integrate_expr(expression: str, variable: str | None = None,
                         lower: str | None = None,
                         upper: str | None = None) -> dict[str, Any]:
-        """Symbolic integration. Definite if lower+upper given.
+        """Symbolic integration. Definite if lower+upper given. The result says how the integrand was read (interpreted_as).
 
         Args:
-            expression: The integrand.
-            variable: Variable of integration.
-            lower, upper: Optional integration bounds (sympy-parseable).
+            expression: The integrand, e.g. "x^2", "x² e^(-x)", "1/(1+x^2)", "sin x cos x".
+            variable: Variable of integration. Optional when the integrand has one free symbol.
+            lower, upper: Optional integration bounds: numbers, "pi/2", or infinity as "oo" / "infinity" / "∞".
         """
         return t_sym.integrate_expr(expression, variable,
                                        lower, upper).to_dict()
 
     @server.tool()
-    def differentiate_expr(expression: str, variable: str,
+    def differentiate_expr(expression: str, variable: str | None = None,
                             order: int = 1) -> dict[str, Any]:
-        """Symbolic differentiation."""
+        """Symbolic differentiation. The result says how the input was read (interpreted_as).
+
+        Args:
+            expression: e.g. "3x² + 2x", "sin(x)/x", "e^(-x²)", "√x", "|x|".
+            variable: Variable to differentiate by. Optional when the expression has one free symbol.
+            order: Order of the derivative (default 1).
+        """
         return t_sym.differentiate_expr(expression, variable, order).to_dict()
 
     @server.tool()
     def simplify_expr(expression: str) -> dict[str, Any]:
-        """Apply sympy.simplify to an expression."""
+        """Simplify an expression, e.g. "sin(x)^2 + cos(x)^2" (1). The result says how the input was read."""
         return t_sym.simplify_expr(expression).to_dict()
 
     # ── extended math (linear algebra, transforms, series, ODE, vector) ──
@@ -259,23 +265,25 @@ def main() -> int:
         return t_mathx.solve_linear_system(matrix_a, vector_b).to_dict()
 
     @server.tool()
-    def compute_limit(expression: str, variable: str = "x",
+    def compute_limit(expression: str, variable: str | None = None,
                        point: str = "0", direction: str = "+-") -> dict[str, Any]:
-        """Limit of expression as variable -> point ('+', '-', or '+-')."""
+        """Limit of expression as variable -> point; direction '+', '-' or '+-'. point may be a number, an expression or
+        infinity ("oo", "infinity", "∞", "-infinity"). variable is optional when the expression has one free symbol."""
         return t_mathx.compute_limit(expression, variable, point,
                                        direction).to_dict()
 
     @server.tool()
-    def series_expansion(expression: str, variable: str = "x",
+    def series_expansion(expression: str, variable: str | None = None,
                           point: str = "0", order: int = 6) -> dict[str, Any]:
-        """Taylor/Maclaurin series about point, to given order."""
+        """Taylor/Maclaurin series about point, to given order. variable is optional when the expression has one free symbol."""
         return t_mathx.series_expansion(expression, variable, point,
                                           order).to_dict()
 
     @server.tool()
-    def summation(expression: str, variable: str = "n",
+    def summation(expression: str, variable: str | None = None,
                   lower: str = "1", upper: str = "oo") -> dict[str, Any]:
-        """Symbolic sum over variable from lower to upper."""
+        """Symbolic sum over variable from lower to upper (infinity as "oo" / "infinity" / "∞").
+        variable is optional when the summand has one free symbol."""
         return t_mathx.summation(expression, variable, lower, upper).to_dict()
 
     @server.tool()

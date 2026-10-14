@@ -8,44 +8,59 @@ the LLM's only job is to recognize the operation and call the tool.
 
 All inputs/outputs are strings (MCP wire stays simple). Matrices are
 passed as nested-list strings, e.g. "[[1,2],[3,4]]".
+
+Every expression goes through the one parser, ``mathparse.parse`` (see symbolic.py): ``x²``, ``2x``, ``√x``,
+``π``, ``e^x``, ``sin x``, ``∞`` are read the way a textbook reads them, the result says how (``interpreted_as``),
+and a variable left out is inferred when the expression has one free symbol (disclosed in ``notes``).
 """
 
 from __future__ import annotations
 
+import re
+
 from sigma_ground.mcp.provenance import ToolResult
-from sigma_ground.mcp.tools.symbolic import _reserved_note
-
-
-def _sympify(expr: str, variables=()):
-    # Names in ``variables`` (the tool's named variable(s)) parse as plain Symbols,
-    # so E, I, N, S, O or Q is the variable, not sympy's object of that name.
-    # FIXED 2026-10-10: compute_limit('S**2', 'S', '2') failed to parse and
-    # compute_limit('E**2', 'E', '2') returned exp(2) (A30; same defect as A20).
-    import sympy as sp
-    local = {v: sp.Symbol(v) for v in variables if v}
-    try:
-        return sp.sympify(expr, locals=local, convert_xor=True)
-    except (sp.SympifyError, SyntaxError, TypeError) as e:
-        raise ValueError(f"could not parse '{expr}': {e}") from e
+from sigma_ground.mcp.tools.mathparse import MathParseError, infer_variable, parse
+from sigma_ground.mcp.tools.symbolic import _join_notes, refusal
 
 
 def _names(variables: str):
-    return [v.strip() for v in variables.split(",")]
+    return [v.strip() for v in variables.split(",") if v.strip()]
+
+
+def _split_top(text: str):
+    """Split on commas that are not inside brackets: 'x*y, atan2(y,x), z' -> three components."""
+    parts, depth, cur = [], 0, []
+    for ch in text:
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        if ch == "," and depth == 0:
+            parts.append("".join(cur).strip())
+            cur = []
+        else:
+            cur.append(ch)
+    parts.append("".join(cur).strip())
+    return parts
 
 
 def _matrix(s: str):
     import sympy as sp
-    return sp.Matrix(_sympify(s))
+    p = parse(s)
+    if not isinstance(p.expr, (list, tuple)):
+        raise MathParseError("a matrix is written as a nested list", "e.g. [[1,2],[3,4]]")
+    return sp.Matrix(p.expr), p.notes
 
 
-def _ok(value, source, formula, inputs, notes=""):
-    return ToolResult(value=value, source=source, formula=formula,
-                       inputs=inputs, notes=notes)
+def _ok(value, source, formula, inputs, notes="", interpreted_as=None):
+    return ToolResult(value=value, source=source, formula=formula, inputs=inputs, notes=notes,
+                       interpreted_as=interpreted_as)
 
 
-def _err(msg, inputs):
-    return ToolResult(value=None, source="sympy error", notes=str(msg),
-                       inputs=inputs)
+def _variable_for(variable, *texts):
+    if variable:
+        return str(variable), ""
+    return infer_variable([parse(t).expr for t in texts if t])
 
 
 # ── Linear algebra ──────────────────────────────────────────────────────
@@ -53,115 +68,118 @@ def _err(msg, inputs):
 def matrix_determinant(matrix: str) -> ToolResult:
     """Determinant of a square matrix. matrix='[[1,2],[3,4]]' -> -2."""
     try:
-        d = _matrix(matrix).det()
-        return _ok(str(d), "sympy.Matrix.det", f"det({matrix})",
-                    {"matrix": matrix})
+        M, notes = _matrix(matrix)
+        return _ok(str(M.det()), "sympy.Matrix.det", f"det({matrix})", {"matrix": matrix}, notes, f"det {M.tolist()}")
     except Exception as e:
-        return _err(e, {"matrix": matrix})
+        return refusal("sympy error", e, {"matrix": matrix})
 
 
 def matrix_eigenvalues(matrix: str) -> ToolResult:
     """Eigenvalues of a square matrix (with multiplicity)."""
     try:
-        ev = _matrix(matrix).eigenvals()
+        M, notes = _matrix(matrix)
         vals = []
-        for val, mult in ev.items():
+        for val, mult in M.eigenvals().items():
             vals.extend([str(val)] * int(mult))
-        return _ok(vals, "sympy.Matrix.eigenvals", f"eigenvals({matrix})",
-                    {"matrix": matrix}, notes=f"{len(vals)} eigenvalue(s)")
+        return _ok(vals, "sympy.Matrix.eigenvals", f"eigenvals({matrix})", {"matrix": matrix},
+                   _join_notes(f"{len(vals)} eigenvalue(s)", notes), f"eigenvalues of {M.tolist()}")
     except Exception as e:
-        return _err(e, {"matrix": matrix})
+        return refusal("sympy error", e, {"matrix": matrix})
 
 
 def matrix_inverse(matrix: str) -> ToolResult:
     """Inverse of a square matrix."""
     try:
-        inv = _matrix(matrix).inv()
-        return _ok(str(inv.tolist()), "sympy.Matrix.inv", f"inv({matrix})",
-                    {"matrix": matrix})
+        M, notes = _matrix(matrix)
+        return _ok(str(M.inv().tolist()), "sympy.Matrix.inv", f"inv({matrix})", {"matrix": matrix}, notes,
+                   f"inverse of {M.tolist()}")
     except Exception as e:
-        return _err(e, {"matrix": matrix})
+        return refusal("sympy error", e, {"matrix": matrix})
 
 
 def matrix_multiply(matrix_a: str, matrix_b: str) -> ToolResult:
     """Matrix product A·B."""
+    inputs = {"matrix_a": matrix_a, "matrix_b": matrix_b}
     try:
-        prod = _matrix(matrix_a) * _matrix(matrix_b)
-        return _ok(str(prod.tolist()), "sympy.Matrix.__mul__",
-                    f"({matrix_a})*({matrix_b})",
-                    {"matrix_a": matrix_a, "matrix_b": matrix_b})
+        A, na = _matrix(matrix_a)
+        B, nb = _matrix(matrix_b)
+        return _ok(str((A * B).tolist()), "sympy.Matrix.__mul__", f"({matrix_a})*({matrix_b})", inputs,
+                   _join_notes(na, nb), f"{A.tolist()} · {B.tolist()}")
     except Exception as e:
-        return _err(e, {"matrix_a": matrix_a, "matrix_b": matrix_b})
+        return refusal("sympy error", e, inputs)
 
 
 def solve_linear_system(matrix_a: str, vector_b: str) -> ToolResult:
     """Solve A x = b. matrix_a='[[2,1],[1,3]]', vector_b='[1,2]'."""
+    inputs = {"matrix_a": matrix_a, "vector_b": vector_b}
     try:
         import sympy as sp
-        A = _matrix(matrix_a)
-        b = sp.Matrix(_sympify(vector_b))
+        A, na = _matrix(matrix_a)
+        pb = parse(vector_b)
+        b = sp.Matrix(pb.expr)
         x = A.LUsolve(b)
-        return _ok([str(v) for v in x], "sympy.Matrix.LUsolve",
-                    f"solve {matrix_a} x = {vector_b}",
-                    {"matrix_a": matrix_a, "vector_b": vector_b})
+        return _ok([str(v) for v in x], "sympy.Matrix.LUsolve", f"solve {matrix_a} x = {vector_b}", inputs,
+                   _join_notes(na, pb.notes), f"solve {A.tolist()} x = {list(b)}")
     except Exception as e:
-        return _err(e, {"matrix_a": matrix_a, "vector_b": vector_b})
+        return refusal("sympy error", e, inputs)
 
 
 # ── Limits, series, sums ────────────────────────────────────────────────
 
-def compute_limit(expression: str, variable: str = "x",
+def compute_limit(expression: str, variable: str | None = None,
                    point: str = "0", direction: str = "+-") -> ToolResult:
-    """Limit of expression as variable -> point. direction '+', '-', or '+-'."""
+    """Limit of expression as variable -> point. direction '+', '-', or '+-'.
+    point accepts numbers, expressions and infinity ("oo", "infinity", "∞", "-infinity")."""
+    inputs = {"expression": expression, "variable": variable, "point": point, "direction": direction}
     try:
         import sympy as sp
-        expr = _sympify(expression, [variable])
-        var = sp.Symbol(variable)
-        pt = _sympify(point)
+        name, vnote = _variable_for(variable, expression)
+        p = parse(expression, [name])
+        pt = parse(point, [name])
+        var = sp.Symbol(name)
         d = direction if direction in ("+", "-") else "+-"
-        lim = sp.limit(expr, var, pt, dir=d) if d in ("+", "-") \
-            else sp.limit(expr, var, pt)
-        return _ok(str(lim), "sympy.limit",
-                    f"limit({expression}, {variable}->{point})",
-                    {"expression": expression, "variable": variable,
-                     "point": point},
-                    _reserved_note([expression, point], [variable]))
+        lim = sp.limit(p.expr, var, pt.expr, dir=d) if d in ("+", "-") else sp.limit(p.expr, var, pt.expr)
+        arrow = {"+": "⁺", "-": "⁻"}.get(d, "")
+        return _ok(str(lim), "sympy.limit", f"limit({expression}, {name}->{point})",
+                   {"expression": expression, "variable": name, "point": point},
+                   _join_notes(vnote, p.notes, pt.notes), f"lim {name}→{sp.sstr(pt.expr)}{arrow} of {sp.sstr(p.expr)}")
     except Exception as e:
-        return _err(e, {"expression": expression, "variable": variable})
+        return refusal("sympy error", e, {"expression": expression, "variable": variable})
 
 
-def series_expansion(expression: str, variable: str = "x",
+def series_expansion(expression: str, variable: str | None = None,
                       point: str = "0", order: int = 6) -> ToolResult:
     """Taylor/Maclaurin series of expression about point, to given order."""
+    inputs = {"expression": expression, "variable": variable, "point": point, "order": order}
     try:
         import sympy as sp
-        expr = _sympify(expression, [variable])
-        var = sp.Symbol(variable)
-        s = sp.series(expr, var, _sympify(point), int(order)).removeO()
-        return _ok(str(s), "sympy.series",
-                    f"series({expression}, {variable}, {point}, {order})",
-                    {"expression": expression, "variable": variable,
-                     "point": point, "order": order},
-                    _reserved_note([expression, point], [variable]))
+        name, vnote = _variable_for(variable, expression)
+        p = parse(expression, [name])
+        pt = parse(point, [name])
+        s = sp.series(p.expr, sp.Symbol(name), pt.expr, int(order)).removeO()
+        return _ok(str(s), "sympy.series", f"series({expression}, {name}, {point}, {order})",
+                   {"expression": expression, "variable": name, "point": point, "order": order},
+                   _join_notes(vnote, p.notes, pt.notes),
+                   f"series of {sp.sstr(p.expr)} about {name}={sp.sstr(pt.expr)} to order {order}")
     except Exception as e:
-        return _err(e, {"expression": expression, "variable": variable})
+        return refusal("sympy error", e, {"expression": expression, "variable": variable})
 
 
-def summation(expression: str, variable: str = "n",
+def summation(expression: str, variable: str | None = None,
               lower: str = "1", upper: str = "oo") -> ToolResult:
     """Symbolic sum of expression over variable from lower to upper."""
     try:
         import sympy as sp
-        expr = _sympify(expression, [variable])
-        var = sp.Symbol(variable)
-        total = sp.summation(expr, (var, _sympify(lower), _sympify(upper)))
-        return _ok(str(total), "sympy.summation",
-                    f"Sum({expression}, ({variable}, {lower}, {upper}))",
-                    {"expression": expression, "variable": variable,
-                     "lower": lower, "upper": upper},
-                    _reserved_note([expression, lower, upper], [variable]))
+        name, vnote = _variable_for(variable, expression)
+        p = parse(expression, [name])
+        lo, hi = parse(lower, [name]), parse(upper, [name])
+        total = sp.summation(p.expr, (sp.Symbol(name), lo.expr, hi.expr))
+        return _ok(str(total), "sympy.summation", f"Sum({expression}, ({name}, {lower}, {upper}))",
+                   {"expression": expression, "variable": name, "lower": lower, "upper": upper},
+                   _join_notes(vnote, p.notes, lo.notes, hi.notes),
+                   f"Σ {name}={sp.sstr(lo.expr)}..{sp.sstr(hi.expr)} of {sp.sstr(p.expr)}")
     except Exception as e:
-        return _err(e, {"expression": expression})
+        return refusal("sympy error", e, {"expression": expression, "variable": variable})
 
 
 # ── Transforms ──────────────────────────────────────────────────────────
@@ -172,14 +190,13 @@ def laplace_transform(expression: str, t_var: str = "t",
     try:
         import sympy as sp
         t, s = sp.Symbol(t_var, positive=True), sp.Symbol(s_var)
-        # parse with the SAME t symbol (positive) so the transform integrates
-        expr = sp.sympify(expression, locals={t_var: t}, convert_xor=True)
+        p = parse(expression, [t_var])
+        expr = p.expr.subs(sp.Symbol(t_var), t)          # the transform integrates over t > 0
         F = sp.laplace_transform(expr, t, s, noconds=True)
-        return _ok(str(F), "sympy.laplace_transform",
-                    f"L{{{expression}}}(s)",
-                    {"expression": expression})
+        return _ok(str(F), "sympy.laplace_transform", f"L{{{expression}}}(s)", {"expression": expression},
+                   p.notes, f"L{{{sp.sstr(p.expr)}}}({s_var})")
     except Exception as e:
-        return _err(e, {"expression": expression})
+        return refusal("sympy error", e, {"expression": expression})
 
 
 def fourier_transform(expression: str, x_var: str = "x",
@@ -188,11 +205,12 @@ def fourier_transform(expression: str, x_var: str = "x",
     try:
         import sympy as sp
         x, k = sp.Symbol(x_var), sp.Symbol(k_var)
-        F = sp.fourier_transform(_sympify(expression, [x_var]), x, k)
-        return _ok(str(F), "sympy.fourier_transform",
-                    f"F{{{expression}}}(k)", {"expression": expression})
+        p = parse(expression, [x_var])
+        F = sp.fourier_transform(p.expr, x, k)
+        return _ok(str(F), "sympy.fourier_transform", f"F{{{expression}}}(k)", {"expression": expression},
+                   p.notes, f"F{{{sp.sstr(p.expr)}}}({k_var})")
     except Exception as e:
-        return _err(e, {"expression": expression})
+        return refusal("sympy error", e, {"expression": expression})
 
 
 # ── Algebra ─────────────────────────────────────────────────────────────
@@ -201,20 +219,22 @@ def factor_expression(expression: str) -> ToolResult:
     """Factor a polynomial / expression."""
     try:
         import sympy as sp
-        return _ok(str(sp.factor(_sympify(expression))), "sympy.factor",
-                    f"factor({expression})", {"expression": expression})
+        p = parse(expression)
+        return _ok(str(sp.factor(p.expr)), "sympy.factor", f"factor({expression})", {"expression": expression},
+                   p.notes, f"factor [{sp.sstr(p.expr)}]")
     except Exception as e:
-        return _err(e, {"expression": expression})
+        return refusal("sympy error", e, {"expression": expression})
 
 
 def expand_expression(expression: str) -> ToolResult:
     """Expand an expression."""
     try:
         import sympy as sp
-        return _ok(str(sp.expand(_sympify(expression))), "sympy.expand",
-                    f"expand({expression})", {"expression": expression})
+        p = parse(expression)
+        return _ok(str(sp.expand(p.expr)), "sympy.expand", f"expand({expression})", {"expression": expression},
+                   p.notes, f"expand [{sp.sstr(p.expr)}]")
     except Exception as e:
-        return _err(e, {"expression": expression})
+        return refusal("sympy error", e, {"expression": expression})
 
 
 # ── Differential equations ──────────────────────────────────────────────
@@ -225,6 +245,7 @@ def solve_ode(equation: str, func: str = "y",
 
     Example: "y'' + y" (= 0) -> general solution C1*sin(x)+C2*cos(x).
     """
+    inputs = {"equation": equation, "func": func, "variable": variable}
     try:
         import sympy as sp
         x = sp.Symbol(variable)
@@ -234,18 +255,19 @@ def solve_ode(equation: str, func: str = "y",
         s = s.replace(f"{func}''", f"Derivative({func}({variable}),{variable},2)")
         s = s.replace(f"{func}'", f"Derivative({func}({variable}),{variable})")
         # bare func not already followed by '(' -> func(variable)
-        import re as _re
-        s = _re.sub(rf"\b{func}\b(?!\s*\()", f"{func}({variable})", s)
+        s = re.sub(rf"\b{func}\b(?!\s*\()", f"{func}({variable})", s)
+        funcs = {func: y, "Derivative": sp.Derivative}
         if "=" in s:
             lhs, rhs = s.split("=", 1)
-            eq = sp.Eq(_sympify(lhs, [variable]), _sympify(rhs, [variable]))
+            pl, pr = parse(lhs, [variable], functions=funcs), parse(rhs, [variable], functions=funcs)
+            eq, notes = sp.Eq(pl.expr, pr.expr), _join_notes(pl.notes, pr.notes)
         else:
-            eq = sp.Eq(_sympify(s, [variable]), 0)
+            pl = parse(s, [variable], functions=funcs)
+            eq, notes = sp.Eq(pl.expr, 0), pl.notes
         sol = sp.dsolve(eq, y(x))
-        return _ok(str(sol), "sympy.dsolve", f"dsolve({equation})",
-                    {"equation": equation, "func": func, "variable": variable})
+        return _ok(str(sol), "sympy.dsolve", f"dsolve({equation})", inputs, notes, f"solve {sp.sstr(eq)}")
     except Exception as e:
-        return _err(e, {"equation": equation})
+        return refusal("sympy error", e, {"equation": equation})
 
 
 # ── Vector calculus ─────────────────────────────────────────────────────
@@ -254,47 +276,52 @@ def gradient(scalar_field: str, variables: str = "x,y,z") -> ToolResult:
     """Gradient ∇f of a scalar field. variables comma-separated."""
     try:
         import sympy as sp
-        vs = [sp.Symbol(v) for v in _names(variables)]
-        f = _sympify(scalar_field, _names(variables))
-        grad = [str(sp.diff(f, v)) for v in vs]
+        names = _names(variables)
+        vs = [sp.Symbol(v) for v in names]
+        p = parse(scalar_field, names)
+        grad = [str(sp.diff(p.expr, v)) for v in vs]
         return _ok(grad, "sympy.diff (gradient)", f"grad({scalar_field})",
-                    {"scalar_field": scalar_field, "variables": variables})
+                   {"scalar_field": scalar_field, "variables": variables}, p.notes, f"∇ [{sp.sstr(p.expr)}]")
     except Exception as e:
-        return _err(e, {"scalar_field": scalar_field})
+        return refusal("sympy error", e, {"scalar_field": scalar_field})
 
 
 def divergence(vector_field: str, variables: str = "x,y,z") -> ToolResult:
     """Divergence ∇·F. vector_field as comma-separated components, e.g. 'x,y,z'."""
     try:
         import sympy as sp
-        vs = [sp.Symbol(v) for v in _names(variables)]
-        comps = [_sympify(c, _names(variables)) for c in vector_field.split(",")]
+        names = _names(variables)
+        vs = [sp.Symbol(v) for v in names]
+        parsed = [parse(c, names) for c in _split_top(vector_field)]
+        comps = [q.expr for q in parsed]
         if len(comps) != len(vs):
             raise ValueError("component count must match variable count")
         div = sum(sp.diff(comps[i], vs[i]) for i in range(len(vs)))
-        return _ok(str(sp.simplify(div)), "sympy.diff (divergence)",
-                    f"div({vector_field})",
-                    {"vector_field": vector_field, "variables": variables})
+        return _ok(str(sp.simplify(div)), "sympy.diff (divergence)", f"div({vector_field})",
+                   {"vector_field": vector_field, "variables": variables},
+                   _join_notes(*[q.notes for q in parsed]), f"∇· ({', '.join(sp.sstr(c) for c in comps)})")
     except Exception as e:
-        return _err(e, {"vector_field": vector_field})
+        return refusal("sympy error", e, {"vector_field": vector_field})
 
 
 def curl(vector_field: str, variables: str = "x,y,z") -> ToolResult:
     """Curl ∇×F for a 3-component field. components comma-separated."""
     try:
         import sympy as sp
-        vs = [sp.Symbol(v) for v in _names(variables)]
-        F = [_sympify(c, _names(variables)) for c in vector_field.split(",")]
+        names = _names(variables)
+        vs = [sp.Symbol(v) for v in names]
+        parsed = [parse(c, names) for c in _split_top(vector_field)]
+        F = [q.expr for q in parsed]
         if len(F) != 3 or len(vs) != 3:
             raise ValueError("curl requires 3 components and 3 variables")
         cx = sp.diff(F[2], vs[1]) - sp.diff(F[1], vs[2])
         cy = sp.diff(F[0], vs[2]) - sp.diff(F[2], vs[0])
         cz = sp.diff(F[1], vs[0]) - sp.diff(F[0], vs[1])
-        return _ok([str(sp.simplify(c)) for c in (cx, cy, cz)],
-                    "sympy.diff (curl)", f"curl({vector_field})",
-                    {"vector_field": vector_field, "variables": variables})
+        return _ok([str(sp.simplify(c)) for c in (cx, cy, cz)], "sympy.diff (curl)", f"curl({vector_field})",
+                   {"vector_field": vector_field, "variables": variables},
+                   _join_notes(*[q.notes for q in parsed]), f"∇× ({', '.join(sp.sstr(c) for c in F)})")
     except Exception as e:
-        return _err(e, {"vector_field": vector_field})
+        return refusal("sympy error", e, {"vector_field": vector_field})
 
 
 def percent_of(percent: float, value: float) -> ToolResult:
@@ -309,4 +336,4 @@ def percent_of(percent: float, value: float) -> ToolResult:
                            formula="(percent/100) * value",
                            inputs={"percent": percent, "value": value})
     except Exception as e:
-        return _err(e, {"percent": percent, "value": value})
+        return refusal("sigma-ground (arithmetic) error", e, {"percent": percent, "value": value})

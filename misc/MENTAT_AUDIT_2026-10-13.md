@@ -100,3 +100,23 @@ verified call per tool (215 ran, 5 had no example, 11 stateful or long-running w
 `procedure_black_hole_profile` with a malformed v1 example), probes P0 (no arguments), P1 (a non-number), P2 (a
 quantity string), the 20-way notation table, and the material cross-checks. Tests:
 `pytest sigma_ground/mcp sigma_ground/inventory tests/test_layering.py --ignore=sigma_ground/mcp/benchmark`.
+
+## Follow-up 2026-10-13/14 — W1, the math kernel (finding F1 closed)
+
+One parser, `sigma_ground/mcp/tools/mathparse.py`, now reads the expression of every math tool (`symbolic.py`, `mathx.py`). Its reading rules and
+safety rules are in its docstring; 240 tests in `sigma_ground/mcp/tools/test_mathparse.py` (a 150-row notation table checked against plain
+`sympify` of a canonical spelling, the audit's cases, refusals, declared-variable overrides, and a property test over the generator's four
+renderings).
+
+| | before (audit) | after |
+|---|---|---|
+| `differentiate_expr` on 20 ordinary writings | 9 right, 6 silently wrong, 5 null | 20 right (`|x|` gives sign(x), the real derivative) |
+| notation table through the server (100 x-only rows) | not measured | 100 right, 0 wrong, 0 refused |
+| `compute_limit` at "infinity" / "∞" | `1/infinity`, `1/∞` | 0 |
+| `variable` required by the math tools | yes (`integrate_expr("x**2")` refused) | optional when the expression has one free symbol; the choice is disclosed |
+| result says how it read the input | no | `interpreted_as` (e.g. `d/dx [3*x**2 + 2*x]`); disclosures in `notes` (e read as Euler's number, a treated as a constant, ax read as a·x) |
+| refusals | silent `null` or a wrong answer | `value: null` + the reason + a corrected example; unknown functions, quotes, attribute access, runaway powers refused |
+| regression check | | all 3,340 stored seed results of the 16 math tools replay identically |
+
+The ratchet that keeps it so: `tools/mentat_contract_census.py` (the audit's census as a tool) and `sigma_ground/mcp/test_contract_census.py`, which holds
+the numbers to `misc/contract_budget.json` (a number may only go down). Still open from the audit: F2–F16 (W2 contract, W3 materials, W4 sky tools).

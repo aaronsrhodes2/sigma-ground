@@ -47,6 +47,9 @@ class ToolResult:
         "SSBM-specific function; only meaningful at non-zero sigma".
     inputs : dict
         Echo of the input parameters, for the LLM to confirm interpretation.
+    interpreted_as : str | None
+        How the input was READ (Wolfram's "input interpretation"), e.g. "d/dx [3*x**2 + 2*x]"
+        for the text "3x² + 2x". Set by the math tools; ``None`` where there is nothing to interpret.
     """
 
     value: Any
@@ -57,6 +60,7 @@ class ToolResult:
     provenance_tag: str | None = None
     notes: str = ""
     inputs: dict[str, Any] = field(default_factory=dict)
+    interpreted_as: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """JSON-serializable dict for MCP transport."""
@@ -88,6 +92,8 @@ class ToolResult:
             parts.append(f"provenance: [{self.provenance_tag}]")
         if self.formula:
             parts.append(f"formula: {self.formula}")
+        if self.interpreted_as:
+            parts.append(f"interpreted as: {self.interpreted_as}")
         if self.inputs:
             parts.append(f"inputs: {self.inputs}")
         if self.notes:

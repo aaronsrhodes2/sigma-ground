@@ -3,110 +3,95 @@
 When the user asks a math question that needs algebra rather than a
 constant lookup, the LLM front-end calls these tools. Pure-text inputs
 and outputs so the MCP wire protocol stays simple.
+
+Every expression goes through ONE parser, ``mathparse.parse`` (implicit multiplication, ``x²``, ``√x``,
+``π``, ``e^x``, ``|x|``, ``sin x``, ``∞`` ...). The result says how the input was read (``interpreted_as``);
+a reading the parser will not guess comes back as ``value=None`` with the reason and a corrected example.
+``variable`` may be left out when the expression has one free symbol (Wolfram does the same); the choice is
+disclosed in ``notes``.
 """
 
 from __future__ import annotations
 
+import re
+
 from sigma_ground.mcp.provenance import ToolResult
-
-
-import re as _re
-
-# Bare names that sympy's parser binds to objects, not symbols.
-_SYMPY_RESERVED = {
-    "E": "Euler's number e", "I": "the imaginary unit i",
-    "N": "sympy's numeric-evaluation function N", "S": "sympy's singleton registry S",
-    "O": "sympy's big-O order symbol", "Q": "sympy's assumptions object Q",
-}
-_RESERVED_RE = _re.compile(r"(?<![\w.])([EINSOQ])(?![\w])")
-
-
-def _sympify(expr: str, variables=()):
-    """Parse a string into a sympy expression, raising informatively.
-
-    Every name in ``variables`` (the tool's named variable(s)) is parsed as a
-    plain sympy Symbol, so a physicist's E, I, N, S, O or Q is the variable,
-    not sympy's constant/function of that name.
-    FIXED 2026-10-10: the variable was created after parsing, so
-    differentiate_expr('E**2', 'E') returned '0' and solve_equation('E**2 - 4',
-    'E') returned [] (A20).
-    """
-    import sympy as sp
-    local = {v: sp.Symbol(v) for v in variables if v}
-    try:
-        return sp.sympify(expr, locals=local, convert_xor=True)
-    except (sp.SympifyError, SyntaxError, TypeError) as e:
-        raise ValueError(f"could not parse expression '{expr}': {e}") from e
-
-
-def _reserved_note(texts, variables=()) -> str:
-    """Disclose any OTHER bare E, I, N, S, O or Q in the inputs: sympy reads
-    those as its own objects (E = Euler's number, I = imaginary unit, ...)."""
-    hits = set()
-    for t in texts:
-        if t:
-            hits.update(m.group(1) for m in _RESERVED_RE.finditer(str(t)))
-    hits -= set(variables)
-    if not hits:
-        return ""
-    return ("sympy read " + ", ".join(f"'{h}' as {_SYMPY_RESERVED[h]}" for h in sorted(hits))
-            + " (only the named variable is parsed as a symbol)")
+from sigma_ground.mcp.tools.mathparse import MathParseError, infer_variable, parse
 
 
 def _join_notes(*parts) -> str:
     return "; ".join(p for p in parts if p)
 
 
-def solve_equation(equation: str, variable: str) -> ToolResult:
-    """Solve `equation = 0` for `variable`.
+def refusal(source: str, error: Exception, inputs: dict) -> ToolResult:
+    """A tool that could not answer: value None, the reason (and what to write instead) in notes."""
+    hint = getattr(error, "hint", "")
+    return ToolResult(value=None, source=source, notes=_join_notes(str(error), f"try: {hint}" if hint else ""), inputs=inputs)
+
+
+def _no_sympy(inputs: dict) -> ToolResult:
+    return ToolResult(value=None, source="sympy not installed", inputs=inputs)
+
+
+def _variable_for(variable, *texts):
+    """(name, disclosure): the caller's variable, else the one the expressions have (several: x, t, ... and say so)."""
+    if variable:
+        return str(variable), ""
+    return infer_variable([parse(t).expr for t in texts if t])
+
+
+def _split_equation(equation: str):
+    """'lhs = rhs' -> (lhs, rhs); an expression alone is set to zero -> (expr, None). '==' counts as '='."""
+    eq = equation.replace("==", "=")
+    parts = re.split(r"(?<![<>!=])=(?!=)", eq, maxsplit=1)
+    if len(parts) == 2:
+        return parts[0], parts[1]
+    return equation, None
+
+
+def solve_equation(equation: str, variable: str | None = None) -> ToolResult:
+    """Solve `equation = 0` (or 'lhs = rhs') for `variable`.
 
     Parameters
     ----------
     equation : str
         Expression (set equal to zero) or "lhs = rhs" form.
         Examples: "x^2 - 4", "v^2 / r - G*M/r^2", "E^2 - (p*c)^2 - (m*c^2)^2"
-    variable : str
-        The symbol to solve for. Example: "x", "v", "m".
+    variable : str, optional
+        The symbol to solve for. Example: "x", "v", "m". If omitted and the equation has one free symbol, that one.
 
     Returns
     -------
     ToolResult with `value` = list of symbolic solutions as strings.
     """
+    inputs = {"equation": equation, "variable": variable}
     try:
         import sympy as sp
     except ImportError:
-        return ToolResult(
-            value=None, source="sympy not installed",
-            inputs={"equation": equation, "variable": variable},
-        )
-
+        return _no_sympy(inputs)
     try:
-        # Allow either "expr" (= 0) or "lhs = rhs"
-        if "=" in equation:
-            lhs_str, rhs_str = equation.split("=", 1)
-            expr = _sympify(lhs_str, [variable]) - _sympify(rhs_str, [variable])
-        else:
-            expr = _sympify(equation, [variable])
-        var = sp.Symbol(variable)
+        lhs, rhs = _split_equation(equation)
+        name, vnote = _variable_for(variable, lhs, rhs)
+        pl = parse(lhs, [name])
+        pr = parse(rhs, [name]) if rhs is not None else None
+        expr = pl.expr - pr.expr if pr is not None else pl.expr
+        var = sp.Symbol(name)
         solutions = sp.solve(expr, var)
-    except (ValueError, NotImplementedError) as e:
-        return ToolResult(
-            value=None, source="sympy solve error",
-            notes=str(e),
-            inputs={"equation": equation, "variable": variable},
-        )
-
+    except (MathParseError, ValueError, NotImplementedError) as e:
+        return refusal("sympy solve error", e, inputs)
+    shown = f"{sp.sstr(pl.expr)} = {sp.sstr(pr.expr)}" if pr is not None else f"{sp.sstr(pl.expr)} = 0"
     return ToolResult(
         value=[str(s) for s in solutions],
         source="sympy.solve",
-        formula=f"solve({equation}, {variable})",
-        inputs={"equation": equation, "variable": variable},
+        formula=f"solve({equation}, {name})",
+        inputs={"equation": equation, "variable": name},
+        interpreted_as=f"solve {shown} for {name}",
         notes=_join_notes(f"{len(solutions)} solution(s)" if solutions else "no solutions",
-                          _reserved_note([equation], [variable])),
+                          vnote, pl.notes, pr.notes if pr is not None else ""),
     )
 
 
-def integrate_expr(expression: str, variable: str,
+def integrate_expr(expression: str, variable: str | None = None,
                     lower: str | None = None,
                     upper: str | None = None) -> ToolResult:
     """Symbolic integration. If lower+upper given, definite; else indefinite.
@@ -114,107 +99,108 @@ def integrate_expr(expression: str, variable: str,
     Parameters
     ----------
     expression : str
-        The integrand. Examples: "x^2", "sin(x)*exp(-x)", "1/(1+x^2)"
-    variable : str
-        The variable of integration.
+        The integrand. Examples: "x^2", "sin(x)*exp(-x)", "1/(1+x^2)", "x² e^(-x)"
+    variable : str, optional
+        The variable of integration (inferred when the integrand has one free symbol).
     lower, upper : str | None
-        Optional integration bounds (sympy-parseable strings like "0",
-        "oo", "pi/2").
+        Optional integration bounds ("0", "oo" / "infinity" / "∞", "pi/2"). One bound alone means the other is ±infinity.
     """
+    inputs = {"expression": expression, "variable": variable, "lower": lower, "upper": upper}
     try:
         import sympy as sp
     except ImportError:
-        return ToolResult(
-            value=None, source="sympy not installed",
-            inputs={"expression": expression, "variable": variable},
-        )
-
+        return _no_sympy(inputs)
     try:
-        expr = _sympify(expression, [variable])
-        var = sp.Symbol(variable)
+        name, vnote = _variable_for(variable, expression)
+        p = parse(expression, [name])
+        var = sp.Symbol(name)
+        bnotes = ""
         if lower is None and upper is None:
-            result = sp.integrate(expr, var)
+            result = sp.integrate(p.expr, var)
+            shown = f"∫ {sp.sstr(p.expr)} d{name}"
+            formula = f"integrate({expression}, {name})"
         else:
-            a = _sympify(lower) if lower is not None else sp.S.NegativeInfinity
-            b = _sympify(upper) if upper is not None else sp.S.Infinity
-            result = sp.integrate(expr, (var, a, b))
-    except (ValueError, NotImplementedError) as e:
-        return ToolResult(
-            value=None, source="sympy integrate error",
-            notes=str(e),
-            inputs={"expression": expression, "variable": variable,
-                    "lower": lower, "upper": upper},
-        )
-
+            pa = parse(lower, [name]) if lower is not None else None
+            pb = parse(upper, [name]) if upper is not None else None
+            a = pa.expr if pa is not None else sp.S.NegativeInfinity
+            b = pb.expr if pb is not None else sp.S.Infinity
+            result = sp.integrate(p.expr, (var, a, b))
+            shown = f"∫ from {sp.sstr(a)} to {sp.sstr(b)} of {sp.sstr(p.expr)} d{name}"
+            formula = f"integrate({expression}, ({name}, {lower}, {upper}))"
+            bnotes = _join_notes(pa.notes if pa else "", pb.notes if pb else "")
+        unevaluated = result.has(sp.Integral)
+    except (MathParseError, ValueError, NotImplementedError) as e:
+        return refusal("sympy integrate error", e, inputs)
     return ToolResult(
         value=str(result),
         source="sympy.integrate",
-        formula=(f"integrate({expression}, ({variable}, {lower}, {upper}))"
-                  if lower is not None
-                  else f"integrate({expression}, {variable})"),
-        inputs={"expression": expression, "variable": variable,
-                "lower": lower, "upper": upper},
-        notes=_reserved_note([expression, lower, upper], [variable]),
+        formula=formula,
+        inputs={"expression": expression, "variable": name, "lower": lower, "upper": upper},
+        interpreted_as=shown,
+        notes=_join_notes(vnote, p.notes, bnotes,
+                          "sympy found no closed form: the integral is returned unevaluated" if unevaluated else ""),
     )
 
 
-def differentiate_expr(expression: str, variable: str,
+def differentiate_expr(expression: str, variable: str | None = None,
                         order: int = 1) -> ToolResult:
     """Symbolic differentiation.
 
     Parameters
     ----------
     expression : str
-        The expression to differentiate.
-    variable : str
-        The variable to differentiate with respect to.
+        The expression to differentiate. Examples: "3x² + 2x", "sin(x)/x", "e^(-x²)", "√x".
+    variable : str, optional
+        The variable to differentiate with respect to (inferred when the expression has one free symbol).
     order : int
         Order of differentiation (default 1).
     """
+    inputs = {"expression": expression, "variable": variable, "order": order}
     try:
         import sympy as sp
     except ImportError:
-        return ToolResult(
-            value=None, source="sympy not installed",
-            inputs={"expression": expression, "variable": variable},
-        )
+        return _no_sympy(inputs)
     try:
-        expr = _sympify(expression, [variable])
-        var = sp.Symbol(variable)
-        result = sp.diff(expr, var, order)
-    except (ValueError, NotImplementedError) as e:
-        return ToolResult(
-            value=None, source="sympy diff error",
-            notes=str(e),
-            inputs={"expression": expression, "variable": variable,
-                    "order": order},
-        )
+        name, vnote = _variable_for(variable, expression)
+        p = parse(expression, [name])
+        var = sp.Symbol(name)
+        real_note = ""
+        if p.expr.has(sp.Abs, sp.sign, sp.re, sp.im, sp.conjugate, sp.arg):
+            # |x|, sign, Re, Im are not complex-differentiable: the derivative a student means is the real one
+            xr = sp.Symbol(name, real=True)
+            result = sp.diff(p.expr.subs(var, xr), xr, int(order)).subs(xr, var)
+            real_note = f"took {name} as real (the derivative of |{name}|, sign, Re, Im is a real-variable derivative)"
+        else:
+            result = sp.diff(p.expr, var, int(order))
+    except (MathParseError, ValueError, NotImplementedError, TypeError) as e:
+        return refusal("sympy diff error", e, inputs)
     return ToolResult(
         value=str(result),
         source="sympy.diff",
-        formula=f"d^{order}/d{variable}^{order}({expression})",
-        inputs={"expression": expression, "variable": variable, "order": order},
-        notes=_reserved_note([expression], [variable]),
+        formula=f"d^{order}/d{name}^{order}({expression})",
+        inputs={"expression": expression, "variable": name, "order": order},
+        interpreted_as=f"d^{order}/d{name}^{order} [{sp.sstr(p.expr)}]" if int(order) != 1 else f"d/d{name} [{sp.sstr(p.expr)}]",
+        notes=_join_notes(vnote, p.notes, real_note),
     )
 
 
 def simplify_expr(expression: str) -> ToolResult:
     """Apply sympy.simplify."""
+    inputs = {"expression": expression}
     try:
         import sympy as sp
     except ImportError:
-        return ToolResult(value=None, source="sympy not installed",
-                           inputs={"expression": expression})
+        return _no_sympy(inputs)
     try:
-        expr = _sympify(expression)
-        result = sp.simplify(expr)
-    except (ValueError, NotImplementedError) as e:
-        return ToolResult(value=None, source="sympy simplify error",
-                           notes=str(e),
-                           inputs={"expression": expression})
+        p = parse(expression)
+        result = sp.simplify(p.expr)
+    except (MathParseError, ValueError, NotImplementedError) as e:
+        return refusal("sympy simplify error", e, inputs)
     return ToolResult(
         value=str(result),
         source="sympy.simplify",
         formula=f"simplify({expression})",
-        inputs={"expression": expression},
+        inputs=inputs,
+        interpreted_as=f"simplify [{sp.sstr(p.expr)}]",
+        notes=p.notes,
     )
