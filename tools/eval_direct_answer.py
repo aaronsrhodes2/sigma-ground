@@ -127,18 +127,19 @@ def canonical_item(x) -> str:
     return sp.sstr(x)
 
 
-def ask(http, url: str, model: str, question: str, openai: bool, num_predict: int, think: bool | None) -> dict:
+def ask(http, url: str, model: str, question: str, openai: bool, num_predict: int, think: bool | None,
+        temperature: float = 0.0, seed: int = 7) -> dict:
     prompt = PROMPT.format(q=question)
     t0 = time.time()
     if openai:                                       # llama.cpp server / any OpenAI-compatible endpoint
         r = http.post(url.rstrip("/") + "/v1/chat/completions", json={"model": model, "messages": [{"role": "user", "content": prompt}],
-                                                                      "max_tokens": num_predict, "temperature": 0.0})
+                                                                      "max_tokens": num_predict, "temperature": temperature, "seed": seed})
         r.raise_for_status()
         j = r.json()
         return {"text": j["choices"][0]["message"].get("content") or "", "tokens": (j.get("usage") or {}).get("completion_tokens"),
                 "seconds": time.time() - t0}
     body = {"model": model, "messages": [{"role": "user", "content": prompt}], "stream": False,
-            "options": {"temperature": 0.0, "num_predict": num_predict}}
+            "options": {"temperature": temperature, "num_predict": num_predict, "seed": seed}}
     if think is not None:
         body["think"] = think
     r = http.post(url.rstrip("/") + "/api/chat", json=body)
@@ -177,6 +178,7 @@ def main(argv) -> int:
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--num-predict", type=int, default=6000)
     ap.add_argument("--think", choices=["on", "off", "default"], default="default")
+    ap.add_argument("--temperature", type=float, default=0.0, help="0 = greedy; reasoning models are usually run at 0.6 (greedy can loop)")
     ap.add_argument("--out", type=Path)
     a = ap.parse_args(argv)
     items = [i for i in json.loads(a.suite.read_text(encoding="utf-8"))["items"] if i["expected"].get("result") is not None]
@@ -189,7 +191,7 @@ def main(argv) -> int:
     with httpx.Client(timeout=1800) as http:
         for n, it in enumerate(items, 1):
             try:
-                got = ask(http, a.ollama_url, a.model, it["question"], a.openai, a.num_predict, think)
+                got = ask(http, a.ollama_url, a.model, it["question"], a.openai, a.num_predict, think, a.temperature, a.seed)
                 err = None
             except Exception as e:  # noqa: BLE001
                 got, err = {"text": "", "tokens": None, "seconds": None}, f"{type(e).__name__}: {e}"
