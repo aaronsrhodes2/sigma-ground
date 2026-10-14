@@ -27,7 +27,7 @@ def census():
     rows = mod.schema_census(server)
     errors = mod.error_probes(server, rows)
     notation = mod.notation_probe(server)
-    quantity = {"p2_probed": 0, "p2_accepted": 0}
+    quantity = mod.quantity_probe(server, rows)
     return {"rows": rows, "notation": notation, "headline": mod.headline(rows, errors, notation, quantity)}
 
 

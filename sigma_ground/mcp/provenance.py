@@ -50,6 +50,12 @@ class ToolResult:
     interpreted_as : str | None
         How the input was READ (Wolfram's "input interpretation"), e.g. "d/dx [3*x**2 + 2*x]"
         for the text "3x² + 2x". Set by the math tools; ``None`` where there is nothing to interpret.
+    error : dict | None
+        Present whenever ``value`` is None: ``{code, message, param?, expected?, got?, example?}`` so a client can tell
+        "no answer" from "an answer of null" without reading prose (mcp/contract.py fills it for every tool).
+    assumed : dict | None
+        Values the tool filled in because the caller did not give them, each with its basis (``{"mass_kg": {"value":
+        0.145, "basis": "table: typical baseball"}}``). ``None`` when nothing was assumed.
     """
 
     value: Any
@@ -61,6 +67,8 @@ class ToolResult:
     notes: str = ""
     inputs: dict[str, Any] = field(default_factory=dict)
     interpreted_as: str | None = None
+    error: dict[str, Any] | None = None
+    assumed: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """JSON-serializable dict for MCP transport."""
@@ -94,6 +102,10 @@ class ToolResult:
             parts.append(f"formula: {self.formula}")
         if self.interpreted_as:
             parts.append(f"interpreted as: {self.interpreted_as}")
+        if self.assumed:
+            parts.append(f"assumed: {self.assumed}")
+        if self.error:
+            parts.append(f"error: {self.error.get('code')}: {self.error.get('message')}")
         if self.inputs:
             parts.append(f"inputs: {self.inputs}")
         if self.notes:

@@ -78,6 +78,14 @@ def tool_error(tool: str, result_text: str) -> str | None:
         parsed = json.loads(text)
     except ValueError:
         return None
+    if isinstance(parsed, dict) and isinstance(parsed.get("error"), dict) and parsed.get("value") is None:
+        # the tool contract (mcp/contract.py): {code, message, param?, expected?, example?}; one shape for every failure
+        e = parsed["error"]
+        what = {"missing_argument": "missing required parameter", "bad_type": "wrong type for", "bad_quantity": "unreadable quantity for",
+                "wrong_dimension": "wrong dimension for", "out_of_range": "impossible value for"}.get(e.get("code"))
+        if what and e.get("param"):
+            return f"{tool}: {what} {e['param']} ({str(e.get('message') or '')[:100]})"
+        return f"{tool}: {e.get('code', 'error')} ({str(e.get('message') or '')[:100]})"
     if isinstance(parsed, dict) and parsed.get("value") is None and parsed.get("source") == "invalid input":
         return f"{tool}: invalid input ({str(parsed.get('notes') or '')[:100]})"
     return None

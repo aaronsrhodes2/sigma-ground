@@ -152,3 +152,15 @@ def test_the_switch_is_off_in_every_profile_so_earlier_comparisons_stand(tweaks_
     T.configure("model-only", on=["structured_results"])
     assert T.snapshot()["on"] == ["strict_params", "structured_results"]
 
+
+
+def test_tool_error_reads_the_contracts_error_shape():
+    import json
+    from sigma_ground.mcp.benchmark import router_results as RR
+    missing = json.dumps({"value": None, "error": {"code": "missing_argument", "param": "mass_kg", "message": "f needs 'mass_kg'"}})
+    assert RR.tool_error("f", missing) == "f: missing required parameter mass_kg (f needs 'mass_kg')"
+    dim = json.dumps({"value": None, "error": {"code": "wrong_dimension", "param": "mass_kg", "message": "'54 km/h' is a length / time"}})
+    assert RR.tool_error("f", dim).startswith("f: wrong dimension for mass_kg")
+    declined = json.dumps({"value": None, "error": {"code": "unknown_key", "message": "'steel' not in lookup table"}})
+    assert RR.tool_error("f", declined) == "f: unknown_key ('steel' not in lookup table)"
+    assert RR.tool_error("f", json.dumps({"value": 3.0, "error": None})) is None

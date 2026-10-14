@@ -1,9 +1,10 @@
 {
-  "_about": "Ceilings for tools/mentat_contract_census.py headline numbers, enforced by sigma_ground/mcp/test_contract_census.py. A number may only go DOWN: when the census improves, lower the ceiling in the same commit. Baseline = the audit of 2026-10-13 (misc/MENTAT_AUDIT_2026-10-13.md); W1 (math kernel) took notation_wrong 6 -> 0 and notation_refused 5 -> 0.",
-  "undescribed_params": 471,
-  "tools_without_args_section": 216,
-  "tools_without_example": 195,
+  "_about": "Ceilings for tools/mentat_contract_census.py headline numbers, enforced by sigma_ground/mcp/test_contract_census.py. A number may only go DOWN: when the census improves, lower the ceiling in the same commit. Baseline = the audit of 2026-10-13 (misc/MENTAT_AUDIT_2026-10-13.md): undescribed_params 471, tools_without_args_section 216, tools_without_example 195, notation_wrong 6, notation_refused 5. W1 (math kernel) closed the notation numbers; W2 (tool contract, mcp/contract.py) the rest.",
+  "undescribed_params": 1,
+  "tools_without_args_section": 0,
+  "tools_without_example": 0,
   "p0_errors_not_naming_param": 0,
   "notation_wrong": 0,
-  "notation_refused": 0
+  "notation_refused": 0,
+  "unit_params_not_taking_a_quantity": 0
 }

@@ -139,6 +139,8 @@ def main() -> int:
     from sigma_ground.mcp import manifest as t_manifest
 
     server = FastMCP("mentat")
+    from sigma_ground.mcp import contract as t_contract
+    t_contract.install(server)       # the tool contract: quantities with units, documented parameters, uniform errors
 
     # ── manifest ──────────────────────────────────────────────────────
     @server.tool()

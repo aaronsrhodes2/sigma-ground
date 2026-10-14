@@ -1,12 +1,11 @@
 """Mentat contract census: how good is every tool's interface, measured in process (no stdio, no network).
 
     python tools/mentat_contract_census.py                 # prints the headline numbers, writes misc/contract_census.json
-    python tools/mentat_contract_census.py --replay        # also replays one known-good call per tool (needs router seeds in local-cache/)
 
 What it measures (audit 2026-10-13, misc/MENTAT_AUDIT_2026-10-13.md):
   schema     tools, parameters, required ones, numeric ones, unit-suffixed ones, descriptions with an Args section / an example
   errors     P0: a required parameter missing -> does the error name it?   P1: a non-number where a number is expected
-  units      P2: a quantity string ("54 km/h") where a unit-suffixed number is expected -> accepted?
+  units      P2: every unit-bearing float parameter takes a quantity string ("54 km/h") in its schema
   notation   the math tools on the notation table of sigma_ground/mcp/tools/test_mathparse.py: right / wrong / refused
 
 `sigma_ground/mcp/test_contract_census.py` runs the cheap parts on every test run and holds the numbers to the budget in
@@ -138,35 +137,32 @@ def notation_probe(server):
     return {"cases": right + wrong + refused, "right": right, "wrong": wrong, "refused": refused, "not_right": bad[:40]}
 
 
-def quantity_probe(server, rows, examples):
-    """P2: unit-suffixed numeric parameters that accept a quantity string. Needs `examples` {tool: args} (known-good calls)."""
-    probed = accepted = 0
+def quantity_probe(server, rows, examples=None):
+    """P2, structural: every float parameter the contract gives a unit (mcp/contract.py SPECS) must take a quantity STRING in its schema.
+    (The conversions themselves are tested in sigma_ground/mcp/test_contract.py.)"""
+    from sigma_ground.mcp.contract import SPECS
+    total = accepting = 0
     for r in rows:
-        ex = examples.get(r["name"])
-        if not ex:
-            continue
         for p in r["params"]:
-            suf = next((s for s in sorted(QTY, key=len, reverse=True) if p["name"].lower().endswith(s)), None)
-            if suf and p["name"] in ex and p["type"] in ("number", "number|null"):
-                args = dict(ex, **{p["name"]: QTY[suf]})
-                probed += 1
-                accepted += call(server, r["name"], args)["status"] == "ok"
-                break
-    return {"p2_probed": probed, "p2_accepted": accepted}
+            spec = SPECS.get(p["name"])
+            if spec and spec.unit and ("number" in p["type"]):
+                total += 1
+                accepting += "string" in p["type"]
+    return {"unit_params_total": total, "unit_params_accepting_strings": accepting}
 
 
 def headline(rows, errors, notation, quantity):
     params = [p for r in rows for p in r["params"]]
     return {
         "tools": len(rows), "params": len(params), "required_params": sum(p["required"] for p in params),
-        "numeric_params": sum(p["type"] in ("number", "integer", "number|null", "integer|null") for p in params),
+        "numeric_params": sum(("number" in p["type"] or "integer" in p["type"]) for p in params),
         "unit_suffixed_params": sum(p["unit_suffix"] for p in params),
         "undescribed_params": sum(not p["described"] for p in params),
         "tools_without_args_section": sum(bool(r["params"]) and not r["has_args_section"] for r in rows),
         "tools_without_example": sum(not r["has_example"] for r in rows),
         "p0_errors_not_naming_param": errors["p0_probed"] - errors["p0_names_param"],
         "notation_wrong": notation["wrong"], "notation_refused": notation["refused"],
-        "quantity_params_rejecting_strings": quantity["p2_probed"] - quantity["p2_accepted"] if quantity["p2_probed"] else None,
+        "unit_params_not_taking_a_quantity": quantity["unit_params_total"] - quantity["unit_params_accepting_strings"],
     }
 
 
@@ -190,14 +186,13 @@ def seed_examples():
 def main(argv) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=REPO / "misc" / "contract_census.json")
-    ap.add_argument("--replay", action="store_true", help="probe quantity strings with known-good calls from local-cache seeds")
     a = ap.parse_args(argv)
     t0 = time.time()
     server = build_server()
     rows = schema_census(server)
     errors = error_probes(server, rows)
     notation = notation_probe(server)
-    quantity = quantity_probe(server, rows, seed_examples()) if a.replay else {"p2_probed": 0, "p2_accepted": 0}
+    quantity = quantity_probe(server, rows)
     h = headline(rows, errors, notation, quantity)
     a.out.write_text(json.dumps({"generated": time.strftime("%Y-%m-%dT%H:%M:%S"), "headline": h, "notation_not_right": notation["not_right"],
                                  "tools": rows}, indent=1, ensure_ascii=False), encoding="utf-8")
