@@ -3903,3 +3903,14 @@ The 4B's math group goes from 0 of 6 to 4 of 6 (roots, derivative, cubic, simpli
 The switch is opt-in and in no profile, so the legacy, trained and earlier model-only runs stand as they were. Commits 923bff5 and earlier on
 `claude/router-v2`; run files stay out of git.
 
+### Router v3.1 (4B) data built and training scheduled (2026-10-13, 18:00 to 18:45)
+Held-out math suite (329 questions never trained on, run end to end on the real server, independent oracles): v3 4B tool 310 / arguments 160 /
+answer 194; v3 8B 323 / 185 / 211. Weak for both: `compute_limit` arguments 0/26, `summation` 1/26, `series_expansion` 1/19, `gradient` 3/13; the 4B
+picks `integrate_expr` for "give the derivative" and writes `e^x`. v3.1 adds 3,291 generated math seeds (22 recipes, every answer checked by a
+second method) and 1,156 parameter-coverage seeds, including 7 chains where the plan looks a measured property up in the **materials database**
+and passes it on (`"$1"`), so the model writes no measured value (the Captain: the database must be referenceable as empirical properties).
+Checks on the preview data (37,409 train / 4,021 val): `tool_census lint` clean over 33,368 calls; `tweak_pairs` PAIRED for `trained` and
+`model-only`; parameters with fewer than 10 examples 99 -> 57; the teacher-rewrite cache of v3 lines up with the new seed order (rehearsed with a
+dead teacher, only 3,468 new requests need the GPU). Not in v3.1: defaults table, `object_properties`, retiring clarification (decisions open).
+Scheduled: 4B only, `tools/run_at.sh 00:00` (waiter PID 38572, watchdog 23:58), plan and launch line in `misc/ROUTER_V31_PLAN.md`; expected done
+about 05:30 to 06:00. Commit b6dacd0 on `claude/router-v2`.
