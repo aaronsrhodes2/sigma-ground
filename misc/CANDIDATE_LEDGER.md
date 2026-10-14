@@ -83,3 +83,23 @@ The IAU rotation model (prime meridian validated against the DE440 Earth directi
 time-dependent forces were evaluated up to a step late (0.17 deg lag, a constant tangential force, a spurious +0.066 km/yr^2). Fixed in `nbody.py` (`_t_eval`, 8 lines, bit-identical trajectory, test `test_nbody_substep_time.py`).
 Other bodies unchanged (Mercury, Venus, Mars, Jupiter, Saturn < 0.001 km; Earth +0.011 km). Remaining: a steady along-track lag of about -0.10 km/yr (a mean-motion offset of ~3e-9; linear, so not tidal dissipation).
 Candidates for the remainder, not yet tested: the C22 coefficient and the reference radius convention, the tesseral and degree-3 lunar harmonics, the Earth's tidal response, and the Moon's J2 value.
+
+### C3a engine layer + combined run (2026-10-13): C22 is now `PhysicsToggles.sectoral_c22`; the 24-case test against the vintages is MIXED for the Moon
+Engine: `sectoral_c22` toggle, per-body `c22` / `figure_ref_radius_m`, prescribed rotation models evaluated at the Forest-Ruth sub-step times (`figure_forces.py`, `nbody.py`; 11 layer tests). Equivalence with the earlier
+subclass path on a coarse case: worst difference over every body and lead = 0.0 (bit-identical). Merged to master; branch and worktree removed.
+
+Combined run: seven asteroids + C22 (IAU rotation), converged step 0.025 d, the same 24 cases as the C1 wide check (7 vintages, starts 2000 to 2015, 0 failures). Data: `fixtures/vintages/candidate_asteroids7_c22_wide24_dt0025.jsonl`.
+Median gap to the vintage's own continuation, km (runs where the combined run beats asteroids-only, of n):
+
+| body | +1 yr | +3 yr | +5 yr |
+|---|---|---|---|
+| Moon: asteroids -> + C22 | 0.38 -> 0.20 (13/24) | 1.07 -> 0.66 (13/24) | 1.68 -> 1.11 (15/23) |
+| Earth: asteroids -> + C22 | 0.09 -> 0.09 | 0.28 -> 0.29 | 0.46 -> 0.45 |
+| Mercury, Venus, Mars, Jupiter to Pluto | unchanged to the printed 0.01 km | | |
+
+Against the no-asteroid baseline (dt 0.05) the combined model improves Venus, Earth, Mars and every outer planet as in C1 (outer planets 23 of 23 at +5 yr; Mars 22 of 23). Mercury and the Moon have no converged no-asteroid baseline for all 24, so their reference is asteroids-only.
+The Moon, by vintage (gap at +5 yr, asteroids-only -> combined): DE418, DE421 and DE432 (the vintages closest to DE440's lunar model) improve in every case (e.g. DE432 j2015 1.37 -> 0.43, DE418 j2014 2.92 -> 1.22);
+DE413 gets WORSE in every case (e.g. j2011 0.31 -> 1.20 km; its Moon was already within 0.05 to 0.12 km of our no-C22 run at +1 yr); DE403, DE405 and DE410 are mixed.
+Reading (not yet tested): the C22 term closes the gap to DE440-like lunar physics (the DE440-start control: 2.15 -> 0.44 km), while each older vintage carries its own lunar figure and initial state, so a vintage whose Moon is already close to ours without C22 moves away from it.
+The test that would separate "our model got better" from "the vintage differs": compare the same runs with DE440 as the reference (the DE440-start control already does, and shows the improvement). So C3a stays SUPPORTED against DE440 and is NOT a uniform improvement against the old vintages.
+Remaining Moon items unchanged: the steady -0.10 km/yr along-track drift, C22 coefficient and reference-radius convention, tesseral and degree-3 harmonics.
