@@ -272,45 +272,69 @@ def solve_ode(equation: str, func: str = "y",
 
 # ── Vector calculus ─────────────────────────────────────────────────────
 
-def gradient(scalar_field: str, variables: str = "x,y,z") -> ToolResult:
-    """Gradient ∇f of a scalar field. variables comma-separated."""
+_AXES = ("x", "y", "z", "t", "u", "v", "w", "r", "s")
+
+
+def _field_variables(variables, texts, n=None):
+    """(names, disclosure): the caller's variables, or the free symbols of the field in the order x, y, z, ... .
+    For a field with n components the list is padded with the next unused axis names to length n (curl of '-y, x, 0' is in x, y, z);
+    more free symbols than components is refused with an example, never guessed."""
+    if variables:
+        return _names(variables), ""
+    free = sorted({str(s) for t in texts for s in parse(t).expr.free_symbols},
+                  key=lambda v: (_AXES.index(v) if v in _AXES else len(_AXES), v))
+    if n is not None:
+        if len(free) > n:
+            raise MathParseError(f"the field has {len(free)} variables ({', '.join(free)}) but {n} components",
+                                 f'give variables explicitly, e.g. variables="{",".join(free[:n])}"')
+        free += [a for a in _AXES if a not in free][: n - len(free)]
+        free.sort(key=lambda v: (_AXES.index(v) if v in _AXES else len(_AXES), v))      # x, z padded with y is x, y, z, not x, z, y
+    elif not free:
+        free = [_AXES[0]]
+    return free, f"variables not given: used {','.join(free)}"
+
+
+def gradient(scalar_field: str, variables: str | None = None) -> ToolResult:
+    """Gradient ∇f of a scalar field. variables comma-separated (default: the field's own variables, in the order x, y, z)."""
     try:
         import sympy as sp
-        names = _names(variables)
+        names, vnote = _field_variables(variables, [scalar_field])
         vs = [sp.Symbol(v) for v in names]
         p = parse(scalar_field, names)
         grad = [str(sp.diff(p.expr, v)) for v in vs]
         return _ok(grad, "sympy.diff (gradient)", f"grad({scalar_field})",
-                   {"scalar_field": scalar_field, "variables": variables}, p.notes, f"∇ [{sp.sstr(p.expr)}]")
+                   {"scalar_field": scalar_field, "variables": ",".join(names)}, _join_notes(vnote, p.notes), f"∇ [{sp.sstr(p.expr)}]")
     except Exception as e:
         return refusal("sympy error", e, {"scalar_field": scalar_field})
 
 
-def divergence(vector_field: str, variables: str = "x,y,z") -> ToolResult:
-    """Divergence ∇·F. vector_field as comma-separated components, e.g. 'x,y,z'."""
+def divergence(vector_field: str, variables: str | None = None) -> ToolResult:
+    """Divergence ∇·F. vector_field as comma-separated components, e.g. 'x,y,z'. variables default to the field's own, in the order x, y, z."""
     try:
         import sympy as sp
-        names = _names(variables)
+        comps_text = _split_top(vector_field)
+        names, vnote = _field_variables(variables, comps_text, n=len(comps_text))
         vs = [sp.Symbol(v) for v in names]
-        parsed = [parse(c, names) for c in _split_top(vector_field)]
+        parsed = [parse(c, names) for c in comps_text]
         comps = [q.expr for q in parsed]
         if len(comps) != len(vs):
             raise ValueError("component count must match variable count")
         div = sum(sp.diff(comps[i], vs[i]) for i in range(len(vs)))
         return _ok(str(sp.simplify(div)), "sympy.diff (divergence)", f"div({vector_field})",
-                   {"vector_field": vector_field, "variables": variables},
-                   _join_notes(*[q.notes for q in parsed]), f"∇· ({', '.join(sp.sstr(c) for c in comps)})")
+                   {"vector_field": vector_field, "variables": ",".join(names)},
+                   _join_notes(vnote, *[q.notes for q in parsed]), f"∇· ({', '.join(sp.sstr(c) for c in comps)})")
     except Exception as e:
         return refusal("sympy error", e, {"vector_field": vector_field})
 
 
-def curl(vector_field: str, variables: str = "x,y,z") -> ToolResult:
-    """Curl ∇×F for a 3-component field. components comma-separated."""
+def curl(vector_field: str, variables: str | None = None) -> ToolResult:
+    """Curl ∇×F for a 3-component field. components comma-separated. variables default to x, y, z (the field's own, padded to three)."""
     try:
         import sympy as sp
-        names = _names(variables)
+        comps_text = _split_top(vector_field)
+        names, vnote = _field_variables(variables, comps_text, n=3)
         vs = [sp.Symbol(v) for v in names]
-        parsed = [parse(c, names) for c in _split_top(vector_field)]
+        parsed = [parse(c, names) for c in comps_text]
         F = [q.expr for q in parsed]
         if len(F) != 3 or len(vs) != 3:
             raise ValueError("curl requires 3 components and 3 variables")
@@ -318,8 +342,8 @@ def curl(vector_field: str, variables: str = "x,y,z") -> ToolResult:
         cy = sp.diff(F[0], vs[2]) - sp.diff(F[2], vs[0])
         cz = sp.diff(F[1], vs[0]) - sp.diff(F[0], vs[1])
         return _ok([str(sp.simplify(c)) for c in (cx, cy, cz)], "sympy.diff (curl)", f"curl({vector_field})",
-                   {"vector_field": vector_field, "variables": variables},
-                   _join_notes(*[q.notes for q in parsed]), f"∇× ({', '.join(sp.sstr(c) for c in F)})")
+                   {"vector_field": vector_field, "variables": ",".join(names)},
+                   _join_notes(vnote, *[q.notes for q in parsed]), f"∇× ({', '.join(sp.sstr(c) for c in F)})")
     except Exception as e:
         return refusal("sympy error", e, {"vector_field": vector_field})
 

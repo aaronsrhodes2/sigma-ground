@@ -93,3 +93,7 @@ stage/gmod/holodeck/data/voice_lab/
 # the captains' SteamID64s (data/mentat/captain_sids.txt in the game folders): a private list, never commit
 **/captain_sids.txt
 **/captain_sids.bak.txt
+
+# router evaluation run files (local results of tools/run_router_v3.sh; the scripts and the docs are what is committed)
+sigma_ground/mcp/benchmark/results/router_*
+sigma_ground/mcp/benchmark/results/chain_*

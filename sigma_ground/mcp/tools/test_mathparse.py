@@ -266,3 +266,28 @@ def test_ode_and_transforms_still_work():
     assert MX.factor_expression("x²-1").value == "(x - 1)*(x + 1)"
     assert MX.expand_expression("(x+1)(x-1)").value == "x**2 - 1"
     assert SY.simplify_expr("sin(x)^2 + cos(x)^2").value == "1"
+
+
+def test_vector_calculus_infers_the_fields_own_variables():
+    assert MX.gradient("log(x^2 + y^2)").value == ["2*x/(x**2 + y**2)", "2*y/(x**2 + y**2)"]        # two variables, not the old default x,y,z
+    assert "variables not given: used x,y" in MX.gradient("x*y").notes
+    assert MX.gradient("x^2 y z").value == ["2*x*y*z", "x**2*z", "x**2*y"]
+    assert MX.curl("-y, x, 0").value == ["0", "0", "2"]                                           # x, y padded to x, y, z
+    assert MX.curl("z, 4y, x^2").value == ["0", "1 - 2*x", "0"]
+    assert MX.divergence("x, y, z").value == "3"
+
+
+def test_a_field_with_more_variables_than_components_asks_rather_than_guesses():
+    r = MX.divergence("x*y, y*z")
+    assert r.value is None and "give variables explicitly" in r.notes
+    assert MX.divergence("x*y, y*z", "x,y").value == "y + z"
+    r = MX.curl("x*y, y*z, z*t, t")
+    assert r.value is None
+
+
+def test_padding_keeps_the_axis_order():
+    # a field in x and z only: the missing axis is y, and the components belong to x, y, z in that order
+    assert MX.divergence("x, z, x^2").value == "1"
+    got = MX.curl("x*z^2, 0, x^2 - z").value
+    assert [sp.simplify(sp.sympify(g) - sp.sympify(w)) for g, w in zip(got, ["0", "2*x*z - 2*x", "0"])] == [0, 0, 0]
+    assert "used x,y,z" in MX.curl("x*z^2, 0, x^2 - z").notes

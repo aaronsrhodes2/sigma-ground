@@ -317,18 +317,18 @@ def main() -> int:
         return t_mathx.solve_ode(equation, func, variable).to_dict()
 
     @server.tool()
-    def gradient(scalar_field: str, variables: str = "x,y,z") -> dict[str, Any]:
-        """Gradient ∇f of a scalar field. variables comma-separated."""
+    def gradient(scalar_field: str, variables: str | None = None) -> dict[str, Any]:
+        """Gradient ∇f of a scalar field. variables: comma-separated; optional (default: the field's own variables, in the order x, y, z)."""
         return t_mathx.gradient(scalar_field, variables).to_dict()
 
     @server.tool()
-    def divergence(vector_field: str, variables: str = "x,y,z") -> dict[str, Any]:
-        """Divergence ∇·F. components comma-separated, e.g. 'x,y,z'."""
+    def divergence(vector_field: str, variables: str | None = None) -> dict[str, Any]:
+        """Divergence ∇·F. components comma-separated, e.g. 'x,y,z'. variables optional (default: the field's own, in the order x, y, z)."""
         return t_mathx.divergence(vector_field, variables).to_dict()
 
     @server.tool()
-    def curl(vector_field: str, variables: str = "x,y,z") -> dict[str, Any]:
-        """Curl ∇×F for a 3-component field. components comma-separated."""
+    def curl(vector_field: str, variables: str | None = None) -> dict[str, Any]:
+        """Curl ∇×F for a 3-component field. components comma-separated. variables optional (default x, y, z)."""
         return t_mathx.curl(vector_field, variables).to_dict()
 
     # ── general relativity ──────────────────────────────────────────

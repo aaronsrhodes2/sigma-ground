@@ -84,3 +84,39 @@ when it ends (as for the earlier overnight runs).
    move the held-out arguments (160/329) and answers (194/329), and did it cost anything on the benchmark?
 3. `pairs_*.txt`: the pairing check (both profiles are expected to run).
 4. Anything that is not an improvement is reported as it is; the scorer, the corpora and the tolerances are not touched.
+
+## Results (measured 2026-10-14; the run trained 00:35 to 03:42, evaluated 03:57 to 05:51)
+
+**Held-out math suite** (329 questions never trained on; same suite, same scorer as the v3 baseline; the model runs through the real Mentat tools):
+
+| model | right tool | right arguments | right answer | templated wordings | hand-written (25) |
+|---|---|---|---|---|---|
+| v3 4B | 310 | 160 | 194 | 180 / 304 | 14 / 25 |
+| v3 8B | 323 | 185 | 211 | | |
+| **v3.1 4B**, run's own tools (router-v2 server, before the math kernel) | 326 | 295 | **309** | 291 / 304 | 18 / 25 |
+| **v3.1 4B**, master's tools (math kernel + tool contract + gradient/curl/divergence inferring their variables) | 326 | 295 | **315** | 296 / 304 | 19 / 25 |
+
+The generated math data moved the answers from 194 to 309 of 329 with the same tools (+115) and the arguments from 160 to 295. The extra +6 on master's tools is the
+tools, not the model: `gradient(scalar_field)` now uses the field's own variables, so a plan that leaves `variables` out gets the right vector. Caveat that matters:
+the suite's gradient questions are ambiguous about the dimension (f(x, y) in x, y or in x, y, z); the suite's oracle drew one, the tool now answers in the field's own variables.
+What is left (14 answers): `gradient` args 3/13 (the model omits `variables`), `solve_ode` 6/10 (it omits `func`/`variable` and once returns no value), `series_expansion` args
+7/19 (it omits `variable`; the answers are 19/19 right because the tool now infers it — the argument scorer still counts the omission), 3 invented tools (`matrix_norm` for a determinant
+written |A|, `solve_system_of_equations`), `integrate_expr` 3 and `differentiate_expr` 2 wrong answers.
+
+**Narrative benchmark (150), paired against v3 4B** (profiles as in ROUTER_V3_PLAN; the cascade is on in `legacy`/`trained`, off in `model-only`):
+
+| profile | v3 4B | v3.1 4B | only v3 right | only v3.1 right | sign test p |
+|---|---|---|---|---|---|
+| legacy | 140 | 140 | 1 | 1 | 1.00 |
+| trained | 140 | 138 | 3 | 1 | 0.62 |
+| model-only (cascade off) | 109 | 106 | 8 | 5 | 0.58 |
+| model-only + structured results | 115 | 115 | 7 | 7 | 1.00 |
+
+No difference on the narrative benchmark in either direction (every p ≥ 0.58): the math data teaches math and leaves the physics routing where it was; the v3.1 model gains
+`math_002` and `math_005` with the cascade off and loses seven physics questions that the v3 model had (mech_intro_010/011, optics_007, modern_007/010, mech_adv_008, em_adv_008), and gains five
+others (optics_001, modern_001/003/005, em_adv_001). Per-profile detail: `local-cache/router_v31/4b/comparison.md`, `ablation.md`, `ablation_sr.md`.
+
+**Timings** (seconds): train 11,243 (187 min), merge 30, GGUF 132, eval_val 4,657 (the 4B's slowest stage), eval_hard 129, eval_math 155, benchmark 406, score 1,287.
+
+**Incident**: `ollama create` failed at 03:44 because C: was 100% full (the WSL, Docker and Ollama disks all live on C:); WSL and Docker hung until space was freed. Recovered
+the same morning (see `memory/project_router_v31.md`); the run resumed from `create` with `SKIP_WSL_CHECKS=1`. The training itself was not affected.
