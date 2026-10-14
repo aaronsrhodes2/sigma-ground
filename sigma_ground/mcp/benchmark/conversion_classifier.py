@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 
 
 @dataclass
@@ -168,16 +169,23 @@ _MASS_TO_TNT = re.compile(
 )
 
 
+@lru_cache(maxsize=1)
+def _registry():
+    """One pint registry per process: building it costs ~150 ms, which every
+    question in the cascade used to pay."""
+    import pint
+    return pint.UnitRegistry()
+
+
 def classify_for_conversion(question: str) -> ConversionMatch | None:
     """Return a ConversionMatch if the question is unambiguously a conversion.
 
     Returns None for questions that aren't a recognizable conversion pattern.
     """
     try:
-        import pint
+        ureg = _registry()
     except ImportError:
         return None
-    ureg = pint.UnitRegistry()
     # 1 kg c^2 in joules (E=mc^2 with c = 299792458 m/s)
     _C2 = 299792458.0 ** 2
     # 1 megaton TNT = 4.184e15 J

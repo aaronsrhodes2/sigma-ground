@@ -3143,11 +3143,265 @@ for the Captain: `SIGMA_GROUND_REF` in SkippyTel's `mentat/Dockerfile` (local) a
   adapter, fit_orbit, asteroid axes, the forecast fixture without the Moon) await the Captain's priority.
 - [ ] SSBM: the Captain asked for evidence against; answered in chat (every testable claim contradicted). A falsification
   ledger in ssbm-theory was offered, not written.
+
+## Session 37 — 2026-10-10 — Qwen harness: the model picks the call, the harness ends the question
+
+### What shipped
+- `sigma_ground/mcp/benchmark/run_sigma_ground.py`: `--finalize chain` (new default). After the first tool call
+  that returns a value, the harness ends the question unless the model's next call is a *different* tool that
+  takes a value the chain produced (`_is_chain_step`, 1% match, at most 3 steps). Otherwise (re-call, unrelated
+  call, text, failed step) it ends on the chain's last result. The harness writes the `ANSWER:` line, `[SOURCE: …]`
+  and the call path. The model's own prose is kept as a labelled note and never used for the value. Records gain
+  `finalized_from_tool`, `finalize_reason`, `chain_length`. `--finalize model` is the old loop, for A/B.
+- `groundedness.py`: the reason says "harness-finalized from `tool`" when the harness ended the run.
+- `test_finalize_chain.py` (7 tests): drives the real `_run_one_question` with a scripted model and fake MCP session.
+
+### Why
+The Captain asked whether Qwen could be trained into a physics specialist. Pulling apart the logged runs first:
+classifiers answer 84/86 correctly, but on the Qwen path qwen2.5:7b hit max turns on 63/64 questions (56 re-calling
+the same tool), and every one of its 52 "correct" answers was a max-turns fallback extraction (1/64 grounded).
+qwen3:8b instead wanders into an unrelated tool after the right one and loops on that. The off-the-shelf
+tool-calling fine-tune watt-tool-8B scored 0/64. Fix the harness before spending GPU time on fine-tuning.
+
+### Findings (logged turns + logged tool results replayed through the real harness, scored against today's ground truth)
+| Run | correct | grounded |
+|---|---|---|
+| qwen2.5:7b main (64 Qwen-path) | 52 → 53 | 1 → 61 |
+| qwen3:8b main (64) | 50 → 50 | 27 → 61 |
+| robustness (16) | 7 → 8 | 14 → 14 |
+| adversarial (9) | 1 → 1 | 2 newly grounded, both wrong (see below) |
+- A strict "stop at first success" breaks lookup→compute chains (`solar_system_body` → `schwarzschild_radius`), which is
+  why the chain rule exists. The replay's chain cases now go through classifiers, so the unit tests cover the chain.
+- **Grounded ≠ right tool.** `adv_open_001` (space-elevator material → Young's modulus of steel) and `adv_open_002`
+  (terraforming energy → Mars's mass) used to be flagged because they looped. They are now served as confident
+  tool numbers. The opt-in `route_consistent` gate is the existing answer to the wrong-tool class.
+- The text and max-turns fallback paths still pick among tool results using the corpus's `primary_tool_expected`
+  (the answer key). The new chain path does not use it.
+
+### Verification
+- ✅ 7/7 new tests. Benchmark folder: 27 passed, 2 xfailed, 1 failed (known-red `test_targets.py`; fails identically
+  on the untouched base). `tests/test_layering.py` passes.
+- ⚠️ Not yet run live against Ollama (no GPU in this container). Numbers above come from replays.
+
+### Next Steps
 - [ ] Captain: live rerun on the 4070 Ti, e.g. `python -m sigma_ground.mcp.benchmark.run_sigma_ground --model qwen3:8b
       --output …/results/sigma_ground_qwen3_8b_chain_run.json`, then score. Expect ~1–2 turns per Qwen-path question, not 8.
 - [ ] Decide whether harness-finalized answers to open-ended questions need a relevance gate (`route_consistent`).
 - [ ] Remove the `primary_tool_expected` dependence from the fallback paths (answer-key leak).
 - [ ] Then: `tools/build_router_dataset.py` for a router fine-tune, with the replay as its baseline.
+
+## Session 37 (continued) — 2026-10-10 — Router fine-tune dataset generator
+
+### What shipped
+- `sigma_ground/mcp/benchmark/router_dataset.py`: verified (question → one JSON tool plan) training data
+  for a Qwen router fine-tune. Steps:
+  - Spawn the real MCP server and take the harness's visible surface (hashed into the manifest).
+  - Sample inputs from parameter names (`wavelength_m` can be shown as "550 nm"; the label is recomputed
+    from the number shown).
+  - Discover string keys by probing each tool with a bad key.
+  - Render questions from the manifest's own keywords.
+  - Run every gold call and keep only calls that return a value.
+  - Drop examples where a deterministic classifier routes elsewhere, and benchmark look-alikes.
+  - Add `request_clarification` (missing input) and decline negatives.
+  - Optional Ollama teacher rewrites, kept only if numbers, units and keys survive.
+  - Group-aware train/val split.
+- `test_router_dataset.py` (29 tests), including an end-to-end build against the real server that re-runs every
+  gold call, and the teacher client against a fake Ollama endpoint.
+- Full run: 8,013 examples (7,695 calls / 289 clarifications / 29 declines), 207/217 tools, 2.6 min.
+- Fixed along the way:
+  - `_tool_call_value` (last commit) counted a declined call as a success: `"value": null` plus an echoed
+    `"inputs": {"value": 1.0}`.
+  - `conversion_classifier` built a fresh pint registry on every call (~150 ms per question in the harness
+    cascade). Now cached; identical output on all 282 corpus questions.
+  - `pyproject.toml` pins `mcp<2`. mcp 2.x renamed FastMCP and the server cannot start, which is also why
+    the `mentat` connector failed to load in this cloud session.
+- Correction to the first half of this session: the replay baselines are 52→53 (qwen2.5) and 50→50 (qwen3).
+  The scorer's unit conversion needs pint, which was missing in this container for the first replay.
+
+### Mentat findings (flagged for the Captain, not fixed)
+1. `procedure_black_hole_profile` (`mcp/server.py`, def at ~line 955) has a docstring and no body, so it returns
+   None and FastMCP rejects every call ("validation error for DictModel").
+2. `weak_acid_ph` lists `potassium_hydroxide` / `sodium_hydroxide` among its acids. For 1.45 mM KOH it returns
+   pH 15.0, where ~11.2 is correct.
+3. `atomic_angular_momentum` enumerates m_j without bounding J. `total_j = 3e8` held 13.7 GB until the server
+   was OOM-killed (found when the generator mis-read `total_j` as joules; that sampler bug is fixed).
+4. Solar mass is defined twice: `field/constants.py` `M_SUN_KG = 1.989e30` and pint's `solar_mass =
+   1.98892e30` in `mcp/tools/units.py` (the astronomy table also uses 1.98892e30).
+5. Running `mcp/test_scene_route.py` rewrites six tracked `radiance/web/data/*.json` files (float-noise diffs).
+
+### Next Steps
+- [ ] Captain: teacher pass on the 4070 Ti, e.g. `python -m sigma_ground.mcp.benchmark.router_dataset
+      --per-tool 40 --teacher-model qwen2.5:32b --variants 3`, then QLoRA on qwen3:8b.
+- [ ] Harness `--router` mode: router system prompt + Ollama JSON-schema `format` (tool name as an enum),
+      single-shot plan → execute → template. The fine-tune is measured there.
+- [ ] Decide on findings 1–5.
+
+## Session 37 (continued) — 2026-10-10 — Router mode in the harness
+
+### What shipped
+- `run_sigma_ground.py --router`: after the deterministic cascade, the model gets ONE call with
+  `router_dataset.ROUTER_SYSTEM_PROMPT` (the training prompt) and Ollama's JSON-schema `format`:
+  `{"tool", "args"}` with the tool name limited to the live catalogue (217 names), or `{"decline"}`. If the
+  Ollama build rejects the schema, the harness retries in plain JSON mode. The plan runs at most once, after
+  alias normalisation and body-name resolution, and the harness writes the answer.
+  - Clarifications and declines run nothing and are recorded (`router_clarify`, `router_decline`).
+  - Bad replies are recorded as `router_error`, never raised.
+- `--router-index` appends the tool index for a stock-model baseline. A fine-tune uses the bare prompt.
+- `_ollama_tools()` factored out of `_amain`, so the tests build exactly the surface the harness shows.
+- `test_router_mode.py` (9 tests). The contract test builds a dataset with `router_dataset`, replays each gold
+  plan as the model's reply through the real server, and gets back exactly the verified values. A 1e-6
+  perturbation of the router's extraction fails it.
+- CLI smoke test with a fake Ollama HTTP server on a 13-question slice:
+  - 5 answered by the cascade;
+  - 8 router requests, all with the router prompt and the 217-name schema;
+  - the planned `element_atomic_data(Au)` came back as a grounded 79.
+
+### Limits
+- Plans are single-step. Body names resolve automatically; other lookup→compute chains don't.
+- Symbolic (non-numeric) tool answers are recorded as `returned no value`.
+
+### Next Steps
+- [ ] Captain: stock baseline on the 4070 Ti: `--router --router-index --model qwen3:8b`, own `--output`.
+      Compare against the `--finalize chain` run on the 64 Qwen-path questions.
+- [ ] Dataset → teacher pass → QLoRA → `ollama create mentat-router` → `--router` (no index).
+
+## Session 37 (continued) — 2026-10-10 — procedure_black_hole_profile fixed (finding 1)
+
+### Cause
+In `mcp/server.py` the frontier tools (`baryon_vs_disc` … `unruh_temperature`) sat *between*
+`procedure_black_hole_profile`'s docstring and its `return`. The wrapper body was empty, so it returned None and
+FastMCP rejected every call ("validation error for DictModel"). The orphaned `return` was unreachable code after
+`unruh_temperature`'s own return. The damage predates the repo's history (root commit 6216f03). No test saw it,
+because every test called `procedures.black_hole_profile` directly and never the server wrapper.
+
+### Fix
+- The function is reunited with its return at the head of the procedures section.
+- The frontier block gets its own heading.
+- The stranded procedures comment and the dead line are gone.
+- 232 tools / 217 visible, surface hash unchanged (`762bbee3725389bf`).
+
+### Guard
+`mcp/test_server_wrappers.py`:
+- (1) An AST sweep of all 232 `@server.tool()` wrappers: every one returns something, and nothing follows a
+  `return`. Before the fix it flagged exactly this bug.
+- (2) The tool called through the real stdio server, with its result matching `procedures.black_hole_profile`.
+Both failed before the fix and pass after it. MCP + benchmark + layering: 163 passed, plus the known-red
+`test_targets.py`.
+
+### Next
+- [ ] Regenerate the router dataset to pick up the tool (previously a gap).
+- [ ] Findings 2–5 still open.
+
+## Session 37 (continued) — 2026-10-10 — weak_acid_ph fixed (finding 2), plus the solvers under it
+
+### Cause (two bugs, one symptom)
+1. **The MCP wrapper** (`mcp/tools/chemistry.py`) sent every key in `ACID_BASE_DATA`, bases included, through
+   `pH_weak_acid`:
+   - 1.45 mM KOH → pH 15.0;
+   - 0.1 M ammonia → 5.12, silently wrong (11.12 is correct);
+   - 4 mM pyridine → 3.82 (8.41 is correct).
+2. **The library solvers** (`field/interface/acid_base.py`):
+   - `pH_weak_acid`'s Newton iteration diverged wherever water's own H+ matters: its `H <= 0` safeguard drove H
+     toward zero, so the 1e-15 clamp returned pH 15.0 for *genuine* acids (phenol at 1 µM, HS⁻, HPO₄²⁻,
+     HCO₃⁻). The true answer is ~7.
+   - `pH_weak_base` used a Kb-only quadratic with no water term, so dilute bases came out acidic
+     (1e-7 M pyridine → 6.08).
+   - The type-aware `pH_solution` inherited both.
+
+### Fix
+- `_weak_monoprotic_ion(K, C, Kw)`: exact charge balance `x = K·C/(K + x) + Kw/x`. It is strictly increasing
+  in x and bracketed by `[√Kw, C + √Kw]`, so bisection in log space always converges. Both weak solvers use it.
+- The tool dispatches through `pH_solution` (strong/weak acid/base), names the law it used in `formula`, and
+  declines negative concentrations. Its server docstring now says it covers acids and bases.
+- Name and schema unchanged, so the router dataset surface hash is unchanged.
+- Values unchanged where the old code was right: 0.1 M acetic 2.881, 0.1 M ammonia via `pH_weak_base` 11.117,
+  0.01 M HCl 2.000.
+
+### Guard
+- `test_acid_base.TestDiluteAndVeryWeak` checks the physics, not a copy of the solver, for every weak acid and
+  base at 1e-9 … 1 M:
+  - charge balance satisfied to 1e-9;
+  - acids never above neutral, bases never below;
+  - C → 0 is neutral water.
+- `test_chemistry_mcp`: every species type through the tool, plus the negative-concentration decline.
+- 57 sub-checks failed before the fix; all pass after. Also verified through the real stdio server.
+
+### New findings
+- 6. `buffer_ph` has the same blind spot: `henderson_hasselbalch` is applied to strong acids/bases, which form
+  no buffer (NaOH → "pH 14.55", HCl → "pH −6.30"). Weak species are correct.
+- 7. `materia/tests/test_materia.py::test_drag_heating_scenario_self_validates` fails here (last step's units
+  are '' not 'K'). It fails identically on this session's base 339c4f4 and on master, so it predates this
+  session. Possibly environment-dependent, since it is not in ARCHITECTURE.md's known-red list.
+
+## Session 37 (continued) — 2026-10-10 — buffer_ph fixed (finding 6)
+
+### Cause
+`mcp/tools/chemistry.py::buffer_ph` applied Henderson–Hasselbalch to any key, with no checks:
+- **Strong acids/bases** got a "buffer pH" (HCl −6.30, H₂SO₄ −3.0, NaOH 14.55), though they dissociate
+  completely and form no buffer.
+- **Ratio ≤ 0** returned `-inf`, which is not valid JSON.
+- **Far-off ratios** gave impossible numbers (acetic acid at 1e-6 → pH −1.24).
+
+### Fix (tool level)
+- Strong species decline, naming the weak species that do buffer and pointing to `weak_acid_ph` for their pH.
+- Non-positive or non-finite ratios decline (bad input is echoed as text, so the reply stays valid JSON).
+- If the result would fall outside 0–pKw, it declines: the mixture isn't a buffer there, and its pH depends on
+  concentrations this tool doesn't take.
+- Ratios outside 0.1–10 still answer, with an "only approximate" caveat.
+- Notes name the conjugate pair; for a weak base, pKa is the conjugate acid's (NH3/NH4+ → 9.24).
+- The library `henderson_hasselbalch` is unchanged: it stays a bare formula for the titration code and the
+  Materia scenario.
+- Same pass: last round's `weak_acid_ph` guard only caught negative concentrations. NaN/inf leaked out as
+  invalid JSON; now it declines them too.
+- Server docstring updated; name and schema unchanged, so the router surface hash is unchanged.
+
+### Guard
+`test_chemistry_mcp`:
+- every strong species declines;
+- weak acid and weak base pairs;
+- 0 / negative / NaN / inf declines, each reply strict-JSON serialisable (`allow_nan=False`);
+- the out-of-range decline, and the caveat case.
+All 3 new tests failed before the fix. Verified through the real stdio server. 284 passed (+ known-red
+`test_targets.py`), Materia 52 passed (the drag-heating test is excluded; see finding 7).
+
+## Session 37 (continued) — 2026-10-10 — atomic_angular_momentum fixed (finding 3)
+
+### Cause
+- `field/interface/angular_momentum.angular_momentum_z_values(j)` built m_j with `m = -j; while m <= j: m += 1`
+  and never checked j:
+  - j = 1.3 gave m = −1.3, −0.3, 0.7;
+  - a negative j silently gave [];
+  - j = 3e8 enumerated 6e8 floats, and j = inf looped forever. Both OOM-killed the process at ~14 GB.
+    (Writing the tests reproduced this twice in this container, killing pytest each time; no lasting harm.)
+- `multiplicity` truncated non-physical j (`int(2·1.3 + 1)` = 3).
+- The MCP tool passed `total_j` straight through. It also computed a spin-orbit energy for ANY J, although its
+  term is fixed at ²D (L=2, S=½), whose only levels are J = 3/2 and 5/2 (J = 3e8 → "2.25e15 eV").
+
+### Fix
+- Library: `check_quantum_number(j)` accepts only finite non-negative integers or half-integers, snapping float
+  noise; anything else raises ValueError. It is used by `angular_momentum_magnitude`,
+  `angular_momentum_z_values` (now built by index, so exact) and `multiplicity`.
+- Tool (`mcp/tools/rotation.py`):
+  - declines a non-physical `total_j` or a non-finite `spin_orbit_constant_ev`, echoing nan/inf as text so the
+    reply stays valid JSON;
+  - reports `multiplicity`, and lists m_j only up to 101 values, giving the range otherwise;
+  - computes E_SO only for the term's levels, with a note for any other J.
+- Name and schema unchanged, so the router surface hash is unchanged.
+
+### Guard
+- `test_angular_momentum.TestQuantumNumberValidation`: rejection of 1.3 / −0.5 / −1 / nan / inf by all three
+  functions; exact m_j lists for j = 0 … 100.5; float-noise snapping.
+- `mcp/test_rotation_tools.py` (new):
+  - J = 3e8 answers in < 2 s without enumerating;
+  - non-physical J and A decline, with strict-JSON replies;
+  - ²D levels give E_SO = −0.075 / +0.05 eV at A = 0.05;
+  - J = 4.5 gives no E_SO, with a note.
+- Real server: J = 3e8 in 0.02 s. 300 passed (+ known-red `test_targets.py`); Materia 52 passed.
+
+### New finding
+- 8. `zeeman_effect_analysis` uses `atomic_spectra.zeeman_splitting_count`, the same unchecked
+  `int(2j + 1)`: j = 1.3 → 3 sublevels, j = −2 → −3. No memory risk (a count, not a list), and
+  `check_quantum_number` can be reused there.
 
 ## Session 37 (continued) — 2026-10-10 — One solar mass, derived from GM☉ (finding 4 / KNOWN_GAPS DATA_GAP J6)
 
@@ -3177,3 +3431,486 @@ called it.
 - Targeted suites (GR basics, frontier/MCP tools, Wolfram parity, coverage ledger, server wrappers, N-body
   adapters, benchmark, layering): 278 passed (+ known-red `test_targets.py`). Full-suite result follows in the
   next entry.
+
+## Session 37 (continued) — 2026-10-10 — Full suite after the solar-mass change
+
+- Full suite on 63d946f: **5070 passed, 4 failed, 13 skipped, 3 xfailed, 2837 subtests (38.5 min).**
+- The 4 failures, none caused by the change:
+  - the known-red `mcp/benchmark/test_targets.py`;
+  - `test_field_export::test_verify_artifacts_field_rules` and
+    `test_trajectory_thermo::test_verify_artifacts_accepts_and_rejects_frame_temperatures`, which import
+    `verify_artifacts` from `tools/` (not on sys.path in this container);
+  - `test_shade_thermal::test_constants_match_viewer_js`, which hard-codes
+    `D:\Aaron\development\sigma-ground\...\viewer.js`.
+  All three fail identically on the pre-change commit (63d946f~1). They are environment-only, and pass on the
+  Captain's machine (ARCHITECTURE baseline: 1 failure).
+- No regression from moving M☉ by −2.6e-4 / −3.0e-4.
+- The run rewrote seven tracked `radiance/web/data/*.json` files again (finding 5); restored.
+
+## Session 37 (continued) — 2026-10-10 — Tests stop writing into radiance/web/data (finding 5)
+
+### Cause
+Two run-time writers aimed at the tracked folder the viewer serves:
+- `mcp/front_door._save_bundle` (scene, fall and push bundles);
+- the bell-strike WAV writer in `radiance/trajectory.py`.
+Measured per test file by modification time, so identical-byte rewrites count too. Seven test files wrote there:
+
+| Test file | Files written |
+|---|---|
+| `mcp/test_scene_route` | 3 |
+| `mcp/test_front_door` | 2 |
+| `mcp/test_push_route` | 6 |
+| `tests/test_bell_strike` | 3 WAVs |
+| `tests/test_front_door_hinge_arc_demos` | 3 |
+| `tests/test_trajectory_energy_fields` | 1 WAV |
+| `tests/test_contact_conduction` | 1 |
+
+It wasn't only noise in `git status`. `test_push_route` rewrote `plate_pushed_off_the_1700s_table.json` with
+132 frames over the committed 42, so `test_scene_index` then failed ("scenes.json is out of date"): results
+depended on test order.
+
+### Fix
+- `radiance/output_dir.py::radiance_data_dir()`: default `radiance/web/data/` (viewer and production
+  unchanged); `SIGMA_GROUND_RADIANCE_DATA_DIR` overrides it. Both writers use it.
+- New repo-root `conftest.py`:
+  - points the variable at a temp folder for every session (subprocesses inherit it) and removes it afterwards;
+  - a sentinel snapshots the data folder's modification times and fails the session, naming the files, if
+    anything writes there anyway.
+- ARCHITECTURE.md Testing section documents the rule.
+
+### Guard
+- Re-measured: all seven writer files leave the folder untouched.
+- `test_push_route` then `test_scene_index` (the order that failed): 15/15 pass, tree clean.
+- A probe test that only bumps one bundle's modification time makes pytest exit 1 with the file named.
+- `tests/test_radiance_output_dir.py`: temp folder in tests; default = the viewer folder; `_save_bundle` writes
+  to the output dir.
+- Full suite with the sentinel active (a817000): **5073 passed, 4 failed** (the same three environment-only
+  `verify_artifacts` / `D:\` viewer.js tests plus known-red `test_targets.py`), 36.5 min. Sentinel silent, tree
+  clean afterwards: nothing in the whole suite writes into `radiance/web/data/` any more. Merged master (GMod
+  holodeck work, 51 files under `stage/gmod/`, no overlap); layering + output-dir + front-door tests re-run green.
+
+## Session 37 (continued) — 2026-10-10 — Zeeman count and pattern fixed (finding 8)
+
+### Cause
+`field/interface/atomic_spectra.py`:
+- `zeeman_splitting_count(j)` was `int(2j + 1)` of anything (j = 1.3 → 3 sublevels, j = −2 → −3).
+- `zeeman_pattern(l, s, j, B)` had the same unbounded `while m_j <= j` loop that OOM-killed the server through
+  `atomic_angular_momentum`: j = 1.3 gave m_j = −1.3, −0.3, 0.7, and an infinite j never ended. It also accepted
+  states that don't exist (|l=1, s=½, j=7/2⟩).
+- The MCP tool `zeeman_effect_analysis` passed j straight through.
+
+### Fix
+- Both functions use last round's `angular_momentum.check_quantum_number` (same tier, no import cycle).
+- `zeeman_pattern` also requires an integer l and j reachable from l and s (|l−s| ≤ j ≤ l+s in integer steps),
+  and builds m_j by index via `angular_momentum_z_values` (exact). J = 0 still gives one level with no shift.
+- The tool declines a non-physical j (value None, reason in notes) and echoes nan/inf as text so the reply stays
+  valid JSON.
+
+### Guard
+- `test_atomic_spectra`:
+  - the count rejects 1.3 / −2 / −0.5 / nan / inf and snaps float noise;
+  - the pattern rejects impossible states, including infinite j, which now raises instead of looping;
+  - m_j values are exact, and J = 0 gives no splitting.
+- New `mcp/test_spectra_tools.py`: sublevels for physical j; non-physical j declines with strict-JSON replies.
+- Safe pre-fix runs failed as intended; the infinite-j case was not run against the old code. Real server:
+  2.5 → 6 sublevels; 1.3 and −2 decline.
+- 292 passed (+ known-red `test_targets.py`); Materia 52 passed; tree clean.
+
+## Session 38 — 2026-10-10 — Router fine-tune study: baselines and dataset pilot measured; training, export and evaluation staged, not run
+
+### Status
+*(When this entry was written. The model was trained later the same day: see "Session 38 (continued)" below.)*
+**Nothing has been trained.** The Captain asked mid-session to halt GPU work until tonight, so the study stops after
+the baselines, the dataset pilot, and a CPU-only rehearsal of everything downstream of training.
+`tools/run_router_study.sh` runs every remaining stage, unattended, in one go. Master moved while this ran
+(fa2c753 → 25c68b0); it is merged into the branch at PR time.
+
+### Environment (measured)
+- GPU: NVIDIA GeForce RTX 4070 Ti SUPER, 16,376 MiB, driver 591.86 (CUDA 13.1). Ollama 0.35.1.
+- Repo venv (`.claude/worktrees/beautiful-einstein-9oiut1/.venv`): Python 3.13.12, mcp 1.30.0.
+- Training venv in WSL2 Ubuntu-24.04 (`~/venvs/mentat-router`): torch 2.14.1+cu130, transformers 5.17.0,
+  trl 1.13.0, peft 0.21.2, bitsandbytes 0.50.2, datasets 4.8.5, accelerate 1.15.0, Unsloth 2026.10.3.
+  Installed with the Captain's OK: `python3-venv python3-pip python3-dev build-essential cmake`. No CUDA toolkit.
+- llama.cpp 23b0202 in WSL, CPU build of `llama-quantize` only; `gguf-py` in the venv for `convert_hf_to_gguf.py`.
+- Ollama models: `qwen3:8b`, `nomic-embed-text` (both already present), teacher `qwen2.5:14b`. `qwen2.5:32b` was
+  not pulled: at about 19 GB it cannot sit in 16 GB of VRAM. The Captain chose 14b.
+
+### Step 0
+- Branch `claude/beautiful-einstein-9oiut1` at 364e4d5; master (fa2c753) was already merged in, no conflicts.
+- `pytest sigma_ground/mcp/benchmark sigma_ground/mcp/test_server_wrappers.py tests/test_layering.py -q`:
+  **68 passed, 1 failed, 2 xfailed** (65 s). The failure is the known-red `test_targets.py` (97% vs the 98% target).
+- `pip install -e ".[mcp,benchmark,test]"` was not enough: `benchmark/interpreter_demo.py` imports `requests`,
+  which the `benchmark` extra did not list, so two test modules failed at collection. Added `requests>=2.31`.
+
+### Step 1: baselines (qwen3:8b, scored by `score.py` unchanged)
+The cascade answered the same 86 of 150 questions in both runs; the model path is the same other 64 (checked: identical id sets).
+
+| run | overall | model-path correct | grounded | declines | clarifications | router_errors | median s (model path) |
+|---|---|---|---|---|---|---|---|
+| chain (`chain_qwen3_8b_run.json`) | **134/150** (89.3%) | 50/64 | 62/64 | n/a | n/a | n/a | 13.68 |
+| stock router + tool index (`router_qwen3_8b_stock_run.json`) | **137/150** (91.3%) | 53/64 | 59/64 | 0 | 1 | 4 | 3.57 |
+
+- Chain: 0 timeouts, 0 errors; 55 of 64 model-path questions took 2 turns.
+- Right in chain, wrong in stock router (3): `atom_004`, `em_adv_002`, `nuc_005`.
+  Right in stock router, wrong in chain (6): `astro_011`, `atom_003`, `mech_intro_001`, `mech_intro_003`,
+  `nuc_007`, `optics_003`.
+- The five stock-router non-answers: `em_intro_012` (`parallel_plate_capacitance` with `capacitance_f` and
+  `separation_m`, no value), `mech_adv_005` (`density` of "Mars", no value), `em_adv_002` (`lookup_constant` of an
+  invented name, no value), `atom_004` (`first_ionization_energy` for Xe, no value), `nuc_003` (asked for
+  `energy_carried` although the question carries it).
+- The stock router is not near 100% on the model path (53/64), so this study's premise holds.
+
+How the runs were made, and what to distrust:
+- Both ran against a dedicated single-slot Ollama (`OLLAMA_HOST=127.0.0.1:11435 OLLAMA_NUM_PARALLEL=1`). The main
+  server on 11434 has `OLLAMA_NUM_PARALLEL=4`; with the harness's `num_ctx 32768` that is 18 GB of KV cache, qwen3:8b
+  ran 43% CPU / 57% GPU, and prompt processing started at about 15 tokens/s. That first attempt was stopped after
+  one record (an error record). A second attempt ran while another client was using qwen3:8b on 11434; I stopped
+  it at 89/150 and discarded it. The reported chain run is the third, after unloading the idle model on 11434.
+- The GPU was still shared with live clients of the main Ollama. Three chain questions are outliers:
+  `optics_003` 105 s and `optics_004` 94 s (13 s for both in the discarded run) and `astro_011` 163 s (that run
+  never reached it). Probably contention. The medians absorb them. Treat latencies as indicative.
+- The semantic router's embedding calls go to a hard-coded `http://localhost:11434` (`interpreter_demo.OLLAMA`),
+  whatever `--ollama-url` says. Both runs share that path, so the comparison is unaffected.
+
+### Step 2: dataset pilot (`--per-tool 3 --variants 3`, teacher `qwen2.5:14b`, guard on)
+- Output: 1,827 examples = 622 template + 21 clarify + 29 decline seeds (672) + 1,155 accepted rewrites; split
+  1,691 train / 136 val. 208 of 217 tools have examples; the 8 gaps: `age_of_universe`,
+  `eta_value_report`, `mond_a0_constant` (benchmark overlap); `parse_quantity`, `simulate`, `solve_ode`
+  (free-text input); `playground_apply`, `playground_simulate` (need an open scene). Tool-surface hash
+  `762bbee3725389bf`, unchanged from the earlier full run.
+- Timing: template phase 172 s in the first attempt and 461 s in the second (same code for that phase; the
+  difference is unexplained). Teacher phase **692 s for 2,016 rewrite attempts = 0.34 s each**.
+- The first attempt spaced calls 3–4 s apart. Cause: `ollama_teacher` made a fresh `httpx.post` per call, and a
+  new httpx client costs about 1 s and a new connection to `localhost` about 2.5 s on this machine (127.0.0.1:
+  0.4–0.7 s). Fixed with one persistent client (`router_dataset.py`); the 29 dataset tests still pass.
+- Acceptance: **1,155 of 2,016 attempts kept (57.3%)**; 102 (5.1%) failed the rewrite checks (numbers changed 59,
+  named key or unit symbol dropped 34, unit changed 9); 759 (37.6%) were dropped elsewhere. The manifest does not split drops by
+  phase: it logs 752 duplicates, 69 benchmark overlaps, 52 calls with no value and 13 classifier conflicts across
+  the whole build, so how much of the 759 is duplicate rewrites is not itemised.
+- Ten random accepted rewrites (seed 0), template → rewrite [plan]:
+  1. "Calculate the time-dependent strain for applied stress of 66.8 MPa and temperature of 925 K." → "What would be
+     the time-dependent strain for an applied stress of 66.8 MPa at a temperature of 925 K?" [viscoelastic_creep_analysis]
+  2. "Normal force of 16.6 N: will it slide?" → "If the normal force is 16.6 N, will the object slide?" [friction_analysis]
+  3. "Please expand for (x + 2)**3." → "How would you expand (x + 2)**3?" [expand_expression]
+  4. "Please list of things in the solar system you can look up." → "What can I look up about things in the solar
+     system?" [list_bodies]
+  5. "Suggest a birthday gift for my dad." → "What would be a great birthday gift for my dad?" [decline]
+  6. "Start over?" → "What happens if we start over?" [playground_reset]
+  7. "I need the infinite square well for n 3 of 6." → "What is the wave function for the infinite square well
+     when n equals 3 out of 6?" [quantum_box_energy_analysis, args `{"n3": 6}`]
+  8. "Molality of 0.0429 mol/kg: what's the colligative freezing point?" → "What's the freezing point depression
+     for a solution with a molality of 0.0429 mol/kg?" [freezing_point_depression]
+  9. "Give me the scene." → "What is the scene like?" [playground_load]
+  10. "What is the Paris law for aluminum?" → "What does the Paris law state for aluminum?" [stress_failure_analysis]
+- Two of the ten read as label drift that `check_rewrite` cannot see: #7 now says n = 3 while the label is
+  `n3 = 6`, and #10 turns a material lookup into a conceptual question. The number check compares numbers as a
+  multiset, so it cannot see a number moving to a different role. Not changed here.
+- Extrapolation to `--per-tool 40 --variants 3` (about 8.0k seeds, about 24k attempts): **about 2.3 h** of
+  teacher time plus a few minutes of templates, and about 13.7k accepted rewrites on top of the seeds if 57%
+  holds. `--variants 2` is about 1.5 h; `--per-tool 20 --variants 2` about 45 min. The full run has NOT been
+  started: it is over an hour and needs the Captain's OK.
+
+### Step 3: training environment and script
+- `tools/train_router.py` (QLoRA, the spec's recipe: r 16, alpha 32, all seven projections, lr 2e-4 cosine, 3% warmup,
+  2 epochs, effective batch 16, seed 0, loss on assistant tokens only, `meta` ignored). The base is `Qwen/Qwen3-8B`,
+  non-thinking template. Unsloth backend with a transformers+PEFT fallback (`--no-unsloth`).
+- Measured on the pilot data with the Qwen3 tokenizer: tokens per example p50 198, p95 245, max 286, so
+  `max_len` = 288 (cap 1024 not reached). The script asserts that the HF template with `enable_thinking=False`
+  renders exactly prompt + plan + `<|im_end|>` + newline for the first 20 records, and the decoded label tokens are
+  the plan JSON plus `<|im_end|>` (30 tokens for the Schwarzschild example) with everything before masked.
+- **Loading the 8B base from `/mnt/d` is unusable**: the first Unsloth load showed `Loading weights 4/399` after
+  2.5 minutes with an ETA of hours, and a plain `cp` moved about 1.7 GB in roughly 10 minutes. The base now lives
+  on WSL's ext4 (`~/models/Qwen3-8B`, 16 GB, downloaded there directly). Not yet confirmed that it loads quickly
+  from ext4; the pilot is the first stage to find out.
+- **The 50-step pilot never got past weight loading**, so VRAM peak, steps/s and the projected full-run time are
+  all unmeasured, and there is no loss curve.
+- CPU smoke of the loop (`--cpu-smoke`, Qwen3-0.6B fp32, 48 training / 8 validation records, 4 steps): losses and
+  eval losses logged, adapter written, exit 0. A mechanics check only; 4 steps say nothing about learning.
+
+### Step 4: export, rehearsed on CPU with Qwen3-0.6B and a random LoRA (r 16, alpha 32, same targets)
+- Unsloth's `save_pretrained_gguf` is not used. `train_router.py merge` folds the adapter into the bf16 base shard
+  by shard on the CPU (a few GB of RAM, no GPU needed after training); llama.cpp does the GGUF and `llama-quantize`
+  does Q4_K_M.
+- Merge vs `PEFT.merge_and_unload()` on the same input: max |Δlogit| **0.0000**, argmax agreement **1.000**, with
+  the adapter's own effect on the logits at 3.801 (so the comparison could have failed).
+- GGUF bf16 1.51 GB → Q4_K_M 484 MB. `ollama create` and serving worked on a CPU-only server
+  (`CUDA_VISIBLE_DEVICES=-1`; its log shows `library=cpu`, `total_vram="0 B"`), then the test model was removed.
+- Template: Ollama 0.35 logs `selected=gguf_chat_template` for a model created with a Modelfile `TEMPLATE`, so
+  the template embedded in the GGUF is what counts. `merge` therefore writes `{%- set enable_thinking = false %}`
+  at the top of the checkpoint's chat template (a safeguard; I did not test the unpinned case, so I cannot say it
+  was needed). After the pin, `chat think=false`, `chat` with no `think`, and the trained text sent raw all gave
+  165 prompt tokens and the same reply.
+- Open: with the harness's JSON-schema `format`, `/api/chat` and a raw `/api/generate` of the same prompt gave
+  different replies from the random-weights model (`decline` vs `request_clarification`) while the unconstrained
+  replies matched. Cause not investigated; `smoke` therefore compares the unconstrained renderings and also checks
+  that the harness-shaped request returns 200. The benchmark run will show whether it matters for the real model.
+- `tools/eval_router_val.py` controls: every gold plan in the pilot scores exact against itself (1,827/1,827); a
+  1e-5 relative change to the first numeric argument is caught in 1,029/1,029 plans that have one; a string where a
+  number belongs is rejected; int 2 equals float 2.0. On the random CPU model it scored 0/12, as it should.
+
+### Step 5, Step 6: not run
+Val evaluation of `mentat-router`, the `--router` benchmark and the three-way comparison are staged
+(`eval_router_val.py`, `compare_router_runs.py`, stages `eval_val`, `benchmark`, `score`). No numbers exist yet.
+
+### What shipped
+- `tools/train_router.py`: `train`, `merge`, `modelfile`.
+- `tools/eval_router_val.py`: val scoring by tool and exact plan, overall and by `meta.source`, and `--smoke`.
+- `tools/compare_router_runs.py`: the comparison table and the right/wrong cross-lists, using `score.score_run`.
+- `tools/run_router_study.sh`: dataset → pilot → train → merge → GGUF → `ollama create` → smoke → val eval →
+  benchmark → score. Resumable by stage (`local-cache/router/state/*.done`), logs under `local-cache/router/logs/`,
+  `--dry-run` for a preflight that touches no GPU compute. Exclusive stages wait up to 45 minutes for the GPU to
+  drop under 4,000 MiB in use, then stop with a message instead of training into an out-of-memory error.
+  The full script has never run end to end; only its preflight has.
+- `router_dataset.py`: one persistent httpx client for the teacher. `pyproject.toml`: `requests` in `benchmark`.
+  `.gitignore`: `unsloth_compiled_cache/`.
+- Baseline run files are NOT committed (per the study's rules); they are in `sigma_ground/mcp/benchmark/results/` on
+  the machine that ran them, and the numbers above are from them.
+
+### Next Steps
+- [ ] Captain: OK the teacher-pass size (default about 2.3 h; `PER_TOOL=20 VARIANTS=2` is about 45 min) and close
+      GMod and other clients of the main Ollama before starting. The machine must not sleep overnight.
+- [ ] Run `tools/run_router_study.sh --dry-run`, then `tools/run_router_study.sh`.
+- [ ] Afterwards: fill in the pilot's VRAM and steps/s, the loss curve, the val table, and the three-way benchmark
+      comparison here. Stop and look if val accuracy is high but the benchmark is worse.
+- [ ] A training run that dies restarts from step 0 (no resume yet).
+- [ ] Decide whether `check_rewrite` should compare numbers by role, not as a multiset.
+
+## Session 38 (continued) — 2026-10-11 — The router fine-tune: trained, exported, evaluated. It does not beat vanilla Qwen on the benchmark
+
+The "Status: nothing has been trained" line above is superseded by this entry.
+
+### Result
+`mentat-router` (Qwen3-8B, QLoRA, 19,385 training examples, 2 epochs) against the baselines on the same 150
+questions. The cascade answers the same 86; the other 64 are the model path. Scored by `score.py`, unchanged.
+
+| run | overall | model-path correct | grounded | declines | clarif. | router_errors | median s (model path) |
+|---|---|---|---|---|---|---|---|
+| chain, qwen3:8b | 134/150 | 50/64 | 62 | n/a | n/a | n/a | 13.68 |
+| stock router + index, schema | 137/150 | 53/64 | 59 | 0 | 1 | 4 | 3.57 |
+| stock router + index, free | **138/150** | **54/64** | 60 | 0 | 0 | 4 | 3.43 |
+| tuned router, schema (router mode as built) | 117/150 | 33/64 | 47 | 9 | 1 | 7 | 3.20 |
+| tuned router, free | 135/150 | 51/64 | 58 | 0 | 2 | 4 | 3.16 |
+
+- **The fine-tune does not beat vanilla Qwen on the model path in either format.** Its best run (free) is 51/64:
+  +1 over the chain baseline, −2 to −3 against the stock routers. Against `stock_free` it loses 5 questions and
+  wins 2 (sign test, two-sided, p ≈ 0.45), so at n = 64 it is not distinguishable from stock; it is not better.
+- Router mode as the harness defines it (JSON-schema `format`) is far worse for the tuned model: 33/64.
+- Latency does not separate the runs. The tuned model's own call is about 0.3 s (median over validation, on a
+  persistent 127.0.0.1 connection), yet the harness shows 3.16 s per model-path question, so about 2.8 s is overhead
+  outside the model. I did not isolate it; the earlier connection measurements (a new `localhost` connection costs
+  2–3 s, and the embedding calls use a hard-coded `localhost:11434`) are the suspect. The chain figure is slow because it
+  loops; the stock routers because they read a 16k-token index.
+
+### Why the schema hurts: the request format, not the model
+Ollama sorts a JSON schema's properties alphabetically, so the grammar makes the model write `args` (or `decline`)
+before it can name the `tool`, the reverse of the training order (`router_dataset.py`).
+- First 300 validation records, only the constraint changed: free generation 99.7% right tool / 96.3% exact plan;
+  Ollama's plain JSON mode 99.3% / 92.7%; the harness schema 73.0% / 66.0%. In schema mode no reply started with
+  `tool` (221 `args`, 79 `decline`); in free mode all 300 did.
+- Full validation set (2,062 records):
+
+| format | right tool | exact plan | rewrite / template / clarify (exact) |
+|---|---|---|---|
+| free | 97.7% (2,014) | 95.2% (1,962) | 94.2% / 97.1% / 73.3% |
+| schema | 59.6% (1,228) | 51.5% (1,062) | 51.2% / 52.9% / 0.0% |
+
+  No timeouts in either; two schema-mode replies hit the 1,024-token cap (a runaway generation hung my first eval at
+  300 s). Free-mode failures: 48 wrong tool, 37 wrong values, 15 wrong argument keys.
+- `run_sigma_ground.py` gets `--router-format {schema,free}` (default `schema`, so earlier results reproduce);
+  `test_router_mode.py` covers it. The stock model was run in both formats so the comparison is like for like.
+
+### Why 95% on validation but 51/64 on the benchmark
+This is the "validation high, benchmark worse" surprise the study said not to push past. What the failures show
+(`tuned_free` vs `stock_free`; 15 questions where either is wrong):
+- **Both wrong, 8:** `em_intro_012` and `em_adv_004` (corpus expects `solve_equation`), `em_adv_002` (`percent_of`),
+  `mech_adv_010` (`orbital_raise_energy`), `nuc_005`, `gr_008`, `em_adv_001`, `atom_004`. Most want a different tool than
+  the obvious one or more than one call; a single-call plan cannot finish them.
+- **Tuned wrong, stock right, 5:**
+  - `optics_010`: the tuned model named a tool that does not exist, `thin_lens_magnification` (the real one is
+    `lens_magnification`). Free format has no tool-name constraint.
+  - `mech_adv_006`: it called `circular_orbit_velocity`, the correct first step of a two-step question. The stock model
+    scored by putting its own mental-arithmetic velocity (3074) into `kinetic_energy`, which is what the router design
+    says never to do; the groundedness gate cannot see it.
+  - `atom_003`: `hydrogen_like_energy_level(n=1)` returns −13.6 eV; the corpus wants `first_ionization_energy`, 13.598.
+  - `nuc_003`: it asked for a velocity although the question carries the data; the stock model used `convert_units`.
+  - `nuc_007`: `fission_energy_release(mass_kg=2e12)` instead of `energy_to_mass`.
+- **Tuned right, stock wrong, 2:** `em_intro_014`, `mech_adv_005`.
+- Likely contributors, not tested: the model path is by construction the questions the cascade did not answer; the
+  dataset guard removed benchmark look-alikes; validation shares the generator's templates with training (a
+  group-aware split, but the same phrasing families). There is no hand-written out-of-template validation set.
+- Caveat: n = 64, and `stock_free` also has 4 router errors.
+
+### Dataset (full run, `--per-tool 40 --variants 3`, teacher qwen2.5:14b)
+- 21,447 examples: 19,385 train / 2,062 val. Seeds 8,055 (7,735 template, 291 clarify, 29 decline) plus 13,392
+  accepted rewrites out of 24,165 attempts (55.4%). 208/217 tools, the same 8 gaps as the pilot, tool-surface hash
+  `762bbee3725389bf`.
+- Drops: 14,101 duplicates, 1,044 benchmark overlaps, 620 calls with no value, 340 classifier conflicts, 1,268
+  rewrite-check failures (5.2% of attempts). Stage time 12,446 s (3 h 27 min); the template phase took about 42 min.
+- The earlier README estimate of 2.6 min for the template phase was for a different machine without a teacher.
+
+### Training
+- Pilot, attempt 1 (Unsloth): about 2.5 s/step for 28 steps, then it crashed right after the step-25 evaluation with
+  "Unsloth: No or negligible GPU memory available for fused cross entropy". Fallback transformers+PEFT: 0.091 steps/s
+  (about 11 s/step), peak 14.9 GiB allocated and 20.8 GiB reserved on a 16 GiB card (it was spilling into system
+  memory), full run projected at 443 min, over the 6 h cap, so the script stopped.
+- Fix (`train_router.py`): hand the cached evaluation memory back (`on_evaluate`), evaluate on loss only, halve the eval
+  batch, expandable segments. Cause is my diagnosis (the driver reports almost no free memory while PyTorch still caches
+  the evaluation blocks); the rerun passing is the evidence, not a proof.
+- Pilot, attempt 2 (Unsloth): 50 steps completed, peak 7.33 GiB allocated, 0.186 steps/s including two evaluation
+  passes (about 2.6 s/step otherwise), projected 217 min; loss 1.93 → 0.25 over 50 steps; eval loss 0.456 at step 25,
+  0.267 at step 50.
+- Full run: Unsloth 2026.10.3, 2,424 steps (2 epochs, effective batch 16, lr 2e-4 cosine, warmup 73), 7,847 s (2.18 h),
+  peak 7.49 GiB allocated. Eval loss 0.0416 (step 242), 0.0295, 0.020, 0.0172, 0.0149, 0.0135, 0.0132, 0.0123, 0.0122
+  (step 2178), 0.0127, final 0.0128: it flattens from about step 1700 with no sign of overfitting.
+- Merge 62 s (252 LoRA pairs), bf16 GGUF 16.4 GB, Q4_K_M 5.03 GB (228 s for both), `ollama create` 68 s, smoke 20 s.
+- Smoke: chat with `think=false`, chat without `think` and the trained text sent raw all gave 165 prompt tokens and the
+  same reply (template OK). But "2 solar masses" came back as `mass_kg = 4.000000000000001e+30`, 0.58% off the expected
+  3.977e30: the model rounds the solar mass to 2e30, which costs exact-plan matches on solar-mass questions.
+
+### Cost
+- Time: dataset 3.46 h, training 2.24 h (stage), validation eval 22.9 min, benchmark runs 14.6 min, scoring 10.1 min,
+  export 6 min, plus pilots (10.5 min for the passing one; the PEFT fallback took about 17 min and the aborted Unsloth
+  attempt about 6) and the baselines. Roughly 7 h of GPU time end to end for this stretch, on top of the earlier baselines and dataset pilot.
+- Disk: 5.0 GB in the worktree's `local-cache/router` (4.7 GB is the Q4_K_M GGUF), 26 MB dataset. WSL ext4: 17 GB base
+  model, 37 GB under `~/router` (16 GB merged checkpoint and 16 GB bf16 GGUF are intermediates), 6.3 GB venv, 3.6 GB rehearsal
+  files. Ollama store +5 GB. The main checkout's `local-cache/router` still holds a 16 GB first download of the base that
+  nothing uses.
+- Skippy's Ollama container (`skippytel-ollama`) was stopped at the Captain's instruction for the GPU stages
+  (roughly 21:30 to 01:53, 01:55 to 04:33, and 10:17 to 11:05) and restarted by the script each time.
+
+### Other things found
+- The rewrite checker compares numbers as a multiset and cannot see a number change role (from the pilot); still open.
+- Free format has no tool-name constraint, so a tool name can be invented (`optics_010`).
+- Plans are single-step; the corpus has questions that need two calls or a different tool than the obvious one.
+- A killed Ollama leaves its `llama-server` runner alive and holding VRAM (I hit this with my own diagnostic server).
+
+### Next Steps (proposals; the Captain decides)
+- [ ] Multi-step plans (`{"steps": [...]}` with the output of one step feeding the next): the shared failures and
+      `mech_adv_006` suggest this is the biggest lever on the model path. It needs dataset, harness executor and retraining.
+- [ ] Make key order a non-issue: either train with `tool` sorted before the arguments key (for example
+      `tool` / `tool_args`) so Ollama's sorted schema and the training order agree and the tool-name enum can be kept, or
+      keep the free format and check the tool name after the fact.
+- [ ] A hand-written, out-of-template validation set (about 100 questions) so validation can predict the benchmark; and
+      new data for the weak families (conversions with particles, `percent_of`, `solve_equation` set-ups, ionization
+      energy vs energy level), written from the tool descriptions, not from benchmark questions.
+- [ ] Solar-mass precision: add examples that pin the constant (1.98841e30), or let the harness convert units.
+- [ ] Measure and remove the fixed per-question overhead in the harness before comparing latencies.
+- [ ] Clean-up that is safe once the Captain agrees: the 16 GB duplicate base in the main checkout's
+      `local-cache/router`, and the 32 GB of merge intermediates under `~/router` in WSL.
+
+
+## Session 39 — 2026-10-12 — Router v2 results, the tweaks audit, and v3 staged (nothing run on the GPU)
+
+### Router v2 result (measured, `local-cache/router_v2/comparison.md`)
+Same 150 questions, cascade identical (86 answered before the model), scored by `score.py` unchanged.
+
+| run | overall | model-path correct (of 64) | grounded | router errors |
+|---|---|---|---|---|
+| chain, qwen3:8b | 134/150 | 50 | 62 | 0 |
+| stock router + index, free | **138/150** | **54** | 60 | 4 |
+| tuned v1, free | 135/150 | 51 | 58 | 4 |
+| tuned v2, tool-first | 130/150 | 46 | 50 | 13 |
+| tuned v2, free | 134/150 | 50 | 53 | 10 |
+
+v2 did not beat stock. Right in stock, wrong in tuned v2 free (9): atom_007, em_intro_001, em_intro_009, em_intro_010,
+mech_adv_004, mech_intro_010, nuc_003, optics_010, qm_004. The causes found earlier in the session were spurious second
+steps, a unit slip and tools it could not reach. Right in v2, wrong in stock (5): em_adv_001, em_adv_002, em_intro_014,
+mech_adv_005, nuc_005.
+
+### The tweaks audit (misc/MENTAT_TWEAKS_AUDIT.md)
+* 86 of 150 benchmark answers come from the cascade, 84 of them right; frontier, refusal and clarification fired 0 times.
+* Param aliasing and the body-name chain fired 0 times in five runs. The 15 hidden tools had 0 training examples.
+* **Four classifiers compute physics in the harness** (astro, optics, classical_intro, modern: 17 of the 150 questions when run
+  alone), against Platinum §21; the astro one uses a Sun temperature of 5778 K where the library says 5772 K.
+* Five no-input tools (age_of_universe, critical_density, eta_value_report, mond_a0_constant, holographic_matching_mass) cannot
+  be taught without training on a benchmark instance; their classifier stays and the pairing check says so.
+* `sigma_ground/mcp/benchmark/tweaks.py`: one switch per tweak, three profiles (legacy, trained, model-only), recorded in every
+  answer; `tools/tweak_pairs.py` refuses a profile whose removed tweaks the data does not teach (v2 data: 15 and 47 gaps; v3
+  preview: 0); `tools/tweak_ablation.py` says per cascade group whether the model alone matches it. End-to-end check against a
+  fake model: legacy 8 cascade + 22 model (alias silently fixed all 22), trained 22 reported unknown-parameter errors,
+  model-only 30 of 30 through the model.
+
+### A Mentat server fault (fixed in this branch)
+A fresh server's first pint-backed call (`convert_units`) hung: thread dump showed `import numpy` stuck in a worker thread. It is
+what made the v2 recipes stage take 15 minutes (put down to CPU contention). `server.main()` now imports numpy first; regression
+test `sigma_ground/mcp/test_server_first_call.py` (1.9 s).
+
+### v3 staged, not run (misc/ROUTER_V3_PLAN.md)
+* Plan format v3 (`"$n.field"`); 53 new recipes (20 hidden-tool, 17 contrast, 8 lookup, 7 drill, 1 ode), 391 declines, a
+  rewrite-cache alignment check, `tools/run_router_v3.sh` (per size, shared data stages, GPU pinning, profile gating) and
+  `tools/run_router_sweep.sh` (1.7b, 4b, 8b).
+* Downloaded at the Captain's word: Qwen3-4B and Qwen3-1.7B (WSL `~/models`), `qwen3:4b` and `qwen3:1.7b` (Ollama).
+* Estimated about 10 h for the whole sweep on one card (teacher pass 70 min, 8b training about 3 h); needs the Captain's go and
+  start time, and stops `skippytel-ollama` unless a second card takes it.
+* Tests: 321 benchmark tests and 97 MCP server tests pass; `test_targets.py::test_qa_matches_wolfram_on_subset_wa_got_right`
+  fails at 97 % against a 98 % target on `results/sigma_ground_scored.json`, unchanged since 2026-07-19 (not touched here).
+
+
+## Session 39 (continued) — 2026-10-13 — The v3 sweep ran; a 4B matches the 8B; the math failures are a whole-catalogue problem
+
+### The v3 sweep (started 00:00 as scheduled; finished 15:01; no failure, no retry, no skipped profile)
+Same data (33,387 train / 3,603 validation, 9,274 accepted teacher rewrites), same hyperparameters, three bases. Benchmark: 150
+questions, scored by `score.py` unchanged; `legacy` is the comparison of record (the cascade answers its 86, identical for every model).
+
+| | 1.7B | 4B | 8B | stock 8B | v2 8B |
+|---|---|---|---|---|---|
+| benchmark, legacy (model path of 64) | 137 (53) | **140 (56)** | **140 (56)** | 137 (53) | 134 (50) |
+| benchmark, trained profile | 137 | 140 | 140 | 137 | n/a |
+| benchmark, cascade off (model alone, of 150) | 98 | **109** | 106 | 97 | n/a |
+| hard set, 90 questions, exact plan (free) | 80.0 % | **94.4 %** | 88.9 % | n/a | 86.7 % |
+| validation, 3,603, exact plan (free) | 90.9 % | 92.9 % | 93.9 % | n/a | n/a |
+| training time | 72 min | 161 min | 277 min | | |
+| model file (Q4_K_M) | 1.3 GB | 2.5 GB | 5.0 GB | | |
+
+The stock 1.7B scores 88 and the stock 4B 91 (legacy), so training is what makes the small sizes usable. **The 4B equals the trained 8B on the
+benchmark (140 and 140, 56 of 64 on the model path) at half the size and 58 % of the training time, and is ahead on the hard set; the 1.7B is
+3 questions behind.** One training seed per size and 150 questions: a difference of 2-3 questions is within noise, so "equal", not "better".
+
+### What the cascade-off runs show (tools/tweak_ablation.py, all sizes)
+Only `conversion` and the semantic router can be retired at every size (and `new_tools` at the 4B). The four groups that compute physics in the
+harness are not yet replaceable (model alone, 8B: astro 4 of 10, classical_intro 3 of 5, modern 8 of 12, optics 1 of 4). `math` is 0 of 6 at
+every size.
+
+### The math failures (investigated; nothing in the harness changed yet)
+* The model picks the right tool with sensible arguments on all six math questions. Four fail because the router path cannot read a symbolic or
+  list result (`["-2","2"]`, `"cos(x)"`, `"1"`); two because `integrate_expr` was called with invented `bounds`/`limits`.
+* `tools/tool_census.py` (new) shows this is not six questions: across all 232 tools (one real call each) the router path cannot read any
+  symbolic-string, numeric-string, list or procedure result (14 + 3 + 7 + 5 tools): the whole non-numeric math family. 99 of 545 parameters
+  have under 10 training examples (98 none): `integrate_expr.lower/upper`, `compute_limit.point/direction`, `gradient/divergence/curl.variables`...
+  The training labels lint clean (41,224 calls). `router_results.py` reads those shapes with the cascade's own conversion (26 tests).
+* What-if, re-scored on copies of the run files: reading string/list results lifts the 4B cascade-off 109 to 115 and the 1.7B 98 to 100.
+* 12 % of the 4B's numeric arguments (19 of 162) are not traceable to the question: constants and conversions written from memory, one 100x off
+  (`modern_001`, 0.9c as 2,700,000 m/s).
+
+### Design (misc/DEFAULTS_AND_RANGES_DESIGN.md, the Captain's rule)
+Every parameter has bounds; what the prompt leaves out is derived from a mass and a material (quarksum's census + the materials tables + a
+geometry step that does not exist yet: V = m/rho, radius, area) or taken from a scenario prior table, relative to the experiment; the answer is
+given first with the assumptions stated; every plan number carries a provenance (user / table / step / model); quantities are quoted from the
+question and converted by Mentat. Not built beyond the census tools and `router_results.py`. Decisions listed in the doc.
+
+### structured_results measured (2026-10-13, 15:03 to 15:10; cascade off, same models, switch on)
+`--tweaks model-only --tweaks-on structured_results` (label `model-only[-17 +2]`), compared with the same runs without it:
+
+| | 1.7B | 4B | 8B |
+|---|---|---|---|
+| cascade off, before | 98 | 109 | 106 |
+| cascade off, `structured_results` on | 100 | **115** | 111 |
+
+The 4B's math group goes from 0 of 6 to 4 of 6 (roots, derivative, cubic, simplify); the two left are `integrate_expr` called with invented
+`bounds`/`limits` (the training gap: no training example uses `lower`/`upper`). The what-if on copies of the records had predicted +6 for the 4B and
++2 for the 1.7B, and the real runs gave +6 and +2. Remaining 26 cascade-right questions the 4B still misses: 9 wrong value, 8 invented parameter name,
+3 missing a required parameter (`optics_002`, `gr_009`, `cosmo_006`), 2 unknown tool, 2 bad `$n` reference, 1 tool-side invalid input, 1 procedure result.
+The switch is opt-in and in no profile, so the legacy, trained and earlier model-only runs stand as they were. Commits 923bff5 and earlier on
+`claude/router-v2`; run files stay out of git.
+
+### Router v3.1 (4B) data built and training scheduled (2026-10-13, 18:00 to 18:45)
+Held-out math suite (329 questions never trained on, run end to end on the real server, independent oracles): v3 4B tool 310 / arguments 160 /
+answer 194; v3 8B 323 / 185 / 211. Weak for both: `compute_limit` arguments 0/26, `summation` 1/26, `series_expansion` 1/19, `gradient` 3/13; the 4B
+picks `integrate_expr` for "give the derivative" and writes `e^x`. v3.1 adds 3,291 generated math seeds (22 recipes, every answer checked by a
+second method) and 1,156 parameter-coverage seeds, including 7 chains where the plan looks a measured property up in the **materials database**
+and passes it on (`"$1"`), so the model writes no measured value (the Captain: the database must be referenceable as empirical properties).
+Checks on the preview data (37,409 train / 4,021 val): `tool_census lint` clean over 33,368 calls; `tweak_pairs` PAIRED for `trained` and
+`model-only`; parameters with fewer than 10 examples 99 -> 57; the teacher-rewrite cache of v3 lines up with the new seed order (rehearsed with a
+dead teacher, only 3,468 new requests need the GPU). Not in v3.1: defaults table, `object_properties`, retiring clarification (decisions open).
+Scheduled: 4B only, `tools/run_at.sh 00:00` (waiter PID 38572, watchdog 23:58), plan and launch line in `misc/ROUTER_V31_PLAN.md`; expected done
+about 05:30 to 06:00. Commit b6dacd0 on `claude/router-v2`.

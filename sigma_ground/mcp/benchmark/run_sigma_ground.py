@@ -31,6 +31,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+from sigma_ground.mcp.benchmark import tweaks as _tw
+
 
 _SYSTEM_PROMPT_BASE = """\
 You are a TRANSLATION LAYER between the user and the sigma-ground
@@ -568,6 +570,300 @@ def _value_matches_any_tool(text_val: float, tool_values: list[float],
     return False
 
 
+# ── Harness-side finalization: the model picks the call, Mentat reports it ──
+# Replaying the logged runs (2026-10-10) showed the LLM path almost never ends
+# on its own. qwen2.5:7b hit max turns on 63/64 questions: it called the right
+# tool first, then re-called it until the budget ran out, so every "correct"
+# answer was a max-turns fallback extraction that the groundedness gate
+# (rightly) refused to trust (1/64 grounded). qwen3:8b instead wanders into an
+# unrelated tool after the right one (density after element_atomic_data) and
+# loops on THAT. So once a call succeeds, the model may only extend it as a
+# data-flow chain: a DIFFERENT tool that takes a value the chain produced
+# (solar_system_body -> its mass_kg -> schwarzschild_radius). Anything else
+# (text, a re-call, an unrelated call, a failed step) ends the question on the
+# chain's last result, reported verbatim. Replay vs the logged runs: correct
+# 52->53 (qwen2.5) / 50->50 (qwen3: two won, two lost), grounded 1->61 /
+# 27->61. Grounded still means "a tool produced it", not "the right tool".
+_MAX_CHAIN_STEPS = 3
+_CHAIN_MATCH_TOL_REL = 1e-2     # a model re-typing 1.98892e30 as 1.989e30 still links
+
+
+def _tool_call_value(tc: dict, question: str = "") -> tuple[Any, str] | None:
+    """(value, units) from ONE tool call that succeeded, else None."""
+    text = tc.get("result_text") or ""
+    if text.startswith("<TOOL"):
+        return None
+    try:
+        parsed = json.loads(text)
+    except ValueError:
+        parsed = None
+    # A null top-level value is the tool declining; the regex extractor would
+    # otherwise find the echoed input ("inputs": {"value": 1.0}) and call it a
+    # result -- convert_units with an unknown unit does exactly this.
+    if isinstance(parsed, dict) and parsed.get("value") is None:
+        return None
+    val, units = _extract_value_from_tool_calls([tc], question=question)
+    return None if val is None else (val, units)
+
+
+def _result_scalars(tc: dict) -> list[float]:
+    """Every numeric scalar in a call's `value` (top level, or one dict deep)."""
+    try:
+        v = json.loads(tc.get("result_text") or "").get("value")
+    except (ValueError, AttributeError):
+        return []
+    items = v.values() if isinstance(v, dict) else [v]
+    return [float(x) for x in items
+            if isinstance(x, (int, float)) and not isinstance(x, bool)]
+
+
+def _is_chain_step(name: str, args: dict, chain: list[dict]) -> bool:
+    """Does this call extend the chain? It must be a different tool from the
+    chain's last step AND take one of the chain's results as an input -- a
+    lookup feeding a computation, not a re-call or a wander."""
+    if not chain or name == chain[-1]["name"]:
+        return False
+    produced = [v for tc in chain for v in _result_scalars(tc) if v != 0.0]
+    for a in (args or {}).values():
+        if isinstance(a, bool):
+            continue
+        try:
+            a = float(a)
+        except (TypeError, ValueError):
+            continue
+        if a != 0.0 and any(abs(a - v) <= _CHAIN_MATCH_TOL_REL * abs(v)
+                            for v in produced):
+            return True
+    return False
+
+
+def _chain_answer_text(chain: list[dict], reason: str,
+                       model_text: str = "") -> str:
+    """The reply Mentat writes for a finalized chain: the last step's value,
+    its source/provenance, and the call path -- not the model's paraphrase."""
+    last = chain[-1]
+    val, units = last["value"]
+    try:
+        res = json.loads(last["result_text"])
+    except ValueError:
+        res = {}
+    if not isinstance(res, dict):
+        res = {}
+    src = res.get("source") or last["name"]
+    tag = res.get("provenance_tag")
+    path = " -> ".join(
+        f"{c['name']}({json.dumps(c['args'], sort_keys=True, default=str)})"
+        for c in chain)
+    text = (f"ANSWER: {val} {units}".rstrip() + "\n\n"
+            f"[SOURCE: {src}" + (f"; provenance {tag}" if tag else "") + "]\n"
+            f"[harness-finalized ({reason}) from {path}]")
+    if model_text.strip():
+        text += f"\n\nModel note (not used for the value): {model_text.strip()}"
+    return text
+
+
+def _ollama_tools(mcp_tools) -> list[dict]:
+    """MCP tools -> Ollama's tool format, minus HIDDEN_FROM_LLM: the
+    body-aware/multi-step tools are reached deterministically via the
+    new-tools router, not by LLM selection. Keeping the visible surface small
+    is what stops catalog growth from degrading a modest model."""
+    from sigma_ground.mcp.benchmark.new_tools_classifier import HIDDEN_FROM_LLM
+    return [{"type": "function",
+             "function": {"name": t.name,
+                          "description": t.description or "",
+                          "parameters": t.inputSchema or {"type": "object",
+                                                          "properties": {}}}}
+            for t in mcp_tools if not (_tw.on("hidden_tools") and t.name in HIDDEN_FROM_LLM)]
+
+
+# ── Router mode: one shot, one JSON plan, Mentat does the rest ──────────────
+# A router (the fine-tune router_dataset.py trains) answers with ONE JSON
+# object -- a tool call, a request_clarification call, or a decline -- never a
+# number. Ollama's structured output pins the tool name to the live catalogue,
+# so a made-up tool can't be emitted; the harness runs the plan once and
+# reports the result itself (the finalize="chain" contract, minus the loop).
+
+def _router_format(tool_names: list[str]) -> dict:
+    """JSON schema for Ollama's `format`: the two shapes a plan can take."""
+    return {"anyOf": [
+        {"type": "object",
+         "properties": {"tool": {"type": "string", "enum": sorted(set(tool_names))},
+                        "args": {"type": "object"}},
+         "required": ["tool", "args"]},
+        {"type": "object",
+         "properties": {"decline": {"type": "string"}},
+         "required": ["decline"]},
+    ]}
+
+
+def _router_system_prompt(tools_for_ollama: list[dict], with_index: bool,
+                          plan: str = "v1") -> str:
+    """The exact prompt the router fine-tune is trained on (plan="v1": the
+    `args` format; "v2": `tool_args` and multi-step `steps`); `with_index` adds
+    the tool index for a stock model, which has no catalogue in its weights."""
+    from sigma_ground.mcp.benchmark import router_plan as RP
+    prompt = RP.system_prompt(plan)
+    if not with_index:
+        return prompt
+    return prompt + "\n\n" + _build_tool_index(tools_for_ollama)
+
+
+def _parse_plan(content: str) -> dict | None:
+    """The JSON object in the reply (constrained decoding returns only that;
+    an unconstrained model may wrap it in prose or a code fence)."""
+    for text in (content.strip(), (re.search(r"\{.*\}", content, re.S) or [""])[0]):
+        try:
+            plan = json.loads(text)
+        except ValueError:
+            continue
+        if isinstance(plan, dict):
+            return plan
+    return None
+
+
+async def _route_once(session, http, ollama_url: str, model: str, question: str,
+                      system_prompt: str, tools_for_ollama: list[dict],
+                      real_params_by_tool: dict[str, set[str]] | None,
+                      t0: float, router_format: str = "schema",
+                      router_plan: str = "v1") -> dict:
+    """One model call -> one plan -> its tool calls, in order -> the record.
+
+    router_format="schema" (default) sends the v1 JSON-schema `format` above.
+    Ollama orders a schema's properties alphabetically, so that grammar makes
+    the model write "args" (or "decline") before it can name the "tool" --
+    the reverse of how router_dataset.py trains it. "free" sends no `format`:
+    the model writes its plan in its trained order and _parse_plan reads it.
+    "toolfirst" sends router_plan.router_format: `tool` < `tool_args`, so the
+    grammar keeps the training order AND the tool-name enum.
+
+    router_plan="v2" allows `{"steps": [...]}`: up to three calls, a later
+    argument "$n" standing for call n's headline value (router_plan.py).
+    A one-call plan behaves exactly as before in either spelling."""
+    from sigma_ground.mcp.benchmark import router_plan as RP
+    names = [t["function"]["name"] for t in tools_for_ollama]
+    if "request_clarification" not in names:
+        names.append("request_clarification")
+    body = {"model": model, "stream": False, "think": False,
+            "messages": [{"role": "system", "content": system_prompt},
+                         {"role": "user", "content": question}],
+            "options": {"temperature": 0.0,
+                        "num_ctx": 32768 if len(system_prompt) > 6000 else 4096}}
+    if router_format == "free":
+        response = await http.post(ollama_url, json=body)
+    else:
+        fmt = (RP.router_format(names, steps=(router_plan in RP.MULTISTEP))
+               if router_format == "toolfirst" else _router_format(names))
+        response = await http.post(ollama_url, json={**body, "format": fmt})
+        if response.status_code >= 400:     # an Ollama that can't take a schema
+            response = await http.post(ollama_url, json={**body, "format": "json"})
+    response.raise_for_status()
+    raw = (response.json().get("message") or {}).get("content") or ""
+    plan = _parse_plan(raw)
+
+    def record(answer_text: str, **extra) -> dict:
+        return {"answer_text": answer_text, "extracted_value": None,
+                "extracted_units": "", "tool_calls": [], "turns": 1,
+                "elapsed_s": time.time() - t0, "extracted_via_fallback": False,
+                "nudges_sent": 0, "router_plan": raw, "router_format": router_format,
+                "router_plan_version": router_plan, **extra}
+
+    if plan is None:
+        return record("<router: reply was not a JSON plan>", router_error="unparseable plan")
+    canon = RP.canonical(plan)
+    if canon is None:
+        if "steps" in plan:
+            return record("<router: invalid steps>", router_error="invalid steps")
+        name = plan.get("tool")
+        return record(f"<router: unknown tool {name!r}>", router_error=f"unknown tool {name!r}")
+    if canon["kind"] == "decline":
+        return record(f"Declined: {canon['reason']}", router_decline=str(canon["reason"]))
+    steps = canon["steps"]
+    if steps[0]["tool"] == "request_clarification":
+        if len(steps) > 1:
+            return record("<router: request_clarification inside steps>",
+                          router_error="request_clarification inside steps")
+        args = steps[0]["args"]
+        ask = args.get("question") or f"What is the {args.get('variable') or 'missing input'}?"
+        return record(f"CLARIFY: {ask}", router_clarify=args.get("variable"))
+    for s in steps:
+        if s["tool"] not in names or s["tool"] == "request_clarification":
+            return record(f"<router: unknown tool {s['tool']!r}>",
+                          router_error=f"unknown tool {s['tool']!r}")
+    try:
+        RP.check_refs(steps)
+    except RP.PlanError as e:
+        return record(f"<router: bad reference: {e}>", router_error=f"bad reference: {e}")
+
+    chain: list[dict] = []
+    calls: list[dict] = []
+    values: list[Any] = []
+    raws: list[Any] = []      # each step's whole `value`, for a "$n.field" reference (v3)
+    for s in steps:
+        name = s["tool"]
+        try:
+            args = RP.resolve_args(s["args"], values, raws)
+        except RP.PlanError as e:
+            return {**record(f"<router: bad reference: {e}>", router_error=f"bad reference: {e}"),
+                    "tool_calls": calls}
+        renames: list[str] = []
+        chain_log: list[str] = []
+        unknown: list[str] = []
+        if real_params_by_tool is not None and name in real_params_by_tool:
+            from sigma_ground.mcp.benchmark.param_aliases import (
+                normalize_kwargs, resolve_body_name_chain)
+            real = real_params_by_tool[name]
+            if _tw.on("param_aliases"):
+                args, renames = normalize_kwargs(args, real)
+            if _tw.on("body_name_chain"):
+                args, chain_log = await resolve_body_name_chain(session, args, real)
+            # pydantic drops a parameter the tool does not have and runs on the default
+            unknown = sorted(set(args) - real)
+        if unknown and _tw.on("strict_params"):
+            calls.append({"name": name, "args": args, "result_text": "", "unknown_params": unknown,
+                          "renames_applied": renames, "chain_log": chain_log})
+            return {**record(f"<router: {name} has no parameter {', '.join(unknown)}>",
+                             router_error=f"unknown parameter: {name}({', '.join(unknown)})"),
+                    "tool_calls": calls}
+        try:
+            result = await asyncio.wait_for(session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
+            tool_text = "\n".join(p.text for p in (result.content or [])
+                                  if getattr(p, "text", None)) or "(empty)"
+        except asyncio.TimeoutError:
+            tool_text = f"<TOOL TIMEOUT: {name} exceeded {_TOOL_CALL_TIMEOUT_S:.0f}s>"
+        except Exception as e:
+            tool_text = f"<TOOL ERROR: {e}>"
+        calls.append({"name": name, "args": args, "result_text": tool_text[:2000],
+                      "renames_applied": renames, "chain_log": chain_log,
+                      **({"unknown_params": unknown} if unknown else {})})
+        step = {"name": name, "args": args, "result_text": tool_text}
+        got = _tool_call_value(step, question)
+        if got is None and _tw.on("structured_results"):
+            # a symbolic string or a list is an answer (the cascade reads it the same way), and a
+            # rejected call is named by its cause instead of "returned no value"
+            from sigma_ground.mcp.benchmark import router_results as _rr
+            got = _rr.present(tool_text)
+            if got is None:
+                why = _rr.tool_error(name, tool_text) or f"{name} returned no value"
+                return {**record(f"<router: {why}>", router_error=why), "tool_calls": calls}
+        if got is None:
+            return {**record(f"<router: {name} returned no value>",
+                             router_error=f"{name} returned no value"),
+                    "tool_calls": calls}
+        step["value"] = got
+        chain.append(step)
+        values.append(got[0])
+        try:
+            raws.append(json.loads(tool_text).get("value"))
+        except (ValueError, AttributeError):
+            raws.append(None)
+    reason = "router plan" if len(chain) == 1 else f"router plan, {len(chain)} steps"
+    return {**record(_chain_answer_text(chain, reason)),
+            "tool_calls": calls, "extracted_value": chain[-1]["value"][0],
+            "extracted_units": chain[-1]["value"][1],
+            "finalized_from_tool": chain[-1]["name"], "finalize_reason": reason,
+            "chain_length": len(chain)}
+
+
 # Question-pattern -> domain hints. When a question matches a phrase
 # in `_PATTERN_HINTS`, point Qwen at the relevant section of the index.
 # Surfaced at the TOP of the system prompt so Qwen sees them before
@@ -669,11 +965,12 @@ def _build_tool_index(tools_for_ollama: list[dict]) -> str:
         f"({len(tools_for_ollama)} tools, grouped by domain; "
         f"* = required parameter)",
         "",
-        "PATTERN HINTS (match question phrasing to the right section):",
     ]
-    for phrases, dom in _PATTERN_HINTS:
-        lines.append(f"  [{dom}] {phrases}")
-    lines.append("")
+    if _tw.on("pattern_hints"):
+        lines.append("PATTERN HINTS (match question phrasing to the right section):")
+        for phrases, dom in _PATTERN_HINTS:
+            lines.append(f"  [{dom}] {phrases}")
+        lines.append("")
 
     for dom in ordered_domains:
         tools = by_domain[dom]
@@ -784,11 +1081,26 @@ async def _run_one_question(session, ollama_url: str, model: str,
                               system_prompt: str,
                               real_params_by_tool: dict[str, set[str]] | None = None,
                               primary_tool_expected: str | None = None,
-                              tool_category: str = "auto") -> dict:
-    """Multi-turn tool loop for a single question."""
+                              tool_category: str = "auto",
+                              finalize: str = "chain",
+                              router: bool = False,
+                              router_format: str = "schema",
+                              router_plan: str = "v1") -> dict:
+    """Multi-turn tool loop for a single question.
+
+    finalize="chain" (default): after the first successful tool call the
+    harness ends the question itself unless the model extends a data-flow
+    chain (see _is_chain_step). finalize="model": the legacy loop, where the
+    model must write its own ANSWER: line (kept for A/B against old runs).
+    router=True: no loop at all -- the deterministic cascade, then ONE model
+    call that must return a JSON plan (_route_once); `system_prompt` is then
+    the router prompt (_router_system_prompt).
+    """
     import httpx
 
     t0 = time.time()
+    if not _tw.on("answer_key_hint"):
+        primary_tool_expected = None
 
     # Static tool-category flag: a leading /simulation /question /render pins the
     # visible tool set (or the run-wide --tools default), so routing is
@@ -805,7 +1117,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     # from Qwen's flat list.
     from sigma_ground.mcp.benchmark.frontier_classifier import (
         classify_for_frontier, execute_frontier_match)
-    fr = classify_for_frontier(question)
+    fr = classify_for_frontier(question) if _tw.on("cascade.frontier") else None
     if fr is not None:
         val, units, answer_text = execute_frontier_match(fr)
         if val is not None:
@@ -828,7 +1140,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     # from Qwen's tool list (see _amain) — they're reached only here.
     from sigma_ground.mcp.benchmark.new_tools_classifier import (
         classify_for_new_tools, execute_new_tool_match)
-    nt = classify_for_new_tools(question)
+    nt = classify_for_new_tools(question) if _tw.on("cascade.new_tools") else None
     if nt is not None:
         val, units, answer_text = execute_new_tool_match(nt)
         if val is not None:
@@ -853,7 +1165,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
         classify_for_refusal,
         render_answer_text as _render_refusal_text,
     )
-    refusal = classify_for_refusal(question)
+    refusal = classify_for_refusal(question) if _tw.on("cascade.refusal") else None
     if refusal is not None:
         answer_text = _render_refusal_text(refusal, question)
         return {
@@ -877,7 +1189,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
         classify_for_clarification,
         render_answer_text as _render_clarification_text,
     )
-    clarify = classify_for_clarification(question)
+    clarify = classify_for_clarification(question) if _tw.on("cascade.clarification") else None
     if clarify is not None:
         return {
             "answer_text":            _render_clarification_text(clarify, question),
@@ -898,7 +1210,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
         classify_for_conversion,
         render_answer_text as _render_conversion_text,
     )
-    conversion = classify_for_conversion(question)
+    conversion = classify_for_conversion(question) if _tw.on("cascade.conversion") else None
     if conversion is not None:
         return {
             "answer_text":            _render_conversion_text(conversion),
@@ -919,7 +1231,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.gr_classifier import (
         classify_for_gr, execute_gr_match,
     )
-    gr_match = classify_for_gr(question)
+    gr_match = classify_for_gr(question) if _tw.on("cascade.gr") else None
     if gr_match is not None:
         val, units, answer_text = execute_gr_match(gr_match)
         if val is not None:
@@ -943,7 +1255,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.cosmology_classifier import (
         classify_for_cosmology, execute_cosmology_match,
     )
-    cos_match = classify_for_cosmology(question)
+    cos_match = classify_for_cosmology(question) if _tw.on("cascade.cosmology") else None
     if cos_match is not None:
         val, units, answer_text = execute_cosmology_match(cos_match)
         if val is not None:
@@ -966,7 +1278,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.math_classifier import (
         classify_for_math, execute_math_match,
     )
-    math_match = classify_for_math(question)
+    math_match = classify_for_math(question) if _tw.on("cascade.math") else None
     if math_match is not None:
         val, units, answer_text = execute_math_match(math_match)
         if val is not None:
@@ -987,7 +1299,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.thermo_classifier import (
         classify_for_thermo, execute_thermo_match,
     )
-    thermo_match = classify_for_thermo(question)
+    thermo_match = classify_for_thermo(question) if _tw.on("cascade.thermo") else None
     if thermo_match is not None:
         val, units, answer_text = execute_thermo_match(thermo_match)
         if val is not None:
@@ -1010,7 +1322,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.modern_classifier import (
         classify_for_modern, execute_modern_match,
     )
-    modern_match = classify_for_modern(question)
+    modern_match = classify_for_modern(question) if _tw.on("cascade.modern") else None
     if modern_match is not None:
         val, units, answer_text = execute_modern_match(modern_match)
         if val is not None:
@@ -1033,7 +1345,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.classical_intro_classifier import (
         classify_for_classical_intro, execute_classical_intro_match,
     )
-    ci_match = classify_for_classical_intro(question)
+    ci_match = classify_for_classical_intro(question) if _tw.on("cascade.classical_intro") else None
     if ci_match is not None:
         val, units, answer_text = execute_classical_intro_match(ci_match)
         if val is not None:
@@ -1054,7 +1366,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.optics_classifier import (
         classify_for_optics, execute_optics_match,
     )
-    opt_match = classify_for_optics(question)
+    opt_match = classify_for_optics(question) if _tw.on("cascade.optics") else None
     if opt_match is not None:
         val, units, answer_text = execute_optics_match(opt_match)
         if val is not None:
@@ -1078,7 +1390,7 @@ async def _run_one_question(session, ollama_url: str, model: str,
     from sigma_ground.mcp.benchmark.astro_classifier import (
         classify_for_astro, execute_astro_match,
     )
-    astro_match = classify_for_astro(question)
+    astro_match = classify_for_astro(question) if _tw.on("cascade.astro") else None
     if astro_match is not None:
         val, units, answer_text = execute_astro_match(astro_match)
         if val is not None:
@@ -1101,12 +1413,19 @@ async def _run_one_question(session, ollama_url: str, model: str,
     # into a max-turns loop. Confident matches only; else fall through.
     try:
         from sigma_ground.mcp.benchmark.interpreter_demo import semantic_answer
-        sem = semantic_answer(question)
+        sem = semantic_answer(question) if _tw.on("cascade.semantic") else None
         if sem is not None:
             sem["elapsed_s"] = time.time() - t0
             return sem
     except Exception:
         pass   # router is best-effort; never block the LLM path on its failure
+
+    if router:
+        async with httpx.AsyncClient(timeout=120.0) as http:
+            return await _route_once(session, http, ollama_url, model, question,
+                                     system_prompt, tools_for_ollama,
+                                     real_params_by_tool, t0, router_format,
+                                     router_plan)
 
     messages = [
         {"role": "system",    "content": system_prompt},
@@ -1118,6 +1437,25 @@ async def _run_one_question(session, ollama_url: str, model: str,
     max_tool_calls = 5           # hard cap per question -- forces purposeful tool use
     nudges_sent = 0
     max_nudges = 2
+    # Successful calls in data-flow order (finalize == "chain"); each entry
+    # keeps the FULL result text, since tool_calls_made truncates it.
+    chain: list[dict] = []
+
+    def _finish(reason: str, turn: int, model_text: str = "") -> dict:
+        val, units = chain[-1]["value"]
+        return {
+            "answer_text":            _chain_answer_text(chain, reason, model_text),
+            "extracted_value":        val,
+            "extracted_units":        units,
+            "tool_calls":             tool_calls_made,
+            "turns":                  turn + 1,
+            "elapsed_s":              time.time() - t0,
+            "extracted_via_fallback": False,
+            "nudges_sent":            nudges_sent,
+            "finalized_from_tool":    chain[-1]["name"],
+            "finalize_reason":        reason,
+            "chain_length":           len(chain),
+        }
 
     async with httpx.AsyncClient(timeout=timeout_s) as http:
         for turn in range(max_turns):
@@ -1151,6 +1489,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
             tcs = msg.get("tool_calls") or []
             if not tcs:
                 final = msg.get("content", "") or ""
+                if chain:
+                    return _finish("model answered", turn, final)
                 val, units = _extract_value(final)
                 # If the model produced no tool call AND no ANSWER: line,
                 # it has either reasoned in prose without calling a tool
@@ -1256,6 +1596,12 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     # for tools that want mass_kg / radius_m but were given a body name.
                     args, chain_log = await resolve_body_name_chain(
                         session, args, real_params_by_tool[name])
+                # Past the first success, only a data-flow chain step runs;
+                # anything else ends the question on what the chain has.
+                if chain and not _is_chain_step(name, args, chain):
+                    why = ("re-called" if name == chain[-1]["name"]
+                           else "unrelated call, not run:")
+                    return _finish(f"model moved on: {why} {name}", turn)
                 try:
                     result = await asyncio.wait_for(
                         session.call_tool(name, args), _TOOL_CALL_TIMEOUT_S)
@@ -1282,6 +1628,23 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     "role":    "tool",
                     "content": tool_text[:4000],
                 })
+
+                if finalize == "chain":
+                    step = {"name": name, "args": args, "result_text": tool_text}
+                    got = _tool_call_value(step, question)
+                    if got is not None:
+                        step["value"] = got
+                        chain.append(step)   # the first success, or a vetted step
+                        if len(chain) >= _MAX_CHAIN_STEPS:
+                            return _finish("chain cap", turn)
+                    elif chain:
+                        return _finish(f"chain step {name} returned no value", turn)
+
+            # A live chain goes straight back to the model: its next move either
+            # extends the chain or ends the question (the warnings below are
+            # for a model still hunting for its first good call).
+            if chain:
+                continue
 
             # Hard cap: 5 tool calls per question. After that, force
             # the LLM to finalize with whatever it has (or refuse).
@@ -1326,6 +1689,8 @@ async def _run_one_question(session, ollama_url: str, model: str,
                     messages.append({"role": "user", "content": loop_warning})
                     nudges_sent += 1
 
+        if chain:
+            return _finish("max turns", max_turns - 1)
         # Hit max turns -- try fallback before giving up
         val, units = _extract_value_from_tool_calls(
             tool_calls_made, primary_tool_expected=primary_tool_expected,
@@ -1531,29 +1896,16 @@ async def _amain(args) -> int:
         async with ClientSession(read, write) as session:
             await session.initialize()
             tools_resp = await session.list_tools()
-            # Convert to Ollama's tool-format
-            # Hide the body-aware/multi-step tools from Qwen's flat list —
-            # they're reached deterministically via the new-tools router,
-            # not by LLM selection. Keeping the visible surface small is
-            # what stops catalog growth from degrading a modest model.
-            from sigma_ground.mcp.benchmark.new_tools_classifier import (
-                HIDDEN_FROM_LLM)
-            tools_for_ollama = [
-                {
-                    "type": "function",
-                    "function": {
-                        "name":        t.name,
-                        "description": t.description or "",
-                        "parameters":  t.inputSchema or {"type": "object",
-                                                            "properties": {}},
-                    },
-                }
-                for t in tools_resp.tools
-                if t.name not in HIDDEN_FROM_LLM
-            ]
+            tools_for_ollama = _ollama_tools(tools_resp.tools)
             tool_index = _build_tool_index(tools_for_ollama)
             real_params_by_tool = _build_real_params_map(tools_for_ollama)
             sys_prompt = _SYSTEM_PROMPT_BASE + "\n\n" + tool_index
+            if args.router:
+                sys_prompt = _router_system_prompt(tools_for_ollama, args.router_index,
+                                                   args.router_plan)
+                print("ROUTER MODE: one JSON plan per question"
+                      + (" (tool index in the prompt)" if args.router_index
+                         else " (bare prompt: expects a router fine-tune)"))
             print(f"MCP server has {len(tools_for_ollama)} tools available")
             print(f"System prompt is {len(sys_prompt)} chars "
                   f"(includes full tool index)")
@@ -1612,6 +1964,10 @@ async def _amain(args) -> int:
                             real_params_by_tool=real_params_by_tool,
                             primary_tool_expected=q.get("primary_tool_expected"),
                             tool_category=args.tools,
+                            finalize=args.finalize,
+                            router=args.router,
+                            router_format=args.router_format,
+                            router_plan=args.router_plan,
                         ),
                         _QUESTION_TIMEOUT_S,
                     )
@@ -1644,6 +2000,7 @@ async def _amain(args) -> int:
                     "id":     q["id"],
                     "system": "sigma_ground",
                     "model":  args.model,
+                    "tweaks": _tw.snapshot(),
                     **result,
                 }
                 out.append(rec)
@@ -1683,7 +2040,57 @@ def main() -> int:
                         help="pin the visible tool category so routing is "
                              "deterministic in functional tests (also per-prompt "
                              "via a leading /simulation /question /render flag).")
+    parser.add_argument("--finalize", default="chain", choices=["chain", "model"],
+                        help="qa mode: 'chain' (default) ends each question on the "
+                             "first successful tool call, or the data-flow chain "
+                             "it starts, and reports that result itself; 'model' "
+                             "is the legacy loop where the model must write its "
+                             "own ANSWER: line (for A/B against older runs).")
+    parser.add_argument("--router", action="store_true",
+                        help="qa mode: after the deterministic cascade, ask the model "
+                             "ONCE for a JSON plan (tool call / clarification / "
+                             "decline), constrained to real tool names, and run it -- "
+                             "the format router_dataset.py trains. Use its own --output.")
+    parser.add_argument("--router-index", action="store_true",
+                        help="with --router: append the tool index to the router "
+                             "prompt. Needed for a stock model; a router fine-tune "
+                             "was trained on the bare prompt.")
+    parser.add_argument("--router-format", default="schema",
+                        choices=["schema", "free", "toolfirst"],
+                        help="with --router: 'schema' (default) constrains the reply with the "
+                             "v1 JSON schema; 'free' sends no `format`; 'toolfirst' sends a "
+                             "schema whose keys are alphabetical in the training order "
+                             "(`tool` < `tool_args`), so it keeps the tool-name enum. Ollama "
+                             "sorts a schema's keys, so the v1 schema forces \"args\" before "
+                             "\"tool\" and a tool-first router does far worse under it "
+                             "(see Session 38).")
+    parser.add_argument("--router-plan", default="v1", choices=["v1", "v2", "v3"],
+                        help="with --router: which plan format the model was trained on. v1: "
+                             "`args`, one call. v2: `tool_args`, plus `steps` for up to three "
+                             "calls with \"$n\" references (router_plan.py). Sets the system "
+                             "prompt; with 'toolfirst' it also sets the schema.")
+    parser.add_argument("--tweaks", default=None, metavar="PROFILE",
+                        help="tweak profile (tweaks.py): legacy (default; every result so far), "
+                             "trained (hidden tools shown, no parameter renaming, strict "
+                             "parameters), model-only (trained + the whole cascade off). "
+                             "Environment MENTAT_TWEAKS does the same.")
+    parser.add_argument("--tweaks-off", default="", metavar="NAMES",
+                        help="comma list of tweaks to switch off on top of the profile; "
+                             "'cascade.*' is a wildcard")
+    parser.add_argument("--tweaks-on", default="", metavar="NAMES",
+                        help="comma list of opt-in checks to switch on (strict_params)")
     args = parser.parse_args()
+    if args.tweaks or args.tweaks_off or args.tweaks_on:
+        _tw.configure(args.tweaks, [x for x in args.tweaks_off.split(",") if x],
+                      [x for x in args.tweaks_on.split(",") if x])
+    print(f"tweaks: {_tw.label(_tw.snapshot())}  off={_tw.snapshot()['off']}  on={_tw.snapshot()['on']}",
+          flush=True)
+    if args.router_index and not args.router:
+        parser.error("--router-index needs --router")
+    if args.router_format != "schema" and not args.router:
+        parser.error("--router-format needs --router")
+    if args.router_plan != "v1" and not args.router:
+        parser.error("--router-plan needs --router")
     return asyncio.run(_amain(args))
 
 

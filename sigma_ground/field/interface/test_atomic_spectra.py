@@ -294,6 +294,35 @@ class TestZeeman(unittest.TestCase):
         # Sum of shifts should be ~0 (symmetric)
         self.assertAlmostEqual(sum(energies), 0.0, delta=1e-10)
 
+    def test_splitting_count_rejects_non_physical_j(self):
+        """j must be a non-negative integer or half-integer; the count used to
+        be int(2j + 1) of anything (j = 1.3 -> 3 sublevels, j = -2 -> -3)."""
+        for j in (1.3, -2, -0.5, float('nan'), float('inf')):
+            with self.subTest(j=j):
+                with self.assertRaises(ValueError):
+                    zeeman_splitting_count(j)
+        self.assertEqual(zeeman_splitting_count(0), 1)
+        self.assertEqual(zeeman_splitting_count(2.4999999999999), 6)   # float noise
+
+    def test_zeeman_pattern_rejects_impossible_states(self):
+        """|l, s, j> needs a valid j reachable from l and s (|l-s| <= j <= l+s
+        in integer steps). The pattern loop used to run for any j: 1.3 gave
+        m_j = -1.3, -0.3, 0.7, and an infinite j never ended."""
+        for l, s, j in ((1, 0.5, 1.3),            # not a quantum number
+                        (1, 0.5, float('inf')),   # used to loop forever
+                        (1, 0.5, 3.5),            # above l + s
+                        (1, 0.5, 1.0),            # wrong parity for s = 1/2
+                        (1.5, 0.5, 1.0),          # l must be an integer
+                        (-1, 0.5, 0.5)):
+            with self.subTest(l=l, s=s, j=j):
+                with self.assertRaises(ValueError):
+                    zeeman_pattern(l, s, j, 1.0)
+
+    def test_zeeman_pattern_m_j_are_exact(self):
+        pattern = zeeman_pattern(1, 0.5, 1.5, 1.0)
+        self.assertEqual([mj for mj, _ in pattern], [-1.5, -0.5, 0.5, 1.5])
+        self.assertEqual(zeeman_pattern(1, 1, 0, 1.0), [(0.0, 0.0)])      # J = 0: no splitting
+
     def test_zero_field_no_splitting(self):
         """B = 0 → no Zeeman shift."""
         dE = zeeman_shift_eV(1, 2.0, 0.0)

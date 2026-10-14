@@ -89,6 +89,22 @@ python -m sigma_ground.mcp.benchmark.run_gemini \
 
 All runners are **resumable** — they skip questions already in their output file. Safe to ctrl-C and restart.
 
+**How a Qwen-path question ends (`--finalize`, since 2026-10-10).** By default
+(`chain`) the harness, not the model, ends each question. The first tool call
+that returns a value ends it, unless the model's next call is a *different*
+tool that takes that value as an input (a lookup feeding a computation, such
+as `solar_system_body` → `schwarzschild_radius`). Anything else the model does
+next (a re-call, an unrelated tool, a text answer) ends the question on the
+last result. The harness writes the `ANSWER:` line from that tool result,
+with its source and the call path. The record gets `finalized_from_tool`,
+`finalize_reason` and `chain_length`. `--finalize model` restores the old loop
+for A/B against earlier runs. Why: replaying the logged runs showed qwen2.5:7b
+reached max turns on 63/64 Qwen-path questions by re-calling the right tool.
+Under `chain` it scores 52→53 correct with 1→61 grounded, and qwen3:8b scores
+50→50 with 27→61. Caveat: grounded means a tool produced the number, not that
+it was the right tool. Two open-ended adversarial questions now get a
+confident wrong-tool number where the old loop timed out and was flagged.
+
 ### 4. Score all three
 
 ```bash
@@ -156,3 +172,106 @@ Comparison-report scaffolding is in `comparison_report_template.md`. Fill in num
 - Long-form derivations / proofs
 
 The "fitted due to incompetence" rate from sigma_ground is itself a useful output — every flagged answer becomes a library development ticket.
+
+## Router mode (`--router`)
+
+Router mode is how a router fine-tune gets measured, and how it would run in
+production.
+
+1. The deterministic cascade (classifiers, then the semantic router) runs
+   first, unchanged.
+2. Anything it doesn't answer goes to the model in **one** call, with the
+   exact system prompt `router_dataset.py` trains on.
+3. The reply is constrained by Ollama's JSON-schema `format`:
+   `{"tool", "args"}` with the tool name limited to the live catalogue, or
+   `{"decline"}`. An Ollama build without schema support gets plain JSON
+   mode.
+4. The harness runs the plan at most once and writes the answer itself.
+
+```bash
+# baseline: a stock model, which needs the tool index in its prompt
+python -m sigma_ground.mcp.benchmark.run_sigma_ground --router --router-index \
+    --model qwen3:8b --output sigma_ground/mcp/benchmark/results/router_qwen3_8b_stock_run.json
+# the fine-tune: bare prompt, exactly as trained
+python -m sigma_ground.mcp.benchmark.run_sigma_ground --router \
+    --model mentat-router --output sigma_ground/mcp/benchmark/results/router_finetune_run.json
+```
+
+Give each mode its own `--output`, because resume only skips records from
+the same model. Fields a router record can carry:
+- `router_plan`: the raw reply.
+- `router_decline`, `router_clarify` (the variable it asked for) or
+  `router_error`.
+- `finalized_from_tool`, when the plan ran.
+
+A clarification or decline has no value, so the groundedness gate flags it.
+That is correct for this numeric corpus, where every question carries its
+inputs. One known limit: plans are single-step, and a tool whose answer is
+an expression rather than a number (sympy) reports `returned no value`.
+`test_router_mode.py` holds the contract: a router that reproduces its
+training targets gets exactly the verified answers back through the real
+server.
+
+## Router fine-tune dataset (`router_dataset.py`)
+
+Training data for a Qwen **router** fine-tune. A router reads a question and
+emits one JSON plan; Mentat runs the plan and writes the answer, which is the
+`--finalize chain` contract above. So every training target is a tool call,
+a `request_clarification` call, or a decline. None of them is a number.
+
+```bash
+python -m sigma_ground.mcp.benchmark.router_dataset --per-tool 40          # templates only
+python -m sigma_ground.mcp.benchmark.router_dataset --per-tool 40 \
+    --teacher-model qwen2.5:32b --variants 3                              # + natural rewrites
+```
+
+Output goes to `local-cache/router_dataset/` (gitignored):
+- `train.jsonl` / `val.jsonl`: chat records, each a system prompt, the
+  question, and the JSON plan, plus `meta`.
+- `manifest.json`: tool-surface hash, per-tool counts, tools with no examples
+  and why, and drop counts with sample questions.
+
+**How a label stays true to its question**
+- Inputs are sampled from the parameter *name*. `wavelength_m` can be written
+  as "550 nm", and the label is recomputed from the number actually shown
+  (5.5e-07 m).
+- String keys (materials, acids, metals, bodies) come from asking each tool:
+  given a bad key, most of them list the valid ones.
+- Every gold call is run through the real MCP server. Only calls that return
+  a value are kept.
+- If a deterministic classifier would send the question to a *different*
+  tool, the example is dropped as ambiguous.
+- Anything resembling a benchmark question is dropped, by text overlap or by
+  same tool with the same answer or numbers. The corpora here stay the test
+  set.
+- Negatives: removing a required input gives a `request_clarification`
+  example. Everyday and metaphor questions give a decline.
+- Rewrites (`--teacher-model`, Ollama) are kept only if every number, unit
+  (still next to its number) and named key survives, and the rewrite passes
+  the classifier and benchmark checks again. A seed and its rewrites always
+  land in the same split.
+
+Template questions read stiffly ("Mass of 857 g and velocity of 0.694 km/s:
+how much energy is it carrying?"). The teacher pass is what makes them
+sound like people.
+
+**Last full run** (2026-10-10, templates only, `--per-tool 40`, 2.6 min,
+tool-surface hash `762bbee3725389bf`): 8,013 examples. That is 7,695 tool
+calls, 289 clarifications and 29 declines, split 7,239 train / 774 val, and
+covering 207 of the 217 tools the model sees. `manifest.json` gives the reason
+for each of the 9 missing tools:
+- **Free-text input** the generator can't invent: `parse_quantity`,
+  `simulate`, `solve_ode`.
+- **Every call fails**: `playground_apply` / `playground_simulate`, which
+  need an open scene. `procedure_black_hole_profile` was on this list until its
+  server wrapper was fixed (Session 37); the next run covers it.
+- **Fixed answer that equals a benchmark question's**, dropped by the guard:
+  `age_of_universe`, `eta_value_report`, `mond_a0_constant`.
+
+Flags:
+- `--no-guard` keeps benchmark look-alikes. Use it for a router you will
+  deploy, and never quote benchmark scores from that model.
+- `--server-mem-gb` (default 6, POSIX only) caps the spawned server's memory,
+  so a tool that runs away on a sampled input fails instead of getting the
+  run OOM-killed.
+- `--tools a,b,c` builds a subset.

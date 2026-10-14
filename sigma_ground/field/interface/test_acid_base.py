@@ -287,6 +287,60 @@ class TestUnifiedPH(unittest.TestCase):
         self.assertLess(pH, 11.7)
 
 
+class TestDiluteAndVeryWeak(unittest.TestCase):
+    """Where water's own H+/OH- matter: very weak or very dilute acids and bases.
+
+    The old Newton solver for weak acids collapsed to its 1e-15 clamp there
+    and returned pH 15.0 (phenol at 1 uM, HS-, HPO4^2-, HCO3-); the weak-base
+    quadratic ignored water entirely and returned ACIDIC pH for dilute bases
+    (1e-7 M pyridine -> 6.08). Checked against the physics, not a second copy
+    of the solver: the answer must satisfy charge balance, an acid can't raise
+    the pH above neutral nor a base lower it, and C -> 0 is pure water.
+    """
+
+    CONCENTRATIONS = (1e-9, 1e-7, 1e-6, 1e-4, 1e-2, 1.0)
+    KW = water_ion_product()
+
+    def _keys(self, kind):
+        return [k for k, d in ACID_BASE_DATA.items() if d['type'] == kind]
+
+    def test_weak_acids_satisfy_charge_balance(self):
+        for key in self._keys('weak_acid'):
+            for C in self.CONCENTRATIONS:
+                with self.subTest(key=key, C=C):
+                    pH = pH_weak_acid(key, C)
+                    H, K = 10 ** -pH, Ka(key)
+                    # [H+] = [A-] + [OH-]
+                    residual = H - K * C / (K + H) - self.KW / H
+                    self.assertLess(abs(residual) / H, 1e-9)
+                    self.assertLessEqual(pH, neutral_pH() + 1e-9)
+
+    def test_weak_bases_satisfy_charge_balance(self):
+        for key in self._keys('weak_base'):
+            for C in self.CONCENTRATIONS:
+                with self.subTest(key=key, C=C):
+                    pH = pH_weak_base(key, C)
+                    OH, K = self.KW / 10 ** -pH, Kb(key)
+                    # [OH-] = [BH+] + [H+]
+                    residual = OH - K * C / (K + OH) - self.KW / OH
+                    self.assertLess(abs(residual) / OH, 1e-9)
+                    self.assertGreaterEqual(pH, neutral_pH() - 1e-9)
+
+    def test_vanishing_concentration_is_pure_water(self):
+        for key in self._keys('weak_acid') + self._keys('weak_base'):
+            with self.subTest(key=key):
+                self.assertAlmostEqual(pH_solution(key, 1e-12), neutral_pH(), places=3)
+
+    def test_the_reported_cases(self):
+        self.assertAlmostEqual(pH_weak_acid('phenol', 1e-6), 6.995, places=3)
+        self.assertAlmostEqual(pH_weak_acid('hydrogen_sulfide_2', 1e-3), 6.997, places=3)
+        self.assertAlmostEqual(pH_weak_base('pyridine', 1e-7), 7.0, places=2)
+
+    def test_textbook_values_unchanged(self):
+        self.assertAlmostEqual(pH_weak_acid('acetic_acid', 0.1), 2.881, places=3)
+        self.assertAlmostEqual(pH_weak_base('ammonia', 0.1), 11.117, places=3)
+
+
 class TestHendersonHasselbalch(unittest.TestCase):
     """Henderson-Hasselbalch equation."""
 

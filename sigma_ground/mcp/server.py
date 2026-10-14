@@ -82,6 +82,17 @@ def main() -> int:
               file=sys.stderr)
         return 1
 
+    # FastMCP runs a plain `def` tool in a worker thread. The first `import numpy` made from
+    # that thread (pint, sympy and scipy all pull it in) blocked in the loading of numpy's
+    # native library for minutes on this Windows machine: `convert_units` never came back
+    # (thread dump: numpy/_core/multiarray.py <- pint/_typing.py <- units._get_registry), and
+    # a fresh server's first such call was long put down to CPU contention. Imported once here,
+    # in the main thread, it is already loaded when a tool needs it.
+    try:
+        import numpy  # noqa: F401
+    except ImportError:
+        pass
+
     from sigma_ground.mcp.tools import constants as t_const
     from sigma_ground.mcp.tools import units as t_units
     from sigma_ground.mcp.tools import symbolic as t_sym
@@ -950,13 +961,7 @@ def main() -> int:
         energy_power_time(power_w=5000, time_s=3600) -> energy in joules."""
         return t_circ.energy_power_time(power_w, time_s, energy_j).to_dict()
 
-    # ── procedures: canonical multi-step scientific routines ───────
-    @server.tool()
-    def procedure_black_hole_profile(mass_kg: float) -> dict[str, Any]:
-        """Full black-hole thermodynamics cascade: Schwarzschild radius →
-        Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
-        One mass in, the whole profile out, in the only correct order."""
-
+    # ── frontier: black-hole thermodynamics / holography ───────────
     @server.tool()
     def baryon_vs_disc(mass_kg: float) -> dict[str, Any]:
         """Compare a BH's baryon count to its horizon pixel count; returns
@@ -976,8 +981,6 @@ def main() -> int:
         (no-communication theorem), shared secret key (QKD), CHSH≤2√2."""
         return t_front.entanglement_channel(scenario).to_dict()
 
-    # ── procedures: canonical multi-step routines (the sequence lives in code,
-    #    so the LLM can never mis-order or mis-chain it) ──
     @server.tool()
     def entanglements_to_pop_bubble(radius_m: float) -> dict[str, Any]:
         """Threads to saturate (pop) a bubble of radius R: N=πR²/L_p².
@@ -1003,6 +1006,14 @@ def main() -> int:
     def unruh_temperature(acceleration_m_s2: float) -> dict[str, Any]:
         """Unruh temperature of an accelerated observer T=ħa/(2πck_B)."""
         return t_front.unruh_temperature(acceleration_m_s2).to_dict()
+
+    # ── procedures: canonical multi-step routines (the sequence lives in code,
+    #    so the LLM can never mis-order or mis-chain it) ──
+    @server.tool()
+    def procedure_black_hole_profile(mass_kg: float) -> dict[str, Any]:
+        """Full black-hole thermodynamics cascade: Schwarzschild radius →
+        Hawking temperature → Bekenstein-Hawking entropy → evaporation time.
+        One mass in, the whole profile out, in the only correct order."""
         return t_proc.black_hole_profile(mass_kg).to_dict()
 
     @server.tool()
@@ -1084,14 +1095,17 @@ def main() -> int:
     @server.tool()
     def weak_acid_ph(acid_key: str,
                      concentration_mol_l: float) -> dict[str, Any]:
-        """pH of a weak-acid solution from its Ka, e.g.
-        weak_acid_ph('acetic_acid', 0.1) → ~2.88."""
+        """pH of a solution of any acid or base in the table (weak or strong),
+        e.g. weak_acid_ph('acetic_acid', 0.1) → ~2.88,
+        weak_acid_ph('ammonia', 0.1) → ~11.12."""
         return t_chem.weak_acid_ph(acid_key, concentration_mol_l)
 
     @server.tool()
     def buffer_ph(acid_key: str,
                   ratio_base_over_acid: float = 1.0) -> dict[str, Any]:
-        """Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid])."""
+        """Buffer pH (Henderson-Hasselbalch): pH = pKa + log([base]/[acid]),
+        for a WEAK acid or base with its conjugate (e.g. acetic acid/acetate,
+        ammonia/ammonium). Strong acids and bases form no buffer."""
         return t_chem.buffer_ph(acid_key, ratio_base_over_acid)
 
     @server.tool()

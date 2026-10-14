@@ -54,6 +54,9 @@ sigma_ground/mcp/benchmark/holodeck_out/
 # Local operational state (regenerable: voxel bake cache, Dataset Minder status)
 local-cache/
 
+# Unsloth writes its compiled trainer code into the working directory of a training run
+unsloth_compiled_cache/
+
 # R0 render-regression scratch sinks (regenerable; tools/render_regression.py)
 misc/render_captures/
 misc/render_regression/

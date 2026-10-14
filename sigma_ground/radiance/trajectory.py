@@ -2931,9 +2931,8 @@ def record_bell_strike(bell_material: str = "iron", bell_diameter_m: float = 0.1
                               / amp_choice.value["reference_dissipated_energy_j"]) ** 0.5))
     tau = float(tau_choice.value)
 
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                            "web", "data"))
-    os.makedirs(data_dir, exist_ok=True)
+    from sigma_ground.radiance.output_dir import radiance_data_dir
+    data_dir = radiance_data_dir()
     audio_path = os.path.join(
         data_dir, f"bell_strike_{bell_material}_{int(bell_diameter_m * 1000)}mm.wav")
     # ring_frequency scales as 1/diameter -- a small/stiff bell can genuinely

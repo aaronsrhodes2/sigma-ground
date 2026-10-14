@@ -138,8 +138,6 @@ def _extract_scene_stack(text: str) -> list[str] | None:
         rest = rest[m2.end():]
     return list(reversed(supports)) + [top]
 
-_DATA_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "radiance", "web", "data"))
 _VIEWER = "http://127.0.0.1:8765"
 _OFFER = ("Do you want Radiance to render this as a watchable 3D fall? "
           "Reply 'yes'.")
@@ -777,8 +775,8 @@ def _announce_render(title: str, bundle: dict) -> dict:
 
 
 def _save_bundle(slug: str, bundle: dict) -> str:
-    os.makedirs(_DATA_DIR, exist_ok=True)
-    path = os.path.join(_DATA_DIR, slug + ".json")
+    from sigma_ground.radiance.output_dir import radiance_data_dir
+    path = os.path.join(radiance_data_dir(), slug + ".json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(bundle, f, indent=1)
     return path

@@ -60,7 +60,7 @@ test = ["pytest>=8.0"]
 # MCP server + LLM-front-end deps. Installed only when the MCP layer is
 # used; the core sigma_ground library remains zero-dependency.
 mcp = [
-    "mcp>=1.0",                # Anthropic MCP Python SDK (FastMCP)
+    "mcp>=1.0,<2",             # MCP Python SDK (FastMCP; 2.x renamed it MCPServer)
     "scipy>=1.11",             # CODATA constants + numerics
     "pint>=0.23",              # unit conversion
     "sympy>=1.12",             # symbolic math
@@ -73,6 +73,7 @@ mcp = [
 benchmark = [
     "wolframalpha>=5.1",       # Wolfram Alpha free-tier API client
     "httpx>=0.27",             # async HTTP client for Ollama tool loop
+    "requests>=2.31",          # benchmark/interpreter_demo.py (semantic router embeddings)
     "python-dotenv>=1.0",      # auto-load env vars from dev-root .env
 ]
 # Materials Project API client (elastic/dielectric DFT-computed properties;

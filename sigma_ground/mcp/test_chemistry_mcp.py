@@ -34,8 +34,61 @@ def test_weak_acid_ph_matches_textbook():
     assert _close(C.weak_acid_ph("acetic_acid", 0.1)["value"], 2.87, 0.02)
 
 
+def test_weak_acid_ph_handles_every_species_in_its_table():
+    # the tool used to run bases through the weak-ACID equation: 1.45 mM KOH
+    # came back as pH 15.0 and 0.1 M ammonia as an acidic 5.12
+    for key, conc, want in [("potassium_hydroxide", 1.45e-3, 11.156),
+                            ("sodium_hydroxide", 0.01, 11.995),
+                            ("ammonia", 0.1, 11.117),
+                            ("pyridine", 4.01e-3, 8.412),
+                            ("hydrochloric_acid", 0.01, 2.000),
+                            ("acetic_acid", 0.1, 2.881),
+                            ("phenol", 1e-6, 6.995)]:
+        r = C.weak_acid_ph(key, conc)
+        assert abs(r["value"] - want) < 2e-3, (key, r["value"], want)
+    r = C.weak_acid_ph("potassium_hydroxide", 1.45e-3)
+    assert "strong base" in r["formula"]
+
+
+def test_weak_acid_ph_declines_negative_or_non_finite_concentration():
+    import json
+    for conc in (-0.1, float("nan"), float("inf")):
+        r = C.weak_acid_ph("acetic_acid", conc)
+        assert r["value"] is None, conc
+        json.dumps(r, allow_nan=False)                   # nan/inf aren't JSON
+
+
 def test_buffer_ph_is_pka_at_unit_ratio():
     assert _close(C.buffer_ph("acetic_acid", 1.0)["value"], 4.76, 0.02)
+
+
+def test_buffer_ph_declines_strong_acids_and_bases():
+    # they dissociate completely and form no buffer; they used to come back
+    # as pKa + log(ratio) anyway (HCl "pH -6.30", NaOH "pH 14.55")
+    for key in ("hydrochloric_acid", "sulfuric_acid_1", "nitric_acid",
+                "sodium_hydroxide", "potassium_hydroxide"):
+        r = C.buffer_ph(key, 1.0)
+        assert r["value"] is None and "no buffer" in r["notes"], (key, r["value"])
+
+
+def test_buffer_ph_weak_pairs():
+    assert abs(C.buffer_ph("acetic_acid", 10.0)["value"] - 5.756) < 1e-3
+    r = C.buffer_ph("ammonia", 1.0)              # NH3/NH4+: pKa of the conjugate acid
+    assert abs(r["value"] - 9.245) < 1e-3 and "conjugate acid" in r["notes"]
+
+
+def test_buffer_ph_ratio_guards_and_strict_json():
+    import json
+    for ratio in (0.0, -2.0, float("nan"), float("inf")):
+        r = C.buffer_ph("acetic_acid", ratio)
+        assert r["value"] is None, ratio                 # was -inf: not JSON
+        json.dumps(r, allow_nan=False)
+    # far outside the buffer range the formula breaks down (pH -1.24 here)
+    assert C.buffer_ph("acetic_acid", 1e-6)["value"] is None
+    # mildly outside pKa +/- 1: still answered, with the caveat stated
+    r = C.buffer_ph("acetic_acid", 50.0)
+    assert abs(r["value"] - 6.455) < 1e-3 and "approximate" in r["notes"]
+    json.dumps(r, allow_nan=False)
 
 
 def test_daniell_cell_potential():

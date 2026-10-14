@@ -84,6 +84,35 @@ class TestAngularMomentumBasics(unittest.TestCase):
         self.assertEqual(multiplicity(2), 5)
 
 
+class TestQuantumNumberValidation(unittest.TestCase):
+    """j must be a non-negative integer or half-integer.
+
+    angular_momentum_z_values took any float: 1.3 gave m = -1.3, -0.3, 0.7,
+    a negative j silently gave [], and j = 3e8 enumerated 6e8 values until the
+    MCP server was OOM-killed at 13.7 GB.
+    """
+
+    def test_non_physical_j_is_rejected(self):
+        for j in (1.3, -0.5, -1, float('nan'), float('inf')):
+            for fn in (angular_momentum_magnitude, angular_momentum_z_values, multiplicity):
+                with self.subTest(fn=fn.__name__, j=j):
+                    with self.assertRaises(ValueError):
+                        fn(j)
+
+    def test_z_values_are_exact(self):
+        # built by index, not by accumulating += 1.0
+        for twice_j in range(0, 202):
+            j = twice_j / 2
+            with self.subTest(j=j):
+                vals = angular_momentum_z_values(j)
+                self.assertEqual(vals, [-j + k for k in range(twice_j + 1)])
+                self.assertEqual(len(vals), multiplicity(j))
+
+    def test_float_noise_snaps_to_the_quantum_number(self):
+        self.assertEqual(multiplicity(2.4999999999999), 6)
+        self.assertEqual(angular_momentum_z_values(0.5000000000001), [-0.5, 0.5])
+
+
 class TestAngularMomentumAddition(unittest.TestCase):
     """Adding two angular momenta."""
 
