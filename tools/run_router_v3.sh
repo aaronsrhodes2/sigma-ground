@@ -201,6 +201,9 @@ preflight() {
     "test -s '$RESULTS/chain_qwen3_8b_run.json' && test -s '$RESULTS/router_qwen3_8b_stock_free_run.json' && test -s '$RESULTS/router_mentat_router_v2_free_run.json'"
   check "ollama models: $TEACHER, $STOCK, nomic-embed-text, mentat-router-v2" \
     "ollama list | grep -q '^$TEACHER ' && ollama list | grep -q '^$STOCK ' && ollama list | grep -q '^nomic-embed-text' && ollama list | grep -q '^mentat-router-v2'"
+  if [[ "${SKIP_WSL_CHECKS:-0}" == 1 ]]; then   # resuming after merge/gguf: only train, merge and gguf use WSL
+    log "  WSL checks skipped (SKIP_WSL_CHECKS=1)"
+  else
   check "WSL training venv (torch, transformers, peft, bitsandbytes, unsloth)" \
     "wsl_run 'python -c \"import torch, transformers, peft, bitsandbytes, accelerate\" && pip show -q unsloth'"
   check "WSL base model $BASE (config, tokenizer, weights)" \
@@ -209,6 +212,7 @@ preflight() {
     "wsl_run 'test -f $W_LLAMA/convert_hf_to_gguf.py && test -x $W_LLAMA/build/bin/llama-quantize'"
   check "WSL GPU visible (nvidia-smi only)" "MSYS_NO_PATHCONV=1 wsl.exe -d $DISTRO -- nvidia-smi -L"
   check "WSL disk >= 60 GB free" "wsl_run 'test \$(df -BG --output=avail \$HOME | tail -1 | tr -dc 0-9) -ge 60'"
+  fi
   check "D: >= 20 GB free" "test \$(df -BG --output=avail '$CACHE' | tail -1 | tr -dc 0-9) -ge 20"
   log "  settings: PER_RECIPE=$PER_RECIPE VARIANTS=$VARIANTS TEACHER=$TEACHER DOCKER_OLLAMA=${DOCKER_OLLAMA:-none} TRAIN_GPU=${TRAIN_GPU:-all} SERVE_GPU=${SERVE_GPU:-all} PORT=$PORT"
   log "  free RAM: $(python -c 'import psutil; print(round(psutil.virtual_memory().available / 2**30, 1))' 2>/dev/null || echo '?') GB of 32 (WSL training needs about 10)"
