@@ -127,14 +127,36 @@ def run_one(args):
     if toggle_names is not None:
         import dataclasses
         toggles = type(pred.toggles)(**{f.name: (f.name in toggle_names) for f in dataclasses.fields(pred.toggles) if isinstance(getattr(pred.toggles, f.name), bool)})
+    perturbers = args[14] if len(args) > 14 and args[14] else None        # DE440's asteroids and/or ring as prescribed sources (perturber_paths.py)
+    extra_kw: dict = {}
+    if perturbers:
+        import dataclasses as _dc
+        from sigma_ground.field.interface import perturber_paths as pp
+        from sigma_ground.field.interface.asteroid_perturbers import Perturber
+        gm_k = {n: v / 1e9 for n, v in gm.items()}                                          # km^3/s^2; the giants and Pluto already carry their moons
+        gm_planets = np.array([gm_k["Sun"], gm_k["Mercury"], gm_k["Venus"], gm_k["Earth"] + gm_k["Moon"], gm_k["Mars"], gm_k["Jupiter"], gm_k["Saturn"], gm_k["Uranus"],
+                               gm_k["Neptune"], gm_k["Pluto"]])
+        doc = json.loads(rs._PERTURBERS_FILE.read_text())
+        horizon = max(leads) * 365.25
+        parts = []
+        if "asteroids" in perturbers:
+            have = [a_ for a_ in doc["asteroids"] if a_["elements"]]
+            pert = [Perturber(str(a_["number"]), a_["gm_km3_s2"], 0.0, *[a_["elements"][k_] for k_ in ("epoch_jd_tdb", "a_au", "e", "i_deg", "om_deg", "w_deg", "ma_deg")]) for a_ in have]
+            parts.append(pp.to_prescribed_sources(pp.asteroid_window_paths(pert, kt, gm_planets, e_jd, horizon, 1.0), np.array([a_["gm_km3_s2"] for a_ in have]), 1.0))
+        if "ring" in perturbers:
+            r_ = doc["ring"]
+            parts.append(pp.to_prescribed_sources(pp.ring_window_paths(kt, float(gm_planets[0]), e_jd, horizon, 1.0, n_points=r_["n_points"], a_au=r_["a_au"]),
+                                                  np.full(r_["n_points"], r_["gm_each_km3_s2"]), 1.0))
+        toggles = _dc.replace(toggles, prescribed_sources=True)
+        extra_kw["prescribed_sources"] = pp.concat_sources(*parts)
     c22 = args[11] if len(args) > 11 else None
     if c22:                                                      # candidate C3a: the Moon's triaxial figure (sectoral C22) as an engine layer, bulge following the IAU rotation
         import dataclasses
         toggles = dataclasses.replace(toggles, sectoral_c22=True)
         system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None,
-                             epoch_jd_tdb=e_jd, rotation_models={ORDER.index("Moon"): _lf.moon_axes})
+                             epoch_jd_tdb=e_jd, rotation_models={ORDER.index("Moon"): _lf.moon_axes}, **extra_kw)
     else:
-        system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None)
+        system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None, **extra_kw)
     out = {n: {} for n in ORDER if n != "Sun"}
     pole_days = args[9] if len(args) > 9 else None
     rtn_wanted = bool(args[10]) if len(args) > 10 else False
@@ -249,6 +271,7 @@ def main() -> int:
     if a.lunar_c22 and a.lunar_orientation == "locked":
         ap.error("--lunar-orientation locked was the superseded subclass experiment (data: moon_atlas_control_c22_locked.json); use iau")
     jobs = []
+    perturb_of: dict = {}
     if a.plan:
         if any(e.get("asteroids") for e in json.loads(a.plan.read_text())) and not ast:
             ap.error("--plan with asteroids needs --asteroids PATH")
@@ -256,6 +279,7 @@ def main() -> int:
             k = e["start"]
             jobs.append((f"DE440(control)|{e['label']}", None, k, de["snapshots"][k]["epoch"]["jd_tdb"], a.dt_days, list(range(1, e["horizon"] + 1)), None, de["snapshots"][k],
                          ast_for(k) if e.get("asteroids") else None, None, False, a.lunar_c22 if e.get("c22") else None, a.lunar_orientation))
+            perturb_of[(f"DE440(control)|{e['label']}", k)] = e.get("perturbers")
         a.validate = True
     elif a.validate:
         for k in keys:
@@ -288,7 +312,7 @@ def main() -> int:
     queue = []
     for j in todo:
         tagname = re.sub(r'[<>:"/\|?*()\s]', "", f"{j[0]}_{j[2]}")          # a label may carry characters Windows forbids in file names
-        (jobdir / f"{tagname}.job.json").write_text(json.dumps({"args": list(j) + [str(jobdir / f"{tagname}.ckpt.json") if a.checkpoint else None]}))
+        (jobdir / f"{tagname}.job.json").write_text(json.dumps({"args": list(j) + [str(jobdir / f"{tagname}.ckpt.json") if a.checkpoint else None, perturb_of.get((j[0], j[2]))]}))
         queue.append([j, jobdir / f"{tagname}.job.json", jobdir / f"{tagname}.result.json", 0])
     running, finished = [], 0
     while queue or running:
