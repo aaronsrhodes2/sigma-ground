@@ -124,6 +124,6 @@ re-run the gate.
 3. **PROJECT_GOAL.md:** updated to the contender goal. Math is next, "the most immutable step", then physics, chemistry, biology.
 4. **Wolfram:** no paid use. Historic data plus a **free-tier trickle**: SkippyTel keeps its own queue (`services/wa-trickle`), sends each question to
    Wolfram once, on a daily budget (about 60, inside the free 2,000 a month), and the same question to Mentat; frozen Wolfram answers, Mentat re-asked
-   per version. This replaces the API head-to-head in W6.
+   per version. This replaces the API head-to-head in W6. Scorer: `tools/wa_trickle_score.py`; first 61 answers scored in `misc/WA_TRICKLE.md`.
 5. **Baselines:** download P1-30B-A3B (Apache-2.0) and Phi-4-mini-reasoning (MIT), once the GPU is free.
 6. **Frontier ceiling:** Sonnet through the API, under a hard spending cap the Captain names before the run.

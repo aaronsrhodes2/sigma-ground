@@ -1,0 +1,8 @@
+{
+  "msuite_0025": {"verdict": "equivalent", "note": "an antiderivative of (4x+1)^3 that differs from the oracle's by the constant 1/16; antiderivatives are unique only up to a constant"},
+  "msuite_0328": {"verdict": "equivalent", "note": "the same two-parameter solution family; Wolfram names the constants c_1, c_2 with the cos/sin roles swapped from the oracle's C1 sin + C2 cos"},
+  "msuite_0318": {"verdict": "convention", "note": "'up to order 4': Wolfram keeps the x^4 term (remainder O(x^5)); the oracle stops before x^4 (sympy n=4). Both readings are defensible, so it is not counted"},
+  "msuite_0113": {"verdict": "misread", "note": "Wolfram took 'factor' for a function name and answered a different question (is factor(x^3-1) continuous); the factorisation appears only inside that echo"},
+  "msuite_0114": {"verdict": "misread", "note": "the same misreading; the 'answer' is the input echoed back, which equals the oracle only because 2y^2+12y+5 is irreducible over the rationals"},
+  "msuite_0283": {"verdict": "misread", "note": "Wolfram read 'x(t) with x''' as the product x(t)*x''(t), a nonlinear equation, and gave no solution family"}
+}
