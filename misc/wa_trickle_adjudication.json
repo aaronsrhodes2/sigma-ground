@@ -4,5 +4,10 @@
   "msuite_0318": {"verdict": "convention", "note": "'up to order 4': Wolfram keeps the x^4 term (remainder O(x^5)); the oracle stops before x^4 (sympy n=4). Both readings are defensible, so it is not counted"},
   "msuite_0113": {"verdict": "misread", "note": "Wolfram took 'factor' for a function name and answered a different question (is factor(x^3-1) continuous); the factorisation appears only inside that echo"},
   "msuite_0114": {"verdict": "misread", "note": "the same misreading; the 'answer' is the input echoed back, which equals the oracle only because 2y^2+12y+5 is irreducible over the rationals"},
-  "msuite_0283": {"verdict": "misread", "note": "Wolfram read 'x(t) with x''' as the product x(t)*x''(t), a nonlinear equation, and gave no solution family"}
+  "msuite_0283": {"verdict": "misread", "note": "Wolfram read 'x(t) with x''' as the product x(t)*x''(t), a nonlinear equation, and gave no solution family"},
+  "msuite_0284": {"verdict": "misread", "note": "Wolfram's input pod is y(x)*y'(x) - 6 y(x) = 0: 'y(x) with y'' read as a product, a nonlinear equation; it solved that one"},
+  "msuite_0285": {"verdict": "misread", "note": "the same misreading as 0284: 'y(t) with y'' taken as y(t)*y'(t)"},
+  "msuite_0080": {"verdict": "misread", "note": "Wolfram's input pod is '3 x^2 - x - (5, 0)': 'cross zero' read as a point (5, 0), not as roots"},
+  "msuite_0081": {"verdict": "misread", "note": "the same misreading as 0080: 'cross zero' read as a point"},
+  "msuite_0157": {"verdict": "convention", "note": "'to order 4': Wolfram keeps the x^4 term (remainder O(x^5)); the oracle stops before x^4"}
 }

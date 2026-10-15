@@ -80,3 +80,17 @@ set). Strict became 21. The scorer, the corpus and the tolerances were not touch
   would remove that guess. The replies already frozen cannot be re-fetched (one call per question ever).
 * To separate "Wolfram did not understand the sentence" from "Wolfram cannot do it", the 29 scored no-results could be re-sent in Wolfram's own style (`expand (3x+2)^2`);
   that is about half a day of the free budget and a change to the "one call per question" rule, so it is the Captain's call.
+
+## Update 2026-10-15 — 95 asked (34 more; the extractor was not touched)
+
+The 34 new answers are an out-of-sample test of the extractor, which was designed on the first 61. It read all six answered ones without refusing and made no extraction fault; the five that are not
+right are Wolfram's misreadings, visible in its own input pods (`misc/wa_trickle_adjudication.json`): two ODE questions where "y(x) with y'" became the product y(x)·y'(x), two "where does … cross zero"
+where it read the point (5, 0), and one series "to order 4" with the x^4 kept. The other 28 got no result.
+
+| set (scorable) | Wolfram strict | Wolfram lenient | router | notes |
+|---|---|---|---|---|
+| all 90 | 22 | 24 | 87 | 57 no result (all 20 with Python syntax; 37 of 50 plain-English templated) |
+| only the 33 Wolfram answered | 22 | 24 | 30 | sign test p = 0.02 strict, 0.07 lenient |
+
+So the earlier "not distinguishable on the 27" was a small-sample reading: with six more answered questions (one right for Wolfram, five for the router) the gap on the answered set is larger. The new rows are
+the round-robin's templated questions, the chattiest wordings, so this is not a random draw either. Twenty tool kinds now have 3–6 templated questions each; the rest arrive at about 60 a day.
