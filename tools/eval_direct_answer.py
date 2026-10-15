@@ -128,7 +128,7 @@ def canonical_item(x) -> str:
 
 
 def ask(http, url: str, model: str, question: str, openai: bool, num_predict: int, think: bool | None,
-        temperature: float = 0.0, seed: int = 7) -> dict:
+        temperature: float = 0.0, seed: int = 7, num_ctx: int = 16384) -> dict:
     prompt = PROMPT.format(q=question)
     t0 = time.time()
     if openai:                                       # llama.cpp server / any OpenAI-compatible endpoint
@@ -139,7 +139,7 @@ def ask(http, url: str, model: str, question: str, openai: bool, num_predict: in
         return {"text": j["choices"][0]["message"].get("content") or "", "tokens": (j.get("usage") or {}).get("completion_tokens"),
                 "seconds": time.time() - t0}
     body = {"model": model, "messages": [{"role": "user", "content": prompt}], "stream": False,
-            "options": {"temperature": temperature, "num_predict": num_predict, "seed": seed}}
+            "options": {"temperature": temperature, "num_predict": num_predict, "seed": seed, "num_ctx": num_ctx}}
     if think is not None:
         body["think"] = think
     r = http.post(url.rstrip("/") + "/api/chat", json=body)
