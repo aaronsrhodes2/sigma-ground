@@ -1,4 +1,4 @@
-"""Step-size convergence of every moon in the full 33-body system: the headline stack from one DE440 window, one year, at several steps.
+"""Step-size convergence of every moon in the full 33-body system: the headline stack from one DE440 window, one year, at several steps (the error at +1 yr: the fixture has truth only at yearly snapshots).
 
 Why: at step 0.025 d the shoot-out still shows moon errors of 1e4 to 1e5 km (Europa, Io, Tethys, Dione ...). Whether that is the integrator (phase error, which falls as dt^4 for a
 fourth-order scheme) or the fixture/physics shows up as the error's scaling with dt. A moon is CONVERGED at a step when halving the step changes its error by less than 10 %.
@@ -26,11 +26,11 @@ def run_dt(dt: float, window: str, years: float) -> dict:
     fx = json.loads(FIXTURE.read_text())
     pred = [p for p in rs.canonical_predictors(dt) if p.name == "de440_stack"][0]
     t0 = time.time()
-    samples = rs.run_rolling_shootout([window], years, 0.25, predictors=[pred], de440=fx, verbose=False, output_path=None)
+    samples = rs.run_rolling_shootout([window], years, 1.0, predictors=[pred], de440=fx, verbose=False, output_path=None)
     out = {}
     for s in samples:
         lead = round((s.sample_jd - s.window_start_jd) / 365.25, 2)
-        if lead > 0:
+        if lead > 0 and s.error_au is not None:                   # truth exists only at the fixture's yearly snapshots
             out.setdefault(s.body, {})[str(lead)] = s.error_au * AU
     return {"dt_days": dt, "window": window, "years": years, "elapsed_s": time.time() - t0, "error_km": out}
 
