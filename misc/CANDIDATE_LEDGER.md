@@ -128,7 +128,7 @@ Source of the model: Park et al. 2021 (AJ 161:105, sec. 2.2) and the DE440 heade
 | Mercury | 0.20 | 0.16 | 0.17 |
 | Moon | 1.0 | 0.94 | 0.94 |
 
-* The ring removes 90-96 % of the Uranus, Neptune and Pluto error at +20 yr, as predicted, and without it the 343 asteroids leave them unchanged (16, 30, 35 km). Same pattern at +5 and +10 yr.
+* The ring removes 88 % (Uranus), 95 % (Neptune) and 88 % (Pluto) of the +20 yr error, as predicted, and without it the 343 asteroids leave them unchanged (16, 30, 35 km). Same pattern at +5 and +10 yr.
 * The other 336 asteroids close Mars (3.4 -> 0.22 km at +20 yr), Earth (0.52 -> 0.05) and Jupiter (11 -> 0.9), which the seven heaviest alone did not.
 * Wording: this reproduces DE440's own model (DE440's ring is a modelling device for the belt's mass, equally spaced points at one radius). It shows that DE440's ring mass and radius carry the long-range outer-planet dynamics; it does not show that the belt's mass is distributed as the ring says.
 * Remaining at +20 yr: Pluto 4 km, Uranus/Neptune 1.2-2 km, Venus 0.28, Moon 0.94 (unchanged by any of this), Mercury 0.17. Candidates, untested: the 30 individual Kuiper-belt objects (Pluto), the Moon's degree-3 gravity terms and tides (Moon).
