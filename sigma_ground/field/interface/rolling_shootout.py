@@ -385,6 +385,9 @@ class Predictor:
     fast_body_names:     tuple[str, ...] | None = None
     fast_substep_factor: int    = 1
     kepler_forecast:     bool   = False
+    # Candidate layers (misc/CANDIDATE_LEDGER.md), all off by default so every stored predictor is unchanged:
+    lunar_c22:           float  = 0.0                  # the Moon's sectoral C22 (reference radius 1738 km) with the IAU rotation model; 0 = off
+    perturber_sets:      tuple[str, ...] = ()          # "asteroids" (DE440's 343) and/or "ring" (DE440's 36-point Kuiper-belt ring), as prescribed massive sources
 
 
 # Common toggle bundles for the existing predictor lineup.
@@ -547,6 +550,23 @@ CANONICAL_PREDICTORS: list[Predictor] = canonical_predictors() + [
 PREDICTORS.extend(p for p in CANONICAL_PREDICTORS if p.name != "kepler_forecast")
 
 
+# DE440's own lunar C22 (header constant C22M, reference radius AM = 1738.0 km)
+_DE440_C22M = 2.2380850528171017e-05
+
+
+def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
+    """Candidate predictors: the headline stack plus the layers of misc/CANDIDATE_LEDGER.md (C1 asteroids, C3a lunar C22, C5 Kuiper-belt ring). Not part of the canonical set."""
+    import dataclasses as _dc
+    base = [p for p in canonical_predictors(dt_days) if p.name == "de440_stack"][0]
+    rows = [("restated_ast_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids",)), "headline + DE440's asteroids + the Moon's C22"),
+            ("restated_ast_ring_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring")), "headline + DE440's asteroids + Kuiper-belt ring + the Moon's C22"),
+            ("restated_c22", dict(lunar_c22=_DE440_C22M), "headline + the Moon's C22 only")]
+    return [_dc.replace(base, name=n, description=d, **kw) for n, kw, d in rows]
+
+
+PREDICTORS.extend(restated_predictors())
+
+
 # ── Initial state extraction ──────────────────────────────────────────────
 
 def _load_de440() -> dict:
@@ -649,6 +669,54 @@ def _de440_heliocentric_km(de440: dict, snap_key: str, name: str) -> np.ndarray 
 
 # ── N-body predictor integration ─────────────────────────────────────────
 
+_DE440_KERNEL = Path("D:/datasets/jpl/de440s.bsp")
+_PERTURBERS_FILE = Path(__file__).parent / "fixtures" / "de440_perturbers_v2physics.json"
+
+
+def _candidate_layers(predictor: Predictor, bodies: list, body_names: list[str], parent_idx, start_jd: float, horizon_days: float):
+    """Apply a predictor's candidate layers: returns (bodies, toggles, NBodySystem keyword arguments).
+
+    lunar_c22     : the Moon gets c22 / figure_ref_radius_m, toggles.sectoral_c22 is on, and the Moon's IAU rotation model supplies its axes (lunar_figure.py).
+    perturber_sets: "asteroids" = the DE440 asteroids whose elements we hold, "ring" = DE440's 36-point Kuiper-belt ring; both as PrescribedSources (perturber_paths.py), with
+                    DE440's own masses (fixtures/de440_perturbers_v2physics.json) and paths from the DE440s kernel's planets.
+    """
+    import dataclasses
+    toggles, kwargs, bodies = predictor.toggles, {}, list(bodies)
+    if predictor.lunar_c22:
+        from sigma_ground.field.interface import lunar_figure as lf
+        i = body_names.index("Moon")
+        bodies[i] = bodies[i].replace(c22=float(predictor.lunar_c22), figure_ref_radius_m=lf.R_REF_MOON_M)
+        toggles = dataclasses.replace(toggles, sectoral_c22=True)
+        kwargs.update(epoch_jd_tdb=start_jd, rotation_models={i: lf.moon_axes})
+    if predictor.perturber_sets:
+        from jplephem.spk import SPK
+        from sigma_ground.field.interface import perturber_paths as pp
+        from sigma_ground.field.interface.asteroid_perturbers import Perturber
+        kernel = SPK.open(str(_DE440_KERNEL))
+        gm = [b.mass_kg * _G / 1e9 for b in bodies]                                       # km^3/s^2
+        idx = {n: i for i, n in enumerate(body_names)}
+
+        def system_gm(name: str) -> float:
+            i = idx[name]
+            return gm[i] + sum(gm[j] for j, par in enumerate(parent_idx or []) if par == i)
+        gm_planets = np.array([gm[idx["Sun"]]] + [system_gm(n) for n in ("Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto")])
+        doc = json.loads(_PERTURBERS_FILE.read_text())
+        parts = []
+        if "asteroids" in predictor.perturber_sets:
+            have = [a for a in doc["asteroids"] if a["elements"]]
+            pert = [Perturber(str(a["number"]), a["gm_km3_s2"], 0.0, a["elements"]["epoch_jd_tdb"], a["elements"]["a_au"], a["elements"]["e"], a["elements"]["i_deg"],
+                              a["elements"]["om_deg"], a["elements"]["w_deg"], a["elements"]["ma_deg"]) for a in have]
+            nodes = pp.asteroid_window_paths(pert, kernel, gm_planets, start_jd, horizon_days, 1.0)
+            parts.append(pp.to_prescribed_sources(nodes, np.array([a["gm_km3_s2"] for a in have]), 1.0))
+        if "ring" in predictor.perturber_sets:
+            r = doc["ring"]
+            nodes = pp.ring_window_paths(kernel, float(gm_planets[0]), start_jd, horizon_days, 1.0, n_points=r["n_points"], a_au=r["a_au"])
+            parts.append(pp.to_prescribed_sources(nodes, np.full(r["n_points"], r["gm_each_km3_s2"]), 1.0))
+        toggles = dataclasses.replace(toggles, prescribed_sources=True)
+        kwargs["prescribed_sources"] = pp.concat_sources(*parts)
+    return bodies, toggles, kwargs
+
+
 def _integrate_nbody(
     predictor:        Predictor,
     bodies:           list[CelestialBody],
@@ -684,11 +752,16 @@ def _integrate_nbody(
     dt_s = predictor.dt_days * DAY_S
     # Toggles dictate which force layers run; solar_luminosity_W is a
     # parameter (need a value for L_sun), gated by toggles.srp.
+    layer_kwargs: dict = {}
+    toggles = predictor.toggles
+    if predictor.lunar_c22 or predictor.perturber_sets:
+        bodies, toggles, layer_kwargs = _candidate_layers(predictor, bodies, body_names, parent_attractor_indices, start_jd, sample_jds[-1] - start_jd)
     system = NBodySystem(
         bodies,
-        toggles=predictor.toggles,
-        solar_luminosity_W=_L_SUN_W if predictor.toggles.srp else 0.0,
+        toggles=toggles,
+        solar_luminosity_W=_L_SUN_W if toggles.srp else 0.0,
         parent_attractor_indices=parent_attractor_indices,
+        **layer_kwargs,
     )
 
     # Resolve fast-body indices (for hierarchical substepping). Bodies named

@@ -38,6 +38,7 @@ def _pool(dt_days: float | None):
     pool = {p.name: p for p in rs.PREDICTORS}
     if dt_days is not None:
         pool.update({p.name: p for p in rs.canonical_predictors(dt_days)})
+        pool.update({p.name: p for p in rs.restated_predictors(dt_days)})
     return rs, pool
 
 
@@ -103,6 +104,7 @@ def main() -> int:
     ap.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 4) // 2))
     ap.add_argument("--outdir", type=Path, default=_DEFAULT_OUT)
     ap.add_argument("--merge-only", action="store_true")
+    ap.add_argument("--plan", type=Path, default=None, help="JSON list of {pass, predictor, window} jobs: heterogeneous arms in one queue (overrides --pass/--predictors/--thin-*)")
     ap.add_argument("--thin-predictors", nargs="+", default=[], help="predictors run on --thin-windows only (e.g. the ablations)")
     ap.add_argument("--thin-windows", nargs="+", default=[], help="window keys used for --thin-predictors")
     ap.add_argument("--fixture", type=Path, default=None,
@@ -118,6 +120,10 @@ def main() -> int:
         return 0
 
     rs, pool = _pool(a.dt_days)
+    plan = json.loads(a.plan.read_text()) if a.plan else None
+    if plan:
+        a.which = "both"
+        a.predictors = list(dict.fromkeys(e["predictor"] for e in plan))
     if a.predictors:
         names = a.predictors
     elif a.pred_set == "canonical":
@@ -129,7 +135,10 @@ def main() -> int:
         print("unknown predictors:", unknown)
         return 2
     passes = ["short", "long"] if a.which == "both" else [a.which]
+    if plan:
+        passes = sorted({e["pass"] for e in plan})
     a.outdir.mkdir(parents=True, exist_ok=True)
+    wanted = {(e["pass"], e["predictor"], e["window"]) for e in plan} if plan else None
 
     jobs = []
     for ps in passes:
@@ -137,7 +146,10 @@ def main() -> int:
         (a.outdir / ps).mkdir(parents=True, exist_ok=True)
         for pred in names:
             for key in keys:
-                if pred in a.thin_predictors and a.thin_windows and key not in a.thin_windows:
+                if wanted is not None:
+                    if (ps, pred, key) not in wanted:
+                        continue
+                elif pred in a.thin_predictors and a.thin_windows and key not in a.thin_windows:
                     continue
                 f = _job_file(a.outdir, ps, pred, key)
                 if not f.exists():

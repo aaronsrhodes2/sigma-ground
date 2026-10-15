@@ -1,0 +1,5151 @@
+{
+"metadata": {
+"label": "v2physics_2026-10-14",
+"masses": "JPL DE440 ASCII header header.440, constants MAnnnn (au^3/day^2 x AU^3/86400^2, AU = 149597870.7 km)",
+"elements": "JPL SBDB osculating elements, fixtures/sbdb_asteroids_named_mba.json (heliocentric ecliptic J2000)",
+"set": "Park et al. 2021 AJ 161:105 sec. 2.2: 343 asteroids (the DE430 set), 30 Kuiper-belt objects, a ring of 36 equal point masses in the ecliptic at a = 44 au",
+"asteroids_without_elements": [
+65,
+76,
+87,
+107,
+121,
+132,
+168,
+225,
+334,
+381,
+420,
+445,
+466,
+536,
+545,
+566,
+595,
+713,
+790,
+895,
+909,
+1015,
+1036,
+1467
+],
+"n_asteroids": 343,
+"n_kbo": 30,
+"generator": "scripts/make_perturber_catalog.py"
+},
+"asteroids": [
+{
+"number": 1,
+"name": "Ceres",
+"gm_km3_s2": 62.62888864440993,
+"diameter_km": 939.4,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.766,
+"e": 0.0797,
+"i_deg": 10.59,
+"om_deg": 80.25,
+"w_deg": 73.29,
+"ma_deg": 274.42
+}
+},
+{
+"number": 2,
+"name": "Pallas",
+"gm_km3_s2": 13.665878145967422,
+"diameter_km": 513.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.77,
+"e": 0.2307,
+"i_deg": 34.93,
+"om_deg": 172.89,
+"w_deg": 310.97,
+"ma_deg": 254.25
+}
+},
+{
+"number": 3,
+"name": "Juno",
+"gm_km3_s2": 1.9205707002025891,
+"diameter_km": 246.596,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.671,
+"e": 0.2557,
+"i_deg": 12.99,
+"om_deg": 169.81,
+"w_deg": 247.9,
+"ma_deg": 262.73
+}
+},
+{
+"number": 4,
+"name": "Vesta",
+"gm_km3_s2": 17.288232879171513,
+"diameter_km": 522.77,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.361,
+"e": 0.0902,
+"i_deg": 7.14,
+"om_deg": 103.7,
+"w_deg": 151.47,
+"ma_deg": 81.19
+}
+},
+{
+"number": 5,
+"name": "Astraea",
+"gm_km3_s2": 0.14424172161471416,
+"diameter_km": 106.699,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.577,
+"e": 0.1876,
+"i_deg": 5.36,
+"om_deg": 141.45,
+"w_deg": 359.38,
+"ma_deg": 181.48
+}
+},
+{
+"number": 6,
+"name": "Hebe",
+"gm_km3_s2": 0.6468776898076549,
+"diameter_km": 185.18,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.426,
+"e": 0.2023,
+"i_deg": 14.74,
+"om_deg": 138.61,
+"w_deg": 239.73,
+"ma_deg": 44.72
+}
+},
+{
+"number": 7,
+"name": "Iris",
+"gm_km3_s2": 1.1398723232184107,
+"diameter_km": 199.83,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.386,
+"e": 0.2303,
+"i_deg": 5.52,
+"om_deg": 259.49,
+"w_deg": 145.41,
+"ma_deg": 115.29
+}
+},
+{
+"number": 8,
+"name": "Flora",
+"gm_km3_s2": 0.25744284012307334,
+"diameter_km": 147.491,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.202,
+"e": 0.1562,
+"i_deg": 5.89,
+"om_deg": 110.84,
+"w_deg": 285.41,
+"ma_deg": 259.26
+}
+},
+{
+"number": 9,
+"name": "Metis",
+"gm_km3_s2": 0.6498621956487134,
+"diameter_km": 190.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.387,
+"e": 0.1225,
+"i_deg": 5.58,
+"om_deg": 68.87,
+"w_deg": 5.93,
+"ma_deg": 252.62
+}
+},
+{
+"number": 10,
+"name": "Hygiea",
+"gm_km3_s2": 5.625147645385229,
+"diameter_km": 407.12,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.151,
+"e": 0.1067,
+"i_deg": 3.83,
+"om_deg": 283.12,
+"w_deg": 312.42,
+"ma_deg": 252.03
+}
+},
+{
+"number": 11,
+"name": "Parthenope",
+"gm_km3_s2": 0.46008058272395913,
+"diameter_km": 142.887,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.452,
+"e": 0.1009,
+"i_deg": 4.64,
+"om_deg": 125.47,
+"w_deg": 196.46,
+"ma_deg": 224.94
+}
+},
+{
+"number": 12,
+"name": "Victoria",
+"gm_km3_s2": 0.14729837509426444,
+"diameter_km": 115.087,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.335,
+"e": 0.2197,
+"i_deg": 8.37,
+"om_deg": 235.35,
+"w_deg": 69.63,
+"ma_deg": 132.14
+}
+},
+{
+"number": 13,
+"name": "Egeria",
+"gm_km3_s2": 0.5108001295790742,
+"diameter_km": 202.636,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.576,
+"e": 0.0846,
+"i_deg": 16.53,
+"om_deg": 43.18,
+"w_deg": 79.12,
+"ma_deg": 88.62
+}
+},
+{
+"number": 14,
+"name": "Irene",
+"gm_km3_s2": 0.5320744319074024,
+"diameter_km": 152.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.588,
+"e": 0.1628,
+"i_deg": 9.13,
+"om_deg": 86.01,
+"w_deg": 98.31,
+"ma_deg": 60.23
+}
+},
+{
+"number": 15,
+"name": "Eunomia",
+"gm_km3_s2": 2.0230209871098284,
+"diameter_km": 231.689,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.642,
+"e": 0.1878,
+"i_deg": 11.76,
+"om_deg": 292.88,
+"w_deg": 98.46,
+"ma_deg": 159.69
+}
+},
+{
+"number": 16,
+"name": "Psyche",
+"gm_km3_s2": 1.5896582441709424,
+"diameter_km": 222.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.926,
+"e": 0.1349,
+"i_deg": 3.1,
+"om_deg": 149.98,
+"w_deg": 230.03,
+"ma_deg": 79.77
+}
+},
+{
+"number": 17,
+"name": "Thetis",
+"gm_km3_s2": 0.06009119858775784,
+"diameter_km": 84.899,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.473,
+"e": 0.1308,
+"i_deg": 5.6,
+"om_deg": 125.5,
+"w_deg": 136.16,
+"ma_deg": 243.07
+}
+},
+{
+"number": 18,
+"name": "Melpomene",
+"gm_km3_s2": 0.21608564234045982,
+"diameter_km": 139.594,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.296,
+"e": 0.2178,
+"i_deg": 10.13,
+"om_deg": 150.32,
+"w_deg": 228.03,
+"ma_deg": 283.95
+}
+},
+{
+"number": 19,
+"name": "Fortuna",
+"gm_km3_s2": 0.5559509238321833,
+"diameter_km": 200.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.442,
+"e": 0.1581,
+"i_deg": 1.57,
+"om_deg": 210.99,
+"w_deg": 182.44,
+"ma_deg": 148.26
+}
+},
+{
+"number": 20,
+"name": "Massalia",
+"gm_km3_s2": 0.2562387359298109,
+"diameter_km": 135.68,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.408,
+"e": 0.1436,
+"i_deg": 0.71,
+"om_deg": 205.95,
+"w_deg": 257.2,
+"ma_deg": 82.8
+}
+},
+{
+"number": 21,
+"name": "Lutetia",
+"gm_km3_s2": 0.08862093482557928,
+"diameter_km": 98.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.434,
+"e": 0.1648,
+"i_deg": 3.06,
+"om_deg": 80.84,
+"w_deg": 249.88,
+"ma_deg": 298.77
+}
+},
+{
+"number": 22,
+"name": "Kalliope",
+"gm_km3_s2": 0.39491397401868555,
+"diameter_km": 167.536,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.909,
+"e": 0.0988,
+"i_deg": 13.7,
+"om_deg": 65.97,
+"w_deg": 358.31,
+"ma_deg": 350.33
+}
+},
+{
+"number": 23,
+"name": "Thalia",
+"gm_km3_s2": 0.12410979237345554,
+"diameter_km": 107.53,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.629,
+"e": 0.2313,
+"i_deg": 10.11,
+"om_deg": 66.48,
+"w_deg": 61.67,
+"ma_deg": 216.4
+}
+},
+{
+"number": 24,
+"name": "Themis",
+"gm_km3_s2": 0.5879277528499307,
+"diameter_km": 198.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.144,
+"e": 0.1154,
+"i_deg": 0.74,
+"om_deg": 36.39,
+"w_deg": 109.22,
+"ma_deg": 92.02
+}
+},
+{
+"number": 25,
+"name": "Phocaea",
+"gm_km3_s2": 0.014603058350947754,
+"diameter_km": 61.054,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.401,
+"e": 0.2538,
+"i_deg": 21.6,
+"om_deg": 214.06,
+"w_deg": 90.32,
+"ma_deg": 142.12
+}
+},
+{
+"number": 26,
+"name": "Proserpina",
+"gm_km3_s2": 0.07988706699985372,
+"diameter_km": 94.8,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.655,
+"e": 0.0887,
+"i_deg": 3.55,
+"om_deg": 45.68,
+"w_deg": 196.12,
+"ma_deg": 335.1
+}
+},
+{
+"number": 27,
+"name": "Euterpe",
+"gm_km3_s2": 0.11487456531347669,
+"diameter_km": 96.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.347,
+"e": 0.1716,
+"i_deg": 1.58,
+"om_deg": 94.77,
+"w_deg": 356.61,
+"ma_deg": 327.72
+}
+},
+{
+"number": 28,
+"name": "Bellona",
+"gm_km3_s2": 0.1526822164292347,
+"diameter_km": 120.9,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.778,
+"e": 0.149,
+"i_deg": 9.42,
+"om_deg": 144.15,
+"w_deg": 343.54,
+"ma_deg": 107.97
+}
+},
+{
+"number": 29,
+"name": "Amphitrite",
+"gm_km3_s2": 0.7978007063587996,
+"diameter_km": 189.559,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.555,
+"e": 0.0732,
+"i_deg": 6.08,
+"om_deg": 356.25,
+"w_deg": 61.93,
+"ma_deg": 193.37
+}
+},
+{
+"number": 30,
+"name": "Urania",
+"gm_km3_s2": 0.025589375779045246,
+"diameter_km": 92.787,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.365,
+"e": 0.1266,
+"i_deg": 2.09,
+"om_deg": 307.4,
+"w_deg": 87.23,
+"ma_deg": 13.67
+}
+},
+{
+"number": 31,
+"name": "Euphrosyne",
+"gm_km3_s2": 1.079371457703356,
+"diameter_km": 267.08,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.162,
+"e": 0.2158,
+"i_deg": 26.31,
+"om_deg": 30.79,
+"w_deg": 62.01,
+"ma_deg": 182.91
+}
+},
+{
+"number": 32,
+"name": "Pomona",
+"gm_km3_s2": 0.03531605087430265,
+"diameter_km": 80.76,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.589,
+"e": 0.0809,
+"i_deg": 5.52,
+"om_deg": 220.31,
+"w_deg": 337.58,
+"ma_deg": 289.62
+}
+},
+{
+"number": 34,
+"name": "Circe",
+"gm_km3_s2": 0.14078932844389122,
+"diameter_km": 132.992,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.688,
+"e": 0.1065,
+"i_deg": 5.5,
+"om_deg": 184.25,
+"w_deg": 329.26,
+"ma_deg": 350.09
+}
+},
+{
+"number": 35,
+"name": "Leukothea",
+"gm_km3_s2": 0.037093920570841446,
+"diameter_km": 103.055,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.004,
+"e": 0.217,
+"i_deg": 7.87,
+"om_deg": 352.9,
+"w_deg": 215.53,
+"ma_deg": 346.88
+}
+},
+{
+"number": 36,
+"name": "Atalante",
+"gm_km3_s2": 0.22485275143101907,
+"diameter_km": 132.842,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.745,
+"e": 0.3062,
+"i_deg": 18.37,
+"om_deg": 358.16,
+"w_deg": 47.76,
+"ma_deg": 142.94
+}
+},
+{
+"number": 37,
+"name": "Fides",
+"gm_km3_s2": 0.10889822086341591,
+"diameter_km": 108.35,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.643,
+"e": 0.1746,
+"i_deg": 3.07,
+"om_deg": 7.23,
+"w_deg": 62.33,
+"ma_deg": 218.72
+}
+},
+{
+"number": 38,
+"name": "Leda",
+"gm_km3_s2": 0.036624284360538314,
+"diameter_km": 92.255,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.743,
+"e": 0.1509,
+"i_deg": 6.95,
+"om_deg": 295.49,
+"w_deg": 169.83,
+"ma_deg": 209.1
+}
+},
+{
+"number": 39,
+"name": "Laetitia",
+"gm_km3_s2": 0.7282549284515555,
+"diameter_km": 179.484,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.769,
+"e": 0.1138,
+"i_deg": 10.38,
+"om_deg": 156.82,
+"w_deg": 210.1,
+"ma_deg": 136.61
+}
+},
+{
+"number": 40,
+"name": "Harmonia",
+"gm_km3_s2": 0.16770602346304828,
+"diameter_km": 111.251,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.268,
+"e": 0.0467,
+"i_deg": 4.26,
+"om_deg": 94.15,
+"w_deg": 269.93,
+"ma_deg": 137.89
+}
+},
+{
+"number": 41,
+"name": "Daphne",
+"gm_km3_s2": 0.5406773284635915,
+"diameter_km": 205.495,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.767,
+"e": 0.2702,
+"i_deg": 15.73,
+"om_deg": 177.6,
+"w_deg": 47.02,
+"ma_deg": 331.15
+}
+},
+{
+"number": 42,
+"name": "Isis",
+"gm_km3_s2": 0.08402498206218285,
+"diameter_km": 110.997,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.445,
+"e": 0.222,
+"i_deg": 8.5,
+"om_deg": 84.15,
+"w_deg": 237.62,
+"ma_deg": 154.36
+}
+},
+{
+"number": 43,
+"name": "Ariadne",
+"gm_km3_s2": 0.05688371683591275,
+"diameter_km": 71.34,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.204,
+"e": 0.1677,
+"i_deg": 3.47,
+"om_deg": 264.74,
+"w_deg": 16.31,
+"ma_deg": 201.54
+}
+},
+{
+"number": 44,
+"name": "Nysa",
+"gm_km3_s2": 0.03641704643530787,
+"diameter_km": 70.64,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.422,
+"e": 0.1497,
+"i_deg": 3.71,
+"om_deg": 131.48,
+"w_deg": 343.89,
+"ma_deg": 41.46
+}
+},
+{
+"number": 45,
+"name": "Eugenia",
+"gm_km3_s2": 0.36047208408671244,
+"diameter_km": 202.327,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.723,
+"e": 0.0814,
+"i_deg": 6.61,
+"om_deg": 147.52,
+"w_deg": 87.2,
+"ma_deg": 250.51
+}
+},
+{
+"number": 46,
+"name": "Hestia",
+"gm_km3_s2": 0.3719029041239939,
+"diameter_km": 131.471,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.526,
+"e": 0.1718,
+"i_deg": 2.35,
+"om_deg": 181.05,
+"w_deg": 177.05,
+"ma_deg": 348.86
+}
+},
+{
+"number": 47,
+"name": "Aglaja",
+"gm_km3_s2": 0.428234575083504,
+"diameter_km": 168.174,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.879,
+"e": 0.134,
+"i_deg": 4.97,
+"om_deg": 2.67,
+"w_deg": 316.28,
+"ma_deg": 214.61
+}
+},
+{
+"number": 48,
+"name": "Doris",
+"gm_km3_s2": 0.8559425197477176,
+"diameter_km": 216.473,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.114,
+"e": 0.0661,
+"i_deg": 6.56,
+"om_deg": 183.42,
+"w_deg": 251.45,
+"ma_deg": 177.54
+}
+},
+{
+"number": 49,
+"name": "Pales",
+"gm_km3_s2": 0.3601745938480365,
+"diameter_km": 166.252,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.097,
+"e": 0.2213,
+"i_deg": 3.2,
+"om_deg": 284.98,
+"w_deg": 113.48,
+"ma_deg": 349.09
+}
+},
+{
+"number": 50,
+"name": "Virginia",
+"gm_km3_s2": 0.04065889173403421,
+"diameter_km": 84.074,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.651,
+"e": 0.2845,
+"i_deg": 2.84,
+"om_deg": 173.45,
+"w_deg": 200.1,
+"ma_deg": 32.28
+}
+},
+{
+"number": 51,
+"name": "Nemausa",
+"gm_km3_s2": 0.25099982778101165,
+"diameter_km": 138.159,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.366,
+"e": 0.066,
+"i_deg": 9.97,
+"om_deg": 175.88,
+"w_deg": 2.4,
+"ma_deg": 80.61
+}
+},
+{
+"number": 52,
+"name": "Europa",
+"gm_km3_s2": 2.6830359242821795,
+"diameter_km": 303.918,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.094,
+"e": 0.1125,
+"i_deg": 7.48,
+"om_deg": 128.57,
+"w_deg": 342.8,
+"ma_deg": 348.92
+}
+},
+{
+"number": 53,
+"name": "Kalypso",
+"gm_km3_s2": 0.034576324294752624,
+"diameter_km": 97.262,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.618,
+"e": 0.203,
+"i_deg": 5.18,
+"om_deg": 143.44,
+"w_deg": 314.44,
+"ma_deg": 307.59
+}
+},
+{
+"number": 54,
+"name": "Alexandra",
+"gm_km3_s2": 0.11487356991070574,
+"diameter_km": 160.12,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.71,
+"e": 0.1992,
+"i_deg": 11.84,
+"om_deg": 313.01,
+"w_deg": 346.36,
+"ma_deg": 230.78
+}
+},
+{
+"number": 56,
+"name": "Melete",
+"gm_km3_s2": 0.19434860674030666,
+"diameter_km": 121.333,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.598,
+"e": 0.2365,
+"i_deg": 8.08,
+"om_deg": 192.9,
+"w_deg": 105.03,
+"ma_deg": 139.05
+}
+},
+{
+"number": 57,
+"name": "Mnemosyne",
+"gm_km3_s2": 0.03351373925444386,
+"diameter_km": 112.59,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.156,
+"e": 0.1079,
+"i_deg": 15.23,
+"om_deg": 198.88,
+"w_deg": 210.99,
+"ma_deg": 240.32
+}
+},
+{
+"number": 58,
+"name": "Concordia",
+"gm_km3_s2": 0.08078354088217901,
+"diameter_km": 106.517,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.7,
+"e": 0.0459,
+"i_deg": 5.07,
+"om_deg": 161.05,
+"w_deg": 33.82,
+"ma_deg": 152.97
+}
+},
+{
+"number": 59,
+"name": "Elpis",
+"gm_km3_s2": 0.2746636814577787,
+"diameter_km": 165.119,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.713,
+"e": 0.1165,
+"i_deg": 8.65,
+"om_deg": 169.91,
+"w_deg": 211.17,
+"ma_deg": 12.37
+}
+},
+{
+"number": 60,
+"name": "Echo",
+"gm_km3_s2": 0.006649286536860783,
+"diameter_km": 43.218,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.393,
+"e": 0.1844,
+"i_deg": 3.6,
+"om_deg": 191.51,
+"w_deg": 270.9,
+"ma_deg": 181.3
+}
+},
+{
+"number": 62,
+"name": "Erato",
+"gm_km3_s2": 0.0682300738012688,
+"diameter_km": 106.921,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.129,
+"e": 0.1678,
+"i_deg": 2.24,
+"om_deg": 125.1,
+"w_deg": 277.8,
+"ma_deg": 341.11
+}
+},
+{
+"number": 63,
+"name": "Ausonia",
+"gm_km3_s2": 0.12826172446401465,
+"diameter_km": 116.044,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.394,
+"e": 0.1281,
+"i_deg": 5.77,
+"om_deg": 337.68,
+"w_deg": 295.55,
+"ma_deg": 111.38
+}
+},
+{
+"number": 65,
+"name": null,
+"gm_km3_s2": 0.9381057563915134,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 68,
+"name": "Leto",
+"gm_km3_s2": 0.052502311533705194,
+"diameter_km": 122.509,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.785,
+"e": 0.1844,
+"i_deg": 7.96,
+"om_deg": 44.03,
+"w_deg": 305.11,
+"ma_deg": 92.91
+}
+},
+{
+"number": 69,
+"name": "Hesperia",
+"gm_km3_s2": 0.5029988614903574,
+"diameter_km": 138.13,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.977,
+"e": 0.1689,
+"i_deg": 8.59,
+"om_deg": 184.89,
+"w_deg": 288.18,
+"ma_deg": 81.16
+}
+},
+{
+"number": 70,
+"name": "Panopaea",
+"gm_km3_s2": 0.05476071960293838,
+"diameter_km": 127.911,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.614,
+"e": 0.1831,
+"i_deg": 11.6,
+"om_deg": 47.64,
+"w_deg": 255.4,
+"ma_deg": 316.26
+}
+},
+{
+"number": 71,
+"name": "Niobe",
+"gm_km3_s2": 0.05884486016394972,
+"diameter_km": 83.42,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.754,
+"e": 0.1771,
+"i_deg": 23.24,
+"om_deg": 315.91,
+"w_deg": 267.0,
+"ma_deg": 104.31
+}
+},
+{
+"number": 72,
+"name": "Feronia",
+"gm_km3_s2": 0.0676629262721756,
+"diameter_km": 74.966,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.266,
+"e": 0.1213,
+"i_deg": 5.42,
+"om_deg": 207.93,
+"w_deg": 102.68,
+"ma_deg": 38.12
+}
+},
+{
+"number": 74,
+"name": "Galatea",
+"gm_km3_s2": 0.0852648614493133,
+"diameter_km": 118.71,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.782,
+"e": 0.2375,
+"i_deg": 4.07,
+"om_deg": 196.98,
+"w_deg": 175.02,
+"ma_deg": 106.72
+}
+},
+{
+"number": 75,
+"name": "Eurydike",
+"gm_km3_s2": 0.026024493410897156,
+"diameter_km": 62.377,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.671,
+"e": 0.306,
+"i_deg": 5.0,
+"om_deg": 359.1,
+"w_deg": 339.64,
+"ma_deg": 187.58
+}
+},
+{
+"number": 76,
+"name": null,
+"gm_km3_s2": 0.3227544100349193,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 77,
+"name": "Frigga",
+"gm_km3_s2": 0.023646237888685605,
+"diameter_km": 61.39,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.668,
+"e": 0.1334,
+"i_deg": 2.42,
+"om_deg": 1.05,
+"w_deg": 61.13,
+"ma_deg": 152.09
+}
+},
+{
+"number": 78,
+"name": "Diana",
+"gm_km3_s2": 0.09134803669310188,
+"diameter_km": 120.6,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.623,
+"e": 0.2035,
+"i_deg": 8.68,
+"om_deg": 333.28,
+"w_deg": 153.32,
+"ma_deg": 201.43
+}
+},
+{
+"number": 79,
+"name": "Eurynome",
+"gm_km3_s2": 0.021635975390682568,
+"diameter_km": 63.479,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.444,
+"e": 0.1909,
+"i_deg": 4.61,
+"om_deg": 206.5,
+"w_deg": 201.39,
+"ma_deg": 178.93
+}
+},
+{
+"number": 80,
+"name": "Sappho",
+"gm_km3_s2": 0.02532651396590915,
+"diameter_km": 68.563,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.297,
+"e": 0.2,
+"i_deg": 8.67,
+"om_deg": 218.6,
+"w_deg": 139.81,
+"ma_deg": 113.78
+}
+},
+{
+"number": 81,
+"name": "Terpsichore",
+"gm_km3_s2": 0.05677507115377877,
+"diameter_km": 117.727,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.852,
+"e": 0.2116,
+"i_deg": 7.8,
+"om_deg": 0.89,
+"w_deg": 51.23,
+"ma_deg": 159.61
+}
+},
+{
+"number": 82,
+"name": "Alkmene",
+"gm_km3_s2": 0.017170575952470256,
+"diameter_km": 57.621,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.763,
+"e": 0.2209,
+"i_deg": 2.83,
+"om_deg": 25.38,
+"w_deg": 110.67,
+"ma_deg": 14.25
+}
+},
+{
+"number": 83,
+"name": "Beatrix",
+"gm_km3_s2": 0.08279005261797887,
+"diameter_km": 110.503,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.431,
+"e": 0.0832,
+"i_deg": 4.97,
+"om_deg": 27.65,
+"w_deg": 169.86,
+"ma_deg": 183.99
+}
+},
+{
+"number": 84,
+"name": "Klio",
+"gm_km3_s2": 0.03361714355300735,
+"diameter_km": 79.16,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.363,
+"e": 0.2355,
+"i_deg": 9.31,
+"om_deg": 327.49,
+"w_deg": 15.19,
+"ma_deg": 93.07
+}
+},
+{
+"number": 85,
+"name": "Io",
+"gm_km3_s2": 0.3772020840036983,
+"diameter_km": 154.79,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.654,
+"e": 0.193,
+"i_deg": 11.96,
+"om_deg": 203.04,
+"w_deg": 122.96,
+"ma_deg": 93.84
+}
+},
+{
+"number": 86,
+"name": "Semele",
+"gm_km3_s2": 0.06443655080403475,
+"diameter_km": 109.929,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.103,
+"e": 0.218,
+"i_deg": 4.82,
+"om_deg": 86.04,
+"w_deg": 308.72,
+"ma_deg": 100.2
+}
+},
+{
+"number": 87,
+"name": null,
+"gm_km3_s2": 2.168232073699691,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 88,
+"name": "Thisbe",
+"gm_km3_s2": 1.1898077088121908,
+"diameter_km": 232.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.766,
+"e": 0.1656,
+"i_deg": 5.23,
+"om_deg": 276.32,
+"w_deg": 36.97,
+"ma_deg": 244.36
+}
+},
+{
+"number": 89,
+"name": "Julia",
+"gm_km3_s2": 0.25562811373025696,
+"diameter_km": 145.483,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.551,
+"e": 0.1837,
+"i_deg": 16.12,
+"om_deg": 311.52,
+"w_deg": 45.2,
+"ma_deg": 46.77
+}
+},
+{
+"number": 90,
+"name": "Antiope",
+"gm_km3_s2": 0.11852950170195088,
+"diameter_km": 115.974,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.141,
+"e": 0.1727,
+"i_deg": 2.21,
+"om_deg": 69.89,
+"w_deg": 244.38,
+"ma_deg": 244.53
+}
+},
+{
+"number": 91,
+"name": "Aegina",
+"gm_km3_s2": 0.06366685109693956,
+"diameter_km": 103.402,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.589,
+"e": 0.1081,
+"i_deg": 2.1,
+"om_deg": 10.36,
+"w_deg": 74.09,
+"ma_deg": 61.9
+}
+},
+{
+"number": 92,
+"name": "Undina",
+"gm_km3_s2": 0.09069504903259751,
+"diameter_km": 126.42,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.186,
+"e": 0.1048,
+"i_deg": 9.92,
+"om_deg": 101.39,
+"w_deg": 236.56,
+"ma_deg": 272.95
+}
+},
+{
+"number": 93,
+"name": "Minerva",
+"gm_km3_s2": 0.26419998462020317,
+"diameter_km": 154.155,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.753,
+"e": 0.143,
+"i_deg": 8.54,
+"om_deg": 3.81,
+"w_deg": 275.9,
+"ma_deg": 316.29
+}
+},
+{
+"number": 94,
+"name": "Aurora",
+"gm_km3_s2": 0.8734934599856613,
+"diameter_km": 204.89,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.159,
+"e": 0.0973,
+"i_deg": 7.97,
+"om_deg": 2.45,
+"w_deg": 60.61,
+"ma_deg": 45.71
+}
+},
+{
+"number": 95,
+"name": "Arethusa",
+"gm_km3_s2": 0.20642217240712385,
+"diameter_km": 147.969,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.065,
+"e": 0.1524,
+"i_deg": 13.01,
+"om_deg": 242.94,
+"w_deg": 152.75,
+"ma_deg": 193.03
+}
+},
+{
+"number": 96,
+"name": "Aegle",
+"gm_km3_s2": 0.42289620445819115,
+"diameter_km": 177.774,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.048,
+"e": 0.1425,
+"i_deg": 15.98,
+"om_deg": 321.47,
+"w_deg": 207.97,
+"ma_deg": 226.17
+}
+},
+{
+"number": 97,
+"name": "Klotho",
+"gm_km3_s2": 0.04605074455591942,
+"diameter_km": 100.717,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.669,
+"e": 0.2574,
+"i_deg": 11.77,
+"om_deg": 159.58,
+"w_deg": 268.46,
+"ma_deg": 179.26
+}
+},
+{
+"number": 98,
+"name": "Ianthe",
+"gm_km3_s2": 0.14290693537694252,
+"diameter_km": 132.788,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.688,
+"e": 0.1878,
+"i_deg": 15.58,
+"om_deg": 353.85,
+"w_deg": 158.07,
+"ma_deg": 348.2
+}
+},
+{
+"number": 99,
+"name": "Dike",
+"gm_km3_s2": 0.022489804077520405,
+"diameter_km": 67.354,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.663,
+"e": 0.1978,
+"i_deg": 13.86,
+"om_deg": 41.4,
+"w_deg": 195.39,
+"ma_deg": 114.05
+}
+},
+{
+"number": 100,
+"name": "Hekate",
+"gm_km3_s2": 0.038349407270499465,
+"diameter_km": 85.734,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.091,
+"e": 0.168,
+"i_deg": 6.43,
+"om_deg": 127.16,
+"w_deg": 183.51,
+"ma_deg": 359.56
+}
+},
+{
+"number": 102,
+"name": "Miriam",
+"gm_km3_s2": 0.032610582064772756,
+"diameter_km": 82.595,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.664,
+"e": 0.252,
+"i_deg": 5.17,
+"om_deg": 210.62,
+"w_deg": 147.57,
+"ma_deg": 120.43
+}
+},
+{
+"number": 103,
+"name": "Hera",
+"gm_km3_s2": 0.05773606323266871,
+"diameter_km": 83.908,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.701,
+"e": 0.0816,
+"i_deg": 5.43,
+"om_deg": 135.95,
+"w_deg": 190.42,
+"ma_deg": 209.95
+}
+},
+{
+"number": 104,
+"name": "Klymene",
+"gm_km3_s2": 0.19794937696722562,
+"diameter_km": 136.553,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.145,
+"e": 0.163,
+"i_deg": 2.79,
+"om_deg": 41.63,
+"w_deg": 31.93,
+"ma_deg": 17.62
+}
+},
+{
+"number": 105,
+"name": "Artemis",
+"gm_km3_s2": 0.06300931934482505,
+"diameter_km": 94.864,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.372,
+"e": 0.1791,
+"i_deg": 21.46,
+"om_deg": 188.21,
+"w_deg": 56.91,
+"ma_deg": 147.49
+}
+},
+{
+"number": 106,
+"name": "Dione",
+"gm_km3_s2": 0.026613083738142747,
+"diameter_km": 207.869,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.182,
+"e": 0.1587,
+"i_deg": 4.57,
+"om_deg": 61.98,
+"w_deg": 331.77,
+"ma_deg": 314.62
+}
+},
+{
+"number": 107,
+"name": null,
+"gm_km3_s2": 1.4437384031866003,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 109,
+"name": "Felicitas",
+"gm_km3_s2": 0.03917206703789153,
+"diameter_km": 82.588,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.693,
+"e": 0.3004,
+"i_deg": 7.85,
+"om_deg": 2.72,
+"w_deg": 57.56,
+"ma_deg": 111.42
+}
+},
+{
+"number": 110,
+"name": "Lydia",
+"gm_km3_s2": 0.05055905565413737,
+"diameter_km": 86.09,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.732,
+"e": 0.0789,
+"i_deg": 5.96,
+"om_deg": 56.76,
+"w_deg": 282.2,
+"ma_deg": 55.15
+}
+},
+{
+"number": 111,
+"name": "Ate",
+"gm_km3_s2": 0.0568948676115037,
+"diameter_km": 126.344,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.593,
+"e": 0.1036,
+"i_deg": 4.93,
+"om_deg": 305.66,
+"w_deg": 168.46,
+"ma_deg": 317.88
+}
+},
+{
+"number": 112,
+"name": "Iphigenia",
+"gm_km3_s2": 0.01368762079785646,
+"diameter_km": 69.818,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.433,
+"e": 0.1278,
+"i_deg": 2.6,
+"om_deg": 323.35,
+"w_deg": 16.83,
+"ma_deg": 24.44
+}
+},
+{
+"number": 113,
+"name": "Amalthea",
+"gm_km3_s2": 0.01382230053854058,
+"diameter_km": 50.137,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.376,
+"e": 0.0863,
+"i_deg": 5.04,
+"om_deg": 123.32,
+"w_deg": 80.25,
+"ma_deg": 114.01
+}
+},
+{
+"number": 114,
+"name": "Kassandra",
+"gm_km3_s2": 0.11160152092873166,
+"diameter_km": 94.178,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.675,
+"e": 0.1391,
+"i_deg": 4.95,
+"om_deg": 164.05,
+"w_deg": 352.5,
+"ma_deg": 286.94
+}
+},
+{
+"number": 115,
+"name": "Thyra",
+"gm_km3_s2": 0.03127534326627215,
+"diameter_km": 79.83,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.38,
+"e": 0.1923,
+"i_deg": 11.59,
+"om_deg": 308.75,
+"w_deg": 97.03,
+"ma_deg": 354.94
+}
+},
+{
+"number": 117,
+"name": "Lomia",
+"gm_km3_s2": 0.3944716843940498,
+"diameter_km": 208.974,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.992,
+"e": 0.0228,
+"i_deg": 14.92,
+"om_deg": 348.61,
+"w_deg": 53.35,
+"ma_deg": 282.37
+}
+},
+{
+"number": 118,
+"name": "Peitho",
+"gm_km3_s2": 0.005900805172632571,
+"diameter_km": 40.211,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.438,
+"e": 0.1633,
+"i_deg": 7.75,
+"om_deg": 47.63,
+"w_deg": 33.14,
+"ma_deg": 263.95
+}
+},
+{
+"number": 120,
+"name": "Lachesis",
+"gm_km3_s2": 0.45069616779929716,
+"diameter_km": 155.132,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.12,
+"e": 0.049,
+"i_deg": 6.94,
+"om_deg": 340.55,
+"w_deg": 242.83,
+"ma_deg": 330.27
+}
+},
+{
+"number": 121,
+"name": null,
+"gm_km3_s2": 0.1346702366638879,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 124,
+"name": "Alkeste",
+"gm_km3_s2": 0.06315809576128117,
+"diameter_km": 88.648,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.63,
+"e": 0.0785,
+"i_deg": 2.96,
+"om_deg": 187.9,
+"w_deg": 61.49,
+"ma_deg": 95.5
+}
+},
+{
+"number": 127,
+"name": "Johanna",
+"gm_km3_s2": 0.11102223121353111,
+"diameter_km": 122.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.756,
+"e": 0.0633,
+"i_deg": 8.24,
+"om_deg": 31.09,
+"w_deg": 92.85,
+"ma_deg": 125.19
+}
+},
+{
+"number": 128,
+"name": "Nemesis",
+"gm_km3_s2": 0.3850155156837455,
+"diameter_km": 162.515,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.75,
+"e": 0.1269,
+"i_deg": 6.25,
+"om_deg": 76.16,
+"w_deg": 302.77,
+"ma_deg": 275.15
+}
+},
+{
+"number": 129,
+"name": "Antigone",
+"gm_km3_s2": 0.06141763222417454,
+"diameter_km": 113.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.868,
+"e": 0.2132,
+"i_deg": 12.27,
+"om_deg": 135.66,
+"w_deg": 110.48,
+"ma_deg": 108.27
+}
+},
+{
+"number": 130,
+"name": "Elektra",
+"gm_km3_s2": 0.5952679088486216,
+"diameter_km": 180.652,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.125,
+"e": 0.2097,
+"i_deg": 22.78,
+"om_deg": 144.96,
+"w_deg": 238.03,
+"ma_deg": 49.05
+}
+},
+{
+"number": 132,
+"name": null,
+"gm_km3_s2": 0.007850454669065494,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 134,
+"name": "Sophrosyne",
+"gm_km3_s2": 0.05400439648126688,
+"diameter_km": 108.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.563,
+"e": 0.1153,
+"i_deg": 11.61,
+"om_deg": 345.83,
+"w_deg": 85.83,
+"ma_deg": 13.23
+}
+},
+{
+"number": 135,
+"name": "Hertha",
+"gm_km3_s2": 0.06510244611392403,
+"diameter_km": 79.24,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.427,
+"e": 0.2084,
+"i_deg": 2.3,
+"om_deg": 343.43,
+"w_deg": 340.27,
+"ma_deg": 295.36
+}
+},
+{
+"number": 137,
+"name": "Meliboea",
+"gm_km3_s2": 0.11791441036924805,
+"diameter_km": 128.678,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.13,
+"e": 0.21,
+"i_deg": 13.41,
+"om_deg": 202.03,
+"w_deg": 108.33,
+"ma_deg": 142.15
+}
+},
+{
+"number": 139,
+"name": "Juewa",
+"gm_km3_s2": 0.41527795479168406,
+"diameter_km": 151.116,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.786,
+"e": 0.1703,
+"i_deg": 10.87,
+"om_deg": 1.66,
+"w_deg": 167.37,
+"ma_deg": 102.27
+}
+},
+{
+"number": 140,
+"name": "Siwa",
+"gm_km3_s2": 0.1500263796871979,
+"diameter_km": 109.79,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.73,
+"e": 0.2182,
+"i_deg": 3.19,
+"om_deg": 107.08,
+"w_deg": 197.2,
+"ma_deg": 265.0
+}
+},
+{
+"number": 141,
+"name": "Lumen",
+"gm_km3_s2": 0.09817056627551014,
+"diameter_km": 117.916,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.666,
+"e": 0.2129,
+"i_deg": 11.9,
+"om_deg": 318.44,
+"w_deg": 57.92,
+"ma_deg": 27.87
+}
+},
+{
+"number": 143,
+"name": "Adria",
+"gm_km3_s2": 0.11204605347005545,
+"diameter_km": 95.377,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.764,
+"e": 0.0709,
+"i_deg": 11.45,
+"om_deg": 332.84,
+"w_deg": 252.07,
+"ma_deg": 279.91
+}
+},
+{
+"number": 144,
+"name": "Vibilia",
+"gm_km3_s2": 0.18270587544899453,
+"diameter_km": 142.38,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.654,
+"e": 0.2354,
+"i_deg": 4.82,
+"om_deg": 76.17,
+"w_deg": 294.4,
+"ma_deg": 240.19
+}
+},
+{
+"number": 145,
+"name": "Adeona",
+"gm_km3_s2": 0.14046349854231122,
+"diameter_km": 127.783,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.671,
+"e": 0.1476,
+"i_deg": 12.62,
+"om_deg": 77.32,
+"w_deg": 45.26,
+"ma_deg": 324.48
+}
+},
+{
+"number": 146,
+"name": "Lucina",
+"gm_km3_s2": 0.3325321603049825,
+"diameter_km": 160.31,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.721,
+"e": 0.0639,
+"i_deg": 13.09,
+"om_deg": 83.91,
+"w_deg": 145.36,
+"ma_deg": 271.34
+}
+},
+{
+"number": 147,
+"name": "Protogeneia",
+"gm_km3_s2": 0.11148720823970465,
+"diameter_km": 132.93,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.137,
+"e": 0.0218,
+"i_deg": 1.93,
+"om_deg": 248.19,
+"w_deg": 103.45,
+"ma_deg": 8.77
+}
+},
+{
+"number": 148,
+"name": "Gallia",
+"gm_km3_s2": 0.12393959495437554,
+"diameter_km": 97.75,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.771,
+"e": 0.1877,
+"i_deg": 25.29,
+"om_deg": 144.95,
+"w_deg": 252.4,
+"ma_deg": 200.18
+}
+},
+{
+"number": 150,
+"name": "Nuwa",
+"gm_km3_s2": 0.12067253870719608,
+"diameter_km": 119.128,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.988,
+"e": 0.1244,
+"i_deg": 2.2,
+"om_deg": 205.98,
+"w_deg": 155.01,
+"ma_deg": 102.86
+}
+},
+{
+"number": 154,
+"name": "Bertha",
+"gm_km3_s2": 0.8549433056897737,
+"diameter_km": 192.611,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.194,
+"e": 0.0772,
+"i_deg": 21.02,
+"om_deg": 36.48,
+"w_deg": 168.02,
+"ma_deg": 17.12
+}
+},
+{
+"number": 156,
+"name": "Xanthippe",
+"gm_km3_s2": 0.12516341668039235,
+"diameter_km": 143.346,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.733,
+"e": 0.2215,
+"i_deg": 9.76,
+"om_deg": 241.7,
+"w_deg": 338.97,
+"ma_deg": 329.13
+}
+},
+{
+"number": 159,
+"name": "Aemilia",
+"gm_km3_s2": 0.08627172153902812,
+"diameter_km": 125.236,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.109,
+"e": 0.0992,
+"i_deg": 6.11,
+"om_deg": 133.85,
+"w_deg": 333.82,
+"ma_deg": 141.75
+}
+},
+{
+"number": 160,
+"name": "Una",
+"gm_km3_s2": 0.02921549584808325,
+"diameter_km": 81.24,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.728,
+"e": 0.0654,
+"i_deg": 3.82,
+"om_deg": 8.54,
+"w_deg": 50.15,
+"ma_deg": 214.91
+}
+},
+{
+"number": 162,
+"name": "Laurentia",
+"gm_km3_s2": 0.04440579065797627,
+"diameter_km": 97.021,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.014,
+"e": 0.1832,
+"i_deg": 6.09,
+"om_deg": 35.42,
+"w_deg": 115.69,
+"ma_deg": 258.01
+}
+},
+{
+"number": 163,
+"name": "Erigone",
+"gm_km3_s2": 0.06055198202113689,
+"diameter_km": 81.579,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.367,
+"e": 0.1919,
+"i_deg": 4.82,
+"om_deg": 160.0,
+"w_deg": 298.48,
+"ma_deg": 174.36
+}
+},
+{
+"number": 164,
+"name": "Eva",
+"gm_km3_s2": 0.12044699067368633,
+"diameter_km": 100.254,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.633,
+"e": 0.3462,
+"i_deg": 24.47,
+"om_deg": 76.78,
+"w_deg": 284.01,
+"ma_deg": 330.59
+}
+},
+{
+"number": 165,
+"name": "Loreley",
+"gm_km3_s2": 0.11864379208675753,
+"diameter_km": 180.083,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.126,
+"e": 0.0835,
+"i_deg": 11.23,
+"om_deg": 302.43,
+"w_deg": 344.36,
+"ma_deg": 51.01
+}
+},
+{
+"number": 168,
+"name": null,
+"gm_km3_s2": 0.37162502827100913,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 171,
+"name": "Ophelia",
+"gm_km3_s2": 0.13572317258418634,
+"diameter_km": 130.808,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.129,
+"e": 0.1329,
+"i_deg": 2.55,
+"om_deg": 100.47,
+"w_deg": 55.21,
+"ma_deg": 293.64
+}
+},
+{
+"number": 172,
+"name": "Baucis",
+"gm_km3_s2": 0.020894180699429478,
+"diameter_km": 62.43,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.379,
+"e": 0.114,
+"i_deg": 10.02,
+"om_deg": 331.89,
+"w_deg": 359.17,
+"ma_deg": 62.03
+}
+},
+{
+"number": 173,
+"name": "Ino",
+"gm_km3_s2": 0.15672092903746537,
+"diameter_km": 125.821,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.742,
+"e": 0.2093,
+"i_deg": 14.19,
+"om_deg": 148.12,
+"w_deg": 228.53,
+"ma_deg": 238.83
+}
+},
+{
+"number": 175,
+"name": "Andromache",
+"gm_km3_s2": 0.03279518808833904,
+"diameter_km": 94.532,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.187,
+"e": 0.2314,
+"i_deg": 3.22,
+"om_deg": 21.28,
+"w_deg": 319.62,
+"ma_deg": 300.96
+}
+},
+{
+"number": 176,
+"name": "Iduna",
+"gm_km3_s2": 0.0705555465882045,
+"diameter_km": 106.976,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.182,
+"e": 0.1726,
+"i_deg": 22.67,
+"om_deg": 200.4,
+"w_deg": 189.18,
+"ma_deg": 69.43
+}
+},
+{
+"number": 177,
+"name": "Irma",
+"gm_km3_s2": 0.014328610755898493,
+"diameter_km": 69.049,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.772,
+"e": 0.2352,
+"i_deg": 1.38,
+"om_deg": 346.87,
+"w_deg": 39.73,
+"ma_deg": 89.91
+}
+},
+{
+"number": 181,
+"name": "Eucharis",
+"gm_km3_s2": 0.2297745479751442,
+"diameter_km": 115.383,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.123,
+"e": 0.2084,
+"i_deg": 18.9,
+"om_deg": 142.99,
+"w_deg": 319.03,
+"ma_deg": 314.27
+}
+},
+{
+"number": 185,
+"name": "Eunike",
+"gm_km3_s2": 0.06521474412762318,
+"diameter_km": 160.464,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.738,
+"e": 0.1268,
+"i_deg": 23.25,
+"om_deg": 153.74,
+"w_deg": 224.05,
+"ma_deg": 30.42
+}
+},
+{
+"number": 187,
+"name": "Lamberta",
+"gm_km3_s2": 0.3138896993525767,
+"diameter_km": 147.294,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.732,
+"e": 0.2383,
+"i_deg": 10.57,
+"om_deg": 21.56,
+"w_deg": 196.58,
+"ma_deg": 285.34
+}
+},
+{
+"number": 191,
+"name": "Kolga",
+"gm_km3_s2": 0.04157486740002917,
+"diameter_km": 94.536,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.896,
+"e": 0.0869,
+"i_deg": 11.52,
+"om_deg": 159.16,
+"w_deg": 226.68,
+"ma_deg": 326.76
+}
+},
+{
+"number": 192,
+"name": "Nausikaa",
+"gm_km3_s2": 0.03651629757371484,
+"diameter_km": 98.776,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.403,
+"e": 0.2452,
+"i_deg": 6.8,
+"om_deg": 343.07,
+"w_deg": 30.58,
+"ma_deg": 326.27
+}
+},
+{
+"number": 194,
+"name": "Prokne",
+"gm_km3_s2": 0.11015497975023818,
+"diameter_km": 161.667,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.619,
+"e": 0.2375,
+"i_deg": 18.53,
+"om_deg": 159.12,
+"w_deg": 163.68,
+"ma_deg": 160.43
+}
+},
+{
+"number": 195,
+"name": "Eurykleia",
+"gm_km3_s2": 0.039608915201619334,
+"diameter_km": 93.109,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.878,
+"e": 0.0387,
+"i_deg": 6.95,
+"om_deg": 6.87,
+"w_deg": 118.68,
+"ma_deg": 120.76
+}
+},
+{
+"number": 196,
+"name": "Philomela",
+"gm_km3_s2": 0.32238819014490927,
+"diameter_km": 144.626,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.118,
+"e": 0.0126,
+"i_deg": 7.25,
+"om_deg": 72.28,
+"w_deg": 207.79,
+"ma_deg": 190.08
+}
+},
+{
+"number": 198,
+"name": "Ampella",
+"gm_km3_s2": 0.015558407106664387,
+"diameter_km": 54.323,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.459,
+"e": 0.2271,
+"i_deg": 9.32,
+"om_deg": 268.2,
+"w_deg": 89.02,
+"ma_deg": 330.96
+}
+},
+{
+"number": 200,
+"name": "Dynamene",
+"gm_km3_s2": 0.06755875775984987,
+"diameter_km": 128.301,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.738,
+"e": 0.1341,
+"i_deg": 6.9,
+"om_deg": 324.21,
+"w_deg": 87.12,
+"ma_deg": 71.79
+}
+},
+{
+"number": 201,
+"name": "Penelope",
+"gm_km3_s2": 0.07473140346826103,
+"diameter_km": 85.877,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.679,
+"e": 0.1811,
+"i_deg": 5.77,
+"om_deg": 156.76,
+"w_deg": 181.54,
+"ma_deg": 167.91
+}
+},
+{
+"number": 203,
+"name": "Pompeja",
+"gm_km3_s2": 0.23233715785865422,
+"diameter_km": 124.592,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.737,
+"e": 0.0613,
+"i_deg": 3.17,
+"om_deg": 347.58,
+"w_deg": 59.36,
+"ma_deg": 108.87
+}
+},
+{
+"number": 205,
+"name": "Martha",
+"gm_km3_s2": 0.02348465335261883,
+"diameter_km": 76.983,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.777,
+"e": 0.0357,
+"i_deg": 10.71,
+"om_deg": 211.72,
+"w_deg": 171.32,
+"ma_deg": 250.98
+}
+},
+{
+"number": 206,
+"name": "Hersilia",
+"gm_km3_s2": 0.07842183676892467,
+"diameter_km": 113.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.742,
+"e": 0.041,
+"i_deg": 3.78,
+"om_deg": 144.97,
+"w_deg": 301.34,
+"ma_deg": 49.32
+}
+},
+{
+"number": 209,
+"name": "Dido",
+"gm_km3_s2": 0.8750411185162933,
+"diameter_km": 179.008,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.154,
+"e": 0.052,
+"i_deg": 7.17,
+"om_deg": 0.47,
+"w_deg": 250.13,
+"ma_deg": 225.47
+}
+},
+{
+"number": 210,
+"name": "Isabella",
+"gm_km3_s2": 0.034369652239089485,
+"diameter_km": 86.65,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.722,
+"e": 0.1231,
+"i_deg": 5.26,
+"om_deg": 32.55,
+"w_deg": 13.86,
+"ma_deg": 224.8
+}
+},
+{
+"number": 211,
+"name": "Isolda",
+"gm_km3_s2": 0.03390633732082578,
+"diameter_km": 141.125,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.048,
+"e": 0.1544,
+"i_deg": 3.87,
+"om_deg": 263.16,
+"w_deg": 173.73,
+"ma_deg": 207.99
+}
+},
+{
+"number": 212,
+"name": "Medea",
+"gm_km3_s2": 0.20004759547656567,
+"diameter_km": 136.12,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.117,
+"e": 0.1028,
+"i_deg": 4.28,
+"om_deg": 312.88,
+"w_deg": 105.89,
+"ma_deg": 307.86
+}
+},
+{
+"number": 213,
+"name": "Lilaea",
+"gm_km3_s2": 0.032656094911990036,
+"diameter_km": 82.096,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.753,
+"e": 0.1462,
+"i_deg": 6.82,
+"om_deg": 121.84,
+"w_deg": 164.27,
+"ma_deg": 253.95
+}
+},
+{
+"number": 216,
+"name": "Kleopatra",
+"gm_km3_s2": 0.18579552920740086,
+"diameter_km": 122.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.795,
+"e": 0.2502,
+"i_deg": 13.12,
+"om_deg": 215.31,
+"w_deg": 179.77,
+"ma_deg": 259.86
+}
+},
+{
+"number": 221,
+"name": "Eos",
+"gm_km3_s2": 0.06518770567642626,
+"diameter_km": 95.469,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.012,
+"e": 0.1009,
+"i_deg": 10.89,
+"om_deg": 141.71,
+"w_deg": 192.43,
+"ma_deg": 26.7
+}
+},
+{
+"number": 223,
+"name": "Rosa",
+"gm_km3_s2": 0.0247612780702469,
+"diameter_km": 79.806,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.092,
+"e": 0.1207,
+"i_deg": 1.92,
+"om_deg": 47.52,
+"w_deg": 65.76,
+"ma_deg": 237.46
+}
+},
+{
+"number": 224,
+"name": "Oceana",
+"gm_km3_s2": 0.02080279363650466,
+"diameter_km": 58.236,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.645,
+"e": 0.0447,
+"i_deg": 5.85,
+"om_deg": 352.73,
+"w_deg": 281.49,
+"ma_deg": 109.0
+}
+},
+{
+"number": 225,
+"name": null,
+"gm_km3_s2": 0.027576717686232405,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 227,
+"name": "Philosophia",
+"gm_km3_s2": 0.23747204040614325,
+"diameter_km": 123.891,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.152,
+"e": 0.1999,
+"i_deg": 9.09,
+"om_deg": 324.65,
+"w_deg": 271.69,
+"ma_deg": 338.07
+}
+},
+{
+"number": 230,
+"name": "Athamantis",
+"gm_km3_s2": 0.11905907516375952,
+"diameter_km": 111.332,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.382,
+"e": 0.061,
+"i_deg": 9.45,
+"om_deg": 239.76,
+"w_deg": 139.21,
+"ma_deg": 1.13
+}
+},
+{
+"number": 233,
+"name": "Asterope",
+"gm_km3_s2": 0.0896057892122859,
+"diameter_km": 99.672,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.659,
+"e": 0.1016,
+"i_deg": 7.69,
+"om_deg": 221.91,
+"w_deg": 125.86,
+"ma_deg": 235.65
+}
+},
+{
+"number": 236,
+"name": "Honoria",
+"gm_km3_s2": 0.02803810822472227,
+"diameter_km": 77.708,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.8,
+"e": 0.1896,
+"i_deg": 7.7,
+"om_deg": 185.79,
+"w_deg": 174.27,
+"ma_deg": 333.19
+}
+},
+{
+"number": 238,
+"name": "Hypatia",
+"gm_km3_s2": 0.09951255997158373,
+"diameter_km": 155.659,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.905,
+"e": 0.0917,
+"i_deg": 12.41,
+"om_deg": 183.76,
+"w_deg": 209.18,
+"ma_deg": 167.75
+}
+},
+{
+"number": 240,
+"name": "Vanadis",
+"gm_km3_s2": 0.04150958723676292,
+"diameter_km": 87.928,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.663,
+"e": 0.2088,
+"i_deg": 2.11,
+"om_deg": 115.05,
+"w_deg": 300.7,
+"ma_deg": 155.85
+}
+},
+{
+"number": 241,
+"name": "Germania",
+"gm_km3_s2": 0.37035477112591864,
+"diameter_km": 168.9,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.046,
+"e": 0.1062,
+"i_deg": 5.52,
+"om_deg": 270.13,
+"w_deg": 78.91,
+"ma_deg": 226.37
+}
+},
+{
+"number": 247,
+"name": "Eukrate",
+"gm_km3_s2": 0.3236564247573564,
+"diameter_km": 130.935,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.739,
+"e": 0.2463,
+"i_deg": 24.95,
+"om_deg": 0.01,
+"w_deg": 55.26,
+"ma_deg": 137.62
+}
+},
+{
+"number": 250,
+"name": "Bettina",
+"gm_km3_s2": 0.21054153373885526,
+"diameter_km": 120.995,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.141,
+"e": 0.1371,
+"i_deg": 12.82,
+"om_deg": 23.79,
+"w_deg": 76.01,
+"ma_deg": 334.0
+}
+},
+{
+"number": 259,
+"name": "Aletheia",
+"gm_km3_s2": 0.2029447358143169,
+"diameter_km": 174.318,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.133,
+"e": 0.13,
+"i_deg": 10.81,
+"om_deg": 86.78,
+"w_deg": 166.28,
+"ma_deg": 64.01
+}
+},
+{
+"number": 266,
+"name": "Aline",
+"gm_km3_s2": 0.07442301028184649,
+"diameter_km": 109.494,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.807,
+"e": 0.1554,
+"i_deg": 13.39,
+"om_deg": 235.76,
+"w_deg": 152.26,
+"ma_deg": 86.29
+}
+},
+{
+"number": 268,
+"name": "Adorea",
+"gm_km3_s2": 0.17321888328994195,
+"diameter_km": 144.585,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.091,
+"e": 0.1373,
+"i_deg": 2.44,
+"om_deg": 120.85,
+"w_deg": 67.95,
+"ma_deg": 236.41
+}
+},
+{
+"number": 275,
+"name": "Sapientia",
+"gm_km3_s2": 0.056331687586504774,
+"diameter_km": 103.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.772,
+"e": 0.1616,
+"i_deg": 4.77,
+"om_deg": 133.97,
+"w_deg": 38.84,
+"ma_deg": 351.49
+}
+},
+{
+"number": 276,
+"name": "Adelheid",
+"gm_km3_s2": 0.0893482274406175,
+"diameter_km": 114.723,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.118,
+"e": 0.0612,
+"i_deg": 21.66,
+"om_deg": 210.98,
+"w_deg": 266.79,
+"ma_deg": 127.78
+}
+},
+{
+"number": 283,
+"name": "Emma",
+"gm_km3_s2": 0.17201592148398276,
+"diameter_km": 132.385,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.049,
+"e": 0.144,
+"i_deg": 7.99,
+"om_deg": 303.86,
+"w_deg": 56.1,
+"ma_deg": 71.18
+}
+},
+{
+"number": 287,
+"name": "Nephthys",
+"gm_km3_s2": 0.022902121188970725,
+"diameter_km": 59.615,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.353,
+"e": 0.0238,
+"i_deg": 10.03,
+"om_deg": 142.23,
+"w_deg": 122.47,
+"ma_deg": 27.41
+}
+},
+{
+"number": 303,
+"name": "Josephina",
+"gm_km3_s2": 0.05494234612529285,
+"diameter_km": 124.923,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.125,
+"e": 0.056,
+"i_deg": 6.88,
+"om_deg": 343.62,
+"w_deg": 68.38,
+"ma_deg": 275.63
+}
+},
+{
+"number": 304,
+"name": "Olga",
+"gm_km3_s2": 0.035905612623648574,
+"diameter_km": 65.99,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.403,
+"e": 0.2225,
+"i_deg": 15.85,
+"om_deg": 158.96,
+"w_deg": 172.35,
+"ma_deg": 296.21
+}
+},
+{
+"number": 308,
+"name": "Polyxo",
+"gm_km3_s2": 0.09708734074424652,
+"diameter_km": 128.578,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.749,
+"e": 0.0382,
+"i_deg": 4.36,
+"om_deg": 181.58,
+"w_deg": 111.97,
+"ma_deg": 132.35
+}
+},
+{
+"number": 313,
+"name": "Chaldaea",
+"gm_km3_s2": 0.03223523842408181,
+"diameter_km": 71.183,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.376,
+"e": 0.1808,
+"i_deg": 11.64,
+"om_deg": 176.53,
+"w_deg": 315.78,
+"ma_deg": 151.92
+}
+},
+{
+"number": 322,
+"name": "Phaeo",
+"gm_km3_s2": 0.03620553538910943,
+"diameter_km": 69.855,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.783,
+"e": 0.2439,
+"i_deg": 8.05,
+"om_deg": 252.28,
+"w_deg": 114.93,
+"ma_deg": 27.46
+}
+},
+{
+"number": 324,
+"name": "Bamberga",
+"gm_km3_s2": 0.6192998381807576,
+"diameter_km": 220.691,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.683,
+"e": 0.3404,
+"i_deg": 11.1,
+"om_deg": 327.82,
+"w_deg": 44.19,
+"ma_deg": 313.72
+}
+},
+{
+"number": 326,
+"name": "Tamara",
+"gm_km3_s2": 0.03064350513441861,
+"diameter_km": 93.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.318,
+"e": 0.1902,
+"i_deg": 23.7,
+"om_deg": 32.08,
+"w_deg": 239.09,
+"ma_deg": 311.27
+}
+},
+{
+"number": 328,
+"name": "Gudrun",
+"gm_km3_s2": 0.22416430085763037,
+"diameter_km": 145.68,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.109,
+"e": 0.1078,
+"i_deg": 16.13,
+"om_deg": 351.85,
+"w_deg": 107.73,
+"ma_deg": 248.54
+}
+},
+{
+"number": 329,
+"name": "Svea",
+"gm_km3_s2": 0.02252556055031351,
+"diameter_km": 81.057,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.477,
+"e": 0.0263,
+"i_deg": 15.88,
+"om_deg": 178.43,
+"w_deg": 57.12,
+"ma_deg": 111.53
+}
+},
+{
+"number": 334,
+"name": null,
+"gm_km3_s2": 0.10824753440286035,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 335,
+"name": "Roberta",
+"gm_km3_s2": 0.09347850196453676,
+"diameter_km": 97.109,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.478,
+"e": 0.1709,
+"i_deg": 5.11,
+"om_deg": 148.36,
+"w_deg": 140.16,
+"ma_deg": 186.32
+}
+},
+{
+"number": 336,
+"name": "Lacadiera",
+"gm_km3_s2": 0.006391873183063738,
+"diameter_km": 63.356,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.252,
+"e": 0.0949,
+"i_deg": 5.65,
+"om_deg": 234.94,
+"w_deg": 31.86,
+"ma_deg": 293.52
+}
+},
+{
+"number": 337,
+"name": "Devosa",
+"gm_km3_s2": 0.03278571879674889,
+"diameter_km": 64.549,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.383,
+"e": 0.1372,
+"i_deg": 7.86,
+"om_deg": 355.29,
+"w_deg": 99.35,
+"ma_deg": 53.26
+}
+},
+{
+"number": 338,
+"name": "Budrosa",
+"gm_km3_s2": 0.012849042228280046,
+"diameter_km": 50.506,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.913,
+"e": 0.0175,
+"i_deg": 6.04,
+"om_deg": 287.29,
+"w_deg": 111.49,
+"ma_deg": 295.31
+}
+},
+{
+"number": 344,
+"name": "Desiderata",
+"gm_km3_s2": 0.05905206907944162,
+"diameter_km": 124.181,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.596,
+"e": 0.3138,
+"i_deg": 18.35,
+"om_deg": 47.99,
+"w_deg": 237.35,
+"ma_deg": 69.38
+}
+},
+{
+"number": 345,
+"name": "Tercidina",
+"gm_km3_s2": 0.07127103762932387,
+"diameter_km": 90.243,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.326,
+"e": 0.0611,
+"i_deg": 9.74,
+"om_deg": 212.57,
+"w_deg": 230.31,
+"ma_deg": 209.27
+}
+},
+{
+"number": 346,
+"name": "Hermentaria",
+"gm_km3_s2": 0.049267645139826365,
+"diameter_km": 86.447,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.796,
+"e": 0.1026,
+"i_deg": 8.76,
+"om_deg": 91.85,
+"w_deg": 290.64,
+"ma_deg": 229.21
+}
+},
+{
+"number": 347,
+"name": "Pariana",
+"gm_km3_s2": 0.011141348505502658,
+"diameter_km": 48.615,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.613,
+"e": 0.164,
+"i_deg": 11.69,
+"om_deg": 85.22,
+"w_deg": 87.68,
+"ma_deg": 127.15
+}
+},
+{
+"number": 349,
+"name": "Dembowska",
+"gm_km3_s2": 0.34878920862042134,
+"diameter_km": 139.77,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.925,
+"e": 0.0885,
+"i_deg": 8.25,
+"om_deg": 32.18,
+"w_deg": 344.48,
+"ma_deg": 298.29
+}
+},
+{
+"number": 350,
+"name": "Ornamenta",
+"gm_km3_s2": 0.12493918593667626,
+"diameter_km": 128.729,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.107,
+"e": 0.1606,
+"i_deg": 24.91,
+"om_deg": 90.05,
+"w_deg": 336.99,
+"ma_deg": 105.7
+}
+},
+{
+"number": 354,
+"name": "Eleonora",
+"gm_km3_s2": 0.3130405603234029,
+"diameter_km": 148.97,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.801,
+"e": 0.1119,
+"i_deg": 18.36,
+"om_deg": 140.2,
+"w_deg": 8.18,
+"ma_deg": 158.4
+}
+},
+{
+"number": 356,
+"name": "Liguria",
+"gm_km3_s2": 0.1129727583522203,
+"diameter_km": 145.503,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.754,
+"e": 0.242,
+"i_deg": 8.21,
+"om_deg": 354.44,
+"w_deg": 79.27,
+"ma_deg": 83.79
+}
+},
+{
+"number": 357,
+"name": "Ninina",
+"gm_km3_s2": 0.12881080307081413,
+"diameter_km": 124.107,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.151,
+"e": 0.0784,
+"i_deg": 15.06,
+"om_deg": 137.6,
+"w_deg": 256.75,
+"ma_deg": 56.31
+}
+},
+{
+"number": 358,
+"name": "Apollonia",
+"gm_km3_s2": 0.04337216299274835,
+"diameter_km": 90.116,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.878,
+"e": 0.1515,
+"i_deg": 3.55,
+"om_deg": 172.1,
+"w_deg": 252.13,
+"ma_deg": 187.9
+}
+},
+{
+"number": 360,
+"name": "Carlova",
+"gm_km3_s2": 0.09188572675376398,
+"diameter_km": 129.125,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.004,
+"e": 0.1736,
+"i_deg": 11.74,
+"om_deg": 132.16,
+"w_deg": 290.3,
+"ma_deg": 309.17
+}
+},
+{
+"number": 362,
+"name": "Havnia",
+"gm_km3_s2": 0.050574506626337945,
+"diameter_km": 98.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.579,
+"e": 0.0445,
+"i_deg": 8.06,
+"om_deg": 27.26,
+"w_deg": 29.07,
+"ma_deg": 179.88
+}
+},
+{
+"number": 363,
+"name": "Padua",
+"gm_km3_s2": 0.10042551980507795,
+"diameter_km": 97.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.747,
+"e": 0.0728,
+"i_deg": 5.95,
+"om_deg": 64.69,
+"w_deg": 294.35,
+"ma_deg": 254.12
+}
+},
+{
+"number": 365,
+"name": "Corduba",
+"gm_km3_s2": 0.03785041615603673,
+"diameter_km": 86.773,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.804,
+"e": 0.1553,
+"i_deg": 12.8,
+"om_deg": 185.12,
+"w_deg": 215.63,
+"ma_deg": 271.01
+}
+},
+{
+"number": 366,
+"name": "Vincentina",
+"gm_km3_s2": 0.035784448003904866,
+"diameter_km": 86.368,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.144,
+"e": 0.0609,
+"i_deg": 10.59,
+"om_deg": 346.26,
+"w_deg": 336.94,
+"ma_deg": 195.21
+}
+},
+{
+"number": 369,
+"name": "Aeria",
+"gm_km3_s2": 0.03738928995764618,
+"diameter_km": 73.767,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.648,
+"e": 0.0987,
+"i_deg": 12.73,
+"om_deg": 94.1,
+"w_deg": 269.2,
+"ma_deg": 216.52
+}
+},
+{
+"number": 372,
+"name": "Palma",
+"gm_km3_s2": 0.5534568570506778,
+"diameter_km": 173.642,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.163,
+"e": 0.2523,
+"i_deg": 23.78,
+"om_deg": 327.2,
+"w_deg": 115.45,
+"ma_deg": 188.59
+}
+},
+{
+"number": 373,
+"name": "Melusina",
+"gm_km3_s2": 0.05788796848121233,
+"diameter_km": 98.695,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.12,
+"e": 0.137,
+"i_deg": 15.38,
+"om_deg": 3.61,
+"w_deg": 349.28,
+"ma_deg": 49.47
+}
+},
+{
+"number": 375,
+"name": "Ursula",
+"gm_km3_s2": 0.7945767982768865,
+"diameter_km": 216.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.127,
+"e": 0.1022,
+"i_deg": 15.94,
+"om_deg": 336.38,
+"w_deg": 341.34,
+"ma_deg": 40.5
+}
+},
+{
+"number": 377,
+"name": "Campania",
+"gm_km3_s2": 0.041724504712376216,
+"diameter_km": 90.346,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.69,
+"e": 0.0751,
+"i_deg": 6.68,
+"om_deg": 209.91,
+"w_deg": 197.04,
+"ma_deg": 356.36
+}
+},
+{
+"number": 381,
+"name": null,
+"gm_km3_s2": 0.20151912126501323,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 385,
+"name": "Ilmatar",
+"gm_km3_s2": 0.04474178151494042,
+"diameter_km": 85.837,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.847,
+"e": 0.1271,
+"i_deg": 13.58,
+"om_deg": 344.83,
+"w_deg": 189.12,
+"ma_deg": 183.13
+}
+},
+{
+"number": 386,
+"name": "Siegena",
+"gm_km3_s2": 0.7509680539881557,
+"diameter_km": 165.01,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.899,
+"e": 0.1696,
+"i_deg": 20.22,
+"om_deg": 166.59,
+"w_deg": 221.3,
+"ma_deg": 64.12
+}
+},
+{
+"number": 387,
+"name": "Aquitania",
+"gm_km3_s2": 0.15420309144146532,
+"diameter_km": 100.51,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.737,
+"e": 0.2385,
+"i_deg": 18.15,
+"om_deg": 127.99,
+"w_deg": 157.76,
+"ma_deg": 305.75
+}
+},
+{
+"number": 388,
+"name": "Charybdis",
+"gm_km3_s2": 0.12049114806642036,
+"diameter_km": 125.754,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.005,
+"e": 0.065,
+"i_deg": 6.45,
+"om_deg": 354.17,
+"w_deg": 328.74,
+"ma_deg": 336.58
+}
+},
+{
+"number": 389,
+"name": "Industria",
+"gm_km3_s2": 0.035905481299856795,
+"diameter_km": 74.378,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.609,
+"e": 0.0665,
+"i_deg": 8.12,
+"om_deg": 282.02,
+"w_deg": 267.95,
+"ma_deg": 108.35
+}
+},
+{
+"number": 393,
+"name": "Lampetia",
+"gm_km3_s2": 0.15056692466593402,
+"diameter_km": 116.191,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.778,
+"e": 0.3339,
+"i_deg": 14.83,
+"om_deg": 211.87,
+"w_deg": 91.71,
+"ma_deg": 217.96
+}
+},
+{
+"number": 404,
+"name": "Arsinoe",
+"gm_km3_s2": 0.0724069672155489,
+"diameter_km": 94.97,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.591,
+"e": 0.2018,
+"i_deg": 14.1,
+"om_deg": 92.46,
+"w_deg": 120.49,
+"ma_deg": 171.14
+}
+},
+{
+"number": 405,
+"name": "Thia",
+"gm_km3_s2": 0.1271163286050847,
+"diameter_km": 108.894,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.585,
+"e": 0.2433,
+"i_deg": 11.94,
+"om_deg": 255.19,
+"w_deg": 308.42,
+"ma_deg": 261.71
+}
+},
+{
+"number": 407,
+"name": "Arachne",
+"gm_km3_s2": 0.05453430901043285,
+"diameter_km": 95.07,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.625,
+"e": 0.0702,
+"i_deg": 7.52,
+"om_deg": 294.45,
+"w_deg": 80.87,
+"ma_deg": 270.71
+}
+},
+{
+"number": 409,
+"name": "Aspasia",
+"gm_km3_s2": 0.4174116246070376,
+"diameter_km": 171.012,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.576,
+"e": 0.0735,
+"i_deg": 11.28,
+"om_deg": 242.05,
+"w_deg": 355.72,
+"ma_deg": 36.63
+}
+},
+{
+"number": 410,
+"name": "Chloris",
+"gm_km3_s2": 0.14139556816045734,
+"diameter_km": 118.929,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.728,
+"e": 0.239,
+"i_deg": 10.96,
+"om_deg": 96.92,
+"w_deg": 172.92,
+"ma_deg": 194.99
+}
+},
+{
+"number": 412,
+"name": "Elisabetha",
+"gm_km3_s2": 0.056386309882280064,
+"diameter_km": 96.056,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.763,
+"e": 0.0413,
+"i_deg": 13.78,
+"om_deg": 106.23,
+"w_deg": 96.87,
+"ma_deg": 48.56
+}
+},
+{
+"number": 415,
+"name": "Palatia",
+"gm_km3_s2": 0.03613588562444297,
+"diameter_km": 83.56,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.792,
+"e": 0.3011,
+"i_deg": 8.22,
+"om_deg": 126.3,
+"w_deg": 299.25,
+"ma_deg": 32.81
+}
+},
+{
+"number": 416,
+"name": "Vaticana",
+"gm_km3_s2": 0.07405332146579777,
+"diameter_km": 85.47,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.791,
+"e": 0.2198,
+"i_deg": 12.83,
+"om_deg": 57.9,
+"w_deg": 200.27,
+"ma_deg": 305.77
+}
+},
+{
+"number": 419,
+"name": "Aurelia",
+"gm_km3_s2": 0.10662113573991461,
+"diameter_km": 148.701,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.595,
+"e": 0.2523,
+"i_deg": 3.93,
+"om_deg": 229.02,
+"w_deg": 44.25,
+"ma_deg": 66.04
+}
+},
+{
+"number": 420,
+"name": null,
+"gm_km3_s2": 0.10615740276350168,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 423,
+"name": "Diotima",
+"gm_km3_s2": 0.5162723491973458,
+"diameter_km": 175.859,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.068,
+"e": 0.0333,
+"i_deg": 11.24,
+"om_deg": 69.35,
+"w_deg": 199.21,
+"ma_deg": 178.66
+}
+},
+{
+"number": 424,
+"name": "Gratia",
+"gm_km3_s2": 0.049423844675205754,
+"diameter_km": 102.565,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.775,
+"e": 0.1105,
+"i_deg": 8.22,
+"om_deg": 99.13,
+"w_deg": 334.06,
+"ma_deg": 35.85
+}
+},
+{
+"number": 426,
+"name": "Hippo",
+"gm_km3_s2": 0.1457924141946398,
+"diameter_km": 137.562,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.887,
+"e": 0.1067,
+"i_deg": 19.5,
+"om_deg": 311.31,
+"w_deg": 221.38,
+"ma_deg": 251.58
+}
+},
+{
+"number": 431,
+"name": "Nephele",
+"gm_km3_s2": 0.06270431773325363,
+"diameter_km": 101.9,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.145,
+"e": 0.1733,
+"i_deg": 1.83,
+"om_deg": 117.13,
+"w_deg": 218.68,
+"ma_deg": 145.36
+}
+},
+{
+"number": 432,
+"name": "Pythia",
+"gm_km3_s2": 0.0061002546336022985,
+"diameter_km": 46.9,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.37,
+"e": 0.1446,
+"i_deg": 12.11,
+"om_deg": 88.71,
+"w_deg": 174.3,
+"ma_deg": 256.99
+}
+},
+{
+"number": 433,
+"name": "Eros",
+"gm_km3_s2": 0.000446270342871063,
+"diameter_km": null,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 1.458243716760167,
+"e": 0.2228779627700761,
+"i_deg": 10.82854410314273,
+"om_deg": 304.2679713350896,
+"w_deg": 178.9181319135911,
+"ma_deg": 62.51145501986792
+}
+},
+{
+"number": 442,
+"name": "Eichsfeldia",
+"gm_km3_s2": 0.01689941128213416,
+"diameter_km": 62.171,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.346,
+"e": 0.0708,
+"i_deg": 6.07,
+"om_deg": 134.78,
+"w_deg": 86.21,
+"ma_deg": 92.62
+}
+},
+{
+"number": 444,
+"name": "Gyptis",
+"gm_km3_s2": 0.19047656691532272,
+"diameter_km": 159.331,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.771,
+"e": 0.1733,
+"i_deg": 10.27,
+"om_deg": 195.59,
+"w_deg": 154.83,
+"ma_deg": 61.52
+}
+},
+{
+"number": 445,
+"name": null,
+"gm_km3_s2": 0.03826284664158716,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 449,
+"name": "Hamburga",
+"gm_km3_s2": 0.05104538342080826,
+"diameter_km": 85.59,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.55,
+"e": 0.1738,
+"i_deg": 3.08,
+"om_deg": 85.76,
+"w_deg": 48.84,
+"ma_deg": 281.1
+}
+},
+{
+"number": 451,
+"name": "Patientia",
+"gm_km3_s2": 0.5818564474145613,
+"diameter_km": 253.9,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.065,
+"e": 0.0695,
+"i_deg": 15.21,
+"om_deg": 89.0,
+"w_deg": 337.23,
+"ma_deg": 221.2
+}
+},
+{
+"number": 454,
+"name": "Mathesis",
+"gm_km3_s2": 0.029958044507805502,
+"diameter_km": 81.743,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.626,
+"e": 0.1119,
+"i_deg": 6.29,
+"om_deg": 32.16,
+"w_deg": 176.9,
+"ma_deg": 211.61
+}
+},
+{
+"number": 455,
+"name": "Bruchsalia",
+"gm_km3_s2": 0.05149215613579061,
+"diameter_km": 88.792,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.656,
+"e": 0.2943,
+"i_deg": 12.02,
+"om_deg": 76.07,
+"w_deg": 273.34,
+"ma_deg": 319.83
+}
+},
+{
+"number": 464,
+"name": "Megaira",
+"gm_km3_s2": 0.026116688695348115,
+"diameter_km": 77.056,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.803,
+"e": 0.2037,
+"i_deg": 10.16,
+"om_deg": 102.32,
+"w_deg": 257.99,
+"ma_deg": 355.8
+}
+},
+{
+"number": 465,
+"name": "Alekto",
+"gm_km3_s2": 0.02326170347718246,
+"diameter_km": 73.34,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.108,
+"e": 0.1967,
+"i_deg": 4.67,
+"om_deg": 299.97,
+"w_deg": 285.66,
+"ma_deg": 297.49
+}
+},
+{
+"number": 466,
+"name": null,
+"gm_km3_s2": 0.03376358787991752,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 469,
+"name": "Argentina",
+"gm_km3_s2": 0.16360068924150928,
+"diameter_km": 133.718,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.179,
+"e": 0.1617,
+"i_deg": 11.45,
+"om_deg": 332.66,
+"w_deg": 215.75,
+"ma_deg": 51.69
+}
+},
+{
+"number": 471,
+"name": "Papagena",
+"gm_km3_s2": 0.4554349791892803,
+"diameter_km": 148.128,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.89,
+"e": 0.2295,
+"i_deg": 15.02,
+"om_deg": 83.77,
+"w_deg": 315.96,
+"ma_deg": 46.73
+}
+},
+{
+"number": 476,
+"name": "Hedwig",
+"gm_km3_s2": 0.4183962649174158,
+"diameter_km": 138.493,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.65,
+"e": 0.075,
+"i_deg": 10.93,
+"om_deg": 286.18,
+"w_deg": 0.4,
+"ma_deg": 19.74
+}
+},
+{
+"number": 481,
+"name": "Emita",
+"gm_km3_s2": 0.06383065491035242,
+"diameter_km": 101.829,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.741,
+"e": 0.157,
+"i_deg": 9.85,
+"om_deg": 66.69,
+"w_deg": 348.92,
+"ma_deg": 204.28
+}
+},
+{
+"number": 485,
+"name": "Genua",
+"gm_km3_s2": 0.020577045811304234,
+"diameter_km": 63.88,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.752,
+"e": 0.1893,
+"i_deg": 13.86,
+"om_deg": 193.37,
+"w_deg": 272.07,
+"ma_deg": 176.68
+}
+},
+{
+"number": 488,
+"name": "Kreusa",
+"gm_km3_s2": 0.3566488834281306,
+"diameter_km": 168.117,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.168,
+"e": 0.1585,
+"i_deg": 11.48,
+"om_deg": 82.98,
+"w_deg": 77.35,
+"ma_deg": 100.7
+}
+},
+{
+"number": 489,
+"name": "Comacina",
+"gm_km3_s2": 0.12905418120726528,
+"diameter_km": 139.39,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.151,
+"e": 0.0491,
+"i_deg": 13.0,
+"om_deg": 166.67,
+"w_deg": 8.27,
+"ma_deg": 200.39
+}
+},
+{
+"number": 490,
+"name": "Veritas",
+"gm_km3_s2": 0.06399026713750669,
+"diameter_km": 118.803,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.175,
+"e": 0.0884,
+"i_deg": 9.29,
+"om_deg": 178.02,
+"w_deg": 193.62,
+"ma_deg": 299.71
+}
+},
+{
+"number": 491,
+"name": "Carina",
+"gm_km3_s2": 0.04051047789301052,
+"diameter_km": 91.176,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.193,
+"e": 0.0828,
+"i_deg": 18.86,
+"om_deg": 175.31,
+"w_deg": 230.33,
+"ma_deg": 200.87
+}
+},
+{
+"number": 498,
+"name": "Tokio",
+"gm_km3_s2": 0.07250295915334387,
+"diameter_km": 81.83,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.65,
+"e": 0.2239,
+"i_deg": 9.5,
+"om_deg": 97.15,
+"w_deg": 241.56,
+"ma_deg": 280.16
+}
+},
+{
+"number": 503,
+"name": "Evelyn",
+"gm_km3_s2": 0.03681026227854508,
+"diameter_km": 81.68,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.726,
+"e": 0.1731,
+"i_deg": 5.01,
+"om_deg": 68.8,
+"w_deg": 41.56,
+"ma_deg": 168.08
+}
+},
+{
+"number": 505,
+"name": "Cava",
+"gm_km3_s2": 0.051282226189566946,
+"diameter_km": 115.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.687,
+"e": 0.2425,
+"i_deg": 9.82,
+"om_deg": 90.76,
+"w_deg": 337.21,
+"ma_deg": 305.7
+}
+},
+{
+"number": 506,
+"name": "Marion",
+"gm_km3_s2": 0.08552553447665737,
+"diameter_km": 105.94,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.043,
+"e": 0.1446,
+"i_deg": 16.99,
+"om_deg": 312.76,
+"w_deg": 145.18,
+"ma_deg": 128.42
+}
+},
+{
+"number": 508,
+"name": "Princetonia",
+"gm_km3_s2": 0.1166231274827,
+"diameter_km": 117.241,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.163,
+"e": 0.0096,
+"i_deg": 13.3,
+"om_deg": 44.02,
+"w_deg": 246.82,
+"ma_deg": 244.06
+}
+},
+{
+"number": 511,
+"name": "Davida",
+"gm_km3_s2": 3.894483148170565,
+"diameter_km": 270.327,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.162,
+"e": 0.1894,
+"i_deg": 15.95,
+"om_deg": 107.55,
+"w_deg": 336.53,
+"ma_deg": 70.44
+}
+},
+{
+"number": 514,
+"name": "Armida",
+"gm_km3_s2": 0.08459024372620126,
+"diameter_km": 120.093,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.047,
+"e": 0.0366,
+"i_deg": 3.88,
+"om_deg": 268.49,
+"w_deg": 112.67,
+"ma_deg": 354.09
+}
+},
+{
+"number": 516,
+"name": "Amherstia",
+"gm_km3_s2": 0.025397877981830307,
+"diameter_km": 65.144,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.677,
+"e": 0.2757,
+"i_deg": 12.96,
+"om_deg": 328.71,
+"w_deg": 258.02,
+"ma_deg": 115.01
+}
+},
+{
+"number": 517,
+"name": "Edith",
+"gm_km3_s2": 0.07918434705924926,
+"diameter_km": 111.89,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.155,
+"e": 0.1796,
+"i_deg": 3.23,
+"om_deg": 273.76,
+"w_deg": 144.0,
+"ma_deg": 312.86
+}
+},
+{
+"number": 521,
+"name": "Brixia",
+"gm_km3_s2": 0.06989254549807049,
+"diameter_km": 107.227,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.743,
+"e": 0.2784,
+"i_deg": 10.58,
+"om_deg": 89.58,
+"w_deg": 316.29,
+"ma_deg": 9.72
+}
+},
+{
+"number": 532,
+"name": "Herculina",
+"gm_km3_s2": 0.7916356440089193,
+"diameter_km": 167.791,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.77,
+"e": 0.1804,
+"i_deg": 16.3,
+"om_deg": 107.41,
+"w_deg": 76.66,
+"ma_deg": 179.25
+}
+},
+{
+"number": 535,
+"name": "Montague",
+"gm_km3_s2": 0.02713637127712463,
+"diameter_km": 79.299,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.57,
+"e": 0.0264,
+"i_deg": 6.77,
+"om_deg": 84.75,
+"w_deg": 66.54,
+"ma_deg": 304.73
+}
+},
+{
+"number": 536,
+"name": null,
+"gm_km3_s2": 0.12258586032572483,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 545,
+"name": null,
+"gm_km3_s2": 0.0875437667411123,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 547,
+"name": "Praxedis",
+"gm_km3_s2": 0.014750766415378268,
+"diameter_km": 52.462,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.772,
+"e": 0.2366,
+"i_deg": 16.87,
+"om_deg": 192.98,
+"w_deg": 196.55,
+"ma_deg": 123.21
+}
+},
+{
+"number": 554,
+"name": "Peraga",
+"gm_km3_s2": 0.07146856096052212,
+"diameter_km": 95.87,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.374,
+"e": 0.1528,
+"i_deg": 2.94,
+"om_deg": 295.35,
+"w_deg": 127.66,
+"ma_deg": 104.77
+}
+},
+{
+"number": 566,
+"name": null,
+"gm_km3_s2": 0.7627766229865944,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 568,
+"name": "Cheruskia",
+"gm_km3_s2": 0.03576524502034873,
+"diameter_km": 71.224,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.882,
+"e": 0.1679,
+"i_deg": 18.41,
+"om_deg": 249.73,
+"w_deg": 173.42,
+"ma_deg": 170.55
+}
+},
+{
+"number": 569,
+"name": "Misa",
+"gm_km3_s2": 0.024977348013553637,
+"diameter_km": 72.95,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.66,
+"e": 0.1787,
+"i_deg": 1.29,
+"om_deg": 301.47,
+"w_deg": 142.65,
+"ma_deg": 231.03
+}
+},
+{
+"number": 584,
+"name": "Semiramis",
+"gm_km3_s2": 0.01742333607314558,
+"diameter_km": 54.01,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.374,
+"e": 0.2331,
+"i_deg": 10.72,
+"om_deg": 281.99,
+"w_deg": 85.44,
+"ma_deg": 56.3
+}
+},
+{
+"number": 585,
+"name": "Bilkis",
+"gm_km3_s2": 0.004261838218546587,
+"diameter_km": 49.761,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.43,
+"e": 0.1293,
+"i_deg": 7.58,
+"om_deg": 180.17,
+"w_deg": 330.18,
+"ma_deg": 275.48
+}
+},
+{
+"number": 591,
+"name": "Irmgard",
+"gm_km3_s2": 0.0070188408400084145,
+"diameter_km": 51.86,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.678,
+"e": 0.2102,
+"i_deg": 12.45,
+"om_deg": 334.07,
+"w_deg": 218.83,
+"ma_deg": 130.45
+}
+},
+{
+"number": 593,
+"name": "Titania",
+"gm_km3_s2": 0.01935335776122607,
+"diameter_km": 70.145,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.698,
+"e": 0.2172,
+"i_deg": 16.9,
+"om_deg": 75.93,
+"w_deg": 30.56,
+"ma_deg": 87.51
+}
+},
+{
+"number": 595,
+"name": null,
+"gm_km3_s2": 0.10075248317945062,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 596,
+"name": "Scheila",
+"gm_km3_s2": 0.39244241146633047,
+"diameter_km": 159.726,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.933,
+"e": 0.1595,
+"i_deg": 14.62,
+"om_deg": 70.44,
+"w_deg": 177.95,
+"ma_deg": 286.85
+}
+},
+{
+"number": 598,
+"name": "Octavia",
+"gm_km3_s2": 0.04127587401866905,
+"diameter_km": 78.237,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.76,
+"e": 0.2507,
+"i_deg": 12.23,
+"om_deg": 91.48,
+"w_deg": 291.91,
+"ma_deg": 217.48
+}
+},
+{
+"number": 599,
+"name": "Luisa",
+"gm_km3_s2": 0.04540370935878462,
+"diameter_km": 70.249,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.772,
+"e": 0.2928,
+"i_deg": 16.72,
+"om_deg": 44.14,
+"w_deg": 294.07,
+"ma_deg": 280.98
+}
+},
+{
+"number": 602,
+"name": "Marianna",
+"gm_km3_s2": 0.1022981657727757,
+"diameter_km": 110.444,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.08,
+"e": 0.2519,
+"i_deg": 15.12,
+"om_deg": 331.39,
+"w_deg": 45.54,
+"ma_deg": 171.69
+}
+},
+{
+"number": 604,
+"name": "Tekmessa",
+"gm_km3_s2": 0.020835985502351533,
+"diameter_km": 64.536,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.156,
+"e": 0.1917,
+"i_deg": 4.42,
+"om_deg": 11.8,
+"w_deg": 28.88,
+"ma_deg": 265.61
+}
+},
+{
+"number": 618,
+"name": "Elfriede",
+"gm_km3_s2": 0.11298796060811292,
+"diameter_km": 131.292,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.19,
+"e": 0.0682,
+"i_deg": 17.06,
+"om_deg": 110.81,
+"w_deg": 230.12,
+"ma_deg": 42.5
+}
+},
+{
+"number": 623,
+"name": "Chimaera",
+"gm_km3_s2": 0.004539085696915568,
+"diameter_km": 44.09,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.462,
+"e": 0.1119,
+"i_deg": 14.13,
+"om_deg": 308.28,
+"w_deg": 125.09,
+"ma_deg": 24.22
+}
+},
+{
+"number": 626,
+"name": "Notburga",
+"gm_km3_s2": 0.031493021724701906,
+"diameter_km": 73.236,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.575,
+"e": 0.2418,
+"i_deg": 25.38,
+"om_deg": 341.55,
+"w_deg": 43.72,
+"ma_deg": 56.28
+}
+},
+{
+"number": 635,
+"name": "Vundtia",
+"gm_km3_s2": 0.04899431651228733,
+"diameter_km": 94.415,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.141,
+"e": 0.0784,
+"i_deg": 11.01,
+"om_deg": 182.83,
+"w_deg": 229.13,
+"ma_deg": 352.27
+}
+},
+{
+"number": 654,
+"name": "Zelinda",
+"gm_km3_s2": 0.08194354072796904,
+"diameter_km": 160.736,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.297,
+"e": 0.2317,
+"i_deg": 18.1,
+"om_deg": 278.32,
+"w_deg": 214.53,
+"ma_deg": 350.42
+}
+},
+{
+"number": 663,
+"name": "Gerlinde",
+"gm_km3_s2": 0.08846624674379888,
+"diameter_km": 107.795,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.064,
+"e": 0.1477,
+"i_deg": 17.92,
+"om_deg": 232.3,
+"w_deg": 314.68,
+"ma_deg": 72.59
+}
+},
+{
+"number": 667,
+"name": "Denise",
+"gm_km3_s2": 0.07702632723164106,
+"diameter_km": 88.63,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.188,
+"e": 0.1879,
+"i_deg": 25.37,
+"om_deg": 153.13,
+"w_deg": 304.99,
+"ma_deg": 111.08
+}
+},
+{
+"number": 674,
+"name": "Rachele",
+"gm_km3_s2": 0.04455867204563531,
+"diameter_km": 96.171,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.925,
+"e": 0.1929,
+"i_deg": 13.51,
+"om_deg": 58.07,
+"w_deg": 41.2,
+"ma_deg": 138.52
+}
+},
+{
+"number": 675,
+"name": "Ludmilla",
+"gm_km3_s2": 0.04704721015922857,
+"diameter_km": 76.0,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.767,
+"e": 0.2048,
+"i_deg": 9.81,
+"om_deg": 262.99,
+"w_deg": 152.34,
+"ma_deg": 149.26
+}
+},
+{
+"number": 680,
+"name": "Genoveva",
+"gm_km3_s2": 0.03655168275384124,
+"diameter_km": 83.92,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.133,
+"e": 0.2994,
+"i_deg": 17.52,
+"om_deg": 37.89,
+"w_deg": 245.5,
+"ma_deg": 300.95
+}
+},
+{
+"number": 683,
+"name": "Lanzia",
+"gm_km3_s2": 0.05382658599037187,
+"diameter_km": 83.04,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.113,
+"e": 0.0593,
+"i_deg": 18.53,
+"om_deg": 259.63,
+"w_deg": 280.16,
+"ma_deg": 207.9
+}
+},
+{
+"number": 690,
+"name": "Wratislavia",
+"gm_km3_s2": 0.11597435915919169,
+"diameter_km": 134.65,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.152,
+"e": 0.1758,
+"i_deg": 11.24,
+"om_deg": 253.03,
+"w_deg": 114.62,
+"ma_deg": 328.5
+}
+},
+{
+"number": 691,
+"name": "Lehigh",
+"gm_km3_s2": 0.022966847908599503,
+"diameter_km": 79.451,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.008,
+"e": 0.1256,
+"i_deg": 13.02,
+"om_deg": 87.92,
+"w_deg": 303.21,
+"ma_deg": 149.87
+}
+},
+{
+"number": 694,
+"name": "Ekard",
+"gm_km3_s2": 0.022877172943744122,
+"diameter_km": 121.891,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.67,
+"e": 0.3228,
+"i_deg": 15.9,
+"om_deg": 229.97,
+"w_deg": 111.67,
+"ma_deg": 293.64
+}
+},
+{
+"number": 696,
+"name": "Leonora",
+"gm_km3_s2": 0.030379156702943187,
+"diameter_km": 81.58,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.176,
+"e": 0.2478,
+"i_deg": 13.02,
+"om_deg": 299.4,
+"w_deg": 103.5,
+"ma_deg": 216.47
+}
+},
+{
+"number": 702,
+"name": "Alauda",
+"gm_km3_s2": 0.7503286053328916,
+"diameter_km": 190.98,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.192,
+"e": 0.0153,
+"i_deg": 20.6,
+"om_deg": 289.71,
+"w_deg": 352.21,
+"ma_deg": 141.49
+}
+},
+{
+"number": 704,
+"name": "Interamnia",
+"gm_km3_s2": 2.830409639329985,
+"diameter_km": 306.313,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.057,
+"e": 0.1551,
+"i_deg": 17.32,
+"om_deg": 280.17,
+"w_deg": 94.06,
+"ma_deg": 221.14
+}
+},
+{
+"number": 705,
+"name": "Erminia",
+"gm_km3_s2": 0.17543310182937236,
+"diameter_km": 132.261,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.922,
+"e": 0.0521,
+"i_deg": 25.02,
+"om_deg": 2.76,
+"w_deg": 102.53,
+"ma_deg": 337.59
+}
+},
+{
+"number": 709,
+"name": "Fringilla",
+"gm_km3_s2": 0.053513537991130476,
+"diameter_km": 95.173,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.912,
+"e": 0.116,
+"i_deg": 16.28,
+"om_deg": 324.2,
+"w_deg": 19.31,
+"ma_deg": 207.74
+}
+},
+{
+"number": 712,
+"name": "Boliviana",
+"gm_km3_s2": 0.05651300951013403,
+"diameter_km": 124.125,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.576,
+"e": 0.1849,
+"i_deg": 12.76,
+"om_deg": 230.68,
+"w_deg": 181.76,
+"ma_deg": 357.24
+}
+},
+{
+"number": 713,
+"name": null,
+"gm_km3_s2": 0.050002386401200326,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 735,
+"name": "Marghanna",
+"gm_km3_s2": 0.03393042254462195,
+"diameter_km": 67.976,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.732,
+"e": 0.3212,
+"i_deg": 16.85,
+"om_deg": 42.82,
+"w_deg": 310.2,
+"ma_deg": 106.87
+}
+},
+{
+"number": 739,
+"name": "Mandeville",
+"gm_km3_s2": 0.05335055096977495,
+"diameter_km": 104.517,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.739,
+"e": 0.1418,
+"i_deg": 20.67,
+"om_deg": 136.48,
+"w_deg": 44.42,
+"ma_deg": 341.19
+}
+},
+{
+"number": 740,
+"name": "Cantabia",
+"gm_km3_s2": 0.0516129687123562,
+"diameter_km": 90.9,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.056,
+"e": 0.1048,
+"i_deg": 10.82,
+"om_deg": 115.48,
+"w_deg": 52.32,
+"ma_deg": 74.24
+}
+},
+{
+"number": 747,
+"name": "Winchester",
+"gm_km3_s2": 0.3998796792858635,
+"diameter_km": 171.71,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.999,
+"e": 0.3398,
+"i_deg": 18.22,
+"om_deg": 129.05,
+"w_deg": 277.66,
+"ma_deg": 19.47
+}
+},
+{
+"number": 751,
+"name": "Faina",
+"gm_km3_s2": 0.06895499070546414,
+"diameter_km": 113.699,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.552,
+"e": 0.152,
+"i_deg": 15.59,
+"om_deg": 78.79,
+"w_deg": 302.89,
+"ma_deg": 104.81
+}
+},
+{
+"number": 752,
+"name": "Sulamitis",
+"gm_km3_s2": 0.024680120977717414,
+"diameter_km": 60.171,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.463,
+"e": 0.0729,
+"i_deg": 5.96,
+"om_deg": 85.05,
+"w_deg": 23.07,
+"ma_deg": 195.83
+}
+},
+{
+"number": 760,
+"name": "Massinga",
+"gm_km3_s2": 0.03051952351518258,
+"diameter_km": 71.29,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.147,
+"e": 0.2347,
+"i_deg": 12.54,
+"om_deg": 331.53,
+"w_deg": 200.26,
+"ma_deg": 205.37
+}
+},
+{
+"number": 762,
+"name": "Pulcova",
+"gm_km3_s2": 0.18453502002404848,
+"diameter_km": 147.343,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.152,
+"e": 0.108,
+"i_deg": 13.1,
+"om_deg": 305.51,
+"w_deg": 188.82,
+"ma_deg": 262.88
+}
+},
+{
+"number": 769,
+"name": "Tatjana",
+"gm_km3_s2": 0.056233650269094694,
+"diameter_km": 96.72,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.17,
+"e": 0.1866,
+"i_deg": 7.37,
+"om_deg": 38.37,
+"w_deg": 252.88,
+"ma_deg": 1.26
+}
+},
+{
+"number": 772,
+"name": "Tanete",
+"gm_km3_s2": 0.07788157623820903,
+"diameter_km": 126.473,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.0,
+"e": 0.0954,
+"i_deg": 28.83,
+"om_deg": 63.71,
+"w_deg": 145.42,
+"ma_deg": 127.4
+}
+},
+{
+"number": 773,
+"name": "Irmintraud",
+"gm_km3_s2": 0.05155801487768096,
+"diameter_km": 91.672,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.858,
+"e": 0.0798,
+"i_deg": 16.7,
+"om_deg": 322.09,
+"w_deg": 335.41,
+"ma_deg": 230.8
+}
+},
+{
+"number": 776,
+"name": "Berbericia",
+"gm_km3_s2": 0.31010452986461867,
+"diameter_km": 151.711,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.931,
+"e": 0.165,
+"i_deg": 18.25,
+"om_deg": 79.65,
+"w_deg": 306.18,
+"ma_deg": 224.02
+}
+},
+{
+"number": 778,
+"name": "Theobalda",
+"gm_km3_s2": 0.009235453852033147,
+"diameter_km": 55.317,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.178,
+"e": 0.2568,
+"i_deg": 13.72,
+"om_deg": 321.19,
+"w_deg": 135.23,
+"ma_deg": 288.83
+}
+},
+{
+"number": 780,
+"name": "Armenia",
+"gm_km3_s2": 0.2549091917238284,
+"diameter_km": 126.263,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.115,
+"e": 0.0956,
+"i_deg": 19.08,
+"om_deg": 144.77,
+"w_deg": 211.54,
+"ma_deg": 275.05
+}
+},
+{
+"number": 784,
+"name": "Pickeringia",
+"gm_km3_s2": 0.023854665524989396,
+"diameter_km": 75.596,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.097,
+"e": 0.241,
+"i_deg": 12.28,
+"om_deg": 14.89,
+"w_deg": 237.73,
+"ma_deg": 135.3
+}
+},
+{
+"number": 786,
+"name": "Bredichina",
+"gm_km3_s2": 0.08760914997940562,
+"diameter_km": 108.309,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.189,
+"e": 0.1515,
+"i_deg": 14.5,
+"om_deg": 89.61,
+"w_deg": 134.52,
+"ma_deg": 288.86
+}
+},
+{
+"number": 788,
+"name": "Hohensteina",
+"gm_km3_s2": 0.07943523873924455,
+"diameter_km": 111.295,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.123,
+"e": 0.1365,
+"i_deg": 14.36,
+"om_deg": 177.66,
+"w_deg": 47.36,
+"ma_deg": 96.37
+}
+},
+{
+"number": 790,
+"name": null,
+"gm_km3_s2": 0.22617806351890993,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 791,
+"name": "Ani",
+"gm_km3_s2": 0.09452326114783897,
+"diameter_km": 116.865,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.123,
+"e": 0.1916,
+"i_deg": 16.38,
+"om_deg": 129.78,
+"w_deg": 201.84,
+"ma_deg": 65.31
+}
+},
+{
+"number": 804,
+"name": "Hispania",
+"gm_km3_s2": 0.1144887090088419,
+"diameter_km": 137.952,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.838,
+"e": 0.1416,
+"i_deg": 15.39,
+"om_deg": 347.54,
+"w_deg": 343.77,
+"ma_deg": 300.7
+}
+},
+{
+"number": 814,
+"name": "Tauris",
+"gm_km3_s2": 0.02576583572172221,
+"diameter_km": 102.229,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.162,
+"e": 0.3043,
+"i_deg": 21.79,
+"om_deg": 88.71,
+"w_deg": 296.43,
+"ma_deg": 273.44
+}
+},
+{
+"number": 849,
+"name": "Ara",
+"gm_km3_s2": 0.04266031332123282,
+"diameter_km": 80.756,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.147,
+"e": 0.201,
+"i_deg": 19.53,
+"om_deg": 228.27,
+"w_deg": 62.56,
+"ma_deg": 352.85
+}
+},
+{
+"number": 895,
+"name": null,
+"gm_km3_s2": 0.08495440331213099,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 909,
+"name": null,
+"gm_km3_s2": 0.017781088512460436,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 914,
+"name": "Palisana",
+"gm_km3_s2": 0.019954405488676517,
+"diameter_km": 76.19,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.457,
+"e": 0.2165,
+"i_deg": 25.21,
+"om_deg": 255.74,
+"w_deg": 49.34,
+"ma_deg": 271.73
+}
+},
+{
+"number": 980,
+"name": "Anacostia",
+"gm_km3_s2": 0.028465521236587965,
+"diameter_km": 74.679,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.741,
+"e": 0.2014,
+"i_deg": 15.9,
+"om_deg": 285.76,
+"w_deg": 69.76,
+"ma_deg": 20.14
+}
+},
+{
+"number": 1015,
+"name": null,
+"gm_km3_s2": 0.06625938344941461,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 1021,
+"name": "Flammario",
+"gm_km3_s2": 0.03597048808678124,
+"diameter_km": 100.765,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.74,
+"e": 0.2837,
+"i_deg": 15.86,
+"om_deg": 115.39,
+"w_deg": 286.77,
+"ma_deg": 303.71
+}
+},
+{
+"number": 1036,
+"name": null,
+"gm_km3_s2": 0.009475437041844502,
+"diameter_km": null,
+"elements": null
+},
+{
+"number": 1093,
+"name": "Freda",
+"gm_km3_s2": 0.06177498712165718,
+"diameter_km": 116.73,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.134,
+"e": 0.2697,
+"i_deg": 25.19,
+"om_deg": 55.58,
+"w_deg": 251.08,
+"ma_deg": 25.35
+}
+},
+{
+"number": 1107,
+"name": "Lictoria",
+"gm_km3_s2": 0.057965602257298486,
+"diameter_km": 79.079,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.188,
+"e": 0.1187,
+"i_deg": 7.07,
+"om_deg": 110.55,
+"w_deg": 349.8,
+"ma_deg": 114.02
+}
+},
+{
+"number": 1171,
+"name": "Rusthawelia",
+"gm_km3_s2": 0.058646845055636936,
+"diameter_km": 82.229,
+"elements": {
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.173,
+"e": 0.1947,
+"i_deg": 3.09,
+"om_deg": 121.48,
+"w_deg": 292.68,
+"ma_deg": 335.92
+}
+},
+{
+"number": 1467,
+"name": null,
+"gm_km3_s2": 0.042783198668285484,
+"diameter_km": null,
+"elements": null
+}
+],
+"kbo": [
+{
+"id": 8001,
+"gm_km3_s2": 1114.6882874751714,
+"elements": null
+},
+{
+"id": 8002,
+"gm_km3_s2": 267.37067583133876,
+"elements": null
+},
+{
+"id": 8003,
+"gm_km3_s2": 66.98077007722578,
+"elements": null
+},
+{
+"id": 8004,
+"gm_km3_s2": 153.91386519622384,
+"elements": null
+},
+{
+"id": 8005,
+"gm_km3_s2": 68.59536210371596,
+"elements": null
+},
+{
+"id": 8006,
+"gm_km3_s2": 102.34430833959102,
+"elements": null
+},
+{
+"id": 8007,
+"gm_km3_s2": 42.20083562982951,
+"elements": null
+},
+{
+"id": 8008,
+"gm_km3_s2": 24.644635155071565,
+"elements": null
+},
+{
+"id": 8009,
+"gm_km3_s2": 8.34341220421456,
+"elements": null
+},
+{
+"id": 8010,
+"gm_km3_s2": 20.261091339571173,
+"elements": null
+},
+{
+"id": 8011,
+"gm_km3_s2": 34.32487283538065,
+"elements": null
+},
+{
+"id": 8012,
+"gm_km3_s2": 17.78594841964051,
+"elements": null
+},
+{
+"id": 8013,
+"gm_km3_s2": 31.356348724624006,
+"elements": null
+},
+{
+"id": 8014,
+"gm_km3_s2": 13.024475584036965,
+"elements": null
+},
+{
+"id": 8015,
+"gm_km3_s2": 27.020072787830184,
+"elements": null
+},
+{
+"id": 8016,
+"gm_km3_s2": 16.27352452229709,
+"elements": null
+},
+{
+"id": 8017,
+"gm_km3_s2": 16.680759750784016,
+"elements": null
+},
+{
+"id": 8018,
+"gm_km3_s2": 27.27746377096884,
+"elements": null
+},
+{
+"id": 8019,
+"gm_km3_s2": 115.96403824571678,
+"elements": null
+},
+{
+"id": 8020,
+"gm_km3_s2": 11.384273682929306,
+"elements": null
+},
+{
+"id": 8021,
+"gm_km3_s2": 29.204062812589633,
+"elements": null
+},
+{
+"id": 8022,
+"gm_km3_s2": 12.005589178189494,
+"elements": null
+},
+{
+"id": 8023,
+"gm_km3_s2": 13.26615563095463,
+"elements": null
+},
+{
+"id": 8024,
+"gm_km3_s2": 1.6347410819014954,
+"elements": null
+},
+{
+"id": 8025,
+"gm_km3_s2": 12.222109155095719,
+"elements": null
+},
+{
+"id": 8026,
+"gm_km3_s2": 29.07918639387829,
+"elements": null
+},
+{
+"id": 8027,
+"gm_km3_s2": 7.876051143479758,
+"elements": null
+},
+{
+"id": 8028,
+"gm_km3_s2": 8.579026277290295,
+"elements": null
+},
+{
+"id": 8029,
+"gm_km3_s2": 9.57019640739026,
+"elements": null
+},
+{
+"id": 8030,
+"gm_km3_s2": 11.530724996629065,
+"elements": null
+}
+],
+"ring": {
+"n_points": 36,
+"a_au": 44.0,
+"gm_each_km3_s2": 247.68842184000974,
+"gm_total_km3_s2": 8916.783186240351,
+"all_equal": true
+}
+}

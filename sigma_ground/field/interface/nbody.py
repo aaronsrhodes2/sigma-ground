@@ -121,6 +121,7 @@ class PhysicsToggles:
     j4_zonal:    bool = False   # zonal J₄ (gas giants -- BORROWED)
     tidal_force: bool = False   # equilibrium tidal bulge: Love-number k₂ induced quadrupole + reaction (Love 1911)
     sectoral_c22: bool = False  # triaxial figure (C22) of each body with body.c22 != 0; its long axis comes from system.rotation_models (MacCullagh quadrupole, figure_forces.py)
+    prescribed_sources: bool = False  # Newtonian pull of tabulated massive sources (asteroid perturbers) on every body; needs the prescribed_sources= argument (prescribed_sources.py)
     gw_damping:  bool = False   # GW energy loss (Peters 1964, binaries only -- BORROWED)
     # Future toggles to be added when their physics is implemented:
     #   yarkovsky:        bool = False    # NEA thermal recoil
@@ -344,6 +345,8 @@ class NBodySystem:
         # Time-dependent figure (toggles.sectoral_c22):
         epoch_jd_tdb:       float | None = None,
         rotation_models:    dict | None = None,
+        # Tabulated massive sources (toggles.prescribed_sources): a PrescribedSources instance whose time axis is seconds since the system's start
+        prescribed_sources = None,
     ) -> None:
         self.bodies             = list(bodies)
         self.softening_m        = softening_m
@@ -388,6 +391,9 @@ class NBodySystem:
             for i, b in enumerate(self.bodies):
                 if b.c22 != 0.0 and (epoch_jd_tdb is None or i not in self.rotation_models):
                     raise ValueError(f"body {i} has c22 = {b.c22} and toggles.sectoral_c22 is on: pass epoch_jd_tdb and rotation_models[{i}] (jd_tdb -> (x, y, z) axes)")
+        self.prescribed_sources = prescribed_sources
+        if toggles.prescribed_sources and prescribed_sources is None:
+            raise ValueError("toggles.prescribed_sources is on but no prescribed_sources= was given")
         # Legacy attribute access (some callers / tests inspect .include_gr directly).
         self.include_gr = self.toggles.gr_1pn
 
@@ -783,6 +789,11 @@ class NBodySystem:
                 R_ref = bj.figure_ref_radius_m if bj.figure_ref_radius_m > 0.0 else bj.radius_m
                 T_j = _c22_T(bj.mass_kg, R_ref, bj.c22, x_hat, y_hat)
                 acc += _sectoral_extra(np.array([b.position_m for b in self.bodies]), np.array([b.mass_kg for b in self.bodies]), j, T_j)
+
+        # ── Prescribed massive sources (asteroid perturbers) ───────────────────────────────────────────
+        # DERIVED: Newtonian pull GM_s (r_s - r_i)/|r_s - r_i|^3 of tabulated sources, evaluated at the sub-step time _t_eval (prescribed_sources.py).
+        if t.prescribed_sources:
+            acc += self.prescribed_sources.accelerations_on(np.array([b.position_m for b in self.bodies]), self._t_eval)
 
         # ── Solar radiation pressure ──────────────────────────────────────
         # Gated by both toggles.srp AND solar_luminosity_W > 0 (need a value

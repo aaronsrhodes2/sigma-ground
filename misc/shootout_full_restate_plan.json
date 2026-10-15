@@ -1,0 +1,147 @@
+[
+ {
+  "pass": "long",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2000"
+ },
+ {
+  "pass": "long",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2001"
+ },
+ {
+  "pass": "long",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2002"
+ },
+ {
+  "pass": "long",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2003"
+ },
+ {
+  "pass": "long",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2004"
+ },
+ {
+  "pass": "long",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2005"
+ },
+ {
+  "pass": "long",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2006"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2007"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2008"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2009"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2010"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2011"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2012"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2013"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2014"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2015"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2016"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2017"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2018"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2019"
+ },
+ {
+  "pass": "short",
+  "predictor": "restated_ast_ring_c22",
+  "window": "j2020"
+ },
+ {
+  "pass": "short",
+  "predictor": "de440_stack",
+  "window": "j2005"
+ },
+ {
+  "pass": "short",
+  "predictor": "de440_stack",
+  "window": "j2008"
+ },
+ {
+  "pass": "short",
+  "predictor": "de440_stack",
+  "window": "j2011"
+ },
+ {
+  "pass": "short",
+  "predictor": "de440_stack",
+  "window": "j2014"
+ },
+ {
+  "pass": "short",
+  "predictor": "de440_stack",
+  "window": "j2017"
+ },
+ {
+  "pass": "short",
+  "predictor": "de440_stack",
+  "window": "j2020"
+ },
+ {
+  "pass": "long",
+  "predictor": "restated_ast_c22",
+  "window": "j2000"
+ },
+ {
+  "pass": "long",
+  "predictor": "restated_ast_c22",
+  "window": "j2003"
+ }
+]
