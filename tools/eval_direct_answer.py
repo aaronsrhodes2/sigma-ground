@@ -85,6 +85,13 @@ def latex_to_plain(s: str) -> str:
     return re.sub(r"([(\[])\s+", r"\1", re.sub(r"\s+([)\]])", r"\1", s))
 
 
+def tidy_answer(ans: str) -> str | None:
+    """Plain-text answer -> the value alone: no 'x = ' or 'f(x) = ' in front, no '+ C', no closing full stop."""
+    ans = re.sub(r"^\s*[A-Za-z_]\w*\s*(\([^)]*\))?\s*=\s*", "", ans)    # "x = 5" / "f(x) = ..." -> the value
+    ans = re.sub(r"\s*\+\s*C\b\.?$", "", ans)                            # "+ C" on an antiderivative is not part of the result
+    return ans.strip().rstrip(".") or None
+
+
 def extract_answer(text: str) -> str | None:
     """The model's final answer as plain text, or None. Order: the last 'ANSWER:' line, else the last \\boxed{...}, else None."""
     if not text:
@@ -93,15 +100,15 @@ def extract_answer(text: str) -> str | None:
     m = list(re.finditer(r"(?im)^\W*answer\s*[:=]\s*(.+?)\s*$", text))
     if m:
         ans = m[-1].group(1).strip().strip("*").strip()
+        boxed_in_line = list(re.finditer(r"\\boxed\s*\{", ans))
+        if boxed_in_line:                                                # "ANSWER: \boxed{3}" states 3
+            ans, _ = _brace_group(ans, ans.index("{", boxed_in_line[-1].start()))
     else:
         boxed = [mm.start() for mm in re.finditer(r"\\boxed\s*\{", text)]
         if not boxed:
             return None
         ans, _ = _brace_group(text, text.index("{", boxed[-1]))
-    ans = latex_to_plain(ans) if "\\" in ans or "{" in ans else ans
-    ans = re.sub(r"^\s*[A-Za-z_]\w*\s*(\([^)]*\))?\s*=\s*", "", ans)    # "x = 5" / "f(x) = ..." -> the value
-    ans = re.sub(r"\s*\+\s*C\b\.?$", "", ans)                            # "+ C" on an antiderivative is not part of the result
-    return ans.strip().rstrip(".") or None
+    return tidy_answer(latex_to_plain(ans) if "\\" in ans or "{" in ans else ans)
 
 
 # ── asking a model ────────────────────────────────────────────────────────────────────────────────
@@ -179,6 +186,9 @@ def main(argv) -> int:
     ap.add_argument("--num-predict", type=int, default=6000)
     ap.add_argument("--think", choices=["on", "off", "default"], default="default")
     ap.add_argument("--temperature", type=float, default=0.0, help="0 = greedy; reasoning models are usually run at 0.6 (greedy can loop)")
+    ap.add_argument("--timeout", type=float, default=1800, help="seconds to wait for one answer")
+    ap.add_argument("--retry-errors", type=Path, help="a result file from an earlier run of the same sample and settings: keep its answered rows, "
+                    "ask again only the rows that errored (a hung server, a timeout); the rows asked again are marked `retried`")
     ap.add_argument("--out", type=Path)
     a = ap.parse_args(argv)
     items = [i for i in json.loads(a.suite.read_text(encoding="utf-8"))["items"] if i["expected"].get("result") is not None]
@@ -187,9 +197,18 @@ def main(argv) -> int:
     if a.limit:
         items = items[: a.limit]
     think = {"on": True, "off": False, "default": None}[a.think]
+    kept = {}
+    if a.retry_errors:
+        prior = json.loads(a.retry_errors.read_text(encoding="utf-8"))
+        if (prior.get("stratified"), prior.get("seed")) != (a.stratified, a.seed):
+            raise SystemExit(f"--retry-errors: {a.retry_errors} used a different sample (stratified {prior.get('stratified')}, seed {prior.get('seed')})")
+        kept = {r["id"]: r for r in prior["rows"] if not r["error"]}
     rows = []
-    with httpx.Client(timeout=1800) as http:
+    with httpx.Client(timeout=a.timeout) as http:
         for n, it in enumerate(items, 1):
+            if it["id"] in kept:                                          # answered in the earlier run: not asked again
+                rows.append(kept[it["id"]])
+                continue
             try:
                 got = ask(http, a.ollama_url, a.model, it["question"], a.openai, a.num_predict, think, a.temperature, a.seed)
                 err = None
@@ -199,7 +218,9 @@ def main(argv) -> int:
             ok = bool(ans) and same_answer(it["expected"]["result"], canonical(ans))
             rows.append({"id": it["id"], "recipe": it["recipe"], "kind": it["kind"], "question": it["question"], "expected": it["expected"]["result"],
                          "extracted": ans, "answer_ok": bool(ok), "no_answer": ans is None, "tokens": got.get("tokens"), "seconds": got.get("seconds"),
-                         "error": err, "tool_expected": it["expected"]["tool"], "tool_ok": False, "args_ok": False})
+                         "text": got["text"],                              # the model's whole reply, so an answer can be re-extracted without asking again
+                         "error": err, "tool_expected": it["expected"]["tool"], "tool_ok": False, "args_ok": False,
+                         **({"retried": True} if a.retry_errors else {})})
             if n % 20 == 0:
                 print(f"  {n}/{len(items)}  right {sum(r['answer_ok'] for r in rows)}  no-answer {sum(r['no_answer'] for r in rows)}", flush=True)
     summ = summarize({"model": a.model, "rows": rows})
