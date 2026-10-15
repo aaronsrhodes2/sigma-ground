@@ -109,3 +109,27 @@ Data and tables: `fixtures/v2physics_restated/` (README has the attribution and 
 Mercury 1.41 -> 0.02 -> 0.03; Venus 0.19 -> 0.21 -> 0.12; Earth 0.45 -> 0.45 -> 0.17; Moon 3.70 -> 1.45 -> 0.48; Mars 1.03 -> 1.03 -> 0.57. The step accounts for Mercury and half of the Moon; the asteroids + C22 for the rest of the Moon and for Earth, Mars and Venus.
 Over all 16 windows the candidate beats r2 in every window for Mercury and the Moon (16 of 16 at +1, +3, +5 yr). At +20 yr (7 windows) Moon 14.7 -> 1.0 km, Earth 1.89 -> 0.79; Mars 3.92 -> 3.66 (barely moved).
 Remaining, untested: Mars beyond +5 yr (the other asteroids?), Uranus/Neptune/Pluto at +20 yr (14, 30, 35 km), Jupiter 9.9 km at +20 yr.
+
+## C5. DE440's Kuiper-belt ring (36 equal point masses at 44 au, total GM 8917 km3/s2) and its other 343 asteroids (2026-10-15): SUPPORTED, the long-range outer-planet deficit closes
+Source of the model: Park et al. 2021 (AJ 161:105, sec. 2.2) and the DE440 header constants MA0001-MA1467 (343 asteroids), MA8201-MA8236 (ring); masses read off `header.440`. Prediction made BEFORE the run (2026-10-14): the missing ring is what lets Uranus, Neptune and Pluto grow to
+14, 30 and 35 km by +20 yr (order-of-magnitude estimate ~34 km for Neptune from the ring's tidal pull). Test: reduced model, step 0.025 d, DE440 starts, two 20-yr windows (J2000, J2003), the Moon's C22 on in all arms; asteroids and ring as prescribed sources
+(proved to replay live membership to 0.13 % of the asteroids' effect, `v2physics_restated/PRESCRIBED_EQUIVALENCE.md`). Data: `v2physics_restated/ring_reduced_runs.jsonl`. Median of the two windows, km against DE440:
+
+| body | +20 yr, 7 asteroids (C1) | + all 343 | + 343 and the ring |
+|---|---|---|---|
+| Uranus | 14.5 | 16.1 | **1.8** |
+| Neptune | 29.5 | 30.2 | **1.4** |
+| Pluto | 34.2 | 34.9 | **4.1** |
+| Saturn | 2.8 | 4.8 | **0.7** |
+| Jupiter | 11.0 | 0.9 | **0.4** |
+| Mars | 3.4 | 0.22 | **0.18** |
+| Earth | 0.52 | 0.05 | **0.04** |
+| Venus | 0.51 | 0.28 | **0.28** |
+| Mercury | 0.20 | 0.16 | 0.17 |
+| Moon | 1.0 | 0.94 | 0.94 |
+
+* The ring removes 90-96 % of the Uranus, Neptune and Pluto error at +20 yr, as predicted, and without it the 343 asteroids leave them unchanged (16, 30, 35 km). Same pattern at +5 and +10 yr.
+* The other 336 asteroids close Mars (3.4 -> 0.22 km at +20 yr), Earth (0.52 -> 0.05) and Jupiter (11 -> 0.9), which the seven heaviest alone did not.
+* Wording: this reproduces DE440's own model (DE440's ring is a modelling device for the belt's mass, equally spaced points at one radius). It shows that DE440's ring mass and radius carry the long-range outer-planet dynamics; it does not show that the belt's mass is distributed as the ring says.
+* Remaining at +20 yr: Pluto 4 km, Uranus/Neptune 1.2-2 km, Venus 0.28, Moon 0.94 (unchanged by any of this), Mercury 0.17. Candidates, untested: the 30 individual Kuiper-belt objects (Pluto), the Moon's degree-3 gravity terms and tides (Moon).
+Two windows only; the full-system run (21 windows) will confirm or contradict.
