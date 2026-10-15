@@ -1,0 +1,274 @@
+{
+"metadata": {
+"source": "JPL SBDB API https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=<number>&full-prec=1 (public domain), fetched 2026-10-14 with the Captain's approval",
+"purpose": "elements of the 24 DE440 perturber asteroids missing from sbdb_asteroids_named_mba.json (outer main belt, Cybele, Hilda, Hungaria, Trojan classes)",
+"raw_files": "D:/datasets/jpl/sbdb_24_missing_perturbers/",
+"frame": "heliocentric ecliptic J2000 osculating"
+},
+"objects": {
+"65": {
+"full_name": "65 Cybele (A861 EB)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.407149089657219,
+"e": 0.1278729312517013,
+"i_deg": 3.565275404821638,
+"om_deg": 155.0999502979274,
+"w_deg": 104.2270765148171,
+"ma_deg": 303.9032104989881
+},
+"76": {
+"full_name": "76 Freia (A862 UA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.408418372098532,
+"e": 0.1677050828681318,
+"i_deg": 2.123646662318344,
+"om_deg": 204.2705686484267,
+"w_deg": 252.2840974555892,
+"ma_deg": 330.7604508584464
+},
+"87": {
+"full_name": "87 Sylvia (A866 KA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.490930821312107,
+"e": 0.09424185252826336,
+"i_deg": 10.84931414002298,
+"om_deg": 72.94598366200401,
+"w_deg": 267.1015444388611,
+"ma_deg": 123.9199379392146
+},
+"107": {
+"full_name": "107 Camilla (A868 WA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.496730120606315,
+"e": 0.06725823702333292,
+"i_deg": 10.00612918005919,
+"om_deg": 172.3941527470202,
+"w_deg": 303.0136413979765,
+"ma_deg": 3.466180718189857
+},
+"121": {
+"full_name": "121 Hermione (A872 JA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.457772161299754,
+"e": 0.1244487619502451,
+"i_deg": 7.565504801874801,
+"om_deg": 72.87630733227122,
+"w_deg": 296.9368709991128,
+"ma_deg": 258.7079496569934
+},
+"132": {
+"full_name": "132 Aethra (A873 LA)",
+"orbit_class": "Mars-crossing Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.612002685821875,
+"e": 0.3871141686509731,
+"i_deg": 24.98148330819949,
+"om_deg": 258.0437487537999,
+"w_deg": 255.632875634003,
+"ma_deg": 159.7324924510207
+},
+"168": {
+"full_name": "168 Sibylla (A876 SA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.371287705682008,
+"e": 0.07424907182961114,
+"i_deg": 4.671785024271663,
+"om_deg": 205.9051137262229,
+"w_deg": 176.7555587933812,
+"ma_deg": 21.06772189573001
+},
+"225": {
+"full_name": "225 Henrietta (A882 HA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.397839347708333,
+"e": 0.2617824329805531,
+"i_deg": 20.84491348601628,
+"om_deg": 197.0259880020903,
+"w_deg": 103.6414733492089,
+"ma_deg": 7.510273917115643
+},
+"334": {
+"full_name": "334 Chicago (A892 QB)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.940153287203673,
+"e": 0.02840308359157031,
+"i_deg": 4.716280594037484,
+"om_deg": 129.0588585825251,
+"w_deg": 196.9161680528777,
+"ma_deg": 162.2151534844995
+},
+"381": {
+"full_name": "381 Myrrha (A894 AC)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.229362507355652,
+"e": 0.08860881405795723,
+"i_deg": 12.6204656082182,
+"om_deg": 124.7139749219599,
+"w_deg": 149.3135685103246,
+"ma_deg": 236.6921753766684
+},
+"420": {
+"full_name": "420 Bertholda (A896 RC)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.417658864253278,
+"e": 0.02054918917796198,
+"i_deg": 6.713201217323804,
+"om_deg": 242.3084326139678,
+"w_deg": 221.2286146640427,
+"ma_deg": 76.17789221681623
+},
+"445": {
+"full_name": "445 Edna (A899 TC)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.200595824596275,
+"e": 0.1995533618449259,
+"i_deg": 21.31399557586538,
+"om_deg": 291.9585655896432,
+"w_deg": 82.28407567224697,
+"ma_deg": 89.69119041309875
+},
+"466": {
+"full_name": "466 Tisiphone (A901 BB)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.352634720453199,
+"e": 0.09724646067076179,
+"i_deg": 19.01509044408614,
+"om_deg": 290.2239977151103,
+"w_deg": 255.8715127518363,
+"ma_deg": 50.27935548609403
+},
+"536": {
+"full_name": "536 Merapi (A904 JF)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.506628213682359,
+"e": 0.09096389753079363,
+"i_deg": 19.35313354896425,
+"om_deg": 58.99899281271217,
+"w_deg": 298.1339518245219,
+"ma_deg": 122.2823905344029
+},
+"545": {
+"full_name": "545 Messalina (A904 TC)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.200664317165865,
+"e": 0.1752278233748404,
+"i_deg": 11.2779473509804,
+"om_deg": 332.8010382233162,
+"w_deg": 333.716125308388,
+"ma_deg": 201.6686753144116
+},
+"566": {
+"full_name": "566 Stereoskopia (A905 KA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.374739045037161,
+"e": 0.1199542435507201,
+"i_deg": 4.894780740376121,
+"om_deg": 79.51182891015924,
+"w_deg": 300.390669257776,
+"ma_deg": 27.00491053319785
+},
+"595": {
+"full_name": "595 Polyxena (A906 FL)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.205673065279009,
+"e": 0.07073406120317106,
+"i_deg": 17.78796328562078,
+"om_deg": 23.68867428800574,
+"w_deg": 280.2778572808006,
+"ma_deg": 251.3137651453177
+},
+"713": {
+"full_name": "713 Luscinia (A911 HG)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.40248497936392,
+"e": 0.1540996109064446,
+"i_deg": 10.34005546846763,
+"om_deg": 217.4367567515352,
+"w_deg": 138.650988093787,
+"ma_deg": 338.186162156771
+},
+"790": {
+"full_name": "790 Pretoria (A912 BE)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.401044973028204,
+"e": 0.1564468044462535,
+"i_deg": 20.56580527879378,
+"om_deg": 251.7984684918095,
+"w_deg": 37.47451863225345,
+"ma_deg": 292.6712016529564
+},
+"895": {
+"full_name": "895 Helio (A918 NA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.204153396499608,
+"e": 0.1423496571097941,
+"i_deg": 26.08641840055616,
+"om_deg": 264.5430016695293,
+"w_deg": 177.0903903605531,
+"ma_deg": 141.3536056614826
+},
+"909": {
+"full_name": "909 Ulla (A919 CA)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.541287041852066,
+"e": 0.09470153011744285,
+"i_deg": 18.812836973456,
+"om_deg": 145.9969395348857,
+"w_deg": 229.7592184390819,
+"ma_deg": 148.3001725578007
+},
+"1015": {
+"full_name": "1015 Christa (A924 CF)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.204343670021659,
+"e": 0.08925408233402535,
+"i_deg": 9.448613586870762,
+"om_deg": 120.1151769216373,
+"w_deg": 287.4895484733296,
+"ma_deg": 26.38220080939611
+},
+"1036": {
+"full_name": "1036 Ganymed (A924 UB)",
+"orbit_class": "Amor",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 2.664068815977234,
+"e": 0.5335006672216854,
+"i_deg": 26.68765340379128,
+"om_deg": 215.3977394974259,
+"w_deg": 132.5072976556281,
+"ma_deg": 142.9653116916981
+},
+"1467": {
+"full_name": "1467 Mashona (1938 OE)",
+"orbit_class": "Outer Main-belt Asteroid",
+"epoch_jd_tdb": 2461200.5,
+"a_au": 3.387275935867543,
+"e": 0.1265655582053494,
+"i_deg": 21.89879866344198,
+"om_deg": 326.2892047835597,
+"w_deg": 350.325693629931,
+"ma_deg": 40.60661586775063
+}
+}
+}

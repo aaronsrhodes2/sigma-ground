@@ -62,6 +62,7 @@ def main() -> int:
         m = re.match(r"\s*(\d+)", str(b.get("full_name") or ""))
         if m:
             rows54[int(m.group(1))] = b
+    extra = json.loads((FIX / "sbdb_24_missing_perturbers_v2physics.json").read_text())["objects"]      # fetched 2026-10-14 for the objects the main-belt file lacks
     asteroids, missing = [], []
     for num in sorted(n for n in ma if n < 8000):
         d = rows.get(num)
@@ -72,6 +73,10 @@ def main() -> int:
             b = rows54[num]
             d = {"name": b.get("name"), "diameter": b.get("diameter_km")}
             el = {"epoch_jd_tdb": float(b["epoch_jd_tdb"]), "a_au": float(b["a_au"]), "e": float(b["e"]), "i_deg": float(b["i_deg"]), "om_deg": float(b["om_deg"]), "w_deg": float(b["w_deg"]), "ma_deg": float(b["ma_deg"])}
+        elif str(num) in extra:
+            b = extra[str(num)]
+            d = {"name": b["full_name"], "diameter": None}
+            el = {k: b[k] for k in ("epoch_jd_tdb", "a_au", "e", "i_deg", "om_deg", "w_deg", "ma_deg")}
         else:
             missing.append(num)
         asteroids.append({"number": num, "name": (d or {}).get("name"), "gm_km3_s2": ma[num], "diameter_km": float(d["diameter"]) if d and d.get("diameter") else None, "elements": el})
