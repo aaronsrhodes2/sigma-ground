@@ -15,6 +15,7 @@ import sys
 
 import pytest
 
+from sigma_ground.mcp import param_names as PN
 from sigma_ground.mcp.benchmark import router_dataset as D
 from sigma_ground.mcp.benchmark import router_plan as RP
 from sigma_ground.mcp.benchmark import router_recipes as RR
@@ -128,7 +129,10 @@ def test_recipes_against_the_real_server(tmp_path):
                     values = []
                     for s in c["steps"]:
                         assert s["tool"] in catalogue, s["tool"]
-                        assert set(s["args"]) <= catalogue[s["tool"]], (s["tool"], set(s["args"]) - catalogue[s["tool"]])
+                        # the recipes are written with the parameter names of the functions; the schema shows the canonical ones (param_names.py)
+                        # and still accepts the old ones, so a recipe name must be one of either
+                        accepted = catalogue[s["tool"]] | PN.accepted_old_names(s["tool"], catalogue[s["tool"]])
+                        assert set(s["args"]) <= accepted, (s["tool"], set(s["args"]) - accepted)
                         res = await D.execute(session, s["tool"], RP.resolve_args(s["args"], values),
                                               e["question"], timeout_s=300)
                         assert res is not None, (s, e["question"])

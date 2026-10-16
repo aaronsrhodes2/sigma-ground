@@ -248,6 +248,19 @@ sub-categories:
   execute under the sweep's auto-arg path, so the modules are partially
   covered today even before wiring.
 
+### Comets and prescribed perturbers (2026-10-16)
+
+Found by `test_coverage_ledger.py` in the full clean-room run of 2026-10-16 (10 functions, from the comet and perturber work of 2026-10-14/15); excluded with reasons:
+
+- `field.interface.comet_orbits.{nongrav_acceleration, propagate, sun_1pn_acceleration}` — a comet is a massless test particle (Newton, the Sun's 1PN term,
+  the Marsden non-gravitational law) stepped by the engine.
+- `field.interface.perturber_paths.{asteroid_window_paths, barycentric_state_at_epoch, planet_table, ring_window_paths, rk4_segment, to_prescribed_sources}` —
+  vectorised RK4 node tables of DE440's 343 asteroids and its 36-point ring, handed to the engine as prescribed sources.
+- `field.interface.comet_truth.parse_horizons_comet` — reads the Horizons truth data the shoot-out is scored against.
+
+All EXCLUDE (simulation-pipeline plumbing, driven through `NBodySystem` and the shoot-out runners), the same reason as the lunar and asteroid layers below. If the
+comet work later gets a Q&A tool, these come out of the set and the wiring test covers them.
+
 ### N-body engine layers and dense matter (2026-10-13)
 
 Found by `test_coverage_ledger.py` on master (13 functions); excluded with reasons, two groups:

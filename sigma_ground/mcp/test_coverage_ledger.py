@@ -234,6 +234,19 @@ EXCLUDE_SET = frozenset(
         "axisymmetric_T", "c22_T", "quadrupole_acceleration", "sectoral_extra_accelerations",
     )]
     + [_P + "asteroid_perturbers." + n for n in ("kepler_state_ecliptic", "propagate_to")]
+    # Comets and prescribed perturbers (shoot-out work, 2026-10-14/15): the same kind of
+    # engine plumbing. Comets are massless test particles stepped by the engine; the
+    # perturber paths are vectorised RK4 node tables (DE440's 343 asteroids and the
+    # 36-point ring) handed to the engine as prescribed sources; parse_horizons_comet
+    # reads the truth data the shoot-out is scored against.
+    + [_P + "comet_orbits." + n for n in (
+        "nongrav_acceleration", "propagate", "sun_1pn_acceleration",
+    )]
+    + [_P + "comet_truth.parse_horizons_comet"]
+    + [_P + "perturber_paths." + n for n in (
+        "asteroid_window_paths", "barycentric_state_at_epoch", "planet_table",
+        "ring_window_paths", "rk4_segment", "to_prescribed_sources",
+    )]
     # Dense-matter module (2026-10-11): real, validated physics (white dwarfs,
     # polytropes, TOV stability) that is a TRACKED wiring gap, not a non-capability:
     # CONTENDER_PLAN W4 wires white_dwarf_mass_radius / white_dwarf_structure /

@@ -36,8 +36,7 @@ class TestCatalogue(unittest.TestCase):
 
     def test_missing_elements_are_reported_not_hidden(self):
         missing = self.doc["metadata"]["asteroids_without_elements"]
-        self.assertEqual(sorted(missing), sorted(a["number"] for a in self.doc["asteroids"] if not a["elements"]))
-        self.assertGreater(len(missing), 0)                                          # until the 24 are added, the gap must stay visible
+        self.assertEqual(sorted(missing), sorted(a["number"] for a in self.doc["asteroids"] if not a["elements"]))   # the report is exactly the gap, however large (ef3211d closed it: 0 now)
 
 
 class TestPredictors(unittest.TestCase):
