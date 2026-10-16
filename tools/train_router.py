@@ -34,6 +34,10 @@ How a record becomes a training example
 Fixed recipe (the study's spec): LoRA r=16, alpha=32, dropout 0, on
 q,k,v,o,gate,up,down; 4-bit NF4 base; lr 2e-4, cosine, 3% warmup, 2 epochs,
 effective batch 16, seed 0; max length from the measured data, capped at 1024.
+`--precision bf16` swaps the 4-bit base and the 8-bit optimizer for a bfloat16 base
+and a plain AdamW (no bitsandbytes), everything else unchanged: for a machine with
+room or without bitsandbytes (misc/M5_TRAINING_PLAN.md). A bf16 run is a different
+recipe from the v3/v3.1 runs, so compare it with them knowing that.
 train.jsonl trains, val.jsonl evaluates (the split is group-aware already).
 """
 from __future__ import annotations
@@ -146,7 +150,38 @@ class Collator:
 
 # ── model ────────────────────────────────────────────────────────────────
 
-def load_model(base: str, max_len: int, use_unsloth: bool, seed: int, cpu: bool = False):
+PRECISIONS = ("nf4", "bf16")
+
+
+def training_config(precision: str, gpu: bool) -> dict:
+    """What the precision switch changes, in one place. `nf4` is the study's recipe (QLoRA: 4-bit base, 8-bit optimizer; both need bitsandbytes).
+    `bf16` is for a machine with room, or where bitsandbytes is not available (AMD/ROCm, the Bosgame M5): the base stays in bfloat16, LoRA on top,
+    a plain AdamW; no bitsandbytes is imported anywhere on that path."""
+    if precision not in PRECISIONS:
+        raise ValueError(f"precision must be one of {PRECISIONS}, got {precision!r}")
+    quantized = precision == "nf4"
+    return {"load_in_4bit": quantized and gpu, "optim": "adamw_8bit" if (quantized and gpu) else "adamw_torch",
+            "needs_bitsandbytes": quantized and gpu}
+
+
+def _version(module: str) -> str:
+    try:
+        return __import__(module).__version__
+    except Exception:  # noqa: BLE001  (bitsandbytes is legitimately absent on the bf16 path)
+        return "not installed"
+
+
+def _accelerator(torch) -> dict:
+    """What the run actually used, for the report: CUDA or ROCm (torch.version.hip), device name, memory torch can see."""
+    try:
+        props = torch.cuda.get_device_properties(0)
+        return {"name": props.name, "total_gib": round(props.total_memory / 2**30, 1), "cuda": torch.version.cuda, "hip": getattr(torch.version, "hip", None)}
+    except Exception as e:  # noqa: BLE001
+        return {"error": f"{type(e).__name__}: {e}"}
+
+
+def load_model(base: str, max_len: int, use_unsloth: bool, seed: int, cpu: bool = False, precision: str = "nf4"):
+    cfg = training_config(precision, gpu=not cpu)
     if cpu:     # --cpu-smoke: the same LoRA on an unquantized model, to test the loop
         import torch
         from peft import LoraConfig, get_peft_model
@@ -158,23 +193,32 @@ def load_model(base: str, max_len: int, use_unsloth: bool, seed: int, cpu: bool 
         return model, AutoTokenizer.from_pretrained(base), "cpu-smoke"
     if use_unsloth:
         from unsloth import FastLanguageModel        # must precede transformers/peft
+        import torch
         model, tok = FastLanguageModel.from_pretrained(
-            model_name=base, max_seq_length=max_len, load_in_4bit=True, dtype=None)
+            model_name=base, max_seq_length=max_len, load_in_4bit=cfg["load_in_4bit"],
+            dtype=None if cfg["load_in_4bit"] else torch.bfloat16)
         model = FastLanguageModel.get_peft_model(
             model, r=16, lora_alpha=32, lora_dropout=0.0, bias="none",
             target_modules=LORA_TARGETS, use_gradient_checkpointing="unsloth",
             random_state=seed)
         return model, tok, "unsloth"
     import torch
-    from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    from peft import LoraConfig, get_peft_model
+    from transformers import AutoModelForCausalLM, AutoTokenizer
     tok = AutoTokenizer.from_pretrained(base)
-    model = AutoModelForCausalLM.from_pretrained(
-        base, device_map={"": 0}, dtype=torch.bfloat16,
-        quantization_config=BitsAndBytesConfig(
-            load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_use_double_quant=True,
-            bnb_4bit_compute_dtype=torch.bfloat16))
-    model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
+    if cfg["load_in_4bit"]:
+        from peft import prepare_model_for_kbit_training
+        from transformers import BitsAndBytesConfig
+        model = AutoModelForCausalLM.from_pretrained(
+            base, device_map={"": 0}, dtype=torch.bfloat16,
+            quantization_config=BitsAndBytesConfig(
+                load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_use_double_quant=True,
+                bnb_4bit_compute_dtype=torch.bfloat16))
+        model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
+    else:       # bf16 base, no quantization library: gradient checkpointing keeps activations small
+        model = AutoModelForCausalLM.from_pretrained(base, device_map={"": 0}, dtype=torch.bfloat16)
+        model.gradient_checkpointing_enable()
+        model.enable_input_require_grads()
     model = get_peft_model(model, LoraConfig(
         r=16, lora_alpha=32, lora_dropout=0.0, bias="none",
         target_modules=LORA_TARGETS, task_type="CAUSAL_LM"))
@@ -214,8 +258,9 @@ def cmd_train(a) -> int:
     print(f"records: train {len(train_recs)}, val {len(val_recs)}; tokens per example "
           f"p50 {pct(lens, .5)}, p95 {pct(lens, .95)}, max {max(lens)} -> max_len {max_len}")
 
-    model, _, backend = load_model(a.base, max_len, use_unsloth, a.seed, cpu=a.cpu_smoke)
+    model, _, backend = load_model(a.base, max_len, use_unsloth, a.seed, cpu=a.cpu_smoke, precision=a.precision)
     gpu = not a.cpu_smoke
+    cfg = training_config(a.precision, gpu)
     train_ds, over_tr = build_split(tok, train_recs, max_len)
     val_ds, over_va = build_split(tok, val_recs, max_len)
     if a.eval_limit and len(val_ds) > a.eval_limit:
@@ -265,7 +310,7 @@ def cmd_train(a) -> int:
         gradient_accumulation_steps=a.grad_accum,
         learning_rate=a.lr, lr_scheduler_type="cosine", warmup_steps=warmup,
         num_train_epochs=a.epochs, max_steps=a.max_steps if a.max_steps > 0 else -1,
-        weight_decay=0.0, optim="adamw_8bit" if gpu else "adamw_torch", bf16=gpu,
+        weight_decay=0.0, optim=cfg["optim"], bf16=gpu,
         use_cpu=not gpu,
         logging_steps=a.logging_steps, eval_strategy="steps", eval_steps=eval_steps,
         save_strategy="steps", save_steps=eval_steps, save_total_limit=2,
@@ -303,7 +348,7 @@ def cmd_train(a) -> int:
     n_evals = full_total // full_eval_steps + 1
     projected = median_step * full_total + n_evals * eval_s
     report = {
-        "backend": backend, "base": a.base, "data": str(a.data),
+        "backend": backend, "precision": a.precision, "optim": cfg["optim"], "base": a.base, "data": str(a.data),
         "train_examples": len(train_ds), "val_examples": len(val_ds),
         "dropped_over_max_len": {"train": over_tr, "val": over_va},
         "tokens_per_example": {"p50": pct(lens, .5), "p95": pct(lens, .95), "max": max(lens)},
@@ -320,8 +365,8 @@ def cmd_train(a) -> int:
         "vram_peak_allocated_gib": round(torch.cuda.max_memory_allocated() / 2**30, 2) if gpu else None,
         "vram_peak_reserved_gib": round(torch.cuda.max_memory_reserved() / 2**30, 2) if gpu else None,
         "final_eval": final_eval,
-        "versions": {m: __import__(m).__version__ for m in
-                     ("torch", "transformers", "peft", "bitsandbytes", "accelerate")},
+        "versions": {m: _version(m) for m in ("torch", "transformers", "peft", "bitsandbytes", "accelerate")},
+        "accelerator": _accelerator(torch) if gpu else "cpu",
     }
     if backend == "unsloth":
         import unsloth
@@ -426,11 +471,13 @@ def cmd_modelfile(a) -> int:
     return 0
 
 
-def main() -> int:
+def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
     t = sub.add_parser("train")
+    t.add_argument("--precision", choices=PRECISIONS, default="nf4",
+                   help="nf4 = the study's QLoRA recipe (needs bitsandbytes); bf16 = unquantized base + LoRA + plain AdamW (no bitsandbytes: AMD/ROCm, or any machine with room)")
     t.add_argument("--data", required=True, help="dir with train.jsonl and val.jsonl")
     t.add_argument("--base", default="Qwen/Qwen3-8B", help="HF id or local dir")
     t.add_argument("--out", required=True)
@@ -457,7 +504,11 @@ def main() -> int:
     m = sub.add_parser("modelfile", help="write a Modelfile for a GGUF")
     m.add_argument("--gguf", required=True, help="path as the Modelfile should name it")
     m.add_argument("--out", required=True)
-    a = p.parse_args()
+    return p
+
+
+def main() -> int:
+    a = build_parser().parse_args()
     return {"train": cmd_train, "merge": cmd_merge, "modelfile": cmd_modelfile}[a.cmd](a)
 
 
