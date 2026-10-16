@@ -50,3 +50,9 @@ The Captain approved `wsl --shutdown` and moving Ubuntu and Docker to D:. The sc
 ## Rules in force
 Bash first; read `.claude/skills/windows-shell/SKILL.md`; never `git add -A`; `MSYS_NO_PATHCONV=1` for docker/robocopy paths; check C: free space before long jobs (stop under ~50 GB); no game launches or heavy agents until the science finishes;
 pushes to SkippyTel `main` deploy production, only when asked.
+
+## UPDATE (same day, later) - the Docker and Ubuntu moves are DONE
+- Docker Desktop's disk now lives at `D:\docker\wsl` (`CustomWslDistroDir` in `%APPDATA%\Docker\settings-store.json`); the old 250 GB `docker_data.vhdx` on C: was deleted after the stack came up healthy from D:.
+- Ubuntu-24.04 moved to `D:\wsl\Ubuntu-24.04` (`wsl --manage ... --move`, exit 0) after Docker Desktop was fully quit and its auto-start and WSL integration were turned off
+  (`AutoStart=false`, `IntegratedWslDistros=[]`; originals in `D:\tmp\settings-store.json.pre-ubuntu-move`). Re-enable the Docker auto-start if the Captain wants it back. Scripts: `scripts/move_wsl_docker.sh`, `D:\tmp\move_ubuntu.sh`.
+- C: free is now about 600 GB (was 43 GB). The stack was restarted with `docker compose up -d` (no rebuild); flask-api `/health` ok; music-studio was still loading ACE-Step.
