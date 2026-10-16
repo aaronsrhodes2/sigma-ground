@@ -37,3 +37,10 @@ Attribution (which change did what):
 * **Uranus, Neptune, Pluto** grow fast at long range: +20 yr 14.5, 29.5 and 34.9 km (barycentres). Missing Kuiper-belt mass, the Sun's reflex through unmodelled bodies, or the barycentre treatment are candidates, none tested.
 * **Jupiter** 2.07 km at +5 yr and 9.92 km at +20 yr; Saturn 2.11 km at +20 yr.
 * Venus +20 yr 0.49 km, Earth +20 yr 0.79 km: unexplained growth, linear in the lead.
+
+# Full 33-body restatement at step 0.025 d (2026-10-14/16)
+`rolling_shootout_full_short_0.025.json`, `rolling_shootout_full_long_0.025.json`, report `SHOOTOUT_FULL_RESTATED.md/.json` (`scripts/shootout_full_restate_report.py`). 23 candidate jobs + 6 control jobs (`de440_stack`, same step), all clean.
+Candidate = headline stack + DE440's 343 asteroids + its 36-point Kuiper-belt ring + the Moon's C22 (DE440's own value 2.23808505e-5), as prescribed sources / engine layers; `restated_ast_c22` (no ring) on J2000 and J2003 gives the ring pair.
+Read it with `MOON_STEP_CONVERGENCE.md` and `FINE_STEP_ALL_BODIES.md`: at 0.025 d the giants' planet-centre errors (Jupiter above all) and every fast moon are step-limited, so the converged numbers for those are in the 0.0125 d fine arm.
+The planet-centre truth of Uranus, Neptune (and, less, Pluto and Jupiter) carries a fixture floor of hundreds of km, which hides the ring's 15-30 km in a direct error comparison; the ring's effect is read from the
+prediction difference (ring minus no ring): Uranus 14.6, Neptune 30.2, Pluto 32.4, Saturn 5.3, Jupiter 1.1 km at +20 yr (median of J2000, J2003), the same size as the deficits the reduced-model barycentre test closed.

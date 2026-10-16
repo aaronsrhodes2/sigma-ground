@@ -161,3 +161,12 @@ same solution. Data and tables: `fixtures/horizons_comets/` (`COMET_LADDER.md`, 
 * Far comets (Halley 1P, 12P, 55P, 109P; 15-35 au): gravity alone matches JPL to 0.1-0.5 km: the planets, frames, units and integrator agree.
 * Wording: the truth is JPL's solution as propagated by Horizons (DE441 planets, 16 asteroids, the same Marsden model). This is dynamics parity with JPL's own treatment of each comet, NOT a measure of how well JPL's solution predicts the real comet.
 * Open: 9P Tempel 1 (an encounter-sensitive case?), 73P (data pending), the 16 asteroids Horizons treats individually vs our 343 prescribed ones, DE441 vs DE440 planets.
+
+### C1 + C3a + C5 in the full 33-body system, 21 windows at step 0.025 d (2026-10-16): confirmed
+Data and tables `fixtures/v2physics_restated/` (`SHOOTOUT_FULL_RESTATED.md`, README section "Full 33-body restatement"). 23 candidate and 6 control jobs, all clean (32 h wall). Median km, r2 (0.05 d) -> candidate (16 five-year / 7 twenty-year windows; every cell better than r2 in 16/16 or 7/7 unless noted):
+* +5 yr: Mercury 1.35 -> 0.03; Venus 0.18 -> 0.07 (14/16); Earth 0.45 -> **0.06**; Moon 3.90 -> **0.40**; Mars 1.26 -> **0.07**.
+* +20 yr: Mercury 5.84 -> 0.10; Venus 0.59 -> 0.28 (6/7); Earth 1.89 -> **0.16**; Moon 14.67 -> **0.95**; Mars 3.92 -> **0.19**; Saturn 12.3 -> 2.2.
+* The ring, read from the prediction difference (ring minus no ring, J2000 and J2003): Uranus 14.6, Neptune 30.2, Pluto 32.4, Saturn 5.3, Jupiter 1.1 km at +20 yr: the size of the deficits the reduced-model test closed. In the direct error against the fixture truth the outer planets' planet-centre
+  floors (Uranus 3,100 km, Neptune 1,650 km at +20 yr) hide it, so that comparison cannot show the ring; the barycentre comparison in C5 does.
+* Honest limits: at 0.025 d Jupiter's planet-centre error (10.3 km at +5 yr) and every fast moon are step-limited (read `FINE_STEP_ALL_BODIES.md` for the converged values: Jupiter 4.1 km); the layers do not change any moon (< 0.1 % at the converged step). Callisto looks 2-2.5x worse than r2
+  (86 -> 200 km at +5 yr) in all 16 windows: the converged value is 214 km at 0.0125 d, so r2's 86 km was integration error that happened to cancel, not a regression. Titania moves between steps (phase noise at 0.025 d; equal at 0.0125 d).
