@@ -1,8 +1,15 @@
-# Parameter renames and tool overlaps — proposed, NOT applied
+# Parameter renames — APPLIED 2026-10-15; tool overlaps — still proposed
+
+**Applied** (the Captain: "sure", 2026-10-15). The map is `sigma_ground/mcp/param_names.py`, the one place it lives. The tool functions keep their own parameter names;
+the contract shows the canonical names in the schema and in the descriptions, **still accepts the old names** (if both are given the canonical one wins), and echoes
+`inputs` under the canonical names. 47 parameters of 33 tools changed; the schema went from 311 to **290 distinct parameter names** (ratchet `distinct_param_names` in
+`misc/contract_budget.json`). A rename is skipped in a tool where it would collide, so `wetting_analysis` keeps `solid_key`/`liquid_key` (two roles) and
+`material_color_analysis` keeps `dye_key`/`substrate_key`. `semiconductor_junction_analysis.sc_key` became `semiconductor` (it is a semiconductor, not a superconductor, as the table below guessed).
+The lint (`tools/tool_census.py`) counts old names in training data as `legacy`: the v3.1 data uses them in 7,457 of 61,392 calls, so the next data build writes the canonical names.
+The router harness treats the old names as real parameters, so models trained on the old labels still run and are fairly scored.
 
 The contract (`sigma_ground/mcp/contract.py`) fixed units, documentation and errors without changing a single parameter name: the router's training
-labels (v3, v3.1) and the benchmark use today's names. When the labels are rebuilt for the final contract (CONTENDER_PLAN W7) the names below change
-together, with the old names kept as accepted aliases for one release. Source: `misc/contract_census.json`.
+labels (v3, v3.1) and the benchmark used the names below. Source: `misc/contract_census.json`.
 
 ## Names for the same idea (310 distinct parameter names across 232 tools)
 

@@ -155,6 +155,7 @@ def headline(rows, errors, notation, quantity):
     params = [p for r in rows for p in r["params"]]
     return {
         "tools": len(rows), "params": len(params), "required_params": sum(p["required"] for p in params),
+        "distinct_param_names": len({p["name"] for p in params}),
         "numeric_params": sum(("number" in p["type"] or "integer" in p["type"]) for p in params),
         "unit_suffixed_params": sum(p["unit_suffix"] for p in params),
         "undescribed_params": sum(not p["described"] for p in params),

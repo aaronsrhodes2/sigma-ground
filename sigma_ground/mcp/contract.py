@@ -35,6 +35,7 @@ from typing import Annotated, Any, Optional, Union
 from pydantic import Field
 
 from sigma_ground.field.bounds import Bounds, Regime, classify, describe
+from sigma_ground.mcp import param_names
 
 
 # ── the specs ──────────────────────────────────────────────────────────────────────────────────────
@@ -321,7 +322,7 @@ _TEXT_RULES: list[tuple[str, str]] = [
     (r"^element_symbol$", 'chemical element symbol, e.g. "Fe"'),
     (r"^(name|key|category|contains|scope|mode|dataset|structure|structure_name|particle|qubit_type|direction|image_side)$",
      "a name from the tool's own list of known entries; an unknown one returns the list of what exists"),
-    (r"(^|_)(key|key_1|key_2|material|material_1|material_2|mat_a|mat_b|mat_n|mat_p|metal_a|metal_b|anode|cathode|fuel|isotope|atom_a|atom_b|"
+    (r"(^|_)(key|key_1|key_2|material|material_1|material_2|material_a|material_b|material_n|material_p|semiconductor|mat_a|mat_b|mat_n|mat_p|metal_a|metal_b|anode|cathode|fuel|isotope|atom_a|atom_b|"
      r"central_body|body_name|star_name|counter_material|environment)$",
      "a name from the tool's own table (materials: see list_materials; bodies: list_bodies); an unknown name returns the list of known ones"),
     (r"^(question|scenario|reason|verb|object|handle|options|params|bond_angles_deg|bond_dipoles_debye|pka_list|qaoa_edges|grover_marked_item|simon_hidden_string)$",
@@ -456,12 +457,39 @@ def _args_block(fn_name: str, sig: inspect.Signature, doc: str, has_units: bool)
     return out
 
 
-def wrap_function(fn):
-    """The contract around one tool function: quantities, bounds, documentation, uniform results."""
+ALIASES: dict[str, dict[str, str]] = {}      # tool -> {old parameter name: canonical name}, filled as tools are wrapped (mcp/param_names.py is the map)
+
+
+def translate_aliases(tool: str, arguments: dict) -> dict:
+    """A call's arguments with the old parameter names of `tool` replaced by the canonical ones; if both are given the canonical one wins."""
+    renamed = ALIASES.get(tool)
+    if not renamed:
+        return arguments
+    out: dict = {}
+    for k, v in arguments.items():
+        new = renamed.get(k)
+        if new is not None and new in arguments:
+            continue
+        out[new or k] = v
+    return out
+
+
+def wrap_function(fn, name: str | None = None):
+    """The contract around one tool function: canonical parameter names (old ones still accepted), quantities, bounds, documentation, uniform results."""
     try:
-        sig = inspect.signature(fn, eval_str=True)
+        raw_sig = inspect.signature(fn, eval_str=True)
     except Exception:  # noqa: BLE001 — leave a function we cannot introspect alone
         return fn
+    tool_name = name or fn.__name__
+    simple = not any(p.kind in (p.VAR_POSITIONAL, p.VAR_KEYWORD) for p in raw_sig.parameters.values())
+    renamed = param_names.rename_map(tool_name, raw_sig.parameters) if simple else {}
+    back = param_names.inverse(renamed)
+    if renamed:
+        ALIASES[tool_name] = renamed
+    sig = raw_sig.replace(parameters=[p.replace(name=renamed.get(n, n)) for n, p in raw_sig.parameters.items()])
+    doc_text = fn.__doc__ or fn.__name__
+    for old, new in renamed.items():
+        doc_text = re.sub(rf"\b{re.escape(old)}\b", new, doc_text)
     unit_params = _unit_params(sig)
     params = []
     for n, p in sig.parameters.items():
@@ -497,11 +525,11 @@ def wrap_function(fn):
                 if regime is Regime.BEYOND:
                     raise ContractError("out_of_range", f"{n} = {v:g} is impossible: it {why}", param=n,
                                         expected=f"{n} {describe(spec.bounds)}", got=v, example=spec.example or None)
-        result = fn(*bound.args, **bound.kwargs)
-        return _finish(result, converted, user_units)
+        result = fn(*bound.args, **{back.get(k, k): v for k, v in bound.kwargs.items()})
+        return _finish(result, converted, user_units, renamed)
 
     wrapper.__signature__ = new_sig
-    wrapper.__doc__ = _args_block(fn.__name__, new_sig, fn.__doc__ or fn.__name__, bool(unit_params))
+    wrapper.__doc__ = _args_block(fn.__name__, new_sig, doc_text, bool(unit_params))
     return wrapper
 
 
@@ -517,11 +545,13 @@ def _unit_text(text: str) -> str:
     return unit_text
 
 
-def _finish(result: Any, converted: dict, user_units: Any = ()) -> Any:
+def _finish(result: Any, converted: dict, user_units: Any = (), renamed: dict | None = None) -> Any:
     """Uniform result shape: `error` whenever value is null; `converted` when a quantity string was converted; `display` (the answer in the
-    caller's own measurement system, SI in parentheses) when a quantity was given in non-SI units."""
+    caller's own measurement system, SI in parentheses) when a quantity was given in non-SI units; `inputs` echoed under the canonical names."""
     if not isinstance(result, dict):
         return result
+    if renamed and isinstance(result.get("inputs"), dict):
+        result["inputs"] = {renamed.get(k, k): v for k, v in result["inputs"].items()}
     if converted:
         result["converted"] = converted
     if user_units and result.get("value") is not None:
@@ -582,13 +612,14 @@ def install(server) -> None:
 
     def tool(*a, **k):
         deco = original_tool(*a, **k)
-        return lambda fn: deco(wrap_function(fn))
+        registered = k.get("name") or (a[0] if a and isinstance(a[0], str) else None)
+        return lambda fn: deco(wrap_function(fn, registered))
     server.tool = tool
 
     original_call = server.call_tool
 
     async def call_tool(name, arguments):
-        arguments = arguments or {}
+        arguments = translate_aliases(name, arguments or {})
         schema, props = {}, set()
         try:
             t = server._tool_manager.get_tool(name)

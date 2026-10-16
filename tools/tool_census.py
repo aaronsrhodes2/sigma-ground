@@ -61,6 +61,29 @@ def signatures() -> dict[str, list[dict]]:
     return out
 
 
+def canonical_signatures() -> dict[str, list[dict]]:
+    """signatures() as the server now shows them: the renamed parameters under their canonical names (mcp/param_names.py), each remembering `old_name`."""
+    from sigma_ground.mcp import param_names as PN
+    out: dict[str, list[dict]] = {}
+    for tool, params in signatures().items():
+        rm = PN.rename_map(tool, [p["name"] for p in params])
+        out[tool] = [{**p, "name": rm.get(p["name"], p["name"]), "old_name": p["name"] if p["name"] in rm else None} for p in params]
+    return out
+
+
+def old_to_canonical(sigs: dict, tool: str) -> dict[str, str]:
+    return {p["old_name"]: p["name"] for p in sigs.get(tool, []) if p.get("old_name")}
+
+
+def canonical_names(args: dict, old: dict[str, str]) -> dict:
+    """args with each old parameter name replaced by its canonical one (an old name is kept as it is when the canonical one is also given)."""
+    out = {}
+    for k, v in args.items():
+        new = old.get(k)
+        out[k if new is None or new in args else new] = v
+    return out
+
+
 def type_problem(value, ann: str) -> str | None:
     """Why `value` cannot be an argument annotated `ann` (pydantic v2 rules for JSON), or None."""
     if isinstance(value, str) and REF.match(value):
@@ -105,10 +128,12 @@ def read_steps(path: Path):
             yield q, c["steps"]
 
 
-def lint(files: list[Path], sigs: dict) -> dict:
+def lint(files: list[Path], sigs: dict, canonical_only: bool = False) -> dict:
+    """A parameter written under its OLD name is accepted by the server (an alias) and counted in `legacy`; with canonical_only it is an issue."""
     issues: collections.Counter = collections.Counter()
     examples: dict[str, list] = collections.defaultdict(list)
     by_tool: collections.Counter = collections.Counter()
+    legacy: collections.Counter = collections.Counter()
     n_steps = 0
     for f in files:
         for q, steps in read_steps(f):
@@ -121,7 +146,14 @@ def lint(files: list[Path], sigs: dict) -> dict:
                     kinds = [("unknown tool", tool)]
                 else:
                     sig = {p["name"]: p for p in sigs[tool]}
+                    old = old_to_canonical(sigs, tool)
+                    for k in args:
+                        if k in old and k not in sig:
+                            legacy[f"{tool}.{k} -> {old[k]}"] += 1
+                    args = canonical_names(args, old)
                     kinds = [("unknown parameter", f"{tool}.{k}") for k in args if k not in sig]
+                    if canonical_only:
+                        kinds += [("old parameter name", f"{tool}.{k}") for k in s["args"] if k in old and k not in sig]
                     kinds += [("missing required", f"{tool}.{p['name']}") for p in sigs[tool]
                               if p["required"] and p["name"] not in args]
                     for k, v in args.items():
@@ -133,7 +165,7 @@ def lint(files: list[Path], sigs: dict) -> dict:
                     if len(examples[kind]) < 6 or detail not in {d for d, _ in examples[kind]}:
                         if len(examples[kind]) < 25:
                             examples[kind].append((detail, q[:70]))
-    return {"steps": n_steps, "issues": dict(issues), "by_tool": by_tool, "examples": examples}
+    return {"steps": n_steps, "issues": dict(issues), "by_tool": by_tool, "examples": examples, "legacy": legacy}
 
 
 def coverage(files: list[Path], sigs: dict) -> dict:
@@ -145,7 +177,7 @@ def coverage(files: list[Path], sigs: dict) -> dict:
                 if s["tool"] == "request_clarification":
                     continue
                 calls[s["tool"]] += 1
-                for k in s["args"]:
+                for k in canonical_names(s["args"], old_to_canonical(sigs, s["tool"])):
                     use[(s["tool"], k)] += 1
     return {"use": use, "calls": calls}
 
@@ -233,8 +265,9 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--tools", default="", help="comma list; default all")
     ap.add_argument("--min", type=int, default=10, help="coverage: flag parameters with fewer examples")
     ap.add_argument("--json", type=Path)
+    ap.add_argument("--canonical-only", action="store_true", help="lint: a parameter written under its OLD name is an issue (use for newly built data)")
     a = ap.parse_args(argv)
-    sigs = signatures()
+    sigs = canonical_signatures()
     want = [t for t in a.tools.split(",") if t] or sorted(sigs)
     if a.cmd == "signatures":
         for t in want:
@@ -259,9 +292,11 @@ def main(argv: list[str]) -> int:
     files = [a.data / n for n in ("train.jsonl", "val.jsonl") if (a.data / n).exists()]
     files += [d / "seeds.jsonl" for d in a.seeds]
     if a.cmd == "lint":
-        r = lint(files, sigs)
+        r = lint(files, sigs, a.canonical_only)
         print(f"checked {r['steps']} tool calls in {len(files)} files against {len(sigs)} signatures")
         print("issues:", r["issues"] or "none")
+        if r["legacy"]:
+            print(f"old parameter names (accepted by the server as aliases): {sum(r['legacy'].values())} uses of {len(r['legacy'])} renamed parameters; rebuild the data to write the canonical names")
         for kind, ex in r["examples"].items():
             print(f"\n{kind}: {sum(1 for _ in ex)} distinct shown")
             for detail, q in ex[:12]:

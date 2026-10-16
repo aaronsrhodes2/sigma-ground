@@ -1013,12 +1013,15 @@ def _build_real_params_map(tools_for_ollama: list[dict]) -> dict[str, set[str]]:
     (gravity_ms2 -> g_m_s2, velocity -> speed_m_s, etc.) only when the
     canonical form matches the target tool's real signature.
     """
+    from sigma_ground.mcp.param_names import accepted_old_names
     out: dict[str, set[str]] = {}
     for t in tools_for_ollama:
         fn = t.get("function", {})
         name = fn.get("name", "")
         params = (fn.get("parameters", {}) or {}).get("properties", {}) or {}
-        out[name] = set(params.keys())
+        # the server still accepts the OLD names of the renamed parameters (mcp/param_names.py): a plan written with them is not "unknown"
+        # (a superset: it can name an old spelling the tool never had, which the server then ignores, as it always did)
+        out[name] = set(params.keys()) | accepted_old_names(name, params.keys())
     return out
 
 
