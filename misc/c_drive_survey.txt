@@ -1,0 +1,34 @@
+C: 919 of 952 GB used, 34 GB free
+
+Known suspects (biggest first):
+    250.1 GB  Docker Desktop data (WSL images)  [C:\Users\aaron\AppData\Local\Docker]
+     65.8 GB  Ollama (models, if default)  [C:\Users\aaron\.ollama]
+     39.4 GB  Hugging Face cache  [C:\Users\aaron\.cache]
+     22.5 GB  WSL distro packages (ext4.vhdx live here)  [C:\Users\aaron\AppData\Local\Packages]
+     15.3 GB  Downloads  [C:\Users\aaron\Downloads]
+     13.0 GB  pip cache  [C:\Users\aaron\AppData\Local\pip]
+     11.0 GB  Temp  [C:\Users\aaron\AppData\Local\Temp]
+      9.9 GB  Python installs  [C:\Users\aaron\AppData\Local\Programs\Python]
+      7.9 GB  Google Drive cache  [C:\Users\aaron\AppData\Local\Google]
+      2.0 GB  Claude (projects, transcripts, memory)  [C:\Users\aaron\.claude]
+      1.6 GB  npm cache  [C:\Users\aaron\AppData\Local\npm-cache]
+      1.1 GB  npm global  [C:\Users\aaron\AppData\Roaming\npm]
+      115 MB  Docker config (user)  [C:\Users\aaron\.docker]
+       29 MB  Ollama app data  [C:\Users\aaron\AppData\Local\Ollama]
+
+Biggest top-level folders under the profile and AppData:
+    250.1 GB  C:\Users\aaron\AppData\Local\Docker
+  >=  229.0 GB  C:\Users\aaron\AppData
+    204.6 GB  C:\Users\aaron\AppData\Local\wsl
+     85.6 GB  C:\Users\aaron\AppData\Local\Microsoft
+     65.8 GB  C:\Users\aaron\.ollama
+     39.4 GB  C:\Users\aaron\.cache
+     22.5 GB  C:\Users\aaron\AppData\Local\Packages
+     16.6 GB  C:\Users\aaron\AppData\Local\Programs
+     15.3 GB  C:\Users\aaron\Downloads
+     13.1 GB  C:\Users\aaron\AppData\Local\NVIDIA
+     13.0 GB  C:\Users\aaron\AppData\Local\pip
+     11.0 GB  C:\Users\aaron\AppData\Local\Temp
+     10.5 GB  C:\Users\aaron\AppData\Local\Larian Studios
+      9.9 GB  C:\Users\aaron\AppData\Roaming\Claude
+done
