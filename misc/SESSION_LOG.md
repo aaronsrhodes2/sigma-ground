@@ -3914,3 +3914,20 @@ Checks on the preview data (37,409 train / 4,021 val): `tool_census lint` clean 
 dead teacher, only 3,468 new requests need the GPU). Not in v3.1: defaults table, `object_properties`, retiring clarification (decisions open).
 Scheduled: 4B only, `tools/run_at.sh 00:00` (waiter PID 38572, watchdog 23:58), plan and launch line in `misc/ROUTER_V31_PLAN.md`; expected done
 about 05:30 to 06:00. Commit b6dacd0 on `claude/router-v2`.
+
+### Router v3.2 data, the Captain's six decisions, and the Linux rehearsal for the Bosgame M5 (2026-10-15 to 2026-10-16)
+Context: local model projects and SkippyTel move to a Bosgame M5 (Ryzen AI Max+ 395, 128 GB, about 256 GB/s: capacity, not speed; my first answer assumed a big fast GPU
+and was corrected the same day). The Captain answered the six open decisions and asked for the data work so training can run there.
+Built, each pushed and tested: (1) answers in the question's measurement system with SI in parentheses: `mcp/unit_display.py`, `display` on results (cd980ac); (2) explicit
+conventions, Fourier ordinary/angular/unitary and series exclusive/inclusive, defaults unchanged (80f1826); (3) 47 parameters of 33 tools renamed to one vocabulary, 311 -> 290
+names, old names accepted (8d1c969); (4) plan **v4**: the router quotes quantities as the question wrote them instead of converting in its head, 41,887 quantities in
+the data, two-word units ("solar masses") understood (0f07316); (5) 400 convention seeds + a 58-question held-out convention suite, a quantity-aware plan comparison, hard
+validation relabelled (e3b3a53); (6) `tools/run_router_linux.sh` and the v3.2 bundle (99156d2). Data: 39,512 train / 4,242 val, lint clean on 48,976 calls, relabel checked by
+running 1,500 changed plans through the real server old vs new (0 different).
+Physics tests (the Captain's condition): clean-room full runs of plain exports with the project's own testpaths. Baseline f62d5e7: 6,848 passed, 24 failing/erroring; e3b3a53:
+6,999 passed, 5 failing. Found on the way: seven field/interface tests shadowed the MCP SDK for the rest of every full run (20 tests, 38e3c26); one regression of mine (a bare
+numeric string scored equal to a number; 85664c6). Four older failures remain, none from this work.
+Rehearsal under Linux (WSL, Python 3.12) found what a one-machine check could not: the astro classifier silently vanished without `periodictable` and changed the dataset; Python's text
+mode wrote CRLF on Windows and LF on Linux (same 39,512 lines, two hashes); my runner swallowed failures. Fixed. Real GPU pilot of `--precision bf16` (plain PEFT, no bitsandbytes):
+Qwen3-1.7B, 50 steps, 1.57 s/step, projected 2.3 h, vs 0.87 s/step for the 4-bit recipe through Unsloth on this card. Unsloth died at import inside WSL (silent); ROCm untested.
+Another session was moving WSL/Docker storage the same day (heavy disk I/O, repeated WSL E_UNEXPECTED); not touched. Plans: `misc/ROUTER_V32_PLAN.md`, `misc/M5_TRAINING_PLAN.md`.
