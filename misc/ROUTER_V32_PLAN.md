@@ -76,3 +76,11 @@ python tools/data_bundle.py create router_v32 --out local-cache/bundles/router_v
 python tools/data_bundle.py rebuild-check local-cache/bundles/router_v32_2026-10-15.zip              # on the new machine: expect three IDENTICAL
 SIZE=4b PRECISION=bf16 tools/run_router_linux.sh pilot                                              # then without "pilot" for the whole run
 ```
+
+## Final physics-test verdict (clean-room full run, commit 85664c6, 2026-10-16)
+
+`pytest` with the project's own testpaths on a plain export of the commit: **7,007 passed, 4 failed** (6 xfailed, 7 skipped, 2,852 subtests passed; 19 min). Against the baseline f62d5e7 (6,848 passed, 24 failing or erroring):
+**no new failure, 20 fixed.** The four that fail are the older ones, none touched by this work: `test_restated_predictors::test_missing_elements_are_reported_not_hidden`,
+`test_router_recipes::test_recipes_against_the_real_server`, `test_targets::test_qa_matches_wolfram_on_subset_wa_got_right`, `test_coverage_ledger::test_honest_100_percent_coverage`
+(another session's comet functions). The condition the Captain set for the conventions ("yes if the physics tests still pass") is met. Later commits 876cefe (the smoke test reads a
+quoted mass) and the documentation commits changed only `tools/eval_router_val.py`'s smoke check and docs; its tests pass (31). The junit files are in `local-cache/test_runs/`.
