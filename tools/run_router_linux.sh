@@ -118,7 +118,7 @@ train_args() {   # train_args <out> [more]
   echo "$PY -u tools/train_router.py train --data $DATA --base $BASE --out $out --precision $PRECISION --eval-limit $EVAL_LIMIT $EXTRA_TRAIN $*"
 }
 do_pilot() {
-  $(train_args "$WORK/pilot" --max-steps 50 --eval-steps 25) | tee "$LOGS/pilot.log" >/dev/null
+  $(train_args "$WORK/pilot" --max-steps 50 --eval-steps 25) > "$LOGS/pilot.log" 2>&1 || { tail -n 25 "$LOGS/pilot.log" >&2; return 1; }
   local secs; secs=$($PY -c "import json,sys; r=json.load(open(sys.argv[1])); print(int(r['projected_full_run_s']))" "$WORK/pilot/train_report.json")
   $PY - "$WORK/pilot/train_report.json" <<'EOF' | tee -a "$LOGS/pipeline.log"
 import json, sys

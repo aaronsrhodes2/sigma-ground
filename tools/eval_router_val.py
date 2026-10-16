@@ -100,6 +100,8 @@ def same_arg(key: str, a, b) -> bool:
         return False
     if any(isinstance(x, str) and x.startswith("$") for x in (a, b)):          # a reference to an earlier result: equal only if identical
         return False
+    if not all(C._unit_text(x) for x in (a, b) if isinstance(x, str)):         # a bare numeric string ("1000.0") is not a quantity: it stays wrong, as before
+        return False
     try:
         va = C.to_si(a, key, spec)[0] if isinstance(a, str) else float(a)
         vb = C.to_si(b, key, spec)[0] if isinstance(b, str) else float(b)

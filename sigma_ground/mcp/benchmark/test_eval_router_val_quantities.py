@@ -22,13 +22,14 @@ def plan(tool, **args):
 
 
 @pytest.mark.parametrize("pred,gold", [
-    ("5.09 km", "5.09 km"), ("5.09km", "5.09 km"), (5090.0, "5.09 km"), ("5090 m", "5.09 km"), ("5.09 km", 5090.0), ("5090.0", 5090.0), ("5.09 kilometers", "5.09 km"),
+    ("5.09 km", "5.09 km"), ("5.09km", "5.09 km"), (5090.0, "5.09 km"), ("5090 m", "5.09 km"), ("5.09 km", 5090.0), ("5.09 kilometers", "5.09 km"),
 ])
 def test_equal_quantities_are_equal_however_they_are_written(pred, gold):
     assert V.compare(plan("gravitational_redshift", mass_kg=1.0, radius_m=pred), plan("gravitational_redshift", mass_kg=1.0, radius_m=gold)) == (True, True, "")
 
 
-@pytest.mark.parametrize("pred,gold", [("5.09 m", "5.09 km"), ("5.09 kg", "5.09 km"), (509.0, "5.09 km"), ("five km", "5.09 km"), ("5.09 km", "5.1 km")])
+@pytest.mark.parametrize("pred,gold", [("5.09 m", "5.09 km"), ("5.09 kg", "5.09 km"), (509.0, "5.09 km"), ("five km", "5.09 km"), ("5.09 km", "5.1 km"),
+                                       ("5090", "5.09 km"), ("5090.0", 5090.0), (5090.0, "5090.0")])           # a bare numeric string is not a quantity: still wrong, as the older tests demand
 def test_different_quantities_are_still_different(pred, gold):
     same_tools, exact, why = V.compare(plan("gravitational_redshift", mass_kg=1.0, radius_m=pred), plan("gravitational_redshift", mass_kg=1.0, radius_m=gold))
     assert same_tools and not exact and "radius_m" in why
