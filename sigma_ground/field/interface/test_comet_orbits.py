@@ -109,5 +109,26 @@ class TestPropagation(unittest.TestCase):
         self.assertGreater(energy(push), energy(base))
 
 
+    def test_time_delay_by_one_period_is_a_no_op_and_by_half_a_period_is_not(self):    # BUG: g(r(t - DT)) with DT = P is the same g on a periodic orbit; DT = P/2 swaps perihelion and aphelion
+        y0, period = _orbit(3.0, 0.5)
+        t1 = 2455197.5 + 1.5 * period
+        A = (0.0, 5e-9, 0.0)
+        base = co.propagate(y0, 2455197.5, [t1], _SunOnly(), GM_SUN_ONLY, gr=False)[t1]
+        none = co.propagate(y0, 2455197.5, [t1], _SunOnly(), GM_SUN_ONLY, gr=False, nongrav=A)[t1]
+        full = co.propagate(y0, 2455197.5, [t1], _SunOnly(), GM_SUN_ONLY, gr=False, nongrav=A, dt_days=period)[t1]
+        half = co.propagate(y0, 2455197.5, [t1], _SunOnly(), GM_SUN_ONLY, gr=False, nongrav=A, dt_days=period / 2)[t1]
+        effect = np.linalg.norm(none[:3] - base[:3])
+        self.assertGreater(effect, 1e3)                                                 # the push does something measurable
+        self.assertLess(np.linalg.norm(full[:3] - none[:3]), 5e-3 * effect)             # DT = P: second order only (the orbit is not exactly periodic once pushed)
+        self.assertGreater(np.linalg.norm(half[:3] - none[:3]), 0.1 * effect)           # DT = P/2: a different push
+
+    def test_zero_delay_is_the_undelayed_result_exactly(self):                          # BY CONSTRUCTION
+        y0, period = _orbit(3.0, 0.5)
+        t1 = 2455197.5 + period
+        a = co.propagate(y0, 2455197.5, [t1], _SunOnly(), GM_SUN_ONLY, gr=False, nongrav=(1e-9, 1e-9, 0.0))[t1]
+        b = co.propagate(y0, 2455197.5, [t1], _SunOnly(), GM_SUN_ONLY, gr=False, nongrav=(1e-9, 1e-9, 0.0), dt_days=0.0)[t1]
+        self.assertTrue(np.array_equal(a, b))
+
+
 if __name__ == "__main__":
     unittest.main()

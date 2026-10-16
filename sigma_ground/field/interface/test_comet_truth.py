@@ -43,6 +43,12 @@ class TestParser(unittest.TestCase):
         with self.assertRaises(ValueError):
             self._parse(SAMPLE.replace("A2= 1.554720290005E-10", ""))
 
+    def test_a_solution_without_the_model_has_zero_parameters_and_says_so(self):     # BUG: 12P Pons-Brooks has no non-gravitational section
+        head, tail = SAMPLE.split("Comet non-gravitational")[0], "Target body name:" + SAMPLE.split("Target body name:")[1]
+        r = self._parse(head + tail)
+        self.assertFalse(r["has_nongrav_model"])
+        self.assertEqual(r["A"], (0.0, 0.0, 0.0))
+
     def test_no_ephemeris_block_is_an_error(self):
         with self.assertRaises(ValueError):
             self._parse("Multiple major-bodies match string 'DES=9P'")

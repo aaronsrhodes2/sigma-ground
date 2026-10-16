@@ -1,7 +1,8 @@
 """Parser for JPL Horizons comet responses (API, format=json, OBJ_DATA=YES, EPHEM_TYPE=VECTORS, CSV, KM-D, ICRF, centre 500@0).
 
 Returns the orbital solution's identity and non-gravitational model, and the barycentric ICRF states (km, km/day) at the requested epochs.
-Anything the parser cannot find raises ValueError: a silent default for a force parameter would corrupt the test it feeds.
+Anything the parser cannot find raises ValueError: a silent default for a force parameter would corrupt the test it feeds. The one exception is a response with NO non-gravitational
+section at all: that solution was fitted without the model, so the parameters are zero and ``has_nongrav_model`` is False.
 """
 from __future__ import annotations
 
@@ -31,7 +32,8 @@ def parse_horizons_comet(path: str | Path) -> dict:
     head = text.split("$$SOE")[0]
     m_name = re.search(r"Target body name:\s*(.+?)\s*\{source:\s*([^}]+)\}", head)
     m_soln = re.search(r"Soln\.date:\s*(\S+)\s+# obs:\s*(\d+)\s*\(([^)]*)\)", head)
-    ng = head[head.index("non-gravitational force model"):]
+    has_ng = "non-gravitational force model" in head                       # a solution fitted without the model (pure gravity) simply has no such section
+    ng = head[head.index("non-gravitational force model"):] if has_ng else ""
     states, jds = [], []
     for ln in text.split("$$SOE")[1].split("$$EOE")[0].strip().splitlines():
         cells = [c.strip() for c in ln.split(",") if c.strip()]
@@ -39,6 +41,8 @@ def parse_horizons_comet(path: str | Path) -> dict:
         states.append([float(x) for x in cells[2:8]])
     return {"target": m_name.group(1) if m_name else None, "solution_source": m_name.group(2) if m_name else None,
             "solution_date": m_soln.group(1) if m_soln else None, "n_obs": int(m_soln.group(2)) if m_soln else None, "obs_arc": m_soln.group(3) if m_soln else None,
-            "A": (_grab(ng, "A1"), _grab(ng, "A2"), _grab(ng, "A3")), "DT": _grab(ng, "DT"), "AMRAT": _grab(ng, "AMRAT"),
-            "law": {"alpha": _grab(ng, "ALN"), "k": _grab(ng, "NK"), "m": _grab(ng, "NM"), "n": _grab(ng, "NN"), "r0": _grab(ng, "R0")},
+            "has_nongrav_model": has_ng,
+            "A": (_grab(ng, "A1"), _grab(ng, "A2"), _grab(ng, "A3")) if has_ng else (0.0, 0.0, 0.0), "DT": _grab(ng, "DT") if has_ng else 0.0,
+            "AMRAT": _grab(ng, "AMRAT") if has_ng else 0.0,
+            "law": {"alpha": _grab(ng, "ALN"), "k": _grab(ng, "NK"), "m": _grab(ng, "NM"), "n": _grab(ng, "NN"), "r0": _grab(ng, "R0")} if has_ng else None,
             "jd": np.array(jds), "state_km_kmday": np.array(states)}
