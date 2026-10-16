@@ -47,3 +47,5 @@ If the fix needs a config change (settings, git config, a package), propose it t
 5. verify by PID that driver and workers exist; 6. write the live PIDs into memory;
 7. a watchdog with a stall limit starts WHEN THE JOB STARTS: for a job that waits for a clock time use `tools/run_at.sh HH:MM <watchdog command>` a couple of minutes before it, or the idle wait trips the stall check;
 8. give a long pipeline a `STOP_AFTER=<stage>` style knob so its early stages can be rehearsed for real (`tools/run_router_v3.sh` has one).
+
+- **Junctions/symlinks: use PowerShell `New-Item -ItemType Junction -Path <link> -Target <dir>`, never `cmd //c mklink //J` from Git Bash** (2026-10-16: it printed success, created nothing, and the script then deleted the old folder; the data survived only because it was verified on D: first). Always check the link with `Get-Item <link> | % LinkType` before removing the original, and note Git Bash's `ls` may show a junction's contents wrongly: trust PowerShell.
