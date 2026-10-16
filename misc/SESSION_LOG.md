@@ -3931,3 +3931,12 @@ Rehearsal under Linux (WSL, Python 3.12) found what a one-machine check could no
 mode wrote CRLF on Windows and LF on Linux (same 39,512 lines, two hashes); my runner swallowed failures. Fixed. Real GPU pilot of `--precision bf16` (plain PEFT, no bitsandbytes):
 Qwen3-1.7B, 50 steps, 1.57 s/step, projected 2.3 h, vs 0.87 s/step for the 4-bit recipe through Unsloth on this card. Unsloth died at import inside WSL (silent); ROCm untested.
 Another session was moving WSL/Docker storage the same day (heavy disk I/O, repeated WSL E_UNEXPECTED); not touched. Plans: `misc/ROUTER_V32_PLAN.md`, `misc/M5_TRAINING_PLAN.md`.
+
+### The four remaining red tests, and Mentat rebuilt (2026-10-16)
+The Captain asked "what about those 4." after I had called them older and untouched. Reading each failure (baseline vs now) instead of trusting the failing-set comparison:
+the real-server recipes test was **mine** (it failed on an import in the baseline, hidden by the `sys.path` pollution; once that was fixed it hit my `energy_joules` -> `energy_j`
+rename), the restated-predictors test was stale (ef3211d closed the 24-asteroid gap), the coverage ledger lacked the ten comet/perturber functions, and the QA threshold (29/30)
+is one routing miss (`astro_002`, the Sun's surface temperature answered as its mass by the semantic interpreter; data correct, scorer untouched). Three fixed in 5ff8d6b; the QA
+routing is left open. The Captain then said to rebuild Mentat from the current state: `mentat-home` rebuilt at 5ff8d6b (was 489ec0c) with the stop/rm/up sequence, verified
+(`check_mentat_deploy.sh` ok; `30 feet` -> `29.96 mph (13.39 m/s)`, Fourier convention stated, `energy_j` and `energy_joules` both accepted, `2 solar masses` read), SkippyTel baed228
+pushed (starts the cloud deploy). All other SkippyTel containers had been stopped (exit 0 or 137) by the Docker storage move; not restarted by me.

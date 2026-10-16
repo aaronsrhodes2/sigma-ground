@@ -44,8 +44,9 @@ and the cached teacher rewrites; **no teacher is needed** (the convention seeds,
 * **The data rebuilds identically on another operating system.** `tools/data_bundle.py rebuild-check` regenerates the dataset on the CPU with no teacher and gets the same bytes on
   Windows (Python 3.13) and Linux (Python 3.12): `train.jsonl 676538b6…`, `val.jsonl 1d2d1fcc…`, `rewrites.jsonl 4444f2a6…`.
 * **Physics tests.** Clean-room full run (a plain export of the commit, `pytest` with the project's own testpaths), baseline f62d5e7: 6,848 passed, 24 failing or erroring. At e3b3a53:
-  6,999 passed, 5 failing. 20 failures went away (test pollution, below); 4 are older and untouched by this work (`test_restated_predictors`, `test_router_recipes::real_server`,
-  `test_targets` QA thresholds, `test_coverage_ledger` for another session's comet functions); **1 was new and mine** (a bare numeric string was scored equal to a number), fixed in 85664c6.
+  6,999 passed, 5 failing. 20 failures went away (test pollution, below); 4 were still red (`test_restated_predictors`, `test_router_recipes::real_server`,
+  `test_targets` QA thresholds, `test_coverage_ledger` for another session's comet functions: I first called all four older and untouched, which was wrong for the recipes test,
+  see the table at the end); **1 was new and mine** (a bare numeric string was scored equal to a number), fixed in 85664c6.
   Final run: see the end of this file.
 
 ## What rehearsing it found (each fixed, each with a test)
@@ -63,8 +64,9 @@ and the cached teacher rewrites; **no teacher is needed** (the convention seeds,
 ## Open
 
 * **56 of 547 parameters appear in no training example** (4 required, e.g. `parse_quantity.quantity_string`; lookup keys such as `pka_list`). `tools/tool_census.py coverage`.
-* **The deployed Mentat container still runs the code from before 2026-10-15**: `display`, the conventions, the renamed parameters and the two-word units are not live until it is rebuilt
-  from a newer ref. Old clients keep working either way (old names are accepted).
+* **The deployed Mentat container was rebuilt on 2026-10-16** (the Captain: "absolutely rebuild mentat from the current state") at sigma-ground 5ff8d6b (it had run 489ec0c): `display`, the
+  conventions, the renamed parameters and the two-word units are live (`tools/check_mentat_deploy.sh`: ok). SkippyTel baed228 pins the same ref in `mentat/Dockerfile` and `deploy.yml`.
+  The other SkippyTel containers were stopped by the Docker storage move that day and were left alone.
 * **Not trained, not evaluated.** The numbers to beat are the v3.1 4B's (math suite 309 → 315 of 329 answers; narrative benchmark unchanged from v3) and the no-tool baselines (`misc/BASELINES.md`).
   The new things to measure: the convention suite, and the hard validation's quantity arguments.
 * The remaining coverage and tool-name gaps of v3.1 (an invented `solve_system_of_equations`, `solve_ode` without `func`) are not addressed by this data.
@@ -80,7 +82,13 @@ SIZE=4b PRECISION=bf16 tools/run_router_linux.sh pilot                          
 ## Final physics-test verdict (clean-room full run, commit 85664c6, 2026-10-16)
 
 `pytest` with the project's own testpaths on a plain export of the commit: **7,007 passed, 4 failed** (6 xfailed, 7 skipped, 2,852 subtests passed; 19 min). Against the baseline f62d5e7 (6,848 passed, 24 failing or erroring):
-**no new failure, 20 fixed.** The four that fail are the older ones, none touched by this work: `test_restated_predictors::test_missing_elements_are_reported_not_hidden`,
-`test_router_recipes::test_recipes_against_the_real_server`, `test_targets::test_qa_matches_wolfram_on_subset_wa_got_right`, `test_coverage_ledger::test_honest_100_percent_coverage`
-(another session's comet functions). The condition the Captain set for the conventions ("yes if the physics tests still pass") is met. Later commits 876cefe (the smoke test reads a
+**no new failure, 20 fixed.** The condition the Captain set for the conventions ("yes if the physics tests still pass") is met. Four tests were still red; on 2026-10-16 the Captain asked
+about them, and reading each failure (not just its presence in the baseline) corrected my first description of them:
+
+| test | what it really was | status (5ff8d6b) |
+|---|---|---|
+| `test_router_recipes::test_recipes_against_the_real_server` | **Mine, not older.** In the baseline it failed on `cannot import name 'ClientSession'` (the `sys.path` pollution fixed in 38e3c26); with the pollution gone it ran and hit my rename (`energy_joules` is `energy_j` in the schema). I had called it older. The test now accepts the old names the server still accepts (`param_names.accepted_old_names`). | fixed |
+| `test_restated_predictors::test_missing_elements_are_reported_not_hidden` | Stale. It asserted that 24 asteroids still lacked elements; ef3211d (another session) added them. The assertion that the report equals the gap stays. | fixed |
+| `test_coverage_ledger::test_honest_100_percent_coverage` | Ten functions of another session's comet and perturber-path work were neither wired nor in the ledger. Listed as engine plumbing with reasons, as the lunar and asteroid layers already were (`misc/COVERAGE_LEDGER.md`). | fixed |
+| `test_targets::test_qa_matches_wolfram_on_subset_wa_got_right` | Older and untouched by this work: 29 of 30 where Wolfram was right, target 98%. The one miss is `astro_002` ("What's the surface temperature of the Sun?"): the benchmark's semantic interpreter picks `body_mass` (similarity 0.64) and answers 1.989e30 kg. The data is right (`solar_system_body("Sun")` has `surface_temp_k` 5772); "What is the surface temperature of the Sun?" and "How hot is the surface of the Sun?" get no answer at all. A routing gap in `benchmark/interpreter_demo.py`. Threshold and scorer untouched. | open | Later commits 876cefe (the smoke test reads a
 quoted mass) and the documentation commits changed only `tools/eval_router_val.py`'s smoke check and docs; its tests pass (31). The junit files are in `local-cache/test_runs/`.
