@@ -17,7 +17,7 @@ import os
 import inspect
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))   # appended, not inserted: at the front it made 'import mcp' find sigma_ground/mcp instead of the MCP SDK for every later test
 
 from sigma_ground.field.interface.thermal_emission import (
     planck_spectral_radiance,
