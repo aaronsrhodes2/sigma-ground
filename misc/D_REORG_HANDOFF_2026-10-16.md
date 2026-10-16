@@ -56,3 +56,11 @@ pushes to SkippyTel `main` deploy production, only when asked.
 - Ubuntu-24.04 moved to `D:\wsl\Ubuntu-24.04` (`wsl --manage ... --move`, exit 0) after Docker Desktop was fully quit and its auto-start and WSL integration were turned off
   (`AutoStart=false`, `IntegratedWslDistros=[]`; originals in `D:\tmp\settings-store.json.pre-ubuntu-move`). Re-enable the Docker auto-start if the Captain wants it back. Scripts: `scripts/move_wsl_docker.sh`, `D:\tmp\move_ubuntu.sh`.
 - C: free is now about 600 GB (was 43 GB). The stack was restarted with `docker compose up -d` (no rebuild); flask-api `/health` ok; music-studio was still loading ACE-Step.
+
+## FINAL STATE (2026-10-16, Captain: "good enough")
+- C: 619 GB free (was 43 GB). Moved to D: Hugging Face cache (`D:\hf-home`), Ollama models (`D:\ollama\models`), Docker disk (`D:\docker\wsl`), Ubuntu-24.04 (`D:\wsl\Ubuntu-24.04`),
+  Downloads (`D:\Aaron\Downloads`) and Videos (`D:\Aaron\Videos`), the last two with junctions left at `C:\Users\aaron\Downloads` and `...\Videos`. Music holds only an empty desktop.ini (left).
+- Docker Desktop auto-start is OFF and its Ubuntu WSL integration is OFF (needed for the Ubuntu move); the Captain can turn them back on in Docker Desktop settings.
+  Original settings: `D:\tmp\settings-store.json.pre-move` and `...pre-ubuntu-move`. SkippyTel was restarted with `docker compose up -d`; after a PC reboot Docker will NOT start by itself until auto-start is re-enabled.
+- Left on C: Desktop/Documents/Pictures (OneDrive-synced, 4.6 GB: not junctioned on purpose), recent Temp ~12 GB, Python installs, BG3 10 GB, Google Drive cache 8 GB. About 40 GB, accepted.
+- Lesson recorded in `.claude/skills/windows-shell/SKILL.md`: make junctions with PowerShell `New-Item -ItemType Junction`, never `cmd //c mklink` from Git Bash.
