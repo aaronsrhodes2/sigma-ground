@@ -147,20 +147,40 @@ def compute_limit(expression: str, variable: str | None = None,
         return refusal("sympy error", e, {"expression": expression, "variable": variable})
 
 
+_SERIES_CONVENTIONS = {"exclusive": {"exclusive", "default", "sympy", "strict", "below", "o(x^n)"},
+                       "inclusive": {"inclusive", "including", "through", "up to and including", "upto", "wolfram"}}
+
+
+def _canonical_convention(value, table: dict, what: str) -> str:
+    """The convention's canonical name for what the caller wrote ('Angular frequency' -> 'angular'); a clear refusal listing the options otherwise."""
+    text = re.sub(r"[\s_-]+", " ", str(value or "").strip().lower())
+    for canonical, names in table.items():
+        if text == canonical or text in {re.sub(r"[\s_-]+", " ", n) for n in names}:
+            return canonical
+    raise MathParseError(f"unknown {what} convention {value!r}", f"one of {', '.join(table)}")
+
+
 def series_expansion(expression: str, variable: str | None = None,
-                      point: str = "0", order: int = 6) -> ToolResult:
-    """Taylor/Maclaurin series of expression about point, to given order."""
-    inputs = {"expression": expression, "variable": variable, "point": point, "order": order}
+                      point: str = "0", order: int = 6, convention: str = "exclusive") -> ToolResult:
+    """Taylor/Maclaurin series of expression about point, to given order.
+
+    convention: "exclusive" (default, sympy's): terms BELOW (x - point)^order, so order 4 stops at x^3.
+    "inclusive": terms THROUGH (x - point)^order, so order 4 includes x^4 (the usual reading of "up to order 4").
+    """
+    inputs = {"expression": expression, "variable": variable, "point": point, "order": order, "convention": convention}
     try:
         import sympy as sp
+        conv = _canonical_convention(convention, _SERIES_CONVENTIONS, "series order")
         name, vnote = _variable_for(variable, expression)
         p = parse(expression, [name])
         pt = parse(point, [name])
-        s = sp.series(p.expr, sp.Symbol(name), pt.expr, int(order)).removeO()
-        return _ok(str(s), "sympy.series", f"series({expression}, {name}, {point}, {order})",
-                   {"expression": expression, "variable": name, "point": point, "order": order},
-                   _join_notes(vnote, p.notes, pt.notes),
-                   f"series of {sp.sstr(p.expr)} about {name}={sp.sstr(pt.expr)} to order {order}")
+        n = int(order) + (1 if conv == "inclusive" else 0)
+        s = sp.series(p.expr, sp.Symbol(name), pt.expr, n).removeO()
+        kept = f"through ({name} - {point})^{order}" if conv == "inclusive" else f"below ({name} - {point})^{order}, i.e. up to power {int(order) - 1}"
+        return _ok(str(s), "sympy.series", f"series({expression}, {name}, {point}, {n})",
+                   {"expression": expression, "variable": name, "point": point, "order": order, "convention": conv},
+                   _join_notes(vnote, p.notes, pt.notes, f"order convention: {conv}, keeps the terms {kept} (the other is convention=\"{'exclusive' if conv == 'inclusive' else 'inclusive'}\")"),
+                   f"series of {sp.sstr(p.expr)} about {name}={sp.sstr(pt.expr)} to order {order} ({conv})")
     except Exception as e:
         return refusal("sympy error", e, {"expression": expression, "variable": variable})
 
@@ -199,16 +219,41 @@ def laplace_transform(expression: str, t_var: str = "t",
         return refusal("sympy error", e, {"expression": expression})
 
 
+_FOURIER_CONVENTIONS = {
+    "ordinary": {"ordinary", "ordinary frequency", "frequency", "default", "sympy", "cycles", "hertz"},
+    "angular": {"angular", "angular frequency", "omega", "ω", "radians", "radian frequency"},
+    "unitary": {"unitary", "symmetric", "unitary angular", "unitary angular frequency", "1/sqrt(2pi)"},
+}
+_FOURIER_DEFINITION = {
+    "ordinary": "F(k) = ∫ f(x) e^(-2πikx) dx (ordinary frequency; sympy's default)",
+    "angular": "F(k) = ∫ f(x) e^(-ikx) dx (angular frequency, no prefactor)",
+    "unitary": "F(k) = (1/√(2π)) ∫ f(x) e^(-ikx) dx (unitary, angular frequency)",
+}
+
+
 def fourier_transform(expression: str, x_var: str = "x",
-                       k_var: str = "k") -> ToolResult:
-    """Fourier transform of expression."""
+                       k_var: str = "k", convention: str = "ordinary") -> ToolResult:
+    """Fourier transform of expression.
+
+    convention: "ordinary" (default, sympy's) F(k) = ∫ f(x) e^(-2πikx) dx; "angular" F(k) = ∫ f(x) e^(-ikx) dx (angular frequency);
+    "unitary" F(k) = (1/√(2π)) ∫ f(x) e^(-ikx) dx. The result says which one it used.
+    """
+    inputs = {"expression": expression, "x_var": x_var, "k_var": k_var, "convention": convention}
     try:
         import sympy as sp
+        conv = _canonical_convention(convention, _FOURIER_CONVENTIONS, "Fourier")
         x, k = sp.Symbol(x_var), sp.Symbol(k_var)
         p = parse(expression, [x_var])
-        F = sp.fourier_transform(p.expr, x, k)
-        return _ok(str(F), "sympy.fourier_transform", f"F{{{expression}}}(k)", {"expression": expression},
-                   p.notes, f"F{{{sp.sstr(p.expr)}}}({k_var})")
+        F = sp.fourier_transform(p.expr, x, k)                  # ordinary frequency
+        if conv in ("angular", "unitary"):                      # G(ω) = F(ω / 2π); unitary also divides by √(2π)
+            F = F.subs(k, k / (2 * sp.pi))
+            if conv == "unitary":
+                F = F / sp.sqrt(2 * sp.pi)
+            F = sp.simplify(F)
+        others = ", ".join(c for c in _FOURIER_CONVENTIONS if c != conv)
+        return _ok(str(F), "sympy.fourier_transform", f"F{{{expression}}}(k)", {**inputs, "convention": conv},
+                   _join_notes(p.notes, f"convention: {conv}, {_FOURIER_DEFINITION[conv]}; also available: {others}"),
+                   f"F{{{sp.sstr(p.expr)}}}({k_var}) [{conv}]")
     except Exception as e:
         return refusal("sympy error", e, {"expression": expression})
 
@@ -265,7 +310,9 @@ def solve_ode(equation: str, func: str = "y",
             pl = parse(s, [variable], functions=funcs)
             eq, notes = sp.Eq(pl.expr, 0), pl.notes
         sol = sp.dsolve(eq, y(x))
-        return _ok(str(sol), "sympy.dsolve", f"dsolve({equation})", inputs, notes, f"solve {sp.sstr(eq)}")
+        return _ok(str(sol), "sympy.dsolve", f"dsolve({equation})", inputs,
+                   _join_notes(notes, "C1, C2, ... are the arbitrary constants of integration; for a given initial condition, solve for them"),
+                   f"solve {sp.sstr(eq)}")
     except Exception as e:
         return refusal("sympy error", e, {"equation": equation})
 

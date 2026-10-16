@@ -312,6 +312,7 @@ _TEXT_RULES: list[tuple[str, str]] = [
     (r"^variables$", 'comma-separated variable names, e.g. "x,y,z"'),
     (r"^(lower|upper|point)$", 'a number or expression; infinity may be written oo, inf, infinity or ∞'),
     (r"^direction$", 'one of "+", "-" or "+-" (two-sided)'),
+    (r"^convention$", 'which convention the result uses; the default is the previous behaviour. fourier_transform: "ordinary" (e^(-2πikx)), "angular" (e^(-ikx)) or "unitary" (angular with 1/√(2π)); series_expansion: "exclusive" (terms below x^order) or "inclusive" (through x^order)'),
     (r"^(matrix|matrix_a|matrix_b)$", 'a matrix as a nested list, e.g. "[[1,2],[3,4]]"'),
     (r"^vector_b$", 'a vector as a list, e.g. "[1,2]"'),
     (r"^vector_field$", 'comma-separated components, e.g. "x*y, y*z, z*x"'),

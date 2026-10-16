@@ -138,7 +138,8 @@ def integrate_expr(expression: str, variable: str | None = None,
         inputs={"expression": expression, "variable": name, "lower": lower, "upper": upper},
         interpreted_as=shown,
         notes=_join_notes(vnote, p.notes, bnotes,
-                          "sympy found no closed form: the integral is returned unevaluated" if unevaluated else ""),
+                          "sympy found no closed form: the integral is returned unevaluated" if unevaluated else "",
+                          "indefinite integral: one antiderivative, the constant of integration (+ C) is omitted" if lower is None and upper is None else ""),
     )
 
 

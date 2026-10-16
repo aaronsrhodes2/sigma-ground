@@ -276,10 +276,12 @@ def main() -> int:
 
     @server.tool()
     def series_expansion(expression: str, variable: str | None = None,
-                          point: str = "0", order: int = 6) -> dict[str, Any]:
-        """Taylor/Maclaurin series about point, to given order. variable is optional when the expression has one free symbol."""
+                          point: str = "0", order: int = 6, convention: str = "exclusive") -> dict[str, Any]:
+        """Taylor/Maclaurin series about point, to given order. variable is optional when the expression has one free symbol.
+        convention: "exclusive" (default) keeps the terms below (x - point)^order, so order 4 stops at x^3; "inclusive" keeps the terms through
+        (x - point)^order, so order 4 includes x^4 ("up to and including order 4")."""
         return t_mathx.series_expansion(expression, variable, point,
-                                          order).to_dict()
+                                          order, convention).to_dict()
 
     @server.tool()
     def summation(expression: str, variable: str | None = None,
@@ -296,9 +298,10 @@ def main() -> int:
 
     @server.tool()
     def fourier_transform(expression: str, x_var: str = "x",
-                           k_var: str = "k") -> dict[str, Any]:
-        """Fourier transform of expression."""
-        return t_mathx.fourier_transform(expression, x_var, k_var).to_dict()
+                           k_var: str = "k", convention: str = "ordinary") -> dict[str, Any]:
+        """Fourier transform of expression. convention: "ordinary" (default) F(k) = ∫ f(x) e^(-2πikx) dx; "angular" F(k) = ∫ f(x) e^(-ikx) dx
+        (angular frequency); "unitary" F(k) = (1/√(2π)) ∫ f(x) e^(-ikx) dx. The result states which one it used."""
+        return t_mathx.fourier_transform(expression, x_var, k_var, convention).to_dict()
 
     @server.tool()
     def factor_expression(expression: str) -> dict[str, Any]:
