@@ -89,6 +89,21 @@ def same_value(a, b) -> bool:
     return a == b
 
 
+def mass_in_kg(value) -> float | None:
+    """A smoke-test mass as kilograms: a number, or (plan v4) the quantity the question gave, "2 solar masses" or "3.977e30 kg"; None if it is neither."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        from sigma_ground.mcp import contract as C
+        try:
+            return float(C.to_si(value, "mass_kg", C.SPECS["mass_kg"])[0])
+        except (C.ContractError, KeyError):
+            return None
+    return None
+
+
 def same_arg(key: str, a, b) -> bool:
     """same_value, plus (v4 labels, 2026-10-15): for a unit-bearing parameter a quantity string on either side is converted first, so "5.09 km" equals
     "5.09km", 5090.0 and "5090 m". Plain numbers and every other kind of value are compared exactly as before; the only new passes are physically equal quantities."""
@@ -219,10 +234,9 @@ def smoke(a) -> int:
         return 1
     c = RP.canonical(plan)
     first = c["steps"][0] if c and c["kind"] == "steps" else {"tool": None, "args": {}}
-    m = first["args"].get("mass_kg")
-    good = first["tool"] == "schwarzschild_radius" and isinstance(m, (int, float)) \
-        and abs(m - 3.977e30) <= 1e-3 * 3.977e30
-    print("smoke plan:", "as expected" if good else "NOT the expected schwarzschild_radius(mass_kg~3.977e30)")
+    m = mass_in_kg(first["args"].get("mass_kg"))
+    good = first["tool"] == "schwarzschild_radius" and m is not None and abs(m - 3.977e30) <= 1e-3 * 3.977e30
+    print("smoke plan:", "as expected" if good else "NOT the expected schwarzschild_radius(mass_kg~3.977e30, or \"2 solar masses\")")
     return 0 if ok else 1
 
 

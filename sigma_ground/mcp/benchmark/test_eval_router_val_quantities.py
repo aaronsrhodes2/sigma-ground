@@ -59,3 +59,11 @@ def test_a_clarification_plan_still_compares_by_the_variable_asked_for():
     ask = lambda v, text: plan("request_clarification", variable=v, question=text)
     assert V.compare(ask("mass_kg", "How heavy is it?"), ask("mass_kg", "What mass?"))[1]
     assert not V.compare(ask("radius_m", "How heavy is it?"), ask("mass_kg", "What mass?"))[1]
+
+
+def test_the_smoke_test_reads_the_mass_whether_it_is_a_number_or_a_quantity():
+    assert V.mass_in_kg(3.977e30) == 3.977e30 and V.mass_in_kg(5) == 5.0
+    assert V.mass_in_kg("3.977e30 kg") == pytest.approx(3.977e30)
+    assert V.mass_in_kg("2 solar masses") == pytest.approx(2 * 1.98847e30, rel=1e-3)          # what the model wrote after 50 steps of v4 training
+    for bad in (None, True, "two solar masses", "5 m", [1], {"a": 1}):
+        assert V.mass_in_kg(bad) is None
