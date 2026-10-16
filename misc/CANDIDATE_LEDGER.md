@@ -141,3 +141,23 @@ Mercury 1.48 / 0.08 / 0.07; Venus 0.29 / 0.31 / **0.07**; Earth 0.46 / 0.44 / **
 * The layers improve Venus, Earth, Moon, Mars and Saturn in 3 of 3 windows. The Moon's +5 yr error in the full system is 0.31 km (11-fold below r2).
 * The 24 moons change by less than 0.1 % under the layers, so none of their errors are caused by missing perturbers. Their remaining errors are step and model floors: Io 1,030, Europa 821, Ganymede 1,087, Mimas 108,725, Enceladus 20,458, Tethys 11,300, Dione 5,326, Miranda 8,136 km at +5 yr; Titan 217, Callisto 214, Oberon 1,120, Titania 963.
 * Planet-centre floors that nothing here touches: Jupiter 3.6-4.1 km, Uranus 796 and Neptune 478 km (fixture planet-centre data, known since the DE440 fixture review), Pluto 30 km. The reduced-model system barycentres of the same bodies are 0.1-4 km at +20 yr, so these are not dynamics.
+
+## C6. Comets as tracked test particles against JPL's own solutions (2026-10-16): four additions, all supported
+19 periodic comets x 3 windows (J2005, J2010, J2015), 57 runs, our propagation (`comet_orbits.py`: Sun + nine planet systems from DE440s, adaptive Dormand-Prince at rtol 1e-13) from JPL's state at the window start against JPL's states +1..+5 yr of the
+same solution. Data and tables: `fixtures/horizons_comets/` (`COMET_LADDER.md`, `ladder_full.json`). Median position error at +5 yr, km:
+
+| rung | all 57 | far (>10 au, 13) | near, no delay (27) | near, with delay (17) |
+|---|---|---|---|---|
+| R0 gravity only | 1,641 | 0.13 | 1,967 | 17,148 |
+| R2 + Marsden push (JPL's A1, A2, A3) | 5.7 | 0.17 | 5.0 | 10,638 |
+| R3 + the push's time delay DT | 4.3 | 0.17 | 5.0 | **5.9** |
+| R3 without the Sun's 1PN | 50.5 | 0.13 | 63.3 | 73.9 |
+| **R4 = R3 + DE440's 343 asteroids** | **0.82** | 0.07 | **1.1** | **1.3** |
+
+* **Non-gravitational push (R2):** brings the 27 comets without a delay from ~2,000 km to ~5 km (24 of 27 improved); 21P goes 221,227 -> 6 km, 17P 17,944 -> 10 km. It is the dominant physics for every comet inside ~10 au.
+* **Time delay (R3):** required for the 17 runs that carry one: 10,638 -> 5.9 km, better in 17 of 17 (45P is worse than gravity alone, 446,778 km, without it).
+* **Sun's 1PN term:** judged where it can be (once the push is in): removing it raises the median from 4.3 to 50.5 km, and every near comet is worse without it (2P 5 -> 308 km). Supported. On its own, before the push, it is invisible under the push-sized errors (R1 vs R0).
+* **Asteroids (R4):** 54 of 57 runs improve, median 4.25 -> 0.82 km; far comets 0.13 -> 0.07 km. Largest residuals left at +5 yr: 9P/Tempel 1 (J2010) 62 km, 45P 10 km, 67P 5 km, 10P 4 km, 22P 3.8 km.
+* Far comets (Halley 1P, 12P, 55P, 109P; 15-35 au): gravity alone matches JPL to 0.1-0.5 km: the planets, frames, units and integrator agree.
+* Wording: the truth is JPL's solution as propagated by Horizons (DE441 planets, 16 asteroids, the same Marsden model). This is dynamics parity with JPL's own treatment of each comet, NOT a measure of how well JPL's solution predicts the real comet.
+* Open: 9P Tempel 1 (an encounter-sensitive case?), 73P (data pending), the 16 asteroids Horizons treats individually vs our 343 prescribed ones, DE441 vs DE440 planets.
