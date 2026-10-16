@@ -217,7 +217,7 @@ def main() -> int:
                         "none: free generation; toolfirst: a schema whose keys are already "
                         "alphabetical in the training order (tool < tool_args), with the "
                         "tool-name enum (router_plan.router_format)")
-    p.add_argument("--plan", choices=["v1", "v2", "v3"], default="v1",
+    p.add_argument("--plan", choices=["v1", "v2", "v3", "v4"], default="v1",
                    help="the plan format the model was trained on; with --format toolfirst, "
                         "v2 also allows `steps`")
     p.add_argument("--num-predict", type=int, default=1024,

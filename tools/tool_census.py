@@ -36,6 +36,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
+from sigma_ground.mcp import contract as C  # noqa: E402
 from sigma_ground.mcp.benchmark import router_plan as RP  # noqa: E402
 
 SERVER = REPO / "sigma_ground" / "mcp" / "server.py"
@@ -157,7 +158,15 @@ def lint(files: list[Path], sigs: dict, canonical_only: bool = False) -> dict:
                     kinds += [("missing required", f"{tool}.{p['name']}") for p in sigs[tool]
                               if p["required"] and p["name"] not in args]
                     for k, v in args.items():
-                        if k in sig and (why := type_problem(v, sig[k]["ann"])):
+                        if k not in sig:
+                            continue
+                        spec = C.SPECS.get(k)
+                        if isinstance(v, str) and spec is not None and spec.unit and "float" in sig[k]["ann"] and not REF.match(v):
+                            try:      # a quantity string ("5.09 km"): read with the server's own reader, so a label the server would refuse is an issue
+                                C.to_si(v, k, spec)
+                            except C.ContractError as e:
+                                kinds.append(("bad quantity", f"{tool}.{k}: {v!r} ({e.code})"))
+                        elif why := type_problem(v, sig[k]["ann"]):
                             kinds.append(("wrong type", f"{tool}.{k}: {why}"))
                 for kind, detail in kinds:
                     issues[kind] += 1

@@ -357,6 +357,26 @@ class ContractError(Exception):
 _NUM = re.compile(r"^\s*([-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?)\s*(.*?)\s*$")
 _UNIT_FIX = (("°C", "degC"), ("°F", "degF"), ("℃", "degC"), ("Ω", "ohm"), ("μ", "µ"), ("per cent", "percent"))
 
+# Units people write as two words, which pint reads as a product ("solar masses" -> solar * masses): one unit each, singular or plural.
+_PHRASES = tuple((re.compile(rf"\b{re.escape(words)}\b", re.I), unit) for words, unit in (
+    ("solar masses", "solar_mass"), ("solar mass", "solar_mass"), ("solar radii", "solar_radius"), ("solar radius", "solar_radius"),
+    ("solar luminosities", "solar_luminosity"), ("solar luminosity", "solar_luminosity"),
+    ("earth masses", "earth_mass"), ("earth mass", "earth_mass"), ("earth radii", "earth_radius"), ("earth radius", "earth_radius"),
+    ("jupiter masses", "jupiter_mass"), ("jupiter mass", "jupiter_mass"), ("jupiter radii", "jupiter_radius"), ("jupiter radius", "jupiter_radius"),
+    ("light years", "light_year"), ("light year", "light_year"),
+    ("astronomical units", "astronomical_unit"), ("astronomical unit", "astronomical_unit"),
+    ("nautical miles", "nautical_mile"), ("nautical mile", "nautical_mile"),
+))
+
+
+def normalize_unit_text(unit_text: str) -> str:
+    """The unit as pint should read it: °C/°F/Ω/µ spelled for pint, and the two-word units ("solar masses", "light years") joined into one."""
+    for a, b in _UNIT_FIX:
+        unit_text = unit_text.replace(a, b)
+    for pattern, unit in _PHRASES:
+        unit_text = pattern.sub(unit, unit_text)
+    return unit_text
+
 
 def _registry():
     from sigma_ground.mcp.tools.units import _get_registry
@@ -377,8 +397,7 @@ def to_si(text: str, name: str, spec: Spec) -> tuple[float, str | None]:
         return number, None
     if spec.unit is None:
         raise ContractError("bad_quantity", f"{name} is a pure number; '{text}' carries units", param=name, expected="a plain number", got=text)
-    for a, b in _UNIT_FIX:
-        unit_text = unit_text.replace(a, b)
+    unit_text = normalize_unit_text(unit_text)
     reg = _registry()
     import pint
     try:
@@ -539,10 +558,7 @@ _UNKNOWN_KEY = re.compile(r"not in (the )?(lookup )?table|unknown (key|material|
 def _unit_text(text: str) -> str:
     """The unit part of a quantity string ("54 km/h" -> "km/h"), spelled as to_si reads it; "" for a bare number."""
     m = _NUM.match(text)
-    unit_text = m.group(2) if m else ""
-    for a, b in _UNIT_FIX:
-        unit_text = unit_text.replace(a, b)
-    return unit_text
+    return normalize_unit_text(m.group(2)) if m else ""
 
 
 def _finish(result: Any, converted: dict, user_units: Any = (), renamed: dict | None = None) -> Any:

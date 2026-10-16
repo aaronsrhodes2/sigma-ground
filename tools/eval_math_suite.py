@@ -168,7 +168,7 @@ def main(argv) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", required=True)
     ap.add_argument("--ollama-url", default="http://127.0.0.1:11435")
-    ap.add_argument("--plan", default="v3", choices=["v2", "v3"])
+    ap.add_argument("--plan", default="v3", choices=["v2", "v3", "v4"])
     ap.add_argument("--suite", type=Path, default=REPO / "local-cache" / "router_math_suite.json")
     ap.add_argument("--out", type=Path)
     ap.add_argument("--limit", type=int, default=0)

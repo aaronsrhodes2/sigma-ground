@@ -55,11 +55,22 @@ ROUTER_SYSTEM_PROMPT_V3 = ROUTER_SYSTEM_PROMPT_V2.replace(
     'e.g. "$1.mass_kg".\n')
 assert ROUTER_SYSTEM_PROMPT_V3 != ROUTER_SYSTEM_PROMPT_V2
 
-MULTISTEP = ("v2", "v3")        # plan versions whose model may write {"steps": [...]}
+# v4 = v3 plus quantities (the Captain, 2026-10-15): the router no longer converts units in its head ("5.09 km" -> 5090.0, "7 solar masses" -> 1.4e31 kg:
+# 35% of the unit-bearing arguments in the v3.1 data were in a unit other than the parameter's). It writes the quantity as the question gave it and the
+# tool contract converts (mcp/contract.py), with the parameters under their canonical names (mcp/param_names.py).
+_V3_UNIT_SENTENCE = "Convert every input to the unit its parameter name states (mass_kg in kilograms, wavelength_m in metres)."
+_V4_UNIT_SENTENCE = ('Write every quantity exactly as the question gives it, with its unit ("5.09 km", "145 g", "60 mph", "7 solar masses"); '
+                     "the tool converts. A parameter that is a plain number takes a number.")
+ROUTER_SYSTEM_PROMPT_V4 = ROUTER_SYSTEM_PROMPT_V3.replace(_V3_UNIT_SENTENCE, _V4_UNIT_SENTENCE)
+assert ROUTER_SYSTEM_PROMPT_V4 != ROUTER_SYSTEM_PROMPT_V3 and _V3_UNIT_SENTENCE not in ROUTER_SYSTEM_PROMPT_V4
+
+MULTISTEP = ("v2", "v3", "v4")        # plan versions whose model may write {"steps": [...]}
 
 
 def system_prompt(plan: str) -> str:
     """The exact system prompt a router of this plan version is trained and run with."""
+    if plan == "v4":
+        return ROUTER_SYSTEM_PROMPT_V4
     if plan == "v3":
         return ROUTER_SYSTEM_PROMPT_V3
     if plan == "v2":

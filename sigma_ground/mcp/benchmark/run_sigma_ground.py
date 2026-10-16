@@ -2067,7 +2067,7 @@ def main() -> int:
                              "sorts a schema's keys, so the v1 schema forces \"args\" before "
                              "\"tool\" and a tool-first router does far worse under it "
                              "(see Session 38).")
-    parser.add_argument("--router-plan", default="v1", choices=["v1", "v2", "v3"],
+    parser.add_argument("--router-plan", default="v1", choices=["v1", "v2", "v3", "v4"],
                         help="with --router: which plan format the model was trained on. v1: "
                              "`args`, one call. v2: `tool_args`, plus `steps` for up to three "
                              "calls with \"$n\" references (router_plan.py). Sets the system "

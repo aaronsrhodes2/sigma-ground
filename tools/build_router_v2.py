@@ -31,13 +31,25 @@ from typing import Callable
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
+from sigma_ground.mcp import param_names as PN  # noqa: E402
 from sigma_ground.mcp.benchmark import router_dataset as D  # noqa: E402
 from sigma_ground.mcp.benchmark import router_plan as RP  # noqa: E402
+from sigma_ground.mcp.benchmark import router_quantities as QR  # noqa: E402
 
 PADDED_EXPONENT = re.compile(r"\d[eE][-+]?0\d")
 
 
 PLAN = "v2"            # plan format and system prompt the records carry; assemble() sets it
+_SIGNATURES = None     # tool -> real parameters (tool_census, read from server.py); needed to relabel for plan v4
+
+
+def _signatures() -> dict:
+    global _SIGNATURES
+    if _SIGNATURES is None:
+        sys.path.insert(0, str(REPO / "tools"))
+        import tool_census
+        _SIGNATURES = tool_census.signatures()
+    return _SIGNATURES
 
 
 def read_jsonl(path: Path) -> list[dict]:
@@ -45,6 +57,9 @@ def read_jsonl(path: Path) -> list[dict]:
 
 
 def record(question: str, plan: dict, meta: dict) -> dict:
+    if PLAN == "v4":     # quantities quoted as the question wrote them, parameters under their canonical names
+        plan, quoted = QR.relabel_plan(question, plan, _signatures())
+        meta = {**meta, "quoted": quoted} if quoted else meta
     return {"messages": [
         {"role": "system", "content": RP.system_prompt(PLAN)},
         {"role": "user", "content": question},
@@ -83,6 +98,11 @@ def validate(rec: dict) -> None:
     assert c is not None, asst_m["content"]
     if c["kind"] == "steps":
         RP.check_refs(c["steps"])
+        if PLAN == "v4":
+            for s in c["steps"]:
+                real = [p["name"] for p in _signatures().get(s["tool"], [])]
+                old = set(PN.rename_map(s["tool"], real)) & set(s["args"])
+                assert not old, f"v4 labels use canonical parameter names, but {s['tool']} has {sorted(old)}"
 
 
 def teacher_pass(seeds: list[dict], teacher: Callable[[str, int], str], variants: int,
@@ -218,6 +238,8 @@ def assemble(v1_dir: Path, recipes_dir, out_dir: Path, teacher=None, variants: i
                 if RP.canonical(json.loads(r["messages"][2]["content"]))["kind"] == "steps" else 0
                 for r in rows)),
             "recipe_families": dict(Counter(r["meta"].get("family") for r in rows if r["meta"].get("family"))),
+            **({"records_with_quoted_quantities": sum(1 for r in rows if r["meta"].get("quoted")),
+                "quoted_quantities": sum(r["meta"].get("quoted", 0) for r in rows)} if plan == "v4" else {}),
         }
     v1_manifest = {}
     if (v1_dir / "manifest.json").exists():
@@ -240,7 +262,7 @@ def main() -> int:
     p.add_argument("--v1", type=Path, default=REPO / "local-cache" / "router_dataset")
     p.add_argument("--recipes", type=Path, action="append",
                    help="folder of seeds.jsonl; repeat to add more, old seeds first (default: router_recipes)")
-    p.add_argument("--plan", choices=["v2", "v3"], default="v2",
+    p.add_argument("--plan", choices=["v2", "v3", "v4"], default="v2",
                    help="v3 = v2 + \"$n.field\" references and the v3 system prompt")
     p.add_argument("--out", type=Path, default=REPO / "local-cache" / "router_dataset_v2")
     p.add_argument("--teacher-model", default="")

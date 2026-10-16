@@ -212,7 +212,7 @@ def main() -> int:
     p.add_argument("--out", type=Path, default=REPO / "local-cache" / "router_hardval")
     p.add_argument("--cache", type=Path, default=None,
                    help="verified results by question + plan (default: <out>/verified.json)")
-    p.add_argument("--plan", choices=["v2", "v3"], default="v2")
+    p.add_argument("--plan", choices=["v2", "v3", "v4"], default="v2")
     p.add_argument("--no-guard", action="store_true")
     p.add_argument("--server-mem-gb", type=float, default=6)
     a = p.parse_args()
