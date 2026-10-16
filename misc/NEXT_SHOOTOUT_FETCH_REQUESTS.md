@@ -69,8 +69,11 @@ https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27808%27&OBJ_DATA
 
 Others differ only in `COMMAND`.
 
-## Item 3. Planet-centre floors: NO fetch proposed
-I checked before preparing this. The fixture's planet centres for Mars, Jupiter, Saturn, Neptune and Pluto are already consistent with DE440's own system barycentres to 0.00-0.21 km (positions) and 0.003 m/s (velocities); only Uranus is inconsistent (450-700 km), and that one can be DERIVED from the kernel barycentre and the fixture's moon states with no fetch. The planet-to-moon geometry in the full model is right to 0.05-0.2 km, but the model's SYSTEM BARYCENTRE drifts (Neptune 480 km at +5 yr, ~90 km/yr) while the reduced model's matches to 0.2 km. That points at an internal force layer in the engine, not at the data; a bisect (scripts/barycentre_bisect.py) is running and I will report before any re-fetch is proposed.
+## Item 3. Planet-centre floors: NO fetch needed; found and fixed by derivation (2026-10-16)
+The floors (Uranus ~800 km, Neptune ~450 km, Pluto 30-46 km, Jupiter ~4 km at +5 yr) are the fixture's planet-centre VELOCITIES: against DE440's system barycentre velocity and the fixture's own moon states they are off by
+5.3, 2.9, 0.29 and 0.021 mm/s (0.003 m/s over 5 yr is 474 km; I wrongly called it negligible earlier today). Started from the kernel's barycentres the same dynamics ends within 0.6-5 km for every giant; started from the fixture's
+states it ends 1,205 / 453 / 40 km off for Uranus / Neptune / Pluto. `scripts/rederive_giant_states.py` writes a NEW fixture (`de440_state_vectors_v2physics_r3.json`, the old one untouched) with the planet centres re-derived from
+the kernel barycentres and the fixture's moon states, at every snapshot (initial states and later truth alike). A two-window verification run is going.
 
 ## Item 5. The 30 Kuiper-belt objects (two steps)
 A. Identify MA8001-MA8030: DE440's header gives only their GM; the list is Pitjeva & Pitjev (2018). I would read that paper's table (a web search/read, no data download) and match by name, never by guessing from the GM values.
