@@ -450,7 +450,7 @@ def _args_block(fn_name: str, sig: inspect.Signature, doc: str, has_units: bool)
         call = ", ".join(f"{n}={SPECS[n].one_example!r}" if any(c.isalpha() for c in SPECS[n].one_example) else f"{n}={SPECS[n].one_example}" for n in required)
         out += f"\n\nExample: {fn_name}({call})"
     if has_units:
-        out +="\n\nUnits: a numeric parameter with a unit accepts a number in that unit or a string with units (\"54 km/h\", \"27 degC\"); the conversion is echoed in `converted`."
+        out +="\n\nUnits: a numeric parameter with a unit accepts a number in that unit or a string with units (\"54 km/h\", \"27 degC\"); the conversion is echoed in `converted`, and when the units are not SI the result's `display` gives the answer in the units you used with the SI value in parentheses (\"1 yard (0.9144 m)\"); `value` is always SI."
     out += "\n\nOn failure the result has value null and an `error` {code, message, param, expected, example}."
     return out
 
@@ -478,11 +478,15 @@ def wrap_function(fn):
     def wrapper(*args, **kwargs):
         bound = new_sig.bind(*args, **kwargs)
         converted: dict[str, str] = {}
+        user_units: list[str] = []
         for n, v in list(bound.arguments.items()):
             spec = SPECS.get(n)
             if spec is None or v is None:
                 continue
             if n in unit_params and isinstance(v, str):
+                unit_text = _unit_text(v)
+                if unit_text:
+                    user_units.append(unit_text)
                 v, note = to_si(v, n, spec)
                 bound.arguments[n] = v
                 if note:
@@ -493,7 +497,7 @@ def wrap_function(fn):
                     raise ContractError("out_of_range", f"{n} = {v:g} is impossible: it {why}", param=n,
                                         expected=f"{n} {describe(spec.bounds)}", got=v, example=spec.example or None)
         result = fn(*bound.args, **bound.kwargs)
-        return _finish(result, converted)
+        return _finish(result, converted, user_units)
 
     wrapper.__signature__ = new_sig
     wrapper.__doc__ = _args_block(fn.__name__, new_sig, fn.__doc__ or fn.__name__, bool(unit_params))
@@ -503,12 +507,27 @@ def wrap_function(fn):
 _UNKNOWN_KEY = re.compile(r"not in (the )?(lookup )?table|unknown (key|material|body|element|isotope)|no such|not found|not a known|no data for", re.I)
 
 
-def _finish(result: Any, converted: dict) -> Any:
-    """Uniform result shape: `error` whenever value is null; `converted` when a quantity string was converted."""
+def _unit_text(text: str) -> str:
+    """The unit part of a quantity string ("54 km/h" -> "km/h"), spelled as to_si reads it; "" for a bare number."""
+    m = _NUM.match(text)
+    unit_text = m.group(2) if m else ""
+    for a, b in _UNIT_FIX:
+        unit_text = unit_text.replace(a, b)
+    return unit_text
+
+
+def _finish(result: Any, converted: dict, user_units: Any = ()) -> Any:
+    """Uniform result shape: `error` whenever value is null; `converted` when a quantity string was converted; `display` (the answer in the
+    caller's own measurement system, SI in parentheses) when a quantity was given in non-SI units."""
     if not isinstance(result, dict):
         return result
     if converted:
         result["converted"] = converted
+    if user_units and result.get("value") is not None:
+        from sigma_ground.mcp.unit_display import display_answer
+        shown = display_answer(result.get("value"), str(result.get("units") or ""), user_units)
+        if shown:
+            result["display"] = shown
     if result.get("value") is None and not result.get("error") and "value" in result:
         msg = str(result.get("notes") or result.get("source") or "the tool declined")
         result["error"] = {"code": "unknown_key" if _UNKNOWN_KEY.search(msg) else "declined", "message": msg}

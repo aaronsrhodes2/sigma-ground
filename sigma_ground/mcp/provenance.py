@@ -56,6 +56,9 @@ class ToolResult:
     assumed : dict | None
         Values the tool filled in because the caller did not give them, each with its basis (``{"mass_kg": {"value":
         0.145, "basis": "table: typical baseball"}}``). ``None`` when nothing was assumed.
+    display : str | None
+        The answer in the measurement system the caller used, with the SI value in parentheses ("1 yard (0.9144 m)"). Set by the
+        tool contract (mcp/unit_display.py) only when a quantity was given in non-SI units; ``value`` stays SI either way.
     """
 
     value: Any
@@ -69,6 +72,7 @@ class ToolResult:
     interpreted_as: str | None = None
     error: dict[str, Any] | None = None
     assumed: dict[str, Any] | None = None
+    display: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """JSON-serializable dict for MCP transport."""
@@ -86,6 +90,8 @@ class ToolResult:
         the attribution forward into user-visible prose.
         """
         parts = ["library: sigma-ground"]
+        if self.display:
+            parts.append(f"answer: {self.display}")
         if isinstance(self.value, (int, float)):
             parts.append(f"value: {self.value:.6g}")
         else:
