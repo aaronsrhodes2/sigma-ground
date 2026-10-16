@@ -6012,19 +6012,24 @@
     "id": "astro_002",
     "system": "sigma_ground",
     "model": "qwen2.5:7b",
-    "answer_text": "ANSWER: 1.989e+30 kg\n\n[semantic interpreter -> body_mass (similarity 0.64)]\nWork: M (measured)\nSource: NASA/IAU planetary fact sheet",
-    "extracted_value": 1.98892e+30,
-    "extracted_units": "kg",
+    "tweaks": {
+      "profile": "legacy",
+      "off": [],
+      "on": []
+    },
+    "answer_text": "ANSWER: 5772 K\n\n[semantic interpreter -> sun_surface_temperature (similarity 0.81)]\nWork: T_eff (IAU 2015 nominal solar value)\nSource: sigma-ground via IAU 2015 nominal solar values",
+    "extracted_value": 5772.0,
+    "extracted_units": "K",
     "tool_calls": [
-      "body_mass"
+      "sun_surface_temperature"
     ],
     "turns": 0,
-    "elapsed_s": 2.1859612464904785,
+    "elapsed_s": 0.6147119998931885,
     "extracted_via_fallback": false,
     "nudges_sent": 0,
-    "semantic_router_hit": "body_mass",
+    "semantic_router_hit": "sun_surface_temperature",
     "grounded": true,
-    "groundedness_reason": "deterministic dispatch (body_mass)"
+    "groundedness_reason": "deterministic dispatch (sun_surface_temperature)"
   },
   {
     "id": "astro_003",

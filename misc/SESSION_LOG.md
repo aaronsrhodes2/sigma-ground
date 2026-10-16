@@ -3940,3 +3940,13 @@ is one routing miss (`astro_002`, the Sun's surface temperature answered as its 
 routing is left open. The Captain then said to rebuild Mentat from the current state: `mentat-home` rebuilt at 5ff8d6b (was 489ec0c) with the stop/rm/up sequence, verified
 (`check_mentat_deploy.sh` ok; `30 feet` -> `29.96 mph (13.39 m/s)`, Fourier convention stated, `energy_j` and `energy_joules` both accepted, `2 solar masses` read), SkippyTel baed228
 pushed (starts the cloud deploy). All other SkippyTel containers had been stopped (exit 0 or 137) by the Docker storage move; not restarted by me.
+
+### The Sun routing miss (2026-10-16)
+The Captain: "yes fix the Sun routing miss". `benchmark/interpreter_demo.py` (the semantic stage that runs before the LLM) sent "What's the surface temperature of the Sun?" to `body_mass`
+(similarity 0.645 against a 0.64 threshold) and answered 1.989e30 kg: its dispatcher answered any question that named a body. Two changes: `body_mass` returns None unless the question has
+a mass word; a new `sun_surface_temperature` intent answers the Sun's surface temperature from `solar_system_body` (the Sun is the only body with one). First attempt (guard only) removed
+the wrong answer but left no answer: the LLM path called no tool. Sweeping 334 distinct questions with and without the new intent showed it also claimed `thermo_012` ("The Sun's surface
+temperature is about 5778 K. What wavelength ...") at 0.72, which it would have answered "5772 K"; a number or a comparison in the question now makes the dispatcher decline (29 tests).
+Verified through the real runner on astro_002, thermo_012, astro_003 (the first now 5772 K in 0.6 s; the others unchanged), scored with the unchanged scorer; ONE row of the stored
+2026-07-15 run replaced (136 -> 137 of 150). My first end-to-end attempt timed out because I ran it against the main Ollama (NUM_PARALLEL=4, 32k context), which my own notes
+warn about; it passed on a session-only single-slot server on 11435. The main Ollama on 11434 was down afterwards (not mine, not touched).

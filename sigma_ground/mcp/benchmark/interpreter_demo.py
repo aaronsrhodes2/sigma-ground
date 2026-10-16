@@ -85,13 +85,35 @@ def _disp_photon(q):
 def _disp_lightspeed(q):
     from sigma_ground.mcp.tools.constants import lookup_constant
     return lookup_constant("c")
+# The words of a question that asks for a mass. semantic_answer runs before the LLM, so this dispatcher may only answer a question that really asks for the
+# mass: "the surface temperature of the Sun" is close to "the mass of the Sun" in embedding space (similarity 0.64, exactly the threshold) and was answered
+# 1.989e30 kg. Without a mass word it returns None and the question goes on to the LLM with its tools, which look the property up.
+_MASS_WORDS = re.compile(r"\b(mass(es)?|massive|weigh(s|ed|t)?|heav(y|ier|iest)|kg|kilograms?)\b", re.I)
+
 def _disp_bodymass(q):
     from sigma_ground.mcp.provenance import ToolResult
+    if not _MASS_WORDS.search(q): return None
     for b,(mass,_) in _BODIES.items():
         if re.search(rf"\b{b}\b",q,re.I):
             return ToolResult(value=mass,units="kg",source="NASA/IAU planetary fact sheet",
                               formula="M (measured)",inputs={"body":b})
     return None
+# The Sun's surface temperature. solar_system_body has a surface temperature for the Sun only (the planets have none), so this answers the Sun and nothing else;
+# "core", "corona" and the like are other temperatures, and are left to the LLM. The value is the tool's, not a constant of this file.
+_SURFACE_TEMP = re.compile(r"\b(surface|effective|photospheric)\s+temp(erature)?\b|\bhow\s+hot\b", re.I)
+_OTHER_TEMP = re.compile(r"\b(core|centre|center|interior|inside|corona|sunspots?|flares?|wind)\b", re.I)
+# A number, or a comparison, means the question GIVES the temperature or asks for something else ("The Sun's surface temperature is about 5778 K. What wavelength is
+# its peak emission?" is near this intent, 0.72, and must not be answered "5772 K").
+_NOT_A_PLAIN_ASK = re.compile(r"\d|\b(compared?|versus|vs|ratio|than|times|difference)\b", re.I)
+
+def _disp_sun_surface_temperature(q):
+    if not (re.search(r"\b(sun|sol)\b", q, re.I) and _SURFACE_TEMP.search(q)) or _OTHER_TEMP.search(q) or _NOT_A_PLAIN_ASK.search(q): return None
+    from sigma_ground.mcp.tools.astronomy import solar_system_body
+    from sigma_ground.mcp.provenance import ToolResult
+    r = solar_system_body("sun")
+    t = (r.value or {}).get("surface_temp_k") if isinstance(r.value, dict) else None
+    if not isinstance(t, (int, float)): return None
+    return ToolResult(value=t, units="K", source=r.source, formula="T_eff (IAU 2015 nominal solar value)", inputs={"body": "sun"})
 def _disp_orbvel(q):
     from sigma_ground.mcp.tools.orbital import orbital_velocity
     m=re.search(r"([\d,]+)\s*km",q,re.I)
@@ -140,6 +162,8 @@ INTENTS = [
    "empty space", _disp_lightspeed, None),
  ("body_mass","the mass of a planet or the Sun, how heavy or massive a celestial body "
    "is, the weight of the Earth", _disp_bodymass, None),
+ ("sun_surface_temperature","the surface temperature of the Sun, how hot is the surface of the Sun, "
+   "the effective temperature of our star", _disp_sun_surface_temperature, None),
  ("orbital_velocity","orbital velocity or speed of a satellite or space station "
    "orbiting the Earth at a given altitude in km, how fast a spacecraft moves in orbit",
    _disp_orbvel, None),
