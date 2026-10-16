@@ -143,7 +143,7 @@ def teacher_pass(seeds: list[dict], teacher: Callable[[str, int], str], variants
     counts: Counter = Counter()
     out: list[dict] = []
     t0 = time.time()
-    with cache.open("a", encoding="utf-8") as f:
+    with cache.open("a", encoding="utf-8", newline="\n") as f:
         for i, seed in enumerate(seeds):
             if i in done:
                 rewrites = done[i]
@@ -242,7 +242,7 @@ def assemble(v1_dir: Path, recipes_dir, out_dir: Path, teacher=None, variants: i
     assert not any(D._norm(r["messages"][1]["content"]) in qs_train for r in val), "a question is in both splits"
 
     for name, rows in (("train", train), ("val", val)):
-        with (out_dir / f"{name}.jsonl").open("w", encoding="utf-8") as f:
+        with (out_dir / f"{name}.jsonl").open("w", encoding="utf-8", newline="\n") as f:
             for r in rows:
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
 
@@ -271,7 +271,7 @@ def assemble(v1_dir: Path, recipes_dir, out_dir: Path, teacher=None, variants: i
         "rewrite_counts": dict(rewrite_counts),
         "train": tally(train), "val": tally(val),
     }
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8", newline="\n")
     return manifest
 
 

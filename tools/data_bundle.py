@@ -85,6 +85,11 @@ def sha256_bytes_stream(zf: zipfile.ZipFile, name: str) -> tuple[str, int]:
     return h.hexdigest(), n
 
 
+def sha256_lf(path: Path) -> str:
+    """sha256 of the file with CRLF read as LF: the same text hashes alike whichever system wrote it."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
 def count_lines(path: Path) -> int:
     n = 0
     with open(path, "rb") as f:
@@ -113,6 +118,7 @@ def create_bundle(root: Path, name: str, profile: dict, out: Path) -> dict:
             if not p.is_file():
                 raise SystemExit(f"{name}: {tier} file missing: {p}")
             files.append({"path": rel, "tier": tier, "bytes": p.stat().st_size, "sha256": sha256_file(p),
+                          **({"sha256_lf": sha256_lf(p)} if rel.endswith((".jsonl", ".json")) else {}),
                           **({"lines": count_lines(p)} if rel.endswith(".jsonl") else {})})
     paths = [f["path"] for f in files]
     if len(set(paths)) != len(paths):
@@ -124,7 +130,10 @@ def create_bundle(root: Path, name: str, profile: dict, out: Path) -> dict:
                 "totals": {t: {"files": sum(f["tier"] == t for f in files), "bytes": sum(f["bytes"] for f in files if f["tier"] == t)} for t in ("train", "rebuild", "reference")},
                 "rebuild": {"command": ["python", "tools/build_router_v2.py"] + profile["rebuild_args"], "out": profile["rebuild_out"],
                             "seed_cache": [seed_src, seed_dst], "teacher": "none: the rewrite cache covers every seed",
-                            "expect": {f: by[f"{profile['rebuild_out']}/{f}"]["sha256"] for f in profile["rebuild_expect_files"]}}}
+                            "expect": {f: by[f"{profile['rebuild_out']}/{f}"]["sha256"] for f in profile["rebuild_expect_files"]},
+                            # the same files with CRLF read as LF: a dataset built on Windows and on Linux is the same text, but Python's text mode
+                            # writes "\r\n" on one and "\n" on the other (the writers now force "\n"; bundles made before that carry CRLF files)
+                            "expect_lf": {f: by[f"{profile['rebuild_out']}/{f}"]["sha256_lf"] for f in profile["rebuild_expect_files"]}}}
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = out.with_suffix(".zip.part")
     with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
@@ -191,6 +200,15 @@ def extract_zip(path: Path, to: Path, force: bool = False, tiers: tuple[str, ...
 
 # ── rebuild check ──────────────────────────────────────────────────────────────────────────────────
 
+def compare_output(path: Path, want: str, want_lf: str | None) -> dict:
+    """A rebuilt file against the bundle: byte-identical, or (when the manifest has it) identical once CRLF is read as LF, which is reported as such."""
+    got = sha256_file(path) if path.exists() else None
+    same_bytes = got == want
+    same_text = bool(path.exists() and want_lf and sha256_lf(path) == want_lf)
+    return {"identical": same_bytes or same_text, "line_endings_differ": same_text and not same_bytes, "expected": want[:16], "got": (got or "missing")[:16]}
+
+
+
 def rebuild_check(path: Path, keep: bool = False) -> dict:
     """Extract the bundle to a scratch folder and regenerate the dataset with no teacher; compare with the manifest's hashes."""
     with tempfile.TemporaryDirectory(prefix="bundle_rebuild_") as tmp:
@@ -207,9 +225,7 @@ def rebuild_check(path: Path, keep: bool = False) -> dict:
         r = subprocess.run([sys.executable, "-X", "utf8", str(REPO / m["rebuild"]["command"][1]), *args], cwd=REPO, capture_output=True, text=True, timeout=3600)
         result = {"exit": r.returncode, "seconds": round(time.time() - t0, 1), "files": {}}
         for fname, want in m["rebuild"]["expect"].items():
-            p = out / fname
-            got = sha256_file(p) if p.exists() else None
-            result["files"][fname] = {"identical": got == want, "expected": want[:16], "got": (got or "missing")[:16]}
+            result["files"][fname] = compare_output(out / fname, want, m["rebuild"].get("expect_lf", {}).get(fname))
         result["ok"] = r.returncode == 0 and all(v["identical"] for v in result["files"].values())
         if not result["ok"]:
             result["stderr_tail"] = (r.stderr or r.stdout)[-1500:]
@@ -255,7 +271,8 @@ def main(argv) -> int:
         return 0
     res = rebuild_check(a.bundle)
     for fname, v in res["files"].items():
-        print(f"  {'IDENTICAL' if v['identical'] else 'DIFFERENT':10s} {fname}  expected {v['expected']}  got {v['got']}")
+        print(f"  {'IDENTICAL' if v['identical'] else 'DIFFERENT':10s} {fname}  expected {v['expected']}  got {v['got']}"
+              + ("  (same text; line endings differ: CRLF vs LF)" if v.get("line_endings_differ") else ""))
     print(f"rebuild {'OK' if res['ok'] else 'FAILED'} in {res['seconds']} s (exit {res['exit']}, no teacher, CPU only)")
     if not res["ok"]:
         print(res.get("stderr_tail", ""))

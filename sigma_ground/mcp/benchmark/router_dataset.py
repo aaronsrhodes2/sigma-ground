@@ -761,6 +761,10 @@ def classifier_route(question: str) -> tuple[str | None, str | None]:
     for fn, kind in cascade:
         try:
             m = fn(question)
+        except ImportError:
+            # A missing package is a broken environment, not a quirk of one question: swallowing it silently turned a classifier off (astro, without
+            # `periodictable`), so the dataset built on that machine differed from the one built elsewhere (2026-10-16). Say so.
+            raise
         except Exception:
             continue
         if m is None:

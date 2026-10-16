@@ -102,6 +102,29 @@ def test_tiers_can_be_extracted_separately(tmp_path):
     assert (dest / "ds" / "train.jsonl").exists() and not (dest / "seeds").exists()
 
 
+def test_the_manifest_carries_a_line_ending_independent_hash_for_json_files(tmp_path):
+    root, profile = _make_root(tmp_path)
+    m = B.create_bundle(root, "tiny", profile, tmp_path / "b.zip")
+    by = {f["path"]: f for f in m["files"]}
+    assert by["ds/train.jsonl"]["sha256_lf"] == B.sha256_lf(root / "ds" / "train.jsonl") and "sha256_lf" in by["suite.json"]
+    assert m["rebuild"]["expect_lf"]["train.jsonl"] == by["ds/train.jsonl"]["sha256_lf"]
+
+
+def test_the_same_text_with_other_line_endings_is_reported_as_that_and_a_real_difference_still_fails(tmp_path):
+    """Windows writes "\\r\\n" where Linux writes "\\n" (the Linux rehearsal of the M5 run found it): 39,512 identical lines, two different hashes."""
+    lf, crlf, other = tmp_path / "lf.jsonl", tmp_path / "crlf.jsonl", tmp_path / "other.jsonl"
+    lf.write_bytes(b'{"a": 1}\n{"a": 2}\n')
+    crlf.write_bytes(b'{"a": 1}\r\n{"a": 2}\r\n')
+    other.write_bytes(b'{"a": 1}\n{"a": 3}\n')
+    want, want_lf = B.sha256_file(lf), B.sha256_lf(lf)
+    assert B.compare_output(lf, want, want_lf) == {"identical": True, "line_endings_differ": False, "expected": want[:16], "got": want[:16]}
+    r = B.compare_output(crlf, want, want_lf)
+    assert r["identical"] and r["line_endings_differ"]
+    assert not B.compare_output(other, want, want_lf)["identical"]                       # different content: still a failure
+    assert not B.compare_output(crlf, want, None)["identical"]                           # an older manifest without the hash stays strict
+    assert not B.compare_output(tmp_path / "missing.jsonl", want, want_lf)["identical"]
+
+
 def test_a_missing_input_stops_the_build_instead_of_making_a_short_bundle(tmp_path):
     root, profile = _make_root(tmp_path)
     (root / "seeds" / "seeds.jsonl").unlink()

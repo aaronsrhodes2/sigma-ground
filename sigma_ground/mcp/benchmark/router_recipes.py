@@ -596,7 +596,7 @@ async def generate(session, per_default: int, seed: int, guard, only: set | None
 
 def write_seeds(examples: list, report: dict, out: Path, seed: int, per: int) -> dict:
     out.mkdir(parents=True, exist_ok=True)
-    with (out / "seeds.jsonl").open("w", encoding="utf-8") as f:
+    with (out / "seeds.jsonl").open("w", encoding="utf-8", newline="\n") as f:
         for e in examples:
             f.write(json.dumps(e, ensure_ascii=False) + "\n")
     chains = Counter(len(e["plan"]["steps"]) if "steps" in e["plan"] else 1 for e in examples)
@@ -612,7 +612,7 @@ def write_seeds(examples: list, report: dict, out: Path, seed: int, per: int) ->
                                         round(shared / max(1, sum(pairs.values())), 3)},
         **report,
     }
-    (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8", newline="\n")
     return manifest
 
 

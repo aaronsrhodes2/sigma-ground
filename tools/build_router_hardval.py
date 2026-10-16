@@ -131,7 +131,7 @@ async def verify_all(spec: list, cache_path: Path | None, session_factory) -> di
                 out[item["id"]] = (verified, why)
                 cache[item["id"]] = {"key": cache_key(item, plan), "verified": verified, "why": why}
                 if cache_path:
-                    cache_path.write_text(json.dumps(cache, indent=1, ensure_ascii=False), encoding="utf-8")
+                    cache_path.write_text(json.dumps(cache, indent=1, ensure_ascii=False), encoding="utf-8", newline="\n")
     else:
         print(f"all {len(spec)} items cached: no server needed", flush=True)
     return out
@@ -193,13 +193,13 @@ async def _amain(args) -> int:
     verified_by_id = await verify_all(spec, cache_path, session_factory)
     keep, report = build(spec, train_q, guard, verified_by_id)
     args.out.mkdir(parents=True, exist_ok=True)
-    with (args.out / "hard.jsonl").open("w", encoding="utf-8") as f:
+    with (args.out / "hard.jsonl").open("w", encoding="utf-8", newline="\n") as f:
         for r in keep:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     report["kept"] = len(keep)
     report["by_family"] = dict(Counter(r["meta"]["family"] for r in keep))
     report["calls_per_plan"] = dict(Counter(r["meta"]["steps"] for r in keep))
-    (args.out / "report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    (args.out / "report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8", newline="\n")
     print(f"kept {len(keep)} of {len(spec)}; by family {report['by_family']}; similarity {report['similarity']}")
     for k in ("failed", "too_similar", "benchmark_overlap"):
         if report[k]:

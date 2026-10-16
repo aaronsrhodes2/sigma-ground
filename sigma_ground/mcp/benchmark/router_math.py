@@ -1104,16 +1104,16 @@ WILD = [  # hand-written, deliberately unlike the templates: (question, tool, ar
 
 def write_seeds(seeds: list, report: dict, out: Path, per: int, seed: int) -> dict:
     out.mkdir(parents=True, exist_ok=True)
-    with (out / "seeds.jsonl").open("w", encoding="utf-8") as f:
+    with (out / "seeds.jsonl").open("w", encoding="utf-8", newline="\n") as f:
         for s in seeds:
             f.write(json.dumps(s, ensure_ascii=False) + "\n")
-    (out / "oracle_report.json").write_text(json.dumps(report, indent=1, default=str), encoding="utf-8")
+    (out / "oracle_report.json").write_text(json.dumps(report, indent=1, default=str), encoding="utf-8", newline="\n")
     from collections import Counter
     manifest = {"generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"), "seed": seed, "per": per, "seeds": len(seeds),
                 "by_recipe": report["made"], "tools": dict(Counter(s["plan"]["tool"] for s in seeds)),
                 "oracle": dict(Counter(s["meta"]["oracle"] for s in seeds)), "drops": report["drops"],
                 "oracle_disagreements": len(report["oracle_disagree"])}
-    (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8", newline="\n")
     return manifest
 
 
