@@ -65,7 +65,7 @@ def same_arg(key: str, want, got) -> bool:
             return ast.literal_eval(str(want)) == ast.literal_eval(str(got))
         except Exception:
             return False
-    if key in ("variables", "direction", "variable", "func", "t_var", "s_var", "x_var", "k_var"):
+    if key in ("variables", "direction", "variable", "func", "t_var", "s_var", "x_var", "k_var", "convention"):
         return str(want).replace(" ", "") == str(got).replace(" ", "")
     if key in ("vector_field",):
         a, b = [x.strip() for x in str(want).split(",")], [x.strip() for x in str(got).split(",")]

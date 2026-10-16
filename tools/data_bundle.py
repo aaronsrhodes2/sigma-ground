@@ -30,7 +30,26 @@ DEAD_TEACHER = "http://127.0.0.1:9"                                 # nothing li
 
 SEEDS = ["router_recipes", "router_recipes_v3", "router_declines", "router_math_v31", "router_params_v31"]      # order matters: the rewrite cache is indexed by seed
 
+SEEDS_V32 = SEEDS + ["router_conventions_v32"]            # the convention seeds go LAST: they need no teacher, so the cache indexes of the earlier seeds do not move
+
 PROFILES: dict[str, dict] = {
+    "router_v32": {
+        "description": "Mentat router v3.2 data (plan v4): quantities quoted as the question wrote them, canonical parameter names, explicit Fourier/series conventions; "
+                       "the data for the Bosgame M5 training runs",
+        "train": ["router_dataset_v32/train.jsonl", "router_dataset_v32/val.jsonl", "router_dataset_v32/manifest.json",
+                  "router_hardval_v32/hard.jsonl", "router_hardval_v32/report.json", "router_math_suite.json", "router_conventions_suite.json"],
+        "rebuild": ["router_dataset_v32/rewrites.jsonl", "router_dataset/manifest.json", "router_dataset/train.jsonl", "router_dataset/val.jsonl",
+                    "router_hardval/hard.jsonl", "router_hardval/report.json", "router_hardval/verified.json", "router_hardval_v32/verified.json"]
+                   + [f"{d}/{f}" for d in SEEDS_V32 for f in ("manifest.json", "seeds.jsonl")]
+                   + ["router_math_v31/oracle_report.json", "router_conventions_v32/oracle_report.json"],
+        "reference": ["router_v31/4b/comparison.md", "eval_math_v31_4b_on_master_tools3.json", "lint_v31_on_master.json",
+                      "direct_p1_100.json", "direct_phi4-mini-reasoning_100.json", "direct_qwen3_4b_100.json", "direct_qwen3_8b_100_retry.json"],
+        "rebuild_out": "router_dataset_v32",
+        "rebuild_expect_files": ["train.jsonl", "val.jsonl", "rewrites.jsonl"],
+        "rebuild_args": ["--plan", "v4", "--v1", "{root}/router_dataset"] + [a for d in SEEDS_V32 for a in ("--recipes", "{root}/" + d)]
+                        + ["--out", "{out}", "--teacher-model", "qwen2.5:14b", "--teacher-url", DEAD_TEACHER, "--variants", "3"],
+        "rebuild_seed_file": ("router_dataset_v32/rewrites.jsonl", "rewrites.jsonl"),
+    },
     "router_v31": {
         "description": "Mentat router v3.1 data (plan v3 format, math + parameter-coverage + materials-DB seeds); the data the 2026-10-14 4B run trained on",
         "train": ["router_dataset_v31/train.jsonl", "router_dataset_v31/val.jsonl", "router_dataset_v31/manifest.json",

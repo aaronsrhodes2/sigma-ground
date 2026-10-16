@@ -55,6 +55,11 @@ PLAN = "v2"      # which plan format's system prompt the records carry (--plan)
 
 
 def to_record(item: dict, plan: dict, verified: list) -> dict:
+    if PLAN == "v4":     # quantities quoted as the question wrote them, canonical parameter names (same relabel as the training data)
+        from sigma_ground.mcp.benchmark import router_quantities as QR
+        sys.path.insert(0, str(REPO / "tools"))
+        import tool_census
+        plan, _ = QR.relabel_plan(item["question"], plan, tool_census.signatures())
     return {"messages": [
         {"role": "system", "content": RP.system_prompt(PLAN)},
         {"role": "user", "content": item["question"]},

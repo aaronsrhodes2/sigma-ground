@@ -52,6 +52,20 @@ def _signatures() -> dict:
     return _SIGNATURES
 
 
+_VARIABLE_KEYS = ("x_var", "k_var", "t_var", "s_var")
+
+
+def label_names_missing_variable(question: str, plan: dict) -> str | None:
+    """'k_var=w' when a gold plan names a transform variable the question never shows (the router could not know it), else None."""
+    for s in (plan["steps"] if isinstance(plan.get("steps"), list) else [plan]):
+        args = s.get("tool_args") or s.get("args") or {}
+        for key in _VARIABLE_KEYS:
+            v = args.get(key)
+            if isinstance(v, str) and v and not re.search(rf"(?<![A-Za-z]){re.escape(v)}(?![A-Za-z])", question):
+                return f"{key}={v}"
+    return None
+
+
 def read_jsonl(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
@@ -199,12 +213,16 @@ def assemble(v1_dir: Path, recipes_dir, out_dir: Path, teacher=None, variants: i
     dirs = [recipes_dir] if isinstance(recipes_dir, Path) else list(recipes_dir)
     seeds = [sd for d in dirs for sd in read_jsonl(d / "seeds.jsonl")]
     kept_seeds = []
+    dropped_label_inconsistent = 0
     for seed in seeds:
         key = D._norm(seed["question"])
         if key in taken:
             continue                       # the same question already exists in v1
         taken.add(key)
-        kept_seeds.append(seed)
+        kept_seeds.append(seed)                  # its slot stays: the rewrite cache is indexed by position
+        if label_names_missing_variable(seed["question"], seed["plan"]):
+            dropped_label_inconsistent += 1      # no record: the label names a variable the question never shows
+            continue
         rec = seed_to_record(seed)
         validate(rec)
         (val if D.split_of(seed["group"], val_pct) == "val" else train).append(rec)
@@ -248,7 +266,8 @@ def assemble(v1_dir: Path, recipes_dir, out_dir: Path, teacher=None, variants: i
         "format": plan, "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "system_prompt": RP.system_prompt(plan), "recipe_dirs": [str(d) for d in dirs],
         "v1_records": v1_counts, "v1_tool_surface_hash": v1_manifest.get("tool_surface_hash"),
-        "recipe_seeds": len(kept_seeds), "teacher": bool(teacher), "variants": variants if teacher else 0,
+        "recipe_seeds": len(kept_seeds), "seeds_without_a_record_label_inconsistent": dropped_label_inconsistent,
+        "teacher": bool(teacher), "variants": variants if teacher else 0,
         "rewrite_counts": dict(rewrite_counts),
         "train": tally(train), "val": tally(val),
     }

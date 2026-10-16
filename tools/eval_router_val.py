@@ -89,10 +89,37 @@ def same_value(a, b) -> bool:
     return a == b
 
 
+def same_arg(key: str, a, b) -> bool:
+    """same_value, plus (v4 labels, 2026-10-15): for a unit-bearing parameter a quantity string on either side is converted first, so "5.09 km" equals
+    "5.09km", 5090.0 and "5090 m". Plain numbers and every other kind of value are compared exactly as before; the only new passes are physically equal quantities."""
+    if same_value(a, b):
+        return True
+    from sigma_ground.mcp import contract as C
+    spec = C.SPECS.get(key)
+    if spec is None or not spec.unit or not (isinstance(a, str) or isinstance(b, str)):
+        return False
+    if any(isinstance(x, str) and x.startswith("$") for x in (a, b)):          # a reference to an earlier result: equal only if identical
+        return False
+    try:
+        va = C.to_si(a, key, spec)[0] if isinstance(a, str) else float(a)
+        vb = C.to_si(b, key, spec)[0] if isinstance(b, str) else float(b)
+    except (C.ContractError, TypeError, ValueError):
+        return False
+    return same_value(va, vb)
+
+
+def align_names(tool: str, pred_args: dict, gold_args: dict) -> dict:
+    """pred_args with an OLD parameter name (mcp/param_names.py) replaced by the canonical name the gold uses, so a model trained on the old labels is not
+    scored as wrong for a name the server still accepts."""
+    from sigma_ground.mcp import param_names as PN
+    table = {**PN.RENAMES, **PN.TOOL_RENAMES.get(tool, {})}
+    return {(table[k] if k not in gold_args and table.get(k) in gold_args and table[k] not in pred_args else k): v for k, v in pred_args.items()}
+
+
 def compare(pred: dict | None, gold: dict) -> tuple[bool, bool, str]:
     """(same tools in the same order, exact plan, why not exact). A plan is exact
     when every call has the same argument keys and values (numbers within 1e-6
-    relative, strings and "$n" references equal)."""
+    relative, strings and "$n" references equal; quantities compared as quantities)."""
     sp, sg = signature(pred), signature(gold)
     if sp is None:
         return False, False, "unparseable or no tool"
@@ -108,10 +135,11 @@ def compare(pred: dict | None, gold: dict) -> tuple[bool, bool, str]:
             # what matters is WHICH input is asked for, not how the question is worded
             a, b = ({"variable": x["args"].get("variable")} for x in (a, b))
             a, b = {"args": a}, {"args": b}
+        a = {**a, "args": align_names(b.get("tool", ""), a["args"], b["args"])}
         if set(a["args"]) != set(b["args"]):
             return True, False, (f"{at}arg keys: missing {sorted(set(b['args']) - set(a['args']))}, "
                                  f"extra {sorted(set(a['args']) - set(b['args']))}")
-        bad = [k for k in b["args"] if not same_value(a["args"][k], b["args"][k])]
+        bad = [k for k in b["args"] if not same_arg(k, a["args"][k], b["args"][k])]
         if bad:
             return True, False, f"{at}values: " + ", ".join(
                 f"{k}={a['args'][k]!r} vs {b['args'][k]!r}" for k in bad)
