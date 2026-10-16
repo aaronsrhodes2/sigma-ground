@@ -133,3 +133,11 @@ Source of the model: Park et al. 2021 (AJ 161:105, sec. 2.2) and the DE440 heade
 * Wording: this reproduces DE440's own model (DE440's ring is a modelling device for the belt's mass, equally spaced points at one radius). It shows that DE440's ring mass and radius carry the long-range outer-planet dynamics; it does not show that the belt's mass is distributed as the ring says.
 * Remaining at +20 yr: Pluto 4 km, Uranus/Neptune 1.2-2 km, Venus 0.28, Moon 0.94 (unchanged by any of this), Mercury 0.17. Candidates, untested: the 30 individual Kuiper-belt objects (Pluto), the Moon's degree-3 gravity terms and tides (Moon).
 Two windows only; the full-system run (21 windows) will confirm or contradict.
+
+### C1 + C3a + C5 in the full 33-body system at a converged step (2026-10-15): confirmed; the moons are untouched by them
+Fine-step arm: the headline stack with and without DE440's asteroids, ring and the Moon's C22, step 0.0125 d, windows J2008/J2014/J2020, all 33 bodies, 6 of 6 jobs clean. Data `v2physics_restated/rolling_shootout_fine_0.0125.json`, table `FINE_STEP_ALL_BODIES.md`
+(`scripts/shootout_fine_report.py`). Median km at +5 yr, r2 (0.05 d) / control (0.0125 d) / candidate:
+Mercury 1.48 / 0.08 / 0.07; Venus 0.29 / 0.31 / **0.07**; Earth 0.46 / 0.44 / **0.05**; Moon 3.51 / 1.33 / **0.31**; Mars 0.93 / 0.93 / **0.10**; Saturn 1.51 / 2.14 / **0.19**.
+* The layers improve Venus, Earth, Moon, Mars and Saturn in 3 of 3 windows. The Moon's +5 yr error in the full system is 0.31 km (11-fold below r2).
+* The 24 moons change by less than 0.1 % under the layers, so none of their errors are caused by missing perturbers. Their remaining errors are step and model floors: Io 1,030, Europa 821, Ganymede 1,087, Mimas 108,725, Enceladus 20,458, Tethys 11,300, Dione 5,326, Miranda 8,136 km at +5 yr; Titan 217, Callisto 214, Oberon 1,120, Titania 963.
+* Planet-centre floors that nothing here touches: Jupiter 3.6-4.1 km, Uranus 796 and Neptune 478 km (fixture planet-centre data, known since the DE440 fixture review), Pluto 30 km. The reduced-model system barycentres of the same bodies are 0.1-4 km at +20 yr, so these are not dynamics.
