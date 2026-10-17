@@ -192,3 +192,13 @@ Test: reduced model, step 0.025 d, DE440 starts, J2000 and J2003 for 20 yr, the 
 
 * Pluto's +20 yr error falls 64 % with two thirds of the objects' mass placed; Uranus and Neptune halve. The unplaced third of the KBO mass (771 km3/s2) is the likely source of what is left (Pluto 1.45 km); not tested.
 * Wording as before: this reproduces DE440's own model; it does not show that these masses are the real ones.
+
+## C8. The fixture's planet-system barycentres (2026-10-17): found, fixed, confirmed at the converged step
+Finding: the "planet-centre floors" (Uranus ~800 km, Neptune ~450 km, Pluto 30-46 km, Jupiter ~4 km at +5 yr) were not dynamics. The fixture's planet-centre VELOCITIES, taken from the Horizons planet-centre ephemerides, disagree with DE440's system barycentre velocity plus the fixture's own
+moon states by Uranus 5.3, Neptune 2.9, Pluto 0.29, Jupiter 0.021 mm/s (and Uranus's position by 519 km); 0.003 m/s over 5 yr is 474 km. Started from the kernel's barycentres the same dynamics ends within 0.6-5 km. (I first called the 0.003 m/s negligible: an arithmetic error, 474 km not 0.5 km.)
+Wrong repair first (r3: only the planet moved): Neptune 478 -> 0.14 km but the moons broke (Titania 963 -> 676,199 km, Ariel 859 -> 239,791, Charon 113 -> 414): a moon's relative state is fitted to the Horizons planet centre. Superseded.
+Repair (r4, `scripts/shift_giant_systems.py`, fixture `de440_state_vectors_v2physics_r4.json`): each planet system (planet + all its moons) moved RIGIDLY so its barycentre is DE440's; relative states unchanged (4 tests). Old fixtures untouched.
+Confirmation (full 33-body system, step 0.0125 d, candidate = asteroids + ring + C22, windows J2008/J2014/J2020; median km at +5 yr, old fixture -> r4; data `v2physics_restated/rolling_shootout_r4_fine_0.0125.json`, table `FINE_STEP_ALL_BODIES_r4.md`):
+Uranus 796 -> **0.14**; Neptune 478 -> **0.13**; Pluto 31.5 -> **9.8**; Jupiter 4.06 -> **2.18**; Saturn 0.19 -> 0.13; inner planets and the Moon unchanged (Earth 0.05, Moon 0.32, Mars 0.10).
+Moons under r4: relative orbits preserved (Miranda 7,831 vs 8,137, Triton 501 vs 597, Charon 78 vs 113, Ariel 269 vs 859, Umbriel 474 vs 1,189 improved; Titania 1,364 vs 963 and Oberon 1,442 vs 1,120 somewhat worse, within their ~1,000 km model floor); Io, Europa, Ganymede, Callisto, Mimas, the Saturnian moons unchanged.
+Remaining: Pluto 9.8 km (Charon: the Pluto-Charon offset; the unplaced KBOs add to it), Jupiter 2.2 km, the fast-moon floors. USE THE r4 FIXTURE FOR EVERY FUTURE SHOOT-OUT RUN.
