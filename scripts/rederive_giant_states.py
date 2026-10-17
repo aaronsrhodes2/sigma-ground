@@ -1,4 +1,7 @@
-"""Re-derive the planet-centre states of the planets that have modelled moons from DE440's own system barycentres (new fixture; the old one is never touched).
+"""SUPERSEDED 2026-10-17 by scripts/shift_giant_systems.py (the r4 fixture). This planet-only repair (r3) fixed Neptune (478 -> 0.14 km at +5 yr) but left the moons at their old
+states, and a moon's relative state is fitted to the Horizons planet centre: Titania 963 -> 676,199 km, Ariel 859 -> 239,791 km, Charon 113 -> 414 km. Kept as the record of the attempt.
+
+Re-derive the planet-centre states of the planets that have modelled moons from DE440's own system barycentres (new fixture; the old one is never touched).
 
 Problem found 2026-10-16: the fixture's planet-centre VELOCITIES (Horizons planet-centre ephemerides) are not consistent with DE440's system barycentre velocity and the fixture's
 moon states: Uranus 5.3 mm/s, Neptune 2.9 mm/s, Pluto 0.29 mm/s, Jupiter 0.021 mm/s (Mars and Saturn < 0.002 mm/s). Over 5 yr that is 842, 453, 46 and 3.4 km, which are exactly the
