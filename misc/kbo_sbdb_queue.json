@@ -1,0 +1,68 @@
+[
+ {
+  "id": "eris",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Eris&full-prec=1",
+  "expect": "Eris",
+  "file": "sbdb_eris.json"
+ },
+ {
+  "id": "haumea",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Haumea&full-prec=1",
+  "expect": "Haumea",
+  "file": "sbdb_haumea.json"
+ },
+ {
+  "id": "makemake",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Makemake&full-prec=1",
+  "expect": "Makemake",
+  "file": "sbdb_makemake.json"
+ },
+ {
+  "id": "gonggong",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Gonggong&full-prec=1",
+  "expect": "Gonggong",
+  "file": "sbdb_gonggong.json"
+ },
+ {
+  "id": "quaoar",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Quaoar&full-prec=1",
+  "expect": "Quaoar",
+  "file": "sbdb_quaoar.json"
+ },
+ {
+  "id": "orcus",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Orcus&full-prec=1",
+  "expect": "Orcus",
+  "file": "sbdb_orcus.json"
+ },
+ {
+  "id": "2003az84",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=2003%20AZ84&full-prec=1",
+  "expect": "AZ84",
+  "file": "sbdb_2003az84.json"
+ },
+ {
+  "id": "salacia",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Salacia&full-prec=1",
+  "expect": "Salacia",
+  "file": "sbdb_salacia.json"
+ },
+ {
+  "id": "varda",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Varda&full-prec=1",
+  "expect": "Varda",
+  "file": "sbdb_varda.json"
+ },
+ {
+  "id": "2002ux25",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=2002%20UX25&full-prec=1",
+  "expect": "UX25",
+  "file": "sbdb_2002ux25.json"
+ },
+ {
+  "id": "sedna",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Sedna&full-prec=1",
+  "expect": "Sedna",
+  "file": "sbdb_sedna.json"
+ }
+]
