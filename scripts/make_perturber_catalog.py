@@ -2,6 +2,7 @@
 
 Masses: the constants MAnnnn of the DE440 ASCII header (JPL, ssd.jpl.nasa.gov/ftp/eph/planets/ascii/de440/header.440; au^3/day^2, converted with the header's AU).
   MA0001-MA1467 = the 343 asteroids, MA8001-MA8030 = the 30 Kuiper-belt objects, MA8201-MA8236 = the 36 equal point masses of the ring (Park et al. 2021, AJ 161:105, sec. 2.2).
+KBOs: placed by a 1 % mass match to the paper's Table 1 (see the code); elements from fixtures/sbdb_kbo/ (SBDB, fetched 2026-10-16 by scripts/polite_trickle_fetch.py).
 Elements: JPL SBDB osculating elements, from fixtures/sbdb_asteroids_named_mba.json (main-belt asteroids with a name); an asteroid that is not in that file has elements = null and
 is reported (it cannot be placed until its elements are added). Fallback: fixtures/sbdb_asteroids_54.json.
 
@@ -81,18 +82,34 @@ def main() -> int:
             missing.append(num)
         asteroids.append({"number": num, "name": (d or {}).get("name"), "gm_km3_s2": ma[num], "diameter_km": float(d["diameter"]) if d and d.get("diameter") else None, "elements": el})
     kbo = [{"id": n, "gm_km3_s2": ma[n], "elements": None} for n in sorted(ma) if 8000 < n < 8100]
+    # Identification (2026-10-16): the 30 KBOs are not named in DE440's header or in Pitjeva & Pitjev (2018); only 10 measured masses are (their Table 1, in Earth masses). A KBO entry is
+    # PLACED (given SBDB elements) only if exactly one DE440 entry lies within 1 % of the paper's mass x GM_earth for a named object; ambiguous or absent matches stay unplaced.
+    GM_EARTH = 398600.4418
+    table1 = {"Eris": (28.0e-4, "eris"), "Haumea": (6.71e-4, "haumea"), "Makemake": (4.35e-4, "makemake"), "Gonggong": (6.3e-4, "gonggong"), "Quaoar": (1.67e-4, "quaoar"),
+              "Orcus": (1.059e-4, "orcus"), "2003 AZ84": (0.69e-4, "2003az84"), "Salacia": (0.73e-4, "salacia"), "Varda": (0.444e-4, "varda"), "2002 UX25": (0.209e-4, "2002ux25")}
+    unplaced = {}
+    for name, (m_earth, fid) in table1.items():
+        target = m_earth * GM_EARTH
+        near = [k for k in kbo if abs(k["gm_km3_s2"] / target - 1.0) < 0.01]
+        if len(near) != 1:
+            unplaced[name] = f"{len(near)} DE440 entries within 1 % of {target:.2f}"
+            continue
+        sb = json.loads((FIX / "sbdb_kbo" / f"sbdb_{fid}.json").read_text())
+        el = {e["name"]: float(e["value"]) for e in sb["orbit"]["elements"]}
+        near[0].update({"name": sb["object"]["fullname"], "match_pct": round(100 * (near[0]["gm_km3_s2"] / target - 1.0), 3), "paper_gm_km3_s2": round(target, 3),
+                        "elements": {"epoch_jd_tdb": float(sb["orbit"]["epoch"]), "a_au": el["a"], "e": el["e"], "i_deg": el["i"], "om_deg": el["om"], "w_deg": el["w"], "ma_deg": el["ma"]}})
     ring_gm = [ma[n] for n in sorted(ma) if n >= 8200]
     doc = {"metadata": {"label": "v2physics_2026-10-14",
                         "masses": "JPL DE440 ASCII header header.440, constants MAnnnn (au^3/day^2 x AU^3/86400^2, AU = %.1f km)" % c["AU"],
                         "elements": "JPL SBDB osculating elements, fixtures/sbdb_asteroids_named_mba.json (heliocentric ecliptic J2000)",
                         "set": "Park et al. 2021 AJ 161:105 sec. 2.2: 343 asteroids (the DE430 set), 30 Kuiper-belt objects, a ring of 36 equal point masses in the ecliptic at a = 44 au",
-                        "asteroids_without_elements": missing, "n_asteroids": len(asteroids), "n_kbo": len(kbo), "generator": "scripts/make_perturber_catalog.py"},
+                        "asteroids_without_elements": missing, "n_asteroids": len(asteroids), "n_kbo": len(kbo), "kbo_unplaced_named": unplaced, "generator": "scripts/make_perturber_catalog.py"},
            "asteroids": asteroids, "kbo": kbo, "ring": {"n_points": len(ring_gm), "a_au": 44.0, "gm_each_km3_s2": ring_gm[0], "gm_total_km3_s2": sum(ring_gm), "all_equal": len(set(round(g, 9) for g in ring_gm)) == 1}}
     a.out.write_text(json.dumps(doc, indent=0))
     gm_all = sum(x["gm_km3_s2"] for x in asteroids)
     gm_have = sum(x["gm_km3_s2"] for x in asteroids if x["elements"])
     print(f"{len(asteroids)} asteroids, GM total {gm_all:.2f} km3/s2; with elements {sum(1 for x in asteroids if x['elements'])} ({100 * gm_have / gm_all:.1f} % of the mass); missing {len(missing)}: {missing}")
-    print(f"{len(kbo)} Kuiper-belt objects (GM total {sum(x['gm_km3_s2'] for x in kbo):.1f}, no elements held); ring {doc['ring']['n_points']} points, GM total {doc['ring']['gm_total_km3_s2']:.1f}, equal: {doc['ring']['all_equal']}")
+    print(f"{len(kbo)} Kuiper-belt objects (GM total {sum(x['gm_km3_s2'] for x in kbo):.1f}; {sum(1 for x in kbo if x['elements'])} placed with GM {sum(x['gm_km3_s2'] for x in kbo if x['elements']):.1f}; unplaced named: {unplaced}); ring {doc['ring']['n_points']} points, GM total {doc['ring']['gm_total_km3_s2']:.1f}, equal: {doc['ring']['all_equal']}")
     print("wrote", a.out)
     return 0
 

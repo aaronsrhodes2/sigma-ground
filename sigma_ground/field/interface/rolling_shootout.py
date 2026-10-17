@@ -560,6 +560,7 @@ def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
     base = [p for p in canonical_predictors(dt_days) if p.name == "de440_stack"][0]
     rows = [("restated_ast_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids",)), "headline + DE440's asteroids + the Moon's C22"),
             ("restated_ast_ring_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring")), "headline + DE440's asteroids + Kuiper-belt ring + the Moon's C22"),
+            ("restated_ast_ring_kbo_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring", "kbo")), "headline + asteroids + ring + the 7 identified Kuiper-belt objects + the Moon's C22"),
             ("restated_c22", dict(lunar_c22=_DE440_C22M), "headline + the Moon's C22 only")]
     return [_dc.replace(base, name=n, description=d, **kw) for n, kw, d in rows]
 
@@ -712,6 +713,12 @@ def _candidate_layers(predictor: Predictor, bodies: list, body_names: list[str],
             r = doc["ring"]
             nodes = pp.ring_window_paths(kernel, float(gm_planets[0]), start_jd, horizon_days, 1.0, n_points=r["n_points"], a_au=r["a_au"])
             parts.append(pp.to_prescribed_sources(nodes, np.full(r["n_points"], r["gm_each_km3_s2"]), 1.0))
+        if "kbo" in predictor.perturber_sets:                       # the Kuiper-belt objects that could be identified (scripts/make_perturber_catalog.py): test-particle paths, DE440 masses
+            placed = [k for k in doc["kbo"] if k["elements"]]
+            pert_k = [Perturber(str(k["id"]), k["gm_km3_s2"], 0.0, k["elements"]["epoch_jd_tdb"], k["elements"]["a_au"], k["elements"]["e"], k["elements"]["i_deg"],
+                                k["elements"]["om_deg"], k["elements"]["w_deg"], k["elements"]["ma_deg"]) for k in placed]
+            nodes = pp.asteroid_window_paths(pert_k, kernel, gm_planets, start_jd, horizon_days, 1.0)
+            parts.append(pp.to_prescribed_sources(nodes, np.array([k["gm_km3_s2"] for k in placed]), 1.0))
         toggles = dataclasses.replace(toggles, prescribed_sources=True)
         kwargs["prescribed_sources"] = pp.concat_sources(*parts)
     return bodies, toggles, kwargs

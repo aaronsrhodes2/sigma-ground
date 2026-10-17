@@ -147,6 +147,10 @@ def run_one(args):
             r_ = doc["ring"]
             parts.append(pp.to_prescribed_sources(pp.ring_window_paths(kt, float(gm_planets[0]), e_jd, horizon, 1.0, n_points=r_["n_points"], a_au=r_["a_au"]),
                                                   np.full(r_["n_points"], r_["gm_each_km3_s2"]), 1.0))
+        if "kbo" in perturbers:                                                                  # the Kuiper-belt objects identified by mass (make_perturber_catalog.py)
+            placed = [k_ for k_ in doc["kbo"] if k_["elements"]]
+            pert_k = [Perturber(str(k_["id"]), k_["gm_km3_s2"], 0.0, *[k_["elements"][e_] for e_ in ("epoch_jd_tdb", "a_au", "e", "i_deg", "om_deg", "w_deg", "ma_deg")]) for k_ in placed]
+            parts.append(pp.to_prescribed_sources(pp.asteroid_window_paths(pert_k, kt, gm_planets, e_jd, horizon, 1.0), np.array([k_["gm_km3_s2"] for k_ in placed]), 1.0))
         toggles = _dc.replace(toggles, prescribed_sources=True)
         extra_kw["prescribed_sources"] = pp.concat_sources(*parts)
     c22 = args[11] if len(args) > 11 else None

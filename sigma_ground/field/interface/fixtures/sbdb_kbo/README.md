@@ -1,0 +1,4 @@
+# SBDB elements of 11 Kuiper-belt / trans-Neptunian objects, fetched 2026-10-16 by the polite trickle (`scripts/polite_trickle_fetch.py`, queue `misc/kbo_sbdb_queue.json`)
+Eris, Haumea, Makemake, Gonggong (2007 OR10), Quaoar, Orcus, 2003 AZ84 (Achlys), Salacia, Varda, 2002 UX25 (Uni), Sedna: the named objects of Pitjeva & Pitjev (2018) Table 1 (plus Sedna). 11 of 11 passed their checks; osculating elements at epoch 2461200.5.
+Which DE440 mass entry (MA8001-MA8030) belongs to which object is NOT given by DE440 or by the paper. `scripts/make_perturber_catalog.py` places an object only if exactly one DE440 mass lies within 1 % of the paper's mass x GM_earth:
+placed (7): Eris 8001, Haumea 8002, Quaoar 8003, Orcus 8007, 2002 UX25 8009, Varda 8012, 2003 AZ84 8018 (GM 1544.6 of the 30 objects' 2315.4 km3/s2, 67 %). Unplaced: Salacia (two entries within 1 %), Makemake and Gonggong (none), Sedna (not in the paper's table).

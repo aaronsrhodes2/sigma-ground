@@ -34,6 +34,15 @@ class TestCatalogue(unittest.TestCase):
         self.assertAlmostEqual(gm[4], 17.2882, delta=2e-4)                          # Vesta
         self.assertAlmostEqual(gm[2], 13.6659, delta=2e-4)                          # Pallas
 
+    def test_kbo_placement_follows_the_one_percent_unique_match_rule(self):         # BUG: names are never guessed; an ambiguous or absent mass match stays unplaced
+        placed = {k["id"]: k for k in self.doc["kbo"] if k["elements"]}
+        self.assertEqual(sorted(placed), [8001, 8002, 8003, 8007, 8009, 8012, 8018])    # Eris, Haumea, Quaoar, Orcus, 2002 UX25, Varda, 2003 AZ84
+        for k in placed.values():
+            self.assertLess(abs(k["match_pct"]), 1.0)
+            self.assertAlmostEqual(k["gm_km3_s2"] / k["paper_gm_km3_s2"] - 1.0, k["match_pct"] / 100.0, delta=1e-4)
+        self.assertEqual(sorted(self.doc["metadata"]["kbo_unplaced_named"]), ["Gonggong", "Makemake", "Salacia"])
+        self.assertIn("Eris", placed[8001]["name"])
+
     def test_missing_elements_are_reported_not_hidden(self):
         missing = self.doc["metadata"]["asteroids_without_elements"]
         self.assertEqual(sorted(missing), sorted(a["number"] for a in self.doc["asteroids"] if not a["elements"]))   # the report is exactly the gap, however large (ef3211d closed it: 0 now)
