@@ -41,6 +41,7 @@ If the fix needs a config change (settings, git config, a package), propose it t
 | a timed-out tool call leaves `pytest` and Mentat servers running, starving the next job | pytest without `SKIP_SERVER_TESTS=1` starts real servers, and the harness backgrounds the call instead of killing it | `SKIP_SERVER_TESTS=1` for static runs; find and stop strays with `psutil` (command line contains `pytest` or `sigma_ground.mcp.server`) |
 | `$WINPID` is empty in the tool's bash, so a PID file is blank | the variable is not set in this shell | find the process with `psutil` by command line and creation time |
 | a fresh Mentat server's first pint-backed call (`convert_units`) never returns | `import numpy` from FastMCP's worker thread blocks on Windows | fixed in `sigma_ground/mcp/server.py` (numpy imported first in the main thread). To find a hang like it, start the server with `faulthandler.dump_traceback_later(45, file=sys.stderr)` and read the thread dump |
+| `jobwatch` alerts "driver alive but only 0 python children" on a healthy single-process job (a trickle, a fetcher) | the watchdog assumed a driver with worker children | fixed at the cause 2026-10-16: `--min-children` now defaults to 1 only WITH a preset (driver + workers) and 0 without; a regression test covers a single-process job. A child-less job needs no flag any more |
 
 ## Before launching anything expensive
 1. dry run at tiny scale (1 job, short horizon) and validate against a known value; 2. check free RAM; 3. driver retries + incremental results; 4. watchdog attached;

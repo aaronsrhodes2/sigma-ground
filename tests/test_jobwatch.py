@@ -139,6 +139,15 @@ class TestJobWatch(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
         self.assertIn("JOBWATCH DONE", r.stdout)
 
+    def test_a_single_process_job_needs_no_flag_to_avoid_a_children_alarm(self):      # BUG 2026-10-16: the default min-children of 1 raised a false alarm on a trickle job (one process, no workers)
+        job = start_job(self.tmp, ["import time", "for i in range(6):", "    " + log_line("step done"), "    time.sleep(1)", log_line("all finished")])
+        cmd = [sys.executable, str(JOBWATCH), "--name", "t", "--pid", str(job.pid), "--interval", "1", "--state-dir", str(self.tmp / "state"), "--log", str(self.tmp / "job.log"),
+               "--progress", f"lines:{self.tmp / 'job.log'}", "--success-regex", "all finished", "--from-start"]          # no --min-children and no preset
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        job.wait()
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertNotIn("python children", r.stdout)
+
     def test_a_pid_that_is_not_running_is_an_alert_at_once(self):
         r = subprocess.run(watch_cmd(self.tmp, 4000000), capture_output=True, text=True, timeout=30)
         self.assertEqual(r.returncode, 2)

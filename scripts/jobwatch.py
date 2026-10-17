@@ -162,7 +162,8 @@ def main(argv=None) -> int:
                     help="when the stall limit hits while the job is still burning CPU, extend it this many times before alerting; an IDLE stalled job alerts at once")
     ap.add_argument("--interval", type=float, default=60.0)
     ap.add_argument("--mem-warn-gb", type=float, default=1.0)
-    ap.add_argument("--min-children", type=int, default=1, help="alert if the driver is alive with fewer python children than this for two checks (0 disables)")
+    ap.add_argument("--min-children", type=int, default=None, help="alert if the driver is alive with fewer python children than this for two checks (0 disables). Default: 1 with a preset "
+                    "(a driver with workers), 0 without one (a single-process job such as a trickle has no children; the default of 1 raised a false alarm on 2026-10-16)")
     ap.add_argument("--from-start", action="store_true", help="scan logs from their beginning instead of from now")
     ap.add_argument("--exit-on-warn", action="store_true")
     ap.add_argument("--state-dir", type=Path, default=Path("local-cache/jobwatch"))
@@ -170,6 +171,8 @@ def main(argv=None) -> int:
     ap.add_argument("--outdir", type=Path, default=None)
     ap.add_argument("--max-hours", type=float, default=0.0, help="stop watching (exit 3) after this long; 0 = no limit")
     a = ap.parse_args(argv)
+    if a.min_children is None:
+        a.min_children = 1 if a.preset else 0
 
     if a.preset == "shootout" and a.outdir:
         for f in ("short_run.log", "long_run.log"):
