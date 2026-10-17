@@ -170,3 +170,7 @@ Data and tables `fixtures/v2physics_restated/` (`SHOOTOUT_FULL_RESTATED.md`, REA
   floors (Uranus 3,100 km, Neptune 1,650 km at +20 yr) hide it, so that comparison cannot show the ring; the barycentre comparison in C5 does.
 * Honest limits: at 0.025 d Jupiter's planet-centre error (10.3 km at +5 yr) and every fast moon are step-limited (read `FINE_STEP_ALL_BODIES.md` for the converged values: Jupiter 4.1 km); the layers do not change any moon (< 0.1 % at the converged step). Callisto looks 2-2.5x worse than r2
   (86 -> 200 km at +5 yr) in all 16 windows: the converged value is 214 km at 0.0125 d, so r2's 86 km was integration error that happened to cancel, not a regression. Titania moves between steps (phase noise at 0.025 d; equal at 0.0125 d).
+
+### C6 update (2026-10-16 evening): 73P added, 60 runs from 20 comets
+With the corrected 73P request (Horizons record 90000740, JPL#K222/31) the ladder has 60 runs. Median +5 yr, km, all runs: R0 gravity only 2,097; R2 + Marsden push 5.7; R3 + time delay 4.3; R3 without the Sun's 1PN 53.7; **R4 + 343 asteroids 0.96**
+(R4 better than R3 in 55 of 60 runs; R2 better than R1 in 38 of 60). 73P itself: gravity only 84,000-116,000 km, with the push 0.6-15 km, with the asteroids 0.9-19 km. Nothing in the conclusions changes.
