@@ -174,3 +174,21 @@ Data and tables `fixtures/v2physics_restated/` (`SHOOTOUT_FULL_RESTATED.md`, REA
 ### C6 update (2026-10-16 evening): 73P added, 60 runs from 20 comets
 With the corrected 73P request (Horizons record 90000740, JPL#K222/31) the ladder has 60 runs. Median +5 yr, km, all runs: R0 gravity only 2,097; R2 + Marsden push 5.7; R3 + time delay 4.3; R3 without the Sun's 1PN 53.7; **R4 + 343 asteroids 0.96**
 (R4 better than R3 in 55 of 60 runs; R2 better than R1 in 38 of 60). 73P itself: gravity only 84,000-116,000 km, with the push 0.6-15 km, with the asteroids 0.9-19 km. Nothing in the conclusions changes.
+
+## C7. The Kuiper-belt objects DE440 carries individually (2026-10-17): SUPPORTED for the seven that could be identified
+C5 left Pluto at 4.1 km at +20 yr and named "the 30 individual Kuiper-belt objects" as the untested candidate. DE440 carries 30 KBOs (masses MA8001-MA8030, total GM 2,315 km3/s2) but names none, and Pitjeva & Pitjev (2018) names only the 10 measured ones.
+Rule (written before looking at the result): an object is placed only if EXACTLY ONE DE440 mass lies within 1 % of the paper's mass x GM_earth. Placed (7, GM 1,545 = 67 % of the 30): Eris 8001 (-0.12 %), Haumea 8002 (-0.03 %), Quaoar 8003 (+0.62 %), Orcus 8007 (-0.03 %),
+2002 UX25 8009 (+0.15 %), Varda 8012 (+0.50 %), 2003 AZ84 8018 (-0.82 %). Unplaced: Salacia (two entries within 1 %), Makemake and Gonggong (no entry), Sedna (not in the paper's table), and the 20 unnamed. Elements: SBDB, fetched by the polite trickle (`fixtures/sbdb_kbo/`).
+Test: reduced model, step 0.025 d, DE440 starts, J2000 and J2003 for 20 yr, the Moon's C22 on; asteroids (343) + ring, with and without the seven (`v2physics_restated/kbo_reduced_runs.jsonl`). Mean of the two windows, km against DE440:
+
+| body | +10 yr: ring only -> + 7 KBOs | +20 yr: ring only -> + 7 KBOs |
+|---|---|---|
+| Pluto | 1.08 -> **0.38** | 4.06 -> **1.45** |
+| Uranus | 0.33 -> 0.19 | 1.75 -> **0.86** |
+| Neptune | 0.33 -> 0.22 | 1.41 -> **0.88** |
+| Saturn | 0.32 -> 0.29 | 0.67 -> 0.67 |
+| Jupiter | 0.23 -> 0.21 | 0.42 -> 0.37 |
+| Earth, Mars | unchanged | unchanged |
+
+* Pluto's +20 yr error falls 64 % with two thirds of the objects' mass placed; Uranus and Neptune halve. The unplaced third of the KBO mass (771 km3/s2) is the likely source of what is left (Pluto 1.45 km); not tested.
+* Wording as before: this reproduces DE440's own model; it does not show that these masses are the real ones.
