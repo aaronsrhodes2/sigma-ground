@@ -44,3 +44,13 @@ Candidate = headline stack + DE440's 343 asteroids + its 36-point Kuiper-belt ri
 Read it with `MOON_STEP_CONVERGENCE.md` and `FINE_STEP_ALL_BODIES.md`: at 0.025 d the giants' planet-centre errors (Jupiter above all) and every fast moon are step-limited, so the converged numbers for those are in the 0.0125 d fine arm.
 The planet-centre truth of Uranus, Neptune (and, less, Pluto and Jupiter) carries a fixture floor of hundreds of km, which hides the ring's 15-30 km in a direct error comparison; the ring's effect is read from the
 prediction difference (ring minus no ring): Uranus 14.6, Neptune 30.2, Pluto 32.4, Saturn 5.3, Jupiter 1.1 km at +20 yr (median of J2000, J2003), the same size as the deficits the reduced-model barycentre test closed.
+
+# Figures (2026-10-19): `figures/F*.png` with the data behind each in `figures/F*.json`
+Made by `scripts/make_shootout_figures.py` from the stored runs (palette: the validated reference slots 1-3 and blue ramp; aqua is below 3:1 on the light surface, so every series is also direct-labelled or in a legend row and the numbers are in the JSON).
+* F1 headline before/after dumbbell, every body, +5 yr, converged step (0.0125 d), same three windows (r2 vs restated on the r4 fixture)
+* F2 inner-system error against lead time (r2, the same stack at the finer step only, restated), medians over windows
+* F3 what each addition bought for the outer planets at +20 yr (7 asteroids, all 343, + ring, + 7 Kuiper-belt objects)
+* F4 the fixture repair: giants' planet-centre error at +5 yr, old fixture against r4
+* F5 moon step-convergence heatmap (23 moons x 4 steps)
+* F6 comets: the ladder at +5 yr by group
+F2 currently reads the 0.025 d full run on the OLD fixture (inner planets and the Moon do not depend on the fixture); it is regenerated from the r4 full run when that finishes (`--full-dir`, `--candidate restated_ast_ring_kbo_c22`).
