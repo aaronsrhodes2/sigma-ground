@@ -54,4 +54,11 @@ Made by `scripts/make_shootout_figures.py` from the stored runs (palette: the va
 * F5 moon step-convergence heatmap (23 moons x 4 steps)
 * F6 comets: the ladder at +5 yr by group
 * F7 the 30 heaviest asteroids scored as bodies (gravity only -> + relativity -> + the other asteroids), per asteroid
+* F8 the three slow moons added in r5 (Himalia, Nereid, Helene), error against lead time, two windows
 F2 currently reads the 0.025 d full run on the OLD fixture (inner planets and the Moon do not depend on the fixture); it is regenerated from the r4 full run when that finishes (`--full-dir`, `--candidate restated_ast_ring_kbo_c22`).
+
+# Slow moons on the r5 fixture (2026-10-20)
+Run `D:/datasets/sigma_runs/r5_moons` (2 windows, J2010 and J2015, 5 yr, step 0.0125 d, candidate stack; 52,000 s wall each), raw data `rolling_shootout_r5_moons_0.0125.json`, table `MOON_SCORES_R5.md` (`scripts/moon_scores_r5.py`), figure F8.
+Median of the two windows at +5 yr: Himalia 12.6 km (1.0 and 24.2), Nereid 5,496 km, Helene 5,353 km; for scale the same run gives the Moon 0.3, Pluto 10.4, Jupiter 0.6, Titan 222, Io 1,047, Triton 1,376 km.
+* Himalia is scored. Nereid and Helene grow almost linearly with lead time (Helene about 1,000 km per year in both windows), which looks like a period error; the cause is NOT tested. Candidates, none run: planetary J2 (the engine has a j2 toggle; the restated predictors do not set it for the giants), Helene's co-orbital partner Dione's mass, Nereid's eccentricity (0.75) against the step.
+* The other 20 of the 23 moons fetched from Horizons have periods under about 4 days and are not scoreable at 0.0125 d (planet-centred sub-integrator needed; separate work, not started).

@@ -218,3 +218,9 @@ Remaining: Pluto 9.8 km (Charon: the Pluto-Charon offset; the unplaced KBOs add 
   comes from other asteroids' PATHS, which are test-particle paths (the asteroids do not pull on each other in the pre-pass), accurate to ~km for the heavy ones; 71 of 90 improving, not 90 of 90, is the honest count.
 * Not modelled: Yarkovsky and other non-gravitational forces (absent from these solutions), the asteroids' mutual perturbations in their own paths (the likely floor, untested), the ring and Kuiper-belt objects (negligible here).
 * Wording: this is agreement with JPL's dynamics for these bodies, not their real positions.
+
+## C10. Three slow moons scored (2026-10-20): one supported, two open
+r5 fixture (r4 plus Himalia, Nereid, Helene as bodies moved rigidly with their planet systems; 2 tests). 2 windows, 5 yr, step 0.0125 d, candidate stack. Data `v2physics_restated/rolling_shootout_r5_moons_0.0125.json`, table `MOON_SCORES_R5.md`, figure F8.
+* Himalia: +5 yr 1.0 km (J2010) and 24.2 km (J2015) against DE440: supported, with a window spread worth a look.
+* Nereid 2,526 / 8,465 km and Helene 5,287 / 5,418 km at +5 yr, growing almost linearly with lead time: NOT supported at this level. Disproof entry candidates, untested causes: planetary J2 not set for the giants, Dione's mass, step against Nereid's eccentric orbit.
+* Moons faster than about 4 days remain unscored (not a failure of the physics claim, a limit of the integrator at this step).

@@ -278,6 +278,30 @@ def f7_asteroids(out: Path):
     save(fig, out / "F7_asteroids_scored.png", {"lead_yr": 5, "windows": ["j2005", "j2010", "j2015"], "median_km_by_asteroid": {n: v for n, v in items}})
 
 
+def f8_slow_moons(out: Path):
+    sc = json.loads((RES / "MOON_SCORES_R5.json").read_text())["bodies"]
+    names = ["Himalia", "Nereid", "Helene"]
+    cols = {"Himalia": BLUE, "Nereid": ORANGE, "Helene": AQUA}
+    fig, ax = plt.subplots(figsize=(8.5, 5.6))
+    fig.subplots_adjust(left=0.1, right=0.97, top=0.79, bottom=0.12)
+    leads = np.arange(1, 6)
+    for nm in names:
+        for w, v in sorted(sc[nm].items()):
+            ax.plot(leads, [v[str(k)] for k in leads], color=cols[nm], linewidth=2, marker="o", markersize=5, markeredgecolor=SURFACE, markeredgewidth=1, linestyle="-" if float(w) < 2456000 else "--")
+        last = max(max(v.values()) for v in sc[nm].values())
+        ax.annotate(nm, (5, last), xytext=(5, 0), textcoords="offset points", fontsize=9, color=INK, va="center", ha="left")
+    ax.set_yscale("log")
+    ax.set_xticks(leads, [f"+{k} yr" for k in leads])
+    ax.set_xlim(0.8, 5.7)
+    ax.set_ylabel("position error against DE440 (km, log scale)")
+    clean(ax, "y")
+    from matplotlib.lines import Line2D
+    legend_row(fig, [Line2D([], [], color=INK2, linewidth=2), Line2D([], [], color=INK2, linewidth=2, linestyle="--")], ["window J2010", "window J2015"], y=0.835)
+    title(fig, "Himalia is scored to 1-24 km; Nereid and Helene drift by thousands",
+          "Three slow moons added to the corrected fixture (r5), step 0.0125 d, candidate stack. Nereid and Helene grow almost linearly with lead time, the signature of a wrong orbital period. The cause is not yet tested.")
+    save(fig, out / "F8_slow_moons.png", {"dt_days": 0.0125, "windows_jd": [2455197.5, 2457023.8], "err_km": sc})
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=RES / "figures")
@@ -299,6 +323,7 @@ def main() -> int:
     f5_moons(a.out)
     f6_comets(a.out)
     f7_asteroids(a.out)
+    f8_slow_moons(a.out)
     return 0
 
 
