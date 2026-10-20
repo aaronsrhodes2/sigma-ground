@@ -53,4 +53,5 @@ Made by `scripts/make_shootout_figures.py` from the stored runs (palette: the va
 * F4 the fixture repair: giants' planet-centre error at +5 yr, old fixture against r4
 * F5 moon step-convergence heatmap (23 moons x 4 steps)
 * F6 comets: the ladder at +5 yr by group
+* F7 the 30 heaviest asteroids scored as bodies (gravity only -> + relativity -> + the other asteroids), per asteroid
 F2 currently reads the 0.025 d full run on the OLD fixture (inner planets and the Moon do not depend on the fixture); it is regenerated from the r4 full run when that finishes (`--full-dir`, `--candidate restated_ast_ring_kbo_c22`).

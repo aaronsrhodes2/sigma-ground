@@ -202,3 +202,19 @@ Confirmation (full 33-body system, step 0.0125 d, candidate = asteroids + ring +
 Uranus 796 -> **0.14**; Neptune 478 -> **0.13**; Pluto 31.5 -> **9.8**; Jupiter 4.06 -> **2.18**; Saturn 0.19 -> 0.13; inner planets and the Moon unchanged (Earth 0.05, Moon 0.32, Mars 0.10).
 Moons under r4: relative orbits preserved (Miranda 7,831 vs 8,137, Triton 501 vs 597, Charon 78 vs 113, Ariel 269 vs 859, Umbriel 474 vs 1,189 improved; Titania 1,364 vs 963 and Oberon 1,442 vs 1,120 somewhat worse, within their ~1,000 km model floor); Io, Europa, Ganymede, Callisto, Mimas, the Saturnian moons unchanged.
 Remaining: Pluto 9.8 km (Charon: the Pluto-Charon offset; the unplaced KBOs add to it), Jupiter 2.2 km, the fast-moon floors. USE THE r4 FIXTURE FOR EVERY FUTURE SHOOT-OUT RUN.
+
+## C9. The 30 heaviest asteroids scored as bodies (2026-10-19): the ladder, supported
+`scripts/asteroid_ladder.py`: our propagation from JPL's barycentric state at the window start (J2005, J2010, J2015) against JPL's states at +1..+5 yr of the same solution (Horizons, DE441 planets, its 16 massive asteroids; no non-gravitational section in these solutions).
+90 runs (30 asteroids x 3 windows), 0 failures. Data and log: `fixtures/horizons_asteroids/asteroid_ladder.json`, figure F7. Median position error, km, at +1 / +3 / +5 yr:
+
+| rung | +1 yr | +3 yr | +5 yr | better than the previous rung (+5 yr) |
+|---|---|---|---|---|
+| R0 gravity only (Sun + nine planet systems) | 4.09 | 34.5 | 61.1 | - |
+| R1 + the Sun's 1PN term | 0.25 | 3.12 | 10.0 | 76 of 90 |
+| R4 + the pull of DE440's other asteroids (the target's own mass excluded) | **0.13** | **1.44** | **2.56** | 71 of 90 |
+
+* R4 beats gravity-only in 89 of 90 runs. Same result for the 5 heaviest (58.4 -> 7.2 -> 2.6 km, 15 runs) and the other 25 (61.7 -> 10.0 -> 2.6 km, 75 runs). Median R4 by window: J2005 2.1, J2010 3.4, J2015 3.0 km.
+* Largest R4 residuals at +5 yr: 16 Psyche (J2015) 17.6, 39 Laetitia 16.6, 375 Ursula 11.6, 566 Stereoskopia 11.6 and 9.3, 107 Camilla 9.6 km. A few asteroids (52 Europa, 386 Siegena, 566 Stereoskopia, 29 Amphitrite) are better with relativity alone than with the asteroid pull: their pull
+  comes from other asteroids' PATHS, which are test-particle paths (the asteroids do not pull on each other in the pre-pass), accurate to ~km for the heavy ones; 71 of 90 improving, not 90 of 90, is the honest count.
+* Not modelled: Yarkovsky and other non-gravitational forces (absent from these solutions), the asteroids' mutual perturbations in their own paths (the likely floor, untested), the ring and Kuiper-belt objects (negligible here).
+* Wording: this is agreement with JPL's dynamics for these bodies, not their real positions.

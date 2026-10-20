@@ -250,6 +250,34 @@ def f6_comets(out: Path):
     save(fig, out / "F6_comet_ladder.png", {"lead_yr": 5, "groups": {g: len(rs) for g, rs in groups.items()}, "median_km": vals})
 
 
+def f7_asteroids(out: Path):
+    rows = json.loads((FX / "horizons_asteroids" / "asteroid_ladder.json").read_text())
+    by = {}
+    for r in rows:
+        by.setdefault((r["asteroid"], r["name"].split("(")[0].strip()), []).append(r)
+    items = []
+    for (n, name), rs in by.items():
+        items.append((name, {k: statistics.median(r["err_km"][k][4] for r in rs) for k in ("R0", "R1", "R4")}))
+    items.sort(key=lambda t: t[1]["R0"])
+    fig, ax = plt.subplots(figsize=(9.5, 9.0))
+    fig.subplots_adjust(left=0.2, right=0.95, top=0.85, bottom=0.07)
+    y = np.arange(len(items))
+    for yi, (name, v) in zip(y, items):
+        ax.plot([v["R4"], v["R0"]], [yi, yi], color=GRAY, linewidth=1.8, zorder=1)
+        ax.scatter([v["R0"]], [yi], s=46, color=ORANGE, zorder=3, edgecolor=SURFACE, linewidth=1)
+        ax.scatter([v["R1"]], [yi], s=34, marker="D", facecolor=SURFACE, edgecolor=AQUA, linewidth=1.8, zorder=4)
+        ax.scatter([v["R4"]], [yi], s=46, color=BLUE, zorder=3, edgecolor=SURFACE, linewidth=1)
+    ax.set_yticks(y, [t[0] for t in items], fontsize=8.5)
+    ax.set_xscale("log")
+    ax.set_xlabel("position error at +5 yr against JPL's own solution (km, log scale, median of three windows)")
+    clean(ax, "x")
+    from matplotlib.lines import Line2D
+    legend_row(fig, [Line2D([], [], marker="o", color="none", markerfacecolor=ORANGE, markersize=8), Line2D([], [], marker="D", color="none", markerfacecolor=SURFACE, markeredgecolor=AQUA, markeredgewidth=2, markersize=7),
+                     Line2D([], [], marker="o", color="none", markerfacecolor=BLUE, markersize=8)], ["gravity only", "+ the Sun's relativity", "+ the pull of the other asteroids"], y=0.865)
+    title(fig, "Asteroids as scored bodies: 61 km to 2.6 km", "The 30 heaviest of DE440's 343 asteroids, 90 runs (3 windows), our propagation from JPL's state against JPL's later states. The other asteroids' pull helps 89 of 90 runs.")
+    save(fig, out / "F7_asteroids_scored.png", {"lead_yr": 5, "windows": ["j2005", "j2010", "j2015"], "median_km_by_asteroid": {n: v for n, v in items}})
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=RES / "figures")
@@ -270,6 +298,7 @@ def main() -> int:
     f4_fixture(a.out, fine_old, fine_r4, a.fine_candidate)
     f5_moons(a.out)
     f6_comets(a.out)
+    f7_asteroids(a.out)
     return 0
 
 
