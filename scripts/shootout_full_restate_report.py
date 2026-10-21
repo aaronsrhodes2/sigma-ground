@@ -78,14 +78,16 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("restate_dir", type=Path)
     ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--candidate", default="restated_ast_ring_c22", help="predictor name of the candidate stack (r4 run: restated_ast_ring_kbo_c22)")
+    ap.add_argument("--label", default="SHOOTOUT_FULL_RESTATED", help="output file stem (a new label keeps the earlier tables)")
     a = ap.parse_args()
     new = load([a.restate_dir / "rolling_shootout_short.json", a.restate_dir / "rolling_shootout_long.json"])
     r2 = load([V2 / "rolling_shootout_short_v2physics_r2.json", V2 / "rolling_shootout_long_v2physics_r2.json"], {"de440_stack"})["de440_stack"]
-    cand = new.get("restated_ast_ring_c22", {})
+    cand = new.get(a.candidate, {})
     ctrl = new.get("de440_stack", {})
     noring = new.get("restated_ast_c22", {})
     lines = ["# Full-system shoot-out restated (step 0.025 d)", "",
-             "Median heliocentric position error, km. r2 = stored baseline (0.05 d, no asteroids, ring or C22); control = same stack at 0.025 d; candidate = + DE440's 343 asteroids + 36-point ring + the Moon's C22.",
+             "Median heliocentric position error, km. r2 = stored baseline (0.05 d, no asteroids, ring or C22); control = same stack at 0.025 d; candidate = + DE440's 343 asteroids + 36-point ring + the Moon's C22" + (" + seven identified Kuiper-belt objects (run on the r4 fixture)." if "kbo" in a.candidate else "."),
              f"Windows: candidate {len([w for w in SHORT5 if w in cand])} five-year / {len([w for w in LONG20 if w in cand])} twenty-year; control {len([w for w in CONTROL_W if w in ctrl])}; ring pair {len([w for w in RING_W if w in noring])}.", ""]
     rows = []
 
@@ -109,7 +111,7 @@ def main() -> int:
     heads = [m for ms in MOONS.values() for m in ms if m not in LIMITED]
     table("Moons (headline: not integrator-limited at this step)", heads, leads=(1, 5, 20))
     table("Integrator-limited fast moons (own table, never averaged into the headline)", [m for m in LIMITED], leads=(1, 5))
-    lines.extend(["## The ring, with and without (windows J2000, J2003, 20 years)", "", "| body | lead | candidate without ring | candidate with ring | change |", "|---|---|---|---|---|"])
+    lines.extend(["## The ring, with and without (windows J2000, J2003, 20 years)", "", "| body | lead | candidate without ring" + (" or KBOs" if "kbo" in a.candidate else "") + " | candidate with ring" + (" and KBOs" if "kbo" in a.candidate else "") + " | change |", "|---|---|---|---|---|"])
     for b in ["Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]:
         for lead in (5, 10, 20):
             n0 = med(cells(noring, RING_W, b, lead))
@@ -120,8 +122,8 @@ def main() -> int:
     print(text)
     if a.out:
         a.out.mkdir(parents=True, exist_ok=True)
-        (a.out / "SHOOTOUT_FULL_RESTATED.md").write_text(text + "\n", encoding="utf-8")
-        (a.out / "SHOOTOUT_FULL_RESTATED.json").write_text(json.dumps(rows, indent=1), encoding="utf-8")
+        (a.out / f"{a.label}.md").write_text(text + "\n", encoding="utf-8")
+        (a.out / f"{a.label}.json").write_text(json.dumps(rows, indent=1), encoding="utf-8")
     return 0
 
 

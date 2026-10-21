@@ -55,10 +55,28 @@ Made by `scripts/make_shootout_figures.py` from the stored runs (palette: the va
 * F6 comets: the ladder at +5 yr by group
 * F7 the 30 heaviest asteroids scored as bodies (gravity only -> + relativity -> + the other asteroids), per asteroid
 * F8 the three slow moons added in r5 (Himalia, Nereid, Helene), error against lead time, two windows
-F2 currently reads the 0.025 d full run on the OLD fixture (inner planets and the Moon do not depend on the fixture); it is regenerated from the r4 full run when that finishes (`--full-dir`, `--candidate restated_ast_ring_kbo_c22`).
+F2 now reads the full r4 run (below); regenerate with `python scripts/make_shootout_figures.py --full-short rolling_shootout_r4_full_short_0.025.json --full-long rolling_shootout_r4_full_long_0.025.json --candidate restated_ast_ring_kbo_c22`.
 
 # Slow moons on the r5 fixture (2026-10-20)
 Run `D:/datasets/sigma_runs/r5_moons` (2 windows, J2010 and J2015, 5 yr, step 0.0125 d, candidate stack; 52,000 s wall each), raw data `rolling_shootout_r5_moons_0.0125.json`, table `MOON_SCORES_R5.md` (`scripts/moon_scores_r5.py`), figure F8.
 Median of the two windows at +5 yr: Himalia 12.6 km (1.0 and 24.2), Nereid 5,496 km, Helene 5,353 km; for scale the same run gives the Moon 0.3, Pluto 10.4, Jupiter 0.6, Titan 222, Io 1,047, Triton 1,376 km.
 * Himalia is scored. Nereid and Helene grow almost linearly with lead time (Helene about 1,000 km per year in both windows), which looks like a period error; the cause is NOT tested. Candidates, none run: planetary J2 (the engine has a j2 toggle; the restated predictors do not set it for the giants), Helene's co-orbital partner Dione's mass, Nereid's eccentricity (0.75) against the step.
 * The other 20 of the 23 moons fetched from Horizons have periods under about 4 days and are not scoreable at 0.0125 d (planet-centred sub-integrator needed; separate work, not started).
+
+# Full 33-body shoot-out on the r4 fixture (finished 2026-10-21)
+29 jobs, 0 failed, 134,380 s wall, step 0.025 d. Candidate = DE440's 343 asteroids + 36-point ring + seven identified KBOs + the Moon's C22, on the r4 fixture. Raw runs `rolling_shootout_r4_full_short_0.025.json` / `_long_0.025.json`, table `SHOOTOUT_FULL_RESTATED_r4.md` (the earlier `SHOOTOUT_FULL_RESTATED.md` is unchanged). Median km, candidate against the r2 baseline:
+| body | lead | r2 | candidate |
+|---|---|---|---|
+| Moon | +5 yr | 3.90 | 0.40 |
+| Moon | +20 yr | 14.67 | 0.95 |
+| Earth | +5 yr | 0.45 | 0.06 |
+| Uranus | +5 yr | 778 | 0.21 |
+| Uranus | +20 yr | 3,924 | 1.17 |
+| Neptune | +5 yr | 441 | 0.21 |
+| Neptune | +20 yr | 1,673 | 1.33 |
+| Pluto | +5 yr | 43.4 | 11.4 |
+| Pluto | +20 yr | 279 | 44.5 |
+| Jupiter | +20 yr | 67.6 | 20.6 |
+* Giants' planet-centre errors fall by 100-3,000x (Uranus +20 yr 3,924 -> 1.17 km), the C8 repair seen over 21 windows. Pluto (11.4 km at +5 yr) and Jupiter (5.3 km at +5 yr, step-limited at 0.025 d; 2.2 km at 0.0125 d) remain the largest planet-centre residuals.
+* Moons not in the integrator-limited table improve against r2 in nearly every case (Triton +20 yr 18,918 -> 2,319 km, Charon 957 -> 368, Ariel 377,214 -> 42,401); not better than r2: Callisto (0 of 16 windows: 86.5 vs 203 km at +5 yr), Oberon at +5 yr (0 of 16), Titania, Iapetus, Phoebe (about even).
+* Ring and KBOs (windows J2000, J2003, vs the no-ring/no-KBO stack on r4): Neptune +20 yr 30.1 -> 1.19, Uranus 16.3 -> 1.03, Saturn 6.7 -> 1.31 km; Pluto +20 yr 51.5 -> 44.7 km.

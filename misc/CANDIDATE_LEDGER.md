@@ -224,3 +224,8 @@ r5 fixture (r4 plus Himalia, Nereid, Helene as bodies moved rigidly with their p
 * Himalia: +5 yr 1.0 km (J2010) and 24.2 km (J2015) against DE440: supported, with a window spread worth a look.
 * Nereid 2,526 / 8,465 km and Helene 5,287 / 5,418 km at +5 yr, growing almost linearly with lead time: NOT supported at this level. Disproof entry candidates, untested causes: planetary J2 not set for the giants, Dione's mass, step against Nereid's eccentric orbit.
 * Moons faster than about 4 days remain unscored (not a failure of the physics claim, a limit of the integrator at this step).
+
+## C11. Full 33-body shoot-out on the corrected fixture (2026-10-21): supported over 21 windows
+29 jobs, 0 failed, step 0.025 d, r4 fixture, candidate = 343 asteroids + ring + 7 KBOs + lunar C22. `v2physics_restated/SHOOTOUT_FULL_RESTATED_r4.md`, raw runs beside it, figures F1-F8 regenerated.
+* Against r2 (median km, +5 yr / +20 yr): Moon 3.90/14.67 -> 0.40/0.95; Earth 0.45/1.89 -> 0.06/0.16; Mars 1.26/3.92 -> 0.07/0.19; Uranus 778/3,924 -> 0.21/1.17; Neptune 441/1,673 -> 0.21/1.33; Jupiter +20 yr 67.6 -> 20.6; Pluto 43.4/279 -> 11.4/44.5.
+* Not supported: Callisto is worse than r2 in 16 of 16 windows (86.5 -> 203 km at +5 yr), as before; Oberon at +5 yr worse in 16 of 16. Fast moons stay integrator-limited. Pluto and Jupiter are the largest planet-centre residuals.
