@@ -27,6 +27,15 @@ SYSTEM_OF = {"Amalthea": "Jupiter", "Thebe": "Jupiter", "Himalia": "Jupiter", "J
              "Galatea": "Neptune", "Despina": "Neptune", "Nix": "Pluto", "Hydra": "Pluto", "Kerberos": "Pluto", "Styx": "Pluto"}
 
 
+_GM_RE = re.compile(r"GM[^=\n]*=\s*([-+]?\d+\.?\d*(?:[Ee][-+]?\d+)?)")
+
+
+def parse_gm(text: str) -> float | None:
+    """The first 'GM ... = value' of a Horizons header, km^3/s^2; the value is read up to any '+-' uncertainty ('GM= 0.001496+-0.0005' gives 0.001496)."""
+    m = _GM_RE.search(text)
+    return float(m.group(1)) if m else None
+
+
 def system_offset(snap_orig: dict, planet: str, kernel, seg: int):
     """(dX km, dV km/s) that shift_giant_systems.py applied to the system of `planet` in this snapshot (computed from the ORIGINAL fixture)."""
     POS, VEL = ("x_km", "y_km", "z_km"), ("vx_km_s", "vy_km_s", "vz_km_s")
@@ -57,8 +66,9 @@ def main() -> int:
         f = next((FIX / "horizons_moons").glob(f"horizons_moon_*_{name}.json"))
         t = parse_horizons_comet(f)
         res = json.loads(f.read_text())["result"]
-        m = re.search(r"GM[^=\n]*=\s*([-\d.Ee+]+)", res)
-        gm = float(m.group(1)) if m else 0.0
+        g = parse_gm(res)
+        m = g is not None
+        gm = g if m else 0.0
         hid = int(re.search(r"horizons_moon_(\d+)_", f.name).group(1))
         planet = SYSTEM_OF[name]
         for i, key in enumerate(keys):
