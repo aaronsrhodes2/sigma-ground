@@ -222,7 +222,7 @@ Remaining: Pluto 9.8 km (Charon: the Pluto-Charon offset; the unplaced KBOs add 
 ## C10. Three slow moons scored (2026-10-20): one supported, two open
 r5 fixture (r4 plus Himalia, Nereid, Helene as bodies moved rigidly with their planet systems; 2 tests). 2 windows, 5 yr, step 0.0125 d, candidate stack. Data `v2physics_restated/rolling_shootout_r5_moons_0.0125.json`, table `MOON_SCORES_R5.md`, figure F8.
 * Himalia: +5 yr 1.0 km (J2010) and 24.2 km (J2015) against DE440: supported, with a window spread worth a look.
-* Nereid 2,526 / 8,465 km and Helene 5,287 / 5,418 km at +5 yr, growing almost linearly with lead time: NOT supported at this level. Disproof entry candidates, untested causes: planetary J2 not set for the giants, Dione's mass, step against Nereid's eccentric orbit.
+* Nereid 2,526 / 8,465 km and Helene 5,287 / 5,418 km at +5 yr, growing almost linearly with lead time: NOT supported at this level. Disproof entry candidates, untested causes: Dione's mass, step against Nereid's eccentric orbit. (Correction 2026-10-23: this entry first listed 'planetary J2 not set for the giants'; wrong, the giants' J2/J3/J4 are modelled in the headline stack. Diagnosis: `scripts/slow_moon_diagnosis.py`.)
 * Moons faster than about 4 days remain unscored (not a failure of the physics claim, a limit of the integrator at this step).
 
 ## C11. Full 33-body shoot-out on the corrected fixture (2026-10-21): supported over 21 windows
