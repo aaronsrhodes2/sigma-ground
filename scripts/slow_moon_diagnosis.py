@@ -22,23 +22,23 @@ sys.path.insert(0, str(_ROOT / "scripts"))
 FIXTURE = _ROOT / "sigma_ground/field/interface/fixtures/de440_state_vectors_v2physics_r5.json"
 
 
-def run(moon: str, planet: str, window: str, years: int, variant: str, fix: dict, keep_extra: tuple[str, ...], dv_m_s=None, vec: bool = False, dt_days: float | None = None):
+def run(moon: str, planet: str, window: str, years: int, variant: str, fix: dict, keep_extra: tuple[str, ...], dv_m_s=None, vec: bool = False, dt_days: float | None = None, zonals: bool = False):
     from sigma_ground.field.interface import rolling_shootout as rs
     base = [p for p in rs.canonical_predictors(0.0125) if p.name == "de440_stack"][0]
-    pred = base
+    pred = dataclasses.replace(base, zonal_overrides=rs._MEASURED_ZONALS) if zonals else base
     keep = {"Sun", planet, moon, *keep_extra}
     if variant == "no_zonals":
-        pred = dataclasses.replace(base, toggles=dataclasses.replace(base.toggles, j2_zonal=False, j3_zonal=False, j4_zonal=False))
+        pred = dataclasses.replace(pred, toggles=dataclasses.replace(base.toggles, j2_zonal=False, j3_zonal=False, j4_zonal=False))
     elif variant == "no_tide":
-        pred = dataclasses.replace(base, toggles=dataclasses.replace(base.toggles, tidal_force=False))
+        pred = dataclasses.replace(pred, toggles=dataclasses.replace(base.toggles, tidal_force=False))
     elif variant == "no_srp":
-        pred = dataclasses.replace(base, toggles=dataclasses.replace(base.toggles, srp=False))
+        pred = dataclasses.replace(pred, toggles=dataclasses.replace(base.toggles, srp=False))
     elif variant == "no_triton":
         keep.discard("Triton")
     elif variant == "fine":
-        pred = dataclasses.replace(base, dt_days=0.00625)
+        pred = dataclasses.replace(pred, dt_days=0.00625)
     elif variant == "coarse":
-        pred = dataclasses.replace(base, dt_days=0.025)
+        pred = dataclasses.replace(pred, dt_days=0.025)
     elif variant == "measured_zonals":
         pred = dataclasses.replace(base, zonal_overrides=rs._MEASURED_ZONALS)
     elif variant.startswith(("moon_gm=", "gm_of_", "j2_of_")):
@@ -100,6 +100,7 @@ def main() -> int:
     ap.add_argument("--years", type=int, default=5)
     ap.add_argument("--variants", nargs="+", default=["base"])
     ap.add_argument("--extra", nargs="*", default=[], help="other bodies to keep (e.g. Triton Dione)")
+    ap.add_argument("--zonals", action="store_true", help="use the measured zonals (rolling_shootout._MEASURED_ZONALS) in every variant")
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
     fix = json.loads(FIXTURE.read_text())
@@ -107,7 +108,7 @@ def main() -> int:
     for w in a.windows:
         for v in a.variants:
             t = time.time()
-            e = run(a.moon, a.planet, w, a.years, v, fix, tuple(a.extra))
+            e = run(a.moon, a.planet, w, a.years, v, fix, tuple(a.extra), zonals=a.zonals)
             res.append({"moon": a.moon, "planet": a.planet, "window": w, "variant": v, "err_km": e})
             print(f"{a.moon:8s} {w} {v:10s} " + " ".join(f"{x:9.1f}" for x in e) + f"   [{time.time() - t:.0f}s]", flush=True)
     if a.out:

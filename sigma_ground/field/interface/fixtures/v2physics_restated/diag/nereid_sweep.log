@@ -1,0 +1,16 @@
+14 jobs, 4 workers
+[    251s] done j2010/no_zonals: Nereid   j2010 no_zonals        0.0     388.8     817.8    1295.4    1832.8    2420.3   [250s]
+[    274s] done j2010/no_tide: Nereid   j2010 no_tide          0.0     402.5     844.7    1332.6    1873.6    2470.6   [273s]
+[    302s] done j2010/no_srp: Nereid   j2010 no_srp           0.0     402.5     844.6    1332.6    1873.6    2470.6   [302s]
+[    307s] done j2010/base: Nereid   j2010 base             0.0     402.5     844.6    1332.6    1873.6    2470.6   [307s]
+[    425s] done j2010/coarse: Nereid   j2010 coarse           0.0     402.5     844.6    1332.6    1873.6    2470.6   [151s]
+[    435s] done j2010/no_triton: Nereid   j2010 no_triton        0.0   37998.2   79567.6  125192.8  175309.5  230547.0   [184s]
+[    610s] done j2015/base: Nereid   j2015 base             0.0    1300.6    2763.2    4417.5    6294.2    8448.5   [303s]
+[    670s] done j2015/no_zonals: Nereid   j2015 no_zonals        0.0    1288.5    2742.9    4398.0    6270.3    8410.9   [244s]
+[    703s] done j2015/no_tide: Nereid   j2015 no_tide          0.0    1300.6    2763.2    4417.5    6294.2    8448.5   [268s]
+[    865s] done j2015/no_triton: Nereid   j2015 no_triton        0.0   18493.5   39248.1   62438.9   88585.2  118541.2   [195s]
+[    866s] done j2015/coarse: Nereid   j2015 coarse           0.0    1300.6    2763.2    4417.6    6294.3    8448.6   [163s]
+[    920s] done j2015/no_srp: Nereid   j2015 no_srp           0.0    1300.6    2763.2    4417.5    6294.2    8448.5   [310s]
+[    922s] done j2010/fine: Nereid   j2010 fine             0.0     402.5     844.6    1332.6    1873.5    2470.5   [620s]
+[   1487s] done j2015/fine: Nereid   j2015 fine             0.0    1300.6    2763.2    4417.5    6294.2    8448.6   [622s]
+finished: 14 ok, 0 failed, 1487s wall

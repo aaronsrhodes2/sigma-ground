@@ -1,0 +1,22 @@
+[
+ {
+  "moon": "Helene",
+  "planet": "Saturn",
+  "window": "j2010",
+  "variant": "gm_of_Dione=73.5",
+  "err_km": [
+   1.862645149230957e-09,
+   280.0438453634754
+  ]
+ },
+ {
+  "moon": "Helene",
+  "planet": "Saturn",
+  "window": "j2010",
+  "variant": "gm_of_Dione=72.7",
+  "err_km": [
+   1.862645149230957e-09,
+   758.5345724786845
+  ]
+ }
+]

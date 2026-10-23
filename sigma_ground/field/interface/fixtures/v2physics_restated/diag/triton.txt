@@ -1,0 +1,4 @@
+Triton   j2010 base             0.0     302.2     604.7   [137s]
+Triton   j2010 no_zonals        0.0    5365.5   10961.3   [84s]
+Triton   j2015 base             0.0     246.2     492.7   [114s]
+Triton   j2015 no_zonals        0.0    6496.7   12829.7   [117s]

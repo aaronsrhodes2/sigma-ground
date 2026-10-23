@@ -1,0 +1,2 @@
+Nereid   j2010 gm_of_Neptune=6835098.60       0.0     397.7     834.6   [192s]
+Nereid   j2010 gm_of_Neptune=6835099.50       0.0     400.8     841.2   [187s]

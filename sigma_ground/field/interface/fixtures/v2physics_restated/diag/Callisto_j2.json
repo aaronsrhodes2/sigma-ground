@@ -1,0 +1,24 @@
+[
+ {
+  "moon": "Callisto",
+  "planet": "Jupiter",
+  "window": "j2010",
+  "variant": "j2_of_Jupiter=0.014696",
+  "err_km": [
+   5.960464477539063e-08,
+   1.0347552641327227,
+   2.0595446977516056
+  ]
+ },
+ {
+  "moon": "Callisto",
+  "planet": "Jupiter",
+  "window": "j2010",
+  "variant": "j2_of_Jupiter=0.014716",
+  "err_km": [
+   5.960464477539063e-08,
+   23.783824691604654,
+   47.3563528513507
+  ]
+ }
+]

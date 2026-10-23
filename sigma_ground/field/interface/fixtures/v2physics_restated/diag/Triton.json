@@ -1,0 +1,46 @@
+[
+ {
+  "moon": "Triton",
+  "planet": "Neptune",
+  "window": "j2010",
+  "variant": "base",
+  "err_km": [
+   4.76837158203125e-07,
+   302.2041612917963,
+   604.7309773584193
+  ]
+ },
+ {
+  "moon": "Triton",
+  "planet": "Neptune",
+  "window": "j2010",
+  "variant": "no_zonals",
+  "err_km": [
+   4.76837158203125e-07,
+   5365.458150949206,
+   10961.288659978893
+  ]
+ },
+ {
+  "moon": "Triton",
+  "planet": "Neptune",
+  "window": "j2015",
+  "variant": "base",
+  "err_km": [
+   5.462855929083633e-07,
+   246.22727066957606,
+   492.68840478386096
+  ]
+ },
+ {
+  "moon": "Triton",
+  "planet": "Neptune",
+  "window": "j2015",
+  "variant": "no_zonals",
+  "err_km": [
+   5.462855929083633e-07,
+   6496.709889548661,
+   12829.663038974411
+  ]
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "moon": "Helene",
+  "planet": "Saturn",
+  "window": "j2010",
+  "variant": "base",
+  "err_km": [
+   1.862645149230957e-09,
+   871.5785449393296,
+   1764.191772151224
+  ]
+ },
+ {
+  "moon": "Helene",
+  "planet": "Saturn",
+  "window": "j2010",
+  "variant": "sat_jacobson",
+  "err_km": [
+   1.862645149230957e-09,
+   234.6456049895153,
+   478.8552988718461
+  ]
+ },
+ {
+  "moon": "Helene",
+  "planet": "Saturn",
+  "window": "j2010",
+  "variant": "no_zonals",
+  "err_km": [
+   1.862645149230957e-09,
+   376359.10583837255,
+   655802.612587493
+  ]
+ }
+]
