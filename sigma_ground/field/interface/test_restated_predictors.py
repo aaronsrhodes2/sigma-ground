@@ -59,11 +59,13 @@ class TestPredictors(unittest.TestCase):
         import dataclasses
         base = [p for p in rs.canonical_predictors(0.025) if p.name == "de440_stack"][0]
         for p in rs.restated_predictors(0.025):
-            same = dataclasses.replace(p, name=base.name, description=base.description, lunar_c22=0.0, perturber_sets=())
+            same = dataclasses.replace(p, name=base.name, description=base.description, lunar_c22=0.0, perturber_sets=(), zonal_overrides=())
             self.assertEqual(same, base)
         by = {p.name: p for p in rs.restated_predictors(0.025)}
         self.assertEqual(by["restated_ast_ring_c22"].perturber_sets, ("asteroids", "ring"))
         self.assertEqual(by["restated_c22"].perturber_sets, ())
+        self.assertEqual(by["restated_zon"].perturber_sets, ("asteroids", "ring", "kbo"))              # the new label is the KBO candidate plus measured zonals, nothing else
+        self.assertEqual(by["restated_ast_ring_kbo_c22"].zonal_overrides, ())
 
     @unittest.skipUnless(KERNEL.exists(), "DE440s kernel not available")
     def test_layers_are_built_for_the_right_bodies(self):                            # BUG
@@ -80,6 +82,33 @@ class TestPredictors(unittest.TestCase):
         self.assertGreaterEqual(src.t_end, 40.0 * 86400.0)                          # the table covers the horizon
         self.assertEqual(sorted(kw["rotation_models"]), [names.index("Moon")])
         self.assertAlmostEqual(float(src.gm[:-36].sum()) / 1e9, sum(a["gm_km3_s2"] for a in doc["asteroids"] if a["elements"]), delta=1e-6)
+
+
+class TestZonalOverrides(unittest.TestCase):
+    """C12: measured zonals replace the table's values only for the new label; every stored predictor keeps the table's."""
+
+    def _bodies(self, name):
+        pred = next(p for p in rs.PREDICTORS if p.name == name)
+        fix = json.loads((FIX / "de440_state_vectors_v2physics_r4.json").read_text())
+        bodies, names, _, _ = rs._build_bodies_at_snapshot("j2010", fix, pred)
+        return {n: b for n, b in zip(names, bodies)}
+
+    def test_new_label_carries_the_measured_values(self):                           # BUG: Jupiter J2 14696.514e-6 (Juno), Saturn J2 16290.573e-6 and J4 -935.314e-6 on 60330 km
+        b = self._bodies("restated_zon")
+        self.assertAlmostEqual(b["Jupiter"].j2, 14696.514e-6, delta=1e-12)
+        self.assertAlmostEqual(b["Saturn"].j2, 16290.573e-6, delta=1e-12)
+        self.assertAlmostEqual(b["Saturn"].j4, -935.314e-6, delta=1e-12)
+        self.assertAlmostEqual(b["Saturn"].radius_m, 60330e3, delta=1.0)
+        self.assertAlmostEqual(b["Uranus"].j2, 3.5107e-3, delta=1e-12)               # untouched
+
+    def test_stored_predictors_keep_the_table(self):                                 # BY CONSTRUCTION: the old results stay reproducible
+        b = self._bodies("restated_ast_ring_kbo_c22")
+        self.assertAlmostEqual(b["Jupiter"].j2, 1.4736e-2, delta=1e-12)
+        self.assertAlmostEqual(b["Saturn"].j2, 1.6298e-2, delta=1e-12)
+        self.assertAlmostEqual(b["Saturn"].radius_m, 60268e3, delta=1.0)
+
+    def test_the_measured_j2_r_squared_matches_the_equivalent_value_on_60268_km(self):   # BUG: J2 R^2 is what the force reads; 16290.573e-6 on 60330 km == 16324.108e-6 on 60268 km
+        self.assertAlmostEqual(16290.573e-6 * 60330.0 ** 2, 16324.108e-6 * 60268.0 ** 2, delta=2e-5 * 16324.108e-6 * 60268.0 ** 2)
 
 
 if __name__ == "__main__":

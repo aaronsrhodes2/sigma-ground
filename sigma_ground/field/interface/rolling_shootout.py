@@ -62,7 +62,7 @@ from __future__ import annotations
 import json
 import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace as _dc_replace
 from pathlib import Path
 from typing import Callable
 
@@ -387,6 +387,7 @@ class Predictor:
     kepler_forecast:     bool   = False
     # Candidate layers (misc/CANDIDATE_LEDGER.md), all off by default so every stored predictor is unchanged:
     lunar_c22:           float  = 0.0                  # the Moon's sectoral C22 (reference radius 1738 km) with the IAU rotation model; 0 = off
+    zonal_overrides:     tuple[tuple[str, str, float], ...] = ()   # (body, attribute, value) replacing _BODY_PARAMS entries, e.g. ("Jupiter", "j2", 14696.514e-6); attributes: j2, j3, j4, radius_km
     perturber_sets:      tuple[str, ...] = ()          # "asteroids" (DE440's 343) and/or "ring" (DE440's 36-point Kuiper-belt ring), as prescribed massive sources
 
 
@@ -554,6 +555,12 @@ PREDICTORS.extend(p for p in CANONICAL_PREDICTORS if p.name != "kepler_forecast"
 _DE440_C22M = 2.2380850528171017e-05
 
 
+# Measured zonal harmonics replacing the table's older values (C12). Jupiter: Juno, J2 = 14696.514e-6 +- 0.272e-6 on R = 71492 km (Folkner et al. 2017, as tabulated in arXiv:1708.06177 Table 1).
+# Saturn: Cassini Grand Finale, J2 = 16290.573e-6, J4 = -935.314e-6 (Iess et al. 2019, as tabulated in arXiv:2304.09215 Table IV.1), referred to R = 60330 km (the radius the J2R^2 of
+# the table's 16324.108e-6 on 60268 km converts to exactly, by arithmetic; the radius is not printed on the page that was read).
+_MEASURED_ZONALS = (("Jupiter", "j2", 14696.514e-6), ("Saturn", "j2", 16290.573e-6), ("Saturn", "j4", -935.314e-6), ("Saturn", "radius_km", 60330.0))
+
+
 def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
     """Candidate predictors: the headline stack plus the layers of misc/CANDIDATE_LEDGER.md (C1 asteroids, C3a lunar C22, C5 Kuiper-belt ring). Not part of the canonical set."""
     import dataclasses as _dc
@@ -561,7 +568,9 @@ def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
     rows = [("restated_ast_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids",)), "headline + DE440's asteroids + the Moon's C22"),
             ("restated_ast_ring_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring")), "headline + DE440's asteroids + Kuiper-belt ring + the Moon's C22"),
             ("restated_ast_ring_kbo_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring", "kbo")), "headline + asteroids + ring + the 7 identified Kuiper-belt objects + the Moon's C22"),
-            ("restated_c22", dict(lunar_c22=_DE440_C22M), "headline + the Moon's C22 only")]
+            ("restated_c22", dict(lunar_c22=_DE440_C22M), "headline + the Moon's C22 only"),
+            ("restated_zon", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring", "kbo"), zonal_overrides=_MEASURED_ZONALS),
+             "restated_ast_ring_kbo_c22 + Jupiter's J2 from Juno and Saturn's J2, J4 from the Cassini Grand Finale")]
     return [_dc.replace(base, name=n, description=d, **kw) for n, kw, d in rows]
 
 
@@ -620,6 +629,11 @@ def _build_bodies_at_snapshot(
         pole = (_iau_pole_unit(name, snap_jd) if name in _IAU_POLE_MODELS
                 else params.pole_axis_unit)
 
+        over = {a: v for (n, a, v) in predictor.zonal_overrides if n == name}
+        if over:                                                  # measured values replacing the table's (a new predictor label, the stored ones are untouched)
+            params = _dc_replace(params, **over)
+            r_m = params.radius_km * KM_TO_M
+            area_m2 = math.pi * r_m * r_m
         body = CelestialBody(
             mass_kg=mass,
             position_m=pos,
