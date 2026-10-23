@@ -68,10 +68,10 @@ def test_manifest_routes_the_example_sentences():
 def test_front_door_two_turn_conduction_render(tmp_path):
     import json
     import os
-    from sigma_ground.mcp.front_door import dispatch, Session
+    from sigma_ground.mcp.front_door import dispatch, dispatch_accepting_suggestions, Session
     s = Session()
-    e1 = dispatch("put a hot iron cube on a cold copper slab",
-                  use_llm=False, session=s)
+    e1 = dispatch_accepting_suggestions("put a hot iron cube on a cold copper slab",
+                                        use_llm=False, session=s)
     assert e1["intent"] == "simulate"
     assert s.render_handle and s.render_handle["kind"] == "conduction_field"
     assert "per-cell temperature field" in e1["text"]  # the kind-aware offer

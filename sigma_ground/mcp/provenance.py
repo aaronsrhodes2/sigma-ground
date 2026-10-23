@@ -59,6 +59,11 @@ class ToolResult:
     display : str | None
         The answer in the measurement system the caller used, with the SI value in parentheses ("1 yard (0.9144 m)"). Set by the
         tool contract (mcp/unit_display.py) only when a quantity was given in non-SI units; ``value`` stays SI either way.
+
+    clarification : dict | None
+        Set instead of an answer when the question leaves out an input (the Captain's rule, 2026-10-23: suggest, never
+        fill in): ``{needs, suggested: {name: {value, units, why}}, sentence, follow_up: {question, given}}``. ``value``
+        is None and nothing was computed; sending ``follow_up`` back (after the person agrees) computes with those values.
     """
 
     value: Any
@@ -73,6 +78,7 @@ class ToolResult:
     error: dict[str, Any] | None = None
     assumed: dict[str, Any] | None = None
     display: str | None = None
+    clarification: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """JSON-serializable dict for MCP transport."""
@@ -110,6 +116,8 @@ class ToolResult:
             parts.append(f"interpreted as: {self.interpreted_as}")
         if self.assumed:
             parts.append(f"assumed: {self.assumed}")
+        if self.clarification:
+            parts.append(f"needs input: {self.clarification.get('sentence')}")
         if self.error:
             parts.append(f"error: {self.error.get('code')}: {self.error.get('message')}")
         if self.inputs:

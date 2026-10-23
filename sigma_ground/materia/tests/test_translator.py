@@ -70,7 +70,7 @@ def test_unknown_question_asks_for_clarification():
 
 
 def test_answer_runs_end_to_end():
-    out = answer("How fast does a 5 cm copper ball hit the ground from 10 km?",
+    out = answer("How fast does a 5 cm copper ball hit the ground from 10 km in 15 °C air?",
                  use_qwen=False)
     assert "routed →" in out
     assert "Impact speed" in out and "m/s" in out

@@ -22,7 +22,7 @@ from sigma_ground.mcp.tools.simulation import (
 def test_run_simulation_structured():
     tr = run_simulation("terminal_velocity_drop",
                         {"material_key": "copper", "radius_m": 0.05,
-                         "drop_altitude_m": 10000}).to_dict()
+                         "drop_altitude_m": 10000, "T": 288.15}).to_dict()
     assert tr["value"] is not None
     assert 100 < tr["value"] < 220          # impact speed ≈ 160 m/s
     assert tr["units"] == "m/s"
@@ -31,7 +31,7 @@ def test_run_simulation_structured():
 
 
 def test_simulate_nl_deterministic():
-    tr = simulate("how fast does a 5 cm copper ball hit the ground from 10 km?",
+    tr = simulate("how fast does a 5 cm copper ball hit the ground from 10 km in 15 °C air?",
                   use_llm=False).to_dict()
     assert tr["value"] is not None and 100 < tr["value"] < 220
     assert tr["units"] == "m/s"

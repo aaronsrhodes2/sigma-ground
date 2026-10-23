@@ -1552,10 +1552,14 @@ def quantum_circuit() -> MateriaResult:
 
 def projectile_motion(speed_m_s: float = 30.0,
                       angle_deg: float = 45.0) -> MateriaResult:
-    """Projectile and inclined-plane kinematics: range, maximum height and time
-    of flight (with the full ballistic report), plus motion on a ramp — sliding
-    acceleration, critical angle and speed at the bottom. Sweeps the projectile
-    module."""
+    """Projectile kinematics without air: range, maximum height and time of
+    flight (with the full ballistic report). Sweeps the projectile module.
+
+    The defaults are only SUGGESTIONS now (materia/inputs.py): the front doors
+    never call this without both inputs given. Until 2026-10-23 it also reported
+    ramp and drag rows computed from constants nobody chose (friction 0.1, a 10 m
+    ramp, Cd 0.47 on 0.01 m^2); they are gone, and the answer's value is the range
+    (it was the count of functions called)."""
     import math
     P = "sigma_ground.field.interface.projectile"
     v0 = max(float(speed_m_s), 0.0)
@@ -1565,18 +1569,17 @@ def projectile_motion(speed_m_s: float = 30.0,
         (P, "projectile_range", (v0, ang), {}),
         (P, "projectile_max_height", (v0, ang), {}),
         (P, "projectile_time_of_flight", (v0, ang), {}),
-        (P, "incline_acceleration", (ang,), {"mu_friction": 0.1}),
-        (P, "incline_critical_angle", (0.3,), {}),
-        (P, "incline_sliding_distance", (v0, ang, 0.1), {}),
-        (P, "incline_speed_at_bottom", (10.0, ang), {"mu_friction": 0.1}),
-        (P, "drag_force", (v0, 0.47, 0.01), {}),
     ])
     rng = _pick(vals, "projectile_range")
-    headline = (f"range {rng:.1f} m at {angle_deg:g}°"
+    headline = (f"range {rng:.1f} m at {angle_deg:g}° and {v0:.4g} m/s (no air)"
                 if isinstance(rng, (int, float)) else "ballistics computed")
-    return _domain_result("projectile_motion", "Projectile", vals,
-                          {"speed_m_s": speed_m_s, "angle_deg": angle_deg},
-                          headline, P)
+    r = _domain_result("projectile_motion", "Projectile", vals,
+                       {"speed_m_s": speed_m_s, "angle_deg": angle_deg},
+                       headline, P)
+    r.outputs = {"range_m": rng, "max_height_m": _pick(vals, "projectile_max_height"),
+                 "time_of_flight_s": _pick(vals, "projectile_time_of_flight"),
+                 "v0_m_s": v0, **r.outputs}
+    return r
 
 
 # Particle rest masses for the relativity verb (kg), CODATA 2018, the same set

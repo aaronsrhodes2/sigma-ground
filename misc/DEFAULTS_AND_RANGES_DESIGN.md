@@ -1,5 +1,14 @@
 # Defaults and ranges — answer first, from a table, never ask without answering
 
+> **Superseded 2026-10-23 by the Captain's decision: Mentat never fills in a value by itself.** Rule 2 below ("every
+> value the prompt does not give is filled ... and the system answers with it") is reversed. A missing input is now
+> SUGGESTED (value, units, why) and nothing is computed until the person says yes; the caller then sends the
+> suggestion back as `given` (`sigma_ground/materia/inputs.py`, `simulate(..., given=...)`). The parts that still
+> stand: bounds, "quote, don't compute" (a model's number is kept only if it traces to the question:
+> `translator._qwen_number`), and the precedence of measured database values. This design was never built; the
+> silent fill-ins that existed were older (the scenario functions' Python defaults, the translator's iron / 5 cm /
+> 10 km / Earth fallbacks, Mach at 340.3 m/s) and are the ones rolled back.
+
 Design, 2026-10-13. Written from the Captain's rule and the evidence below; **not yet built** beyond the
 pieces marked done. Review the decisions at the end before any of it touches the live server.
 

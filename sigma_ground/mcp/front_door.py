@@ -41,6 +41,9 @@ class Session:
     last_renderable: dict | None = None
     last_intent: str | None = None
     pending_clarification: dict | None = None
+    # A suggestion Mentat made for inputs the question left out ({question, given, mode}):
+    # the next "yes" runs the question with those values given (materia/inputs.py).
+    pending_suggestion: dict | None = None
 
 
 # Cue words for the deterministic classifier. Materia's own router is the real
@@ -271,7 +274,8 @@ def _announce_scene_render(name: str, scene: dict) -> dict:
 
 
 def dispatch(text: str, *, use_llm: bool = True,
-             session: Session | None = None, mode: str | None = None) -> dict:
+             session: Session | None = None, mode: str | None = None,
+             given: dict | None = None) -> dict:
     """Classify one sentence and route it. Returns an envelope dict (keys: intent,
     text, value, can_render, render_handle, saved, source). Pass the same
     ``session`` across turns so a "yes" renders the last simulation.
@@ -299,6 +303,13 @@ def dispatch(text: str, *, use_llm: bool = True,
     #    "/simulate yes"; "yes" is never a real ask/sim query. (The bug this fixes:
     #    "/simulate yes" used to re-route "yes" → the model hallucinated the demo
     #    example instead of rendering the sim just computed.) ASK is the exception.
+    # 0. A "yes" to suggested inputs: the question runs again with exactly those values.
+    if session.pending_suggestion and _is_affirmative(text) and mode != "ask":
+        pend = session.pending_suggestion
+        session.pending_suggestion = None
+        return dispatch(pend["question"], use_llm=use_llm, session=session,
+                        mode=pend.get("mode"), given=pend["given"])
+    session.pending_suggestion = None
     if session.render_handle and _is_affirmative(text) and mode != "ask":
         handle = session.render_handle
         session.render_handle = None
@@ -411,7 +422,7 @@ def dispatch(text: str, *, use_llm: bool = True,
                                      or "strike_bell" in verbs
                                      or _t._has_object_context(text.lower()))
     if is_sim:
-        env = _run_simulation(text, spec, use_llm=use_llm, session=session)
+        env = _run_simulation(text, spec, use_llm=use_llm, session=session, given=given, mode=mode)
         # RENDER mode (or an explicit "render"/"draw" cue) → build the watchable
         # scene right now, one shot — no "reply yes" round-trip.
         if env.get("render_handle") and (mode == "render" or _has(text, _RENDER_CUES)):
@@ -472,7 +483,23 @@ def dispatch(text: str, *, use_llm: bool = True,
     return env
 
 
-def _run_simulation(text, spec, *, use_llm, session) -> dict:
+def dispatch_accepting_suggestions(text: str, *, session: Session | None = None,
+                                   **kw) -> dict:
+    """dispatch(), then "yes" to each input Mentat suggests: for demos and tests whose
+    prompt means "use your suggestions". Nothing is filled in silently even here:
+    every accepted suggestion rides in the envelope (``accepted_suggestions``)."""
+    session = session or Session()
+    env = dispatch(text, session=session, **kw)
+    accepted = []
+    while env.get("intent") == "clarify" and env.get("clarification") and len(accepted) < 3:
+        accepted.append(env["clarification"])
+        env = dispatch("yes", session=session, use_llm=kw.get("use_llm", True))
+    if accepted:
+        env["accepted_suggestions"] = accepted
+    return env
+
+
+def _run_simulation(text, spec, *, use_llm, session, given=None, mode=None) -> dict:
     """Run a compiled Materia spec under the infallibility gate, narrate it, and —
     if it grounded a real object — stash a render-handle and offer the render."""
     from sigma_ground import materia
@@ -486,6 +513,17 @@ def _run_simulation(text, spec, *, use_llm, session) -> dict:
                        "router not self-consistent — uncertain which simulation")
         return _envelope("clarify", text=_g.refuse_text(v), source=spec.source)
 
+    # Suggest, never fill in (the Captain, 2026-10-23): an input the sentence leaves out
+    # is offered, and the next "yes" runs it with exactly the suggested values.
+    from sigma_ground.materia import inputs as _mi
+    _mi.apply_given(spec, given)
+    missing = _mi.missing_inputs(spec)
+    if missing:
+        clar = _mi.clarification(text, missing, given)
+        session.pending_suggestion = {**clar["follow_up"], "mode": mode}
+        env = _envelope("clarify", text=f"❓ {clar['sentence']}", source=spec.source)
+        env["clarification"] = clar
+        return env
     results = materia.run_spec(spec)
     verdict = _g.gate_results(results)
     if not verdict.grounded:                      # right-or-refuse

@@ -9,7 +9,7 @@ from sigma_ground.mcp import front_door
 
 def test_literal_pliers_prompt_renders_end_to_end():
     text = "Simulate a pair of pliers that are being open and closed over time."
-    env = front_door.dispatch(text, mode="render", use_llm=False)
+    env = front_door.dispatch_accepting_suggestions(text, mode="render", use_llm=False)
     assert env["intent"] == "render"
     assert env["source"] == "radiance"
     assert env["saved"] is not None
@@ -20,7 +20,7 @@ def test_literal_pliers_prompt_renders_end_to_end():
 def test_literal_bell_prompt_renders_end_to_end_with_audio():
     text = ("Simulate a hanging bell being struck by a stone, simulate the "
            "noise in an earth atmosphere.")
-    env = front_door.dispatch(text, mode="render", use_llm=False)
+    env = front_door.dispatch_accepting_suggestions(text, mode="render", use_llm=False)
     assert env["intent"] == "render"
     assert env["source"] == "radiance"
     assert env["saved"] is not None
@@ -36,7 +36,7 @@ def test_auto_mode_also_offers_the_render_without_a_forced_flag():
     UNFORCED (auto-classified, no mode= override) path also recognizes them
     as simulations and offers a render, not just the forced-mode path."""
     session = front_door.Session()
-    env = front_door.dispatch(
+    env = front_door.dispatch_accepting_suggestions(
         "Simulate a pair of pliers that are being open and closed over time.",
         use_llm=False, session=session)
     assert env["intent"] == "simulate"

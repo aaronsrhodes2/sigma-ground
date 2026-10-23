@@ -222,14 +222,17 @@ def _material_synonyms() -> dict:
     return syn
 
 
-def _extract_material(q: str) -> str:
+def _extract_material(q: str):
+    """The material the question names, or None. (Until 2026-10-23 this fell
+    back to "iron" without a word; a material the question doesn't name is now
+    suggested instead, see inputs.py.)"""
     low = q.lower()
     syn = _material_synonyms()
     # prefer the longest phrase match (so "mild steel" beats "steel")
     for phrase in sorted(syn, key=len, reverse=True):
         if re.search(r"\b" + re.escape(phrase) + r"\b", low):
             return syn[phrase]
-    return "iron"
+    return None
 
 
 # Generic material-CLASS words: naming a class ("a metal", "a polymer") still
@@ -280,7 +283,8 @@ def _named_material(low: str) -> bool:
 
 
 def _extract_lengths(q: str) -> dict:
-    """Pull radius and altitude (metres) from the question, with defaults.
+    """Pull radius and altitude (metres) from the question. A length the
+    question doesn't give is None (the *_found flags say which were read).
 
     Units disambiguate most cases: mm/cm → a sphere radius, km/mi → a drop
     altitude. Only bare metres/feet need context (a size word → radius, else
@@ -288,7 +292,7 @@ def _extract_lengths(q: str) -> dict:
     ball" is a size, not a height.
     """
     low = q.lower()
-    radius, altitude = 0.05, 10000.0
+    radius = altitude = None
     radius_found = altitude_found = False
     for m in re.finditer(r"(\d+(?:\.\d+)?)\s*([a-z]+)", low):
         unit = m.group(2)
@@ -592,10 +596,12 @@ def _params_for(verb: str, q: str) -> dict:
     L = _extract_lengths(q)
     p = {}
     if "material_key" in slots:
-        p["material_key"] = _extract_material(q)
-    if "radius_m" in slots:
+        mat = _extract_material(q)
+        if mat:
+            p["material_key"] = mat
+    if "radius_m" in slots and L["radius_found"]:
         p["radius_m"] = max(L["radius_m"], _ATOMIC_FLOOR_M)  # ≥ ~1 atom; no true zero
-    if "drop_altitude_m" in slots:
+    if "drop_altitude_m" in slots and L["altitude_found"]:
         p["drop_altitude_m"] = L["drop_altitude_m"]
     if "start_altitude_m" in slots and L["altitude_found"]:
         p["start_altitude_m"] = L["drop_altitude_m"]   # else scenario default (35 km)
@@ -651,6 +657,14 @@ def _params_for(verb: str, q: str) -> dict:
         spd = _extract_speed(q)
         if spd is not None:
             p["launch_speed_m_s"] = spd
+    if "speed_m_s" in slots:                  # projectile_motion: "at 100 miles per hour"
+        spd = _extract_speed(q)
+        if spd is not None:
+            p["speed_m_s"] = spd
+    if "angle_deg" in slots:                  # projectile_motion: "at 45 degrees"
+        ang = _extract_angle_deg(q)
+        if ang is not None:
+            p["angle_deg"] = ang
     if "duration_s" in slots:
         dur = _extract_duration_s(q)
         if dur is not None:
@@ -659,18 +673,48 @@ def _params_for(verb: str, q: str) -> dict:
         envl = _extract_environment(q)
         if envl:
             p["environment"] = envl
+    _fill_by_dimension(verb, q, p)
     return p
 
 
+def _fill_by_dimension(verb: str, q: str, p: dict) -> None:
+    """A number with a unit that can only mean one input: when the question has
+    exactly ONE quantity of some dimension (one temperature, one speed) and the
+    verb has exactly ONE number input of that dimension still unfilled by the
+    specific extractors above, that input is the quantity, converted with Mentat's
+    unit tool. Anything less certain stays missing and is suggested."""
+    from . import quantities as Q
+    from .inputs import verb_inputs
+    found = Q.scan(q)
+    if not found:
+        return
+    nums = {n: m for n, m in verb_inputs(verb).items() if m["kind"] == "number" and m["units"]}
+    for name, meta in nums.items():
+        if name in p:
+            continue
+        same = [n for n, m in nums.items() if Q.same_dimension(m["units"], meta["units"])]
+        hits = [f for f in found if Q.same_dimension(f["unit"], meta["units"])]
+        if len(same) == 1 and len(hits) == 1:
+            v = Q.convert(hits[0]["value"], hits[0]["unit"], meta["units"])
+            if v is not None:
+                p[name] = v
+
+
 def _extract_speed(q: str):
-    low = q.lower()
-    m = re.search(r"(\d+(?:\.\d+)?)\s*(?:m/s|mps|meters? per second)\b", low)
-    if m:
-        return float(m.group(1))
-    m = re.search(r"mach\s*(\d+(?:\.\d+)?)", low)
-    if m:
-        return float(m.group(1)) * 340.3
-    return None
+    """A speed in any unit the question uses ("100 miles per hour", "60 km/h",
+    "30 ft/s", "20 m/s"), in m/s by Mentat's unit tool; None if it names none.
+    (A Mach number is not turned into a speed here: that needs a speed of sound,
+    which was assumed as 340.3 m/s without a word until 2026-10-23.)"""
+    from . import quantities as Q
+    hit = Q.find(q, "m/s")
+    return hit[0] if hit else None
+
+
+def _extract_angle_deg(q: str):
+    """A launch angle in degrees ("45 degrees", "45°", "a 30-degree angle", "0.5 rad")."""
+    from . import quantities as Q
+    hit = Q.find(q, "degree")
+    return hit[0] if hit else None
 
 
 _BODIES = ("earth", "moon", "mars", "sun", "jupiter", "saturn", "venus",
@@ -755,7 +799,7 @@ def _extract_orbit(q: str, altitude_given: bool = False) -> dict:
         return {"central_body": centres[0]}
     if others:
         return {"central_body": others[0]}
-    return {"central_body": "earth"}
+    return {}                                  # no body named: suggested, never assumed
 
 
 def _auto_bind(steps):
@@ -985,7 +1029,9 @@ def _qwen_translate(question: str) -> SimulationSpec | None:
             if slot not in p_in or p_in[slot] is None:
                 continue
             if slot == "material_key":
-                params[slot] = _coerce_material(p_in[slot])
+                mat = _coerce_material(p_in[slot])
+                if mat:
+                    params[slot] = mat
             elif declared[slot].get("unit") in ("object", "body", "environment",
                                                 "particle"):
                 # STRING slots survive (manifest-driven) — same rule as
@@ -994,10 +1040,10 @@ def _qwen_translate(question: str) -> SimulationSpec | None:
                 if v:
                     params[slot] = v
             else:
-                try:
-                    params[slot] = float(p_in[slot])
-                except (TypeError, ValueError):
-                    pass
+                v = _qwen_number(question, verb, slot, p_in[slot])
+                if v is not None:
+                    params[slot] = v
+        params.update(_params_for(verb, question))     # the question's own words win
         # Fix C — same guard as _qwen_plan: no force-fit drop onto a static/fluid scene.
         low = question.lower()
         if verb == "drop_object" and (
@@ -1009,7 +1055,37 @@ def _qwen_translate(question: str) -> SimulationSpec | None:
         return None
 
 
-def _coerce_material(name: str) -> str:
+def _qwen_number(question: str, verb: str, slot: str, raw):
+    """A number the model put in a slot, kept only when it comes from the
+    question: some quantity the question states converts (Mentat's unit tool) to
+    it within 1%, or, for a unitless slot, the same bare number is in the text.
+    Anything else (a number the model recalled, invented, or converted itself:
+    "100 mph" written as speed_m_s=100) is dropped, so the input is missing and
+    gets suggested. The model routes; it never supplies a value."""
+    from . import quantities as Q
+    from .inputs import verb_inputs
+    try:
+        v = float(raw)
+    except (TypeError, ValueError):
+        return None
+    units = verb_inputs(verb).get(slot, {}).get("units", "")
+    tol = lambda a: abs(a - v) <= 0.01 * max(abs(v), 1e-300)   # noqa: E731
+    if units:
+        for f in Q.scan(question):
+            if Q.same_dimension(f["unit"], units):
+                c = Q.convert(f["value"], f["unit"], units)
+                if c is not None and tol(c):
+                    return c
+        return None
+    for m in re.finditer(_NUM_PAT, question.lower()):
+        if tol(_num_from(m)):
+            return v
+    return None
+
+
+def _coerce_material(name: str):
+    """A model-named material as a table key, or None when it isn't one we have
+    (it then stays missing and is suggested; it used to become iron)."""
     from ..field.interface.surface import MATERIALS
     if name in MATERIALS:
         return name
@@ -1091,7 +1167,9 @@ def _qwen_plan(question: str) -> SimulationSpec | None:
             for slot in declared:
                 if slot in p_in and p_in[slot] is not None:
                     if slot == "material_key":
-                        params[slot] = _coerce_material(p_in[slot])
+                        mat = _coerce_material(p_in[slot])
+                        if mat:
+                            params[slot] = mat
                     elif declared[slot].get("unit") in ("object", "body",
                                                         "environment",
                                                         "particle"):
@@ -1102,10 +1180,10 @@ def _qwen_plan(question: str) -> SimulationSpec | None:
                         if v:
                             params[slot] = v
                     else:
-                        try:
-                            params[slot] = float(p_in[slot])
-                        except (TypeError, ValueError):
-                            pass
+                        v = _qwen_number(question, verb, slot, p_in[slot])
+                        if v is not None:
+                            params[slot] = v
+            params.update(_params_for(verb, question))  # the question's own words win
             steps.append(SpecStep(verb, params))
         _auto_bind(steps)
         # Fix C — qwen must not force-fit a drop onto a static/fluid scene (no verb
@@ -1184,6 +1262,10 @@ def answer(question: str, use_qwen: bool = True, ledger=None,
     spec = translate(question, use_qwen=use_qwen)
     if not spec.is_runnable():
         return f"❓ {spec.note}"
+    from .inputs import missing_inputs, suggestion_sentence
+    missing = missing_inputs(spec)
+    if missing:                       # suggest, never fill in (the Captain, 2026-10-23)
+        return f"❓ {suggestion_sentence(missing)}"
     # GATE 2 for the LLM residual: a qwen-routed answer must survive a
     # route-consistency cross-check (deterministic routes are already reliable —
     # 100% on the corpus — so they skip it). An uncertain route → refuse.

@@ -8,7 +8,7 @@ fall whose geometry round-trips to an SDF.
 import json
 import os
 
-from sigma_ground.mcp.front_door import dispatch, Session
+from sigma_ground.mcp.front_door import dispatch, dispatch_accepting_suggestions, Session
 from sigma_ground.radiance.scene_export import scene_spec_to_sdf
 from sigma_ground.dynamics.vec import Vec3
 
@@ -62,8 +62,8 @@ def test_bare_ball_drop_simulates_and_renders_as_sphere():
     present) now SIMULATES and renders natively as a sphere via record_fall — the
     regression that routed it to atmospheric_profile / decline is fixed."""
     s = Session()
-    e1 = dispatch("drop a 5 cm steel ball from 10 km onto a concrete floor "
-                  "in standard atmosphere", use_llm=False, session=s)
+    e1 = dispatch_accepting_suggestions("drop a 5 cm steel ball from 10 km onto a concrete floor "
+                                        "in standard atmosphere", use_llm=False, session=s)
     assert e1["intent"] == "simulate" and e1["can_render"] is True
     assert s.render_handle and s.render_handle["kind"] == "sphere"
     e2 = dispatch("yes", use_llm=False, session=s)

@@ -21,7 +21,7 @@ import json
 import os
 
 from sigma_ground.mcp.front_door import (
-    dispatch, Session, _extract_scene_name, _extract_scene_stack)
+    dispatch, dispatch_accepting_suggestions, Session, _extract_scene_name, _extract_scene_stack)
 from sigma_ground.radiance.scene_export import scene_spec_to_sdf
 from sigma_ground.dynamics.vec import Vec3
 
@@ -170,7 +170,7 @@ def test_existing_physics_routing_unaffected_by_the_new_scene_route():
         ("does an iron sphere heat up falling from 30 km?", "simulate"),
     ]
     for text, expected_intent in cases:
-        env = dispatch(text, use_llm=False, session=Session())
+        env = dispatch_accepting_suggestions(text, use_llm=False, session=Session())
         assert env["intent"] == expected_intent, (text, env["intent"])
 
 
@@ -180,11 +180,11 @@ def test_pliers_and_bell_captain_prompts_still_simulate_not_scene():
     Materia's own router (hand-tool actuation / bell strike) still claims
     them before the new SCENE route ever runs."""
     s = Session()
-    env = dispatch("Simulate a pair of pliers that are being open and closed "
-                   "over time.", use_llm=False, session=s)
+    env = dispatch_accepting_suggestions("Simulate a pair of pliers that are being open and closed "
+                                         "over time.", use_llm=False, session=s)
     assert env["intent"] == "simulate"
     assert s.render_handle and s.render_handle["kind"] == "hand_tool_actuation"
 
-    env2 = dispatch("Simulate a hanging bell being struck by a stone.",
-                    use_llm=False, session=Session())
+    env2 = dispatch_accepting_suggestions("Simulate a hanging bell being struck by a stone.",
+                                          use_llm=False, session=Session())
     assert env2["intent"] == "simulate"

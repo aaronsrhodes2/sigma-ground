@@ -409,16 +409,22 @@ _ROUTABLE_NEW = {
         "slots": _MAT},
     # ── mechanics & motion ──
     "projectile_motion": {
-        "description": "Projectile & inclined-plane kinematics — range, max "
-                       "height, time of flight, launch at an angle, motion on a "
-                       "ramp.",
+        "description": "Projectile kinematics without air — range, max "
+                       "height, time of flight of something launched at a speed "
+                       "and an angle.",
         "triggers": ["projectile range", "projectile motion", "range of a",
                      "launch angle", "trajectory", "at an angle", "how far does",
                      "thrown at an angle", "ballistic", "fired at an angle",
                      "maximum height of", "degree angle", "degrees"],
         "examples": ["range of a projectile launched at 45 degrees",
                      "how far does a ball thrown at 30 m/s travel"],
-        "slots": {}},
+        # Until 2026-10-23 this verb declared no slots, so a question's speed and
+        # angle never reached it: "a baseball at 100 mph" ran at the function's
+        # 30 m/s. The speed is read in any unit and converted (quantities.py).
+        "slots": {"speed_m_s": {"unit": "m/s", "default": 30.0,
+                                "aliases": ["at", "speed", "thrown at", "launched at"]},
+                  "angle_deg": {"unit": "degree", "default": 45.0,
+                                "aliases": ["degrees", "angle"]}}},
     "collision_dynamics": {
         "description": "Energy, momentum & collisions — kinetic / potential / "
                        "rotational energy, elastic and inelastic collision "

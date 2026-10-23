@@ -195,7 +195,7 @@ def test_relativistic_speed_slot(q, beta):
 
 
 def test_relativistic_particle_slot_proton():
-    tr = simulate("relativistic energy of a proton near light speed", use_llm=False)
+    tr = simulate("relativistic energy of a proton at 0.9c", use_llm=False)
     E = float(_chain_rows(tr)["relativistic energy"])            # 4-sig-fig row
     E_ref = sc.m_p * sc.c ** 2 / math.sqrt(1.0 - 0.9 ** 2)       # 3.449e-10 J
     assert E == pytest.approx(E_ref, rel=1e-3, abs=0.0)

@@ -37,7 +37,7 @@ MELTER = dict(HOBBY, armature_mass_kg=1.0e-4)       # thin armature: melts at ~7
 
 # ── verb == bundle ───────────────────────────────────────────────────────
 def test_run_simulation_and_recorded_bundle_agree():
-    r = run_simulation("rail_shot", dict(HOBBY))
+    r = run_simulation("rail_shot", dict(HOBBY, T0_K=300.0))   # every input stated: nothing is filled in
     assert r.value is not None and "FAILED" not in r.notes
     out = r.inputs["chain"][0]["outputs"]
     b = record_rail_shot(**HOBBY)
@@ -182,7 +182,7 @@ def test_missing_owner_data_is_needs_data_not_a_default():
     with pytest.raises(RG.NeedsData, match="circuit_R_ohm") as e:
         rail_shot(**p)
     assert "circuit_L0_H" in str(e.value)
-    r = run_simulation("rail_shot", p)             # the MCP boundary declines, no crash
+    r = run_simulation("rail_shot", dict(p, T0_K=300.0))   # the MCP boundary declines, no crash
     assert r.value is None and "needs data" in r.notes
 
 

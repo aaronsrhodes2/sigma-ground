@@ -93,8 +93,34 @@ def _wrap(results: list, *, spec=None, materia=None,
     )
 
 
+def understood(spec) -> list:
+    """What Mentat read the question as: each step's verb, the inputs it took from
+    the question (or ``given``) and the ones threaded from an earlier step."""
+    return [{"verb": st.verb, "params": dict(st.params),
+             "bindings": {k: list(v) for k, v in st.bindings.items()}} for st in spec.steps]
+
+
+def _needs_input(scenario, spec, missing, given, problems, *, manifest=None, why="") -> ToolResult:
+    """No number: the inputs the question left out, each with the value Mentat
+    would suggest and why, and the follow-up to send once the person agrees."""
+    from sigma_ground.materia import inputs as mi
+    clar = mi.clarification(scenario, missing, given)
+    if problems:
+        clar["not_used"] = problems
+    note = clar["sentence"]
+    if problems:
+        note += " (Not used: " + "; ".join(f"{k}: {v}" for k, v in problems.items()) + ".)"
+    inputs = {"scenario": scenario, "route": spec.source, "understood": understood(spec)}
+    if manifest is not None:
+        inputs["scenario_manifest"] = manifest
+    return ToolResult(
+        value=None, source="sigma_ground.materia.inputs", provenance_tag="SPECULATIVE-PENDING",
+        notes=(f"{why} {note}".strip() if why else note), inputs=inputs, clarification=clar,
+        error={"code": "needs_input", "message": note, "param": clar["needs"][0]})
+
+
 def simulate(scenario: str, use_llm: bool = True,
-             object_handle: str | None = None) -> ToolResult:
+             object_handle: str | None = None, given: dict | None = None) -> ToolResult:
     """Run a natural-language what-if through the Materia simulator.
 
     Materia translates the scenario to a (possibly multi-step, chained)
@@ -109,6 +135,14 @@ def simulate(scenario: str, use_llm: bool = True,
         object_handle: optional object identity (e.g. a playground scene's
                   object/material) to forward to the translator so the object
                   isn't dropped, and to record in the scenario manifest.
+
+        given:    values for inputs the question leaves out, {name: number in the
+                  input's units, or a quantity string like "100 mph"}: what the
+                  caller sends back after the person agreed to a suggestion.
+
+    An input the question doesn't give (and ``given`` doesn't either) is never
+    filled in: the reply is a clarification (value None) that suggests a value for
+    each, with ``clarification.follow_up`` ready to send back on a "yes".
     """
     from sigma_ground import materia
     from sigma_ground.mcp.tools import scenario_intent as si
@@ -134,6 +168,11 @@ def simulate(scenario: str, use_llm: bool = True,
             notes=(f"{why} {spec.note}".strip() if why else spec.note),
             inputs={"scenario": scenario, "route": spec.source,
                     "scenario_manifest": manifest})
+    from sigma_ground.materia import inputs as mi
+    problems = mi.apply_given(spec, given)
+    missing = mi.missing_inputs(spec)
+    if missing:
+        return _needs_input(scenario, spec, missing, given, problems, manifest=manifest, why=why)
     try:
         results = materia.run_spec(spec)
     except Exception as e:   # boundary: a degenerate/out-of-range scenario must not crash
@@ -151,7 +190,10 @@ def simulate(scenario: str, use_llm: bool = True,
         manifest["emphasis"] = spine_emph
         manifest["emphasis_source"] = "spine"
         why = si.why_sentence(manifest)
-    return _wrap(results, spec=spec, materia=materia, manifest=manifest, why=why)
+    out = _wrap(results, spec=spec, materia=materia, manifest=manifest, why=why)
+    out.inputs["understood"] = understood(spec)
+    out.inputs["route"] = spec.source
+    return out
 
 
 # Slots that name a physical size/mass — a zero or negative value is
@@ -197,6 +239,18 @@ def run_simulation(verb: str, params: dict[str, Any] | None = None) -> ToolResul
     bad = _validate_params(params)
     if bad:
         return _decline(f"Cannot simulate {verb!r}: {bad}", verb=verb, params=params)
+    from sigma_ground.materia import inputs as mi
+    from sigma_ground.materia.spec import SimulationSpec, SpecStep
+    spec = SimulationSpec(f"run_simulation {verb}", [SpecStep(verb, dict(params))], source="structured")
+    missing = mi.missing_inputs(spec)
+    if missing:   # the same rule as simulate(): suggest, never fill in
+        clar = mi.clarification(spec.question, missing, params)
+        clar["follow_up"] = {"verb": verb, "params": clar["follow_up"]["given"]}
+        return ToolResult(value=None, source="sigma_ground.materia.inputs",
+                          provenance_tag="SPECULATIVE-PENDING", notes=clar["sentence"],
+                          inputs={"verb": verb, "params": params}, clarification=clar,
+                          error={"code": "needs_input", "message": clar["sentence"],
+                                 "param": clar["needs"][0]})
     try:
         result = materia.SCENARIOS[verb](**params)
     except Exception as e:   # boundary: an engine error must never crash the tool
