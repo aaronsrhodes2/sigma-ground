@@ -175,7 +175,7 @@ def main(argv=None) -> int:
         a.min_children = 1 if a.preset else 0
 
     if a.preset == "shootout" and a.outdir:
-        for f in ("short_run.log", "long_run.log"):
+        for f in ("short_run.log", "long_run.log", "driver.out"):          # the launcher's stdout, whatever it was redirected to (driver.out too: a false 'driver gone, no success marker' alert on 2026-10-23)
             if (a.outdir / f).exists():
                 a.progress.append(f"lines:{a.outdir / f}:: done ")
                 a.log.append(str(a.outdir / f))

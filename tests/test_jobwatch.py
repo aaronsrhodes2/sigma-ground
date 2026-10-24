@@ -139,6 +139,18 @@ class TestJobWatch(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
         self.assertIn("JOBWATCH DONE", r.stdout)
 
+    def test_shootout_preset_reads_the_launchers_stdout_when_it_is_called_driver_out(self):
+        # regression 2026-10-23: a plan run launched with stdout redirected to driver.out finished cleanly (finished: 6 ok) but the preset only looked at short_run.log / long_run.log and alerted
+        out = self.tmp / "run"
+        (out / "ckpt").mkdir(parents=True)
+        (out / "driver.out").write_text("6 jobs to run\nfinished: 6 ok, 0 failed, 10s wall\n")
+        job = start_job(self.tmp, ["import time", "time.sleep(2)"])
+        r = subprocess.run([sys.executable, str(JOBWATCH), "--name", "t", "--pid", str(job.pid), "--interval", "1", "--state-dir", str(self.tmp / "state"),
+                            "--preset", "shootout", "--outdir", str(out), "--min-children", "0", "--stall-minutes", "5", "--from-start"], capture_output=True, text=True, timeout=40)
+        job.wait()
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("JOBWATCH DONE", r.stdout)
+
     def test_a_single_process_job_needs_no_flag_to_avoid_a_children_alarm(self):      # BUG 2026-10-16: the default min-children of 1 raised a false alarm on a trickle job (one process, no workers)
         job = start_job(self.tmp, ["import time", "for i in range(6):", "    " + log_line("step done"), "    time.sleep(1)", log_line("all finished")])
         cmd = [sys.executable, str(JOBWATCH), "--name", "t", "--pid", str(job.pid), "--interval", "1", "--state-dir", str(self.tmp / "state"), "--log", str(self.tmp / "job.log"),
