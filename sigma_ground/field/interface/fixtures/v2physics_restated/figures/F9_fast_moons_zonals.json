@@ -1,0 +1,171 @@
+{
+ "unit": "km",
+ "lead_yr": 5,
+ "windows": [
+  "j2010",
+  "j2015"
+ ],
+ "rows": [
+  {
+   "system": "Saturn",
+   "moon": "Iapetus",
+   "period_d": 79.39619924242807,
+   "e5": 27.484102412710705,
+   "control_e5": 27.88914929722965
+  },
+  {
+   "system": "Jupiter",
+   "moon": "Callisto",
+   "period_d": 16.698658854713074,
+   "e5": 39.58856913955907,
+   "control_e5": 193.38894430254152
+  },
+  {
+   "system": "Saturn",
+   "moon": "Hyperion",
+   "period_d": 21.158282757648568,
+   "e5": 43.12623804005163,
+   "control_e5": 203.1660724804318
+  },
+  {
+   "system": "Saturn",
+   "moon": "Titan",
+   "period_d": 15.94745961908633,
+   "e5": 52.850837535428255,
+   "control_e5": 221.0407532250216
+  },
+  {
+   "system": "Jupiter",
+   "moon": "Himalia",
+   "period_d": 250.5009772210841,
+   "e5": 262.36189756704294,
+   "control_e5": 263.98620931890224
+  },
+  {
+   "system": "Jupiter",
+   "moon": "Ganymede",
+   "period_d": 7.156122420208503,
+   "e5": 23.1210966859047,
+   "control_e5": 644.332150888473
+  },
+  {
+   "system": "Saturn",
+   "moon": "Rhea",
+   "period_d": 4.520362731131415,
+   "e5": 93.62294028905083,
+   "control_e5": 1486.7723184441732
+  },
+  {
+   "system": "Saturn",
+   "moon": "Phoebe",
+   "period_d": 553.4845568602225,
+   "e5": 1526.7404605227184,
+   "control_e5": 1526.8178297222248
+  },
+  {
+   "system": "Saturn",
+   "moon": "Dione",
+   "period_d": 2.740365045276718,
+   "e5": 166.84022449481412,
+   "control_e5": 3656.747261227764
+  },
+  {
+   "system": "Saturn",
+   "moon": "Helene",
+   "period_d": 2.741882990025289,
+   "e5": 181.76369347429934,
+   "control_e5": 3682.1597761709572
+  },
+  {
+   "system": "Jupiter",
+   "moon": "Europa",
+   "period_d": 3.5532562726013635,
+   "e5": 100.30613421785787,
+   "control_e5": 5179.092887599574
+  },
+  {
+   "system": "Saturn",
+   "moon": "Tethys",
+   "period_d": 1.8916453315070356,
+   "e5": 672.342623494593,
+   "control_e5": 6825.577083147769
+  },
+  {
+   "system": "Jupiter",
+   "moon": "Io",
+   "period_d": 1.7714080672790864,
+   "e5": 158.98478567129825,
+   "control_e5": 8587.80449172045
+  },
+  {
+   "system": "Saturn",
+   "moon": "Enceladus",
+   "period_d": 1.3745431521211355,
+   "e5": 358.1689364544544,
+   "control_e5": 9075.450544159696
+  },
+  {
+   "system": "Saturn",
+   "moon": "Mimas",
+   "period_d": 0.9472144584337878,
+   "e5": 1962.8326784548385,
+   "control_e5": 22666.80289765539
+  },
+  {
+   "system": "Jupiter",
+   "moon": "Thebe",
+   "period_d": 0.6776327615980191,
+   "e5": 4107.115812304783,
+   "control_e5": 47104.09537781033
+  },
+  {
+   "system": "Jupiter",
+   "moon": "Amalthea",
+   "period_d": 0.5016394285909953,
+   "e5": 3021.130117431838,
+   "control_e5": 73886.88939260645
+  },
+  {
+   "system": "Saturn",
+   "moon": "Epimetheus",
+   "period_d": 0.6998591414502328,
+   "e5": 127225.89118155294,
+   "control_e5": 133628.64198665635
+  },
+  {
+   "system": "Saturn",
+   "moon": "Pan",
+   "period_d": 0.5802671579662116,
+   "e5": 181617.50804162447,
+   "control_e5": 154877.17579252354
+  },
+  {
+   "system": "Saturn",
+   "moon": "Pandora",
+   "period_d": 0.6332593986290231,
+   "e5": 169709.83833954186,
+   "control_e5": 159361.6729948688
+  },
+  {
+   "system": "Saturn",
+   "moon": "Prometheus",
+   "period_d": 0.6201736627199756,
+   "e5": 129131.8238309522,
+   "control_e5": 165672.3853546848
+  },
+  {
+   "system": "Saturn",
+   "moon": "Janus",
+   "period_d": 0.6995513194106637,
+   "e5": 185726.19471785662,
+   "control_e5": 188529.6231731241
+  },
+  {
+   "system": "Saturn",
+   "moon": "Atlas",
+   "period_d": 0.6071684936673939,
+   "e5": 272121.44388670253,
+   "control_e5": 271457.79422630445
+  }
+ ]
+}

@@ -101,6 +101,7 @@ def main() -> int:
     ap.add_argument("--variants", nargs="+", default=["base"])
     ap.add_argument("--extra", nargs="*", default=[], help="other bodies to keep (e.g. Triton Dione)")
     ap.add_argument("--fixture", type=Path, default=FIXTURE, help="fixture to use (default r5; r6 has all 23 Horizons moons)")
+    ap.add_argument("--dt", type=float, default=None, help="step in days (overrides the variant's)")
     ap.add_argument("--zonals", action="store_true", help="use the measured zonals (rolling_shootout._MEASURED_ZONALS) in every variant")
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
@@ -109,7 +110,7 @@ def main() -> int:
     for w in a.windows:
         for v in a.variants:
             t = time.time()
-            e = run(a.moon, a.planet, w, a.years, v, fix, tuple(a.extra), zonals=a.zonals)
+            e = run(a.moon, a.planet, w, a.years, v, fix, tuple(a.extra), zonals=a.zonals, dt_days=a.dt)
             res.append({"moon": a.moon, "planet": a.planet, "window": w, "variant": v, "err_km": e})
             print(f"{a.moon:8s} {w} {v:10s} " + " ".join(f"{x:9.1f}" for x in e) + f"   [{time.time() - t:.0f}s]", flush=True)
     if a.out:

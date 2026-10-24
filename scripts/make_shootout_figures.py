@@ -302,6 +302,29 @@ def f8_slow_moons(out: Path):
     save(fig, out / "F8_slow_moons.png", {"dt_days": 0.0125, "windows_jd": [2455197.5, 2457023.8], "err_km": sc})
 
 
+def f9_fast_moons(out: Path):
+    rows = json.loads((RES / "SYSTEM_LOCAL_MOONS.json").read_text())
+    items = [r for r in rows if r["control_e5"] is not None and r["period_d"] < 600]
+    items.sort(key=lambda r: r["control_e5"])
+    fig, ax = plt.subplots(figsize=(9.0, 7.0))
+    fig.subplots_adjust(left=0.2, right=0.95, top=0.82, bottom=0.09)
+    y = np.arange(len(items))
+    for yi, r in zip(y, items):
+        ax.plot([r["e5"], r["control_e5"]], [yi, yi], color=GRAY, linewidth=1.8, zorder=1)
+        ax.scatter([r["control_e5"]], [yi], s=46, color=ORANGE, zorder=3, edgecolor=SURFACE, linewidth=1)
+        ax.scatter([r["e5"]], [yi], s=46, color=BLUE, zorder=3, edgecolor=SURFACE, linewidth=1)
+    ax.set_yticks(y, [r["moon"] + "  (" + format(r["period_d"], ".2f") + " d)" for r in items], fontsize=8.5)
+    ax.set_xscale("log")
+    ax.set_xlabel("position error relative to the planet at +5 yr (km, log scale, median of two windows)")
+    clean(ax, "x")
+    from matplotlib.lines import Line2D
+    legend_row(fig, [Line2D([], [], marker="o", color="none", markerfacecolor=ORANGE, markersize=8), Line2D([], [], marker="o", color="none", markerfacecolor=BLUE, markersize=8)],
+               ["table zonals (Jupiter J2 14736e-6, Saturn J2 16298e-6)", "measured zonals (Juno, Cassini)"], y=0.865)
+    title(fig, "Measured planet zonals: Io 8,588 km to 159 km, Mimas 22,667 to 1,963",
+          "Moons of Jupiter and Saturn in system-local models (Sun + planet + all its moons) with the step set by the fastest orbit (300 steps per orbit), so the integrator is not the limit. The six small ring moons at the top lose their orbital phase within a year under either set of zonals (not explained).")
+    save(fig, out / "F9_fast_moons_zonals.png", {"unit": "km", "lead_yr": 5, "windows": ["j2010", "j2015"], "rows": [{k: r[k] for k in ("system", "moon", "period_d", "e5", "control_e5")} for r in items]})
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=RES / "figures")
@@ -327,6 +350,7 @@ def main() -> int:
     f6_comets(a.out)
     f7_asteroids(a.out)
     f8_slow_moons(a.out)
+    f9_fast_moons(a.out)
     return 0
 
 
