@@ -122,3 +122,33 @@ def test_a_value_is_never_reported_with_an_input_nobody_gave():
                         continue
                     alts = [g for g in mi.ALTERNATIVES.get(st["verb"], []) if name in g]
                     assert name in have or (alts and have & set(alts[0])), (q, st["verb"], name)
+
+
+@pytest.mark.parametrize("q, v, deg", [
+    ("If I throw a baseball at 45 degrees at 100 miles per hour, how far will it travel before it touches the ground "
+     "on a flat surface?", 44.704, 45.0),
+    ("A rock is launched at 45 degrees at 100 miles per hour from flat ground. How far does it land?", 44.704, 45.0),
+    ("A projectile leaves the ground at 30 degrees with a speed of 60 m/s. What is its range?", 60.0, 30.0),
+])
+def test_the_same_question_with_different_numbers_never_shares_an_answer(q, v, deg):
+    """No default wins and nothing is replayed: each question's own speed and angle reach the physics
+    (until 2026-10-23 all three came back as 30 m/s at 45 deg, the same answer). Vacuum range v^2 sin(2a)/g."""
+    r = simulate(q, use_llm=False).to_dict()
+    step, = r["inputs"]["understood"]
+    assert step["params"]["speed_m_s"] == pytest.approx(v) and step["params"]["angle_deg"] == deg
+    assert r["value"] == pytest.approx(v ** 2 * math.sin(math.radians(2 * deg)) / G, rel=1e-6)
+
+
+def test_the_60_m_s_at_30_degrees_range_is_about_318_m():
+    r = simulate("A projectile leaves the ground at 30 degrees with a speed of 60 m/s. What is its range?",
+                 use_llm=False).to_dict()
+    assert 317 < r["value"] < 319
+
+
+def test_the_qwen_prompts_never_ask_the_model_to_supply_a_value():
+    import inspect
+    import re
+    for fn in (tr._ollama_chat, tr._ollama_plan):
+        src = re.sub(r'"\s*\n\s*"', "", inspect.getsource(fn))      # the prompt as one string
+        assert "Never add, guess, default or convert" in src or "never added, guessed, defaulted or converted" in src
+        assert "Lengths in metres" not in src and "speeds in m/s" not in src

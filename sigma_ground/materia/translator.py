@@ -991,13 +991,16 @@ def _ollama_chat(question: str, url=OLLAMA_URL, model=OLLAMA_MODEL,
     sys_prompt = (
         "You route a physics what-if to ONE Materia simulation verb, or to "
         "none. Output ONLY JSON: {\"verb\": <name or \"none\">, \"params\": "
-        "{<slot>: <number or material>}}. Fill params only from the chosen "
-        "verb's slots.\nVerbs:\n" + manifest_for_prompt() +
+        "{<slot>: <number or material>}}. Use only the chosen verb's slots, "
+        "and only for a value the question itself states: copy its number "
+        "exactly as written. Never add, guess, default or convert a value; "
+        "leave out every slot the question doesn't give (Mentat asks for it)."
+        "\nVerbs:\n" + manifest_for_prompt() +
         "\nIf NONE of these verbs fits the question, output {\"verb\": "
         "\"none\"}. material_key is a common solid (iron, copper, lead, "
-        "steel_mild, aluminum, gold, titanium, tungsten). Lengths in metres, "
-        "Mach as a number. Do NOT compute physics — only pick the verb and "
-        "fill its slots.")
+        "steel_mild, aluminum, gold, titanium, tungsten), only when the "
+        "question names it. Do NOT compute physics — only pick the verb and "
+        "copy the values the question gives.")
     body = json.dumps({
         "model": model, "stream": False, "format": "json",
         "options": {"temperature": 0},
@@ -1124,14 +1127,17 @@ def _ollama_plan(question: str, url=OLLAMA_URL, model=OLLAMA_MODEL,
     sys_prompt = (
         "You break a physics what-if into an ORDERED LIST of Materia verbs (a "
         "plan). Output ONLY JSON: {\"steps\":[{\"verb\":<name>,\"params\":"
-        "{<slot>:<value>}}]}. One verb per step; fill that verb's slots. If one "
+        "{<slot>:<value>}}]}. One verb per step; a slot gets a value only when "
+        "the question states it, its number copied exactly as written (never "
+        "added, guessed, defaulted or converted: leave the slot out and Mentat "
+        "asks for it). If one "
         "verb's result should feed another (throw it UP, then how it comes "
         "DOWN), just list them in order — the engine threads the altitude "
         "through automatically, so don't wire it yourself. A single verb → one "
         "step. NONE fit → {\"steps\":[]}.\nVerbs:\n" + manifest_for_prompt() +
         "\nmaterial_key is a common solid (iron, copper, lead, steel_mild, "
-        "aluminum, titanium). Lengths in metres, speeds in m/s, Mach a number. "
-        "Do NOT compute physics — only choose verbs and fill slots.")
+        "aluminum, titanium), only when the question names it. "
+        "Do NOT compute physics — only choose verbs and copy the values given.")
     body = json.dumps({
         "model": model, "stream": False, "format": "json",
         "options": {"temperature": temperature},
