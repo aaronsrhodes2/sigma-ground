@@ -4,7 +4,7 @@ The group definitions are exactly the ones listed in misc/NEXT_SHOOTOUT_FETCH_RE
 alone and checked (HTTP 200, an ephemeris block, the expected body name); the rest are sent only if it passes, and every response is checked the same way. A response that fails a check is logged
 and kept under ``rejected/`` (never used, never guessed at).
 
-usage: python scripts/fetch_horizons_batch.py {asteroids,moons,comet73p} [--dry-run]
+usage: python scripts/fetch_horizons_batch.py {asteroids,moons,centres,comet73p} [--dry-run]
 """
 from __future__ import annotations
 
@@ -24,6 +24,9 @@ BASE = "https://ssd.jpl.nasa.gov/api/horizons.api"
 MOONS = [(505, "Amalthea"), (514, "Thebe"), (506, "Himalia"), (610, "Janus"), (611, "Epimetheus"), (616, "Prometheus"), (617, "Pandora"), (615, "Atlas"), (618, "Pan"), (612, "Helene"),
          (715, "Puck"), (712, "Portia"), (711, "Juliet"), (714, "Belinda"), (808, "Proteus"), (802, "Nereid"), (807, "Larissa"), (806, "Galatea"), (805, "Despina"),
          (902, "Nix"), (903, "Hydra"), (904, "Kerberos"), (905, "Styx")]
+
+
+CENTRES = [(899, "Neptune"), (801, "Triton"), (699, "Saturn"), (606, "Titan"), (799, "Uranus"), (703, "Titania")]     # planet centres and one big moon each, same vintage as the 23 moons (2026-10-23)
 
 
 def tlist(keys: list[str]) -> str:
@@ -48,6 +51,9 @@ def group(name: str):
     if name == "moons":
         t = tlist(all27)
         return Path("D:/datasets/jpl/horizons_moons"), [(f"horizons_moon_{i}_{n}.json", url(str(i), t), rf"^{re.escape(n)}\b") for i, n in MOONS]
+    if name == "centres":
+        t = tlist(all27)
+        return Path("D:/datasets/jpl/horizons_centres"), [(f"horizons_centre_{i}_{n}.json", url(str(i), t), rf"^{re.escape(n)}\b") for i, n in CENTRES]
     if name == "comet73p":
         out = []
         for w in ("j2005", "j2010", "j2015"):
@@ -73,7 +79,7 @@ def check(path: Path, expect: str) -> str | None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("group", choices=["asteroids", "moons", "comet73p"])
+    ap.add_argument("group", choices=["asteroids", "moons", "centres", "comet73p"])
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     d, reqs = group(a.group)

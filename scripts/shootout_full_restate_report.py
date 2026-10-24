@@ -23,9 +23,13 @@ FIXTURE = _ROOT / "sigma_ground/field/interface/fixtures/de440_state_vectors_v2p
 AU = 149597870.7
 INNER = ["Mercury", "Venus", "Earth", "Moon", "Mars"]
 GIANTS = ["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
-MOONS = {"Mars": ["Phobos", "Deimos"], "Jupiter": ["Io", "Europa", "Ganymede", "Callisto"], "Saturn": ["Mimas", "Enceladus", "Tethys", "Dione", "Rhea", "Titan", "Hyperion", "Iapetus", "Phoebe"],
-         "Uranus": ["Miranda", "Ariel", "Umbriel", "Titania", "Oberon"], "Neptune": ["Triton"], "Pluto": ["Charon"]}
-LIMITED = ("Phobos", "Deimos", "Mimas", "Enceladus", "Io", "Miranda")
+MOONS = {"Mars": ["Phobos", "Deimos"], "Jupiter": ["Io", "Europa", "Ganymede", "Callisto", "Amalthea", "Thebe", "Himalia"],
+         "Saturn": ["Mimas", "Enceladus", "Tethys", "Dione", "Rhea", "Titan", "Hyperion", "Iapetus", "Phoebe", "Janus", "Epimetheus", "Prometheus", "Pandora", "Atlas", "Pan", "Helene"],
+         "Uranus": ["Miranda", "Ariel", "Umbriel", "Titania", "Oberon", "Puck", "Portia", "Juliet", "Belinda"], "Neptune": ["Triton", "Proteus", "Nereid", "Larissa", "Galatea", "Despina"],
+         "Pluto": ["Charon", "Nix", "Hydra", "Kerberos", "Styx"]}
+# Not scoreable at the global step (period under about 2 d, or under 4 d for Io's resonant neighbours): own table, never in the headline (the Captain's rule, 2026-10-10). Moons absent from a run are skipped.
+LIMITED = ("Phobos", "Deimos", "Mimas", "Enceladus", "Io", "Miranda", "Amalthea", "Thebe", "Janus", "Epimetheus", "Prometheus", "Pandora", "Atlas", "Pan", "Puck", "Portia", "Juliet", "Belinda",
+           "Proteus", "Larissa", "Galatea", "Despina")
 SHORT5 = [f"j{y}" for y in range(2005, 2021)]
 LONG20 = [f"j{y}" for y in range(2000, 2007)]
 CONTROL_W = [f"j{y}" for y in (2005, 2008, 2011, 2014, 2017, 2020)]

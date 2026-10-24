@@ -22,7 +22,7 @@ sys.path.insert(0, str(_ROOT / "scripts"))
 FIXTURE = _ROOT / "sigma_ground/field/interface/fixtures/de440_state_vectors_v2physics_r5.json"
 
 
-def run(moon: str, planet: str, window: str, years: int, variant: str, fix: dict, keep_extra: tuple[str, ...], dv_m_s=None, vec: bool = False, dt_days: float | None = None, zonals: bool = False):
+def run(moon: str, planet: str, window: str, years: int, variant: str, fix: dict, keep_extra: tuple[str, ...], dv_m_s=None, vec: bool = False, dt_days: float | None = None, zonals: bool = False, dx_m=None):
     from sigma_ground.field.interface import rolling_shootout as rs
     base = [p for p in rs.canonical_predictors(0.0125) if p.name == "de440_stack"][0]
     pred = dataclasses.replace(base, zonal_overrides=rs._MEASURED_ZONALS) if zonals else base
@@ -33,6 +33,10 @@ def run(moon: str, planet: str, window: str, years: int, variant: str, fix: dict
         pred = dataclasses.replace(pred, toggles=dataclasses.replace(base.toggles, tidal_force=False))
     elif variant == "no_srp":
         pred = dataclasses.replace(pred, toggles=dataclasses.replace(base.toggles, srp=False))
+    elif variant == "no_gr":
+        pred = dataclasses.replace(pred, toggles=dataclasses.replace(base.toggles, eih_cross=False, gr_1pn=False))
+    elif variant == "newtonian":
+        pred = dataclasses.replace(pred, toggles=dataclasses.replace(base.toggles, eih_cross=False, gr_1pn=False, srp=False, tidal_force=False))
     elif variant == "no_triton":
         keep.discard("Triton")
     elif variant == "fine":
@@ -76,6 +80,9 @@ def run(moon: str, planet: str, window: str, years: int, variant: str, fix: dict
     if dv_m_s is not None:                                                      # a trial change of the moon's initial velocity (used by scripts/slow_moon_fit.py)
         i = names.index(moon)
         bodies[i] = dataclasses.replace(bodies[i], velocity_m_s=bodies[i].velocity_m_s + np.asarray(dv_m_s, dtype=float))
+    if dx_m is not None:                                                        # a trial change of the moon's initial position (a frame-origin test)
+        i = names.index(moon)
+        bodies[i] = dataclasses.replace(bodies[i], position_m=bodies[i].position_m + np.asarray(dx_m, dtype=float))
     if dt_days is not None:
         pred = dataclasses.replace(pred, dt_days=dt_days)
     keys = sorted((k for k in fix["snapshots"] if k.startswith("j")), key=lambda k: int(k[1:]))
