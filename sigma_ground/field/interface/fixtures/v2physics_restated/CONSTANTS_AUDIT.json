@@ -1,0 +1,178 @@
+[
+ {
+  "body": "Sun",
+  "quantity": "radius_km",
+  "ours": 695700.0,
+  "de440_or_paper": 696000.0,
+  "relative_difference": -0.0004310344827586207,
+  "class": "convention",
+  "why": "ours is the IAU 2015 nominal solar radius (695,700 km, the Mentat table has the same); DE440's J2 is defined on its own reference radius ASUN = 696,000 km",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": 695700.0
+ },
+ {
+  "body": "Sun",
+  "quantity": "j2",
+  "ours": 2.1106e-07,
+  "de440_or_paper": 2.1961391516529825e-07,
+  "relative_difference": -0.03894978676036946,
+  "class": "unresolved",
+  "why": "the code comment calls 2.1106e-7 'the DE440 fitted value (Park et al. 2021 Table 3)'; the header that JPL's integration read has 2.19614e-7. Table 3 was not re-read, so the origin of 2.1106e-7 is not established; the header is what was integrated",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Sun",
+  "quantity": "j4",
+  "ours": -9e-07,
+  "de440_or_paper": 0.0,
+  "relative_difference": 0.0,
+  "class": "vintage",
+  "why": "ours (-9e-7) is not in DE440, whose header sets J3 = J4 = 0 for the Sun; no source for -9e-7 was found in the code",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Earth",
+  "quantity": "radius_km",
+  "ours": 6371.0,
+  "de440_or_paper": 6378.1366,
+  "relative_difference": -0.0011189161423729647,
+  "class": "convention",
+  "why": "6371.0 is the Fact Sheet's volumetric MEAN radius; Earth's J2, J3, J4 are defined on the EQUATORIAL radius 6378.1366 km. Using the mean radius in the force makes J2 R^2 0.22 % low",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": 6378.1
+ },
+ {
+  "body": "Earth",
+  "quantity": "j2",
+  "ours": 0.0010826,
+  "de440_or_paper": 0.00108262539,
+  "relative_difference": -2.3452248796814095e-05,
+  "class": "rounding",
+  "why": "1.0826e-3 is 1.08262539e-3 cut to five digits",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Earth",
+  "quantity": "j3",
+  "ours": -2.5e-06,
+  "de440_or_paper": -2.53241e-06,
+  "relative_difference": -0.01279808561804753,
+  "class": "rounding",
+  "why": "-2.5e-6 is -2.53241e-6 cut to two digits",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Earth",
+  "quantity": "j4",
+  "ours": -1.6e-06,
+  "de440_or_paper": -1.619898e-06,
+  "relative_difference": -0.012283489454274385,
+  "class": "rounding",
+  "why": "-1.6e-6 is -1.619898e-6 cut to two digits",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Moon",
+  "quantity": "radius_km",
+  "ours": 1737.4,
+  "de440_or_paper": 1738.0,
+  "relative_difference": -0.0003452243958572549,
+  "class": "convention",
+  "why": "1737.4 is the Fact Sheet's mean radius; DE440's lunar harmonics (J2M ... C66M, C22M) are defined on AM = 1738.0 km",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": 1737.4
+ },
+ {
+  "body": "Moon",
+  "quantity": "j2",
+  "ours": 0.0002034,
+  "de440_or_paper": 0.000203214360135,
+  "relative_difference": 0.0009135174545572253,
+  "class": "vintage",
+  "why": "2.034e-4 against the header's 2.03214e-4 (0.09 %); the same size as the difference between lunar gravity solutions of different eras, source of ours not found in the code",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Moon",
+  "quantity": "j3",
+  "ours": 8.5e-06,
+  "de440_or_paper": 8.45964582042064e-06,
+  "relative_difference": 0.004770197291469277,
+  "class": "rounding",
+  "why": "8.5e-6 is 8.45965e-6 cut to two digits",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Moon",
+  "quantity": "j4",
+  "ours": -1.2e-05,
+  "de440_or_paper": -9.7043900244e-06,
+  "relative_difference": 0.23655376276387172,
+  "class": "vintage",
+  "why": "-1.2e-5 against the header's -9.704e-6 (24 %): an older lunar gravity field; DE440 uses the GRAIL-era value. Source of ours not found in the code",
+  "source_of_new": "JPL DE440 header (header.440; Park et al. 2021)",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Jupiter",
+  "quantity": "j2",
+  "ours": 0.014736,
+  "de440_or_paper": 0.014696514,
+  "relative_difference": 0.0026867595948263674,
+  "class": "vintage",
+  "why": "1.4736e-2 is the pre-Juno value; Juno measured 14696.514e-6 +- 0.272e-6 (Folkner et al. 2017, arXiv:1708.06177 Table 1). Already replaced in restated_zon",
+  "source_of_new": "Folkner et al. 2017 (Juno), as tabulated in arXiv:1708.06177 Table 1; radius 71492 km from its Section 2 and Appendix A",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Saturn",
+  "quantity": "radius_km",
+  "ours": 60268.0,
+  "de440_or_paper": 60330.0,
+  "relative_difference": -0.0010276810873528924,
+  "class": "convention",
+  "why": "60268 km is the Fact Sheet's equatorial (1 bar) radius; the Cassini field is normalised on 60330 km (arithmetic from a second source, not printed on the page read)",
+  "source_of_new": "Iess et al. 2019 (Cassini Grand Finale), as tabulated in arXiv:2304.09215 Table IV.1",
+  "mentat_radius_km": 58232.0
+ },
+ {
+  "body": "Saturn",
+  "quantity": "j2",
+  "ours": 0.016298,
+  "de440_or_paper": 0.016290573,
+  "relative_difference": 0.00045590784314344387,
+  "class": "vintage",
+  "why": "1.6298e-2 is the pre-Cassini-Grand-Finale value; Cassini gives 16290.573e-6 (Iess et al. 2019, arXiv:2304.09215 Table IV.1). Already replaced in restated_zon",
+  "source_of_new": "Iess et al. 2019 (Cassini Grand Finale), as tabulated in arXiv:2304.09215 Table IV.1",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Saturn",
+  "quantity": "j4",
+  "ours": -0.000915,
+  "de440_or_paper": -0.000935314,
+  "relative_difference": -0.02171890937161211,
+  "class": "vintage",
+  "why": "-9.15e-4 on 60268 km against Cassini's -935.314e-6 on 60330 km (-939.5e-6 on 60268 km): 2.6 % after converting the radius",
+  "source_of_new": "Iess et al. 2019 (Cassini Grand Finale), as tabulated in arXiv:2304.09215 Table IV.1",
+  "mentat_radius_km": null
+ },
+ {
+  "body": "Sun",
+  "quantity": "gm_km3_s2",
+  "ours": 132712440000.0,
+  "de440_or_paper": 132712440041.27942,
+  "relative_difference": -3.1104408096537734e-10,
+  "class": "rounding",
+  "why": "field.constants uses the IAU 2015 nominal GM (1.3271244e20 m^3/s^2, exact by definition of the nominal); DE440's fitted value has more digits. Irrelevant to the shoot-out, which takes GM from the fixture",
+  "source_of_new": "JPL DE440 header",
+  "mentat_radius_km": null
+ }
+]

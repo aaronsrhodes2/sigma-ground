@@ -189,13 +189,25 @@ def solar_system_body(body_name: str) -> ToolResult:
         )
     data = dict(_SOLAR_SYSTEM_BODIES[key])
     src = data.pop("source")
+    notes = ("All values in SI unless noted. semimajor_axis_au = AU = "
+             "1.496e11 m. orbital_period_d = days.")
+    # The same field constants the N-body predictor reads (fixtures/de440_header_constants.json): DE440's own header for the Sun, Earth and Moon, the Juno and Cassini
+    # papers for Jupiter and Saturn. radius_m above is the Fact Sheet's mean (or IAU nominal) radius; the J coefficients are defined on field_reference_radius_km, so use that one with them.
+    from sigma_ground.field.interface import de440_constants
+    dc = de440_constants.body(key)
+    if dc is not None:
+        for k_out, k_in in (("gm_km3_s2", "gm_km3_s2"), ("field_reference_radius_km", "reference_radius_km"), ("j2", "j2"), ("j3", "j3"), ("j4", "j4")):
+            if k_in in dc:
+                data[k_out] = dc[k_in]
+        data["field_constants_source"] = dc["source"]
+        notes += (" gm_km3_s2, j2, j3, j4 are the gravity-field constants of the N-body predictor (field_constants_source); they are defined on field_reference_radius_km,"
+                  " which differs from radius_m (a mean radius).")
     return ToolResult(
         value=data,
         source=f"sigma-ground via {src}",
         provenance_tag="VERIFIED",
         inputs={"body_name": body_name},
-        notes=("All values in SI unless noted. semimajor_axis_au = AU = "
-                "1.496e11 m. orbital_period_d = days."),
+        notes=notes,
     )
 
 

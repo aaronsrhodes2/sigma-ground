@@ -561,6 +561,12 @@ _DE440_C22M = 2.2380850528171017e-05
 _MEASURED_ZONALS = (("Jupiter", "j2", 14696.514e-6), ("Saturn", "j2", 16290.573e-6), ("Saturn", "j4", -935.314e-6), ("Saturn", "radius_km", 60330.0))
 
 
+def _header_zonals() -> tuple:
+    """The measured Jupiter/Saturn zonals plus DE440's header values for the Sun, Earth and Moon (one source of constants: de440_constants.py)."""
+    from sigma_ground.field.interface import de440_constants
+    return de440_constants.predictor_zonal_overrides(("Sun", "Earth", "Moon", "Jupiter", "Saturn"))
+
+
 def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
     """Candidate predictors: the headline stack plus the layers of misc/CANDIDATE_LEDGER.md (C1 asteroids, C3a lunar C22, C5 Kuiper-belt ring). Not part of the canonical set."""
     import dataclasses as _dc
@@ -570,7 +576,9 @@ def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
             ("restated_ast_ring_kbo_c22", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring", "kbo")), "headline + asteroids + ring + the 7 identified Kuiper-belt objects + the Moon's C22"),
             ("restated_c22", dict(lunar_c22=_DE440_C22M), "headline + the Moon's C22 only"),
             ("restated_zon", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring", "kbo"), zonal_overrides=_MEASURED_ZONALS),
-             "restated_ast_ring_kbo_c22 + Jupiter's J2 from Juno and Saturn's J2, J4 from the Cassini Grand Finale")]
+             "restated_ast_ring_kbo_c22 + Jupiter's J2 from Juno and Saturn's J2, J4 from the Cassini Grand Finale"),
+            ("restated_hdr", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring", "kbo"), zonal_overrides=_header_zonals()),
+             "restated_zon + the Sun, Earth and Moon radii and J2, J3, J4 from DE440's own header (fixtures/de440_header_constants.json)")]
     return [_dc.replace(base, name=n, description=d, **kw) for n, kw, d in rows]
 
 
