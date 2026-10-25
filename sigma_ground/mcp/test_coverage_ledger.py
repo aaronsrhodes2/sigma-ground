@@ -115,6 +115,13 @@ def _compute_uncovered():
                 getattr(P, fn)(*args)
             except Exception:
                 pass
+        # Tools whose string argument the harness cannot infer from the parameter name (a body name is a table key, not a structured 'body' object): exercised with a real name.
+        from sigma_ground.mcp.tools import astronomy as _A
+        for name in ("earth", "ceres", "io"):
+            try:
+                _A.body_constants(name)
+            except Exception:
+                pass
     finally:
         sys.settrace(old)
 
@@ -126,8 +133,11 @@ _P = "sigma_ground.field.interface."
 _INV = "sigma_ground.inventory."
 
 EXCLUDE_SET = frozenset(
+    # The reduced solar-system model (2026-10-25): library code factored out of scripts/fair_jpl_contest.py, checked against it by tests/test_reduced_model.py. Not yet behind a tool:
+    # body_position (next) will call it, and these five entries come out of this set the day it does.
+    [_P + "reduced_model." + n for n in ("build_system", "propagate_dense", "kernel_state", "reduced_masses", "hermite")]
     # Nagatha-format / serialization export aggregators (re-bundle covered physics)
-    [_P + n for n in (
+    + [_P + n for n in (
         "friction.material_friction_properties",
         "viscosity.viscous_flow_properties",
         "projectile.projectile_report",

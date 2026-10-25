@@ -89,6 +89,42 @@ def _lookup_scipy(name: str) -> ToolResult | None:
         return None
 
 
+_BODY_CONSTANT_PATTERNS = (r"^(gm|mass)[ _]of[ _](?:the[ _])?(?P<b>.+)$", r"^(?P<b>.+?)[ _](?P<w>gm|mass)$", r"^(?P<w>gm|mass|m)[ _](?P<b>.+)$")
+
+
+def _lookup_body_constant(name: str) -> ToolResult | None:
+    """'GM_earth', 'earth_mass', 'mass of the Moon', 'M_sun', 'gm ceres': the GM or mass of a body from the n-body catalogue (field/interface/body_data.py). SI units.
+
+    Tried last, after the curated and CODATA constants, so it never shadows one.
+    """
+    import re
+    from sigma_ground.field.interface import body_data
+    text = name.strip().lower().replace("-", "_")
+    for pat in _BODY_CONSTANT_PATTERNS:
+        m = re.match(pat, text)
+        if not m:
+            continue
+        what = (m.groupdict().get("w") or m.group(1)).lower()
+        what = "mass" if what in ("m", "mass") else "gm"
+        entry, _ = body_data.resolve(m.group("b"))
+        if entry is None:
+            continue
+        d = body_data.describe(entry)
+        if "gm_km3_s2" not in entry:                          # a known body with no published mass: say so, do not fall through to "constant not found"
+            return ToolResult(value=None, source="body catalogue", notes=f"{entry['name']}: " + " ".join(d["notes"]), inputs={"name": name, "requested_name": name, "body": entry["name"]})
+        gm = entry["gm_km3_s2"]
+        src = d["sources"].get("gm_km3_s2", "")
+        if what == "gm":
+            return ToolResult(value=gm * 1e9, units="m^3/s^2", source=f"{src} (body catalogue: {entry['name']})", provenance_tag="VERIFIED",
+                              notes=f"GM of {entry['name']} = {gm} km^3/s^2, exact to its published digits; it does not depend on G. " + " ".join(d["notes"]),
+                              inputs={"name": name, "requested_name": name, "resolved_via": "body catalogue", "body": entry["name"]})
+        return ToolResult(value=d["mass_kg"]["value"], units="kg", source=f"{src} (body catalogue: {entry['name']}), divided by G", uncertainty=d["mass_kg"]["uncertainty"],
+                          provenance_tag="DERIVED",
+                          notes=f"mass = GM / G; the GM ({gm} km^3/s^2) is exact to its published digits, the uncertainty is G's (relative 2.2e-5). Ask for GM_{m.group('b')} for the exact quantity. " + " ".join(d["notes"]),
+                          inputs={"name": name, "requested_name": name, "resolved_via": "body catalogue", "body": entry["name"]})
+    return None
+
+
 def lookup_constant(name: str) -> ToolResult:
     """Look up a physical constant by name.
 
@@ -126,6 +162,9 @@ def lookup_constant(name: str) -> ToolResult:
             result.inputs["requested_name"] = name
             result.inputs["resolved_via"] = "alias" if query != name else "direct"
             return result
+    result = _lookup_body_constant(name)
+    if result is not None:
+        return result
     return ToolResult(
         value=None,
         source="not found",

@@ -38,3 +38,9 @@ Investigated read-only; nothing in Mentat has been changed except the DE440 fiel
 
 ## Shipping the data to skippy-core
 The live Mentat is built from a git ref (`SIGMA_GROUND_REF`; `tools/check_mentat_deploy.sh` flags drift) and the data lives under `fixtures/` in the repo, so items 1, 3, 4 and 5 need no extra files. Items 2 and the kernel need the 32 MB DE440s file; `tools/data_bundle.py` already packs and verifies a data set for another machine with sha256 per file, and is the model to follow. I have no way to see the skippy-core machine from here, so what is installed there is for you to confirm.
+
+## Status 2026-10-25
+* Item 1 DONE: `body_constants(name)` (MCP tool) and `lookup_constant("GM_earth" / "earth_mass" / "mass of the Moon" ...)` answer from `field/interface/body_data.py`. 56 bodies, 343 asteroids, 30 Kuiper-belt objects; GM exact, mass derived with G's uncertainty, 11 moons "mass unknown"; a moon or planet keeps its bare name when an asteroid shares it (Io, Europa, Pan ...) and the note says how to reach the asteroid. Tests: `tests/test_body_data.py` (14).
+* Item 6 DONE for the masses: the Moon in Mentat's old table was 7.342e22 kg (5.2e-4 below DE440's GM / G); now 7.3458e22, and a test fails if any planet's table mass leaves its four-digit agreement with GM / G.
+* Not done: the trained router (Qwen3-4B + LoRA, plan format v3) has never seen `body_constants`; the keyword/front-door route finds it, a router retrain would teach the trained stage. Items 2 to 5 open.
+

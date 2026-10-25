@@ -773,6 +773,12 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "NASA planetary fact sheet", "IAU 2015 nominal",
         "Mercury Venus Earth Mars Jupiter Saturn Uranus Neptune Pluto",
     ],
+    "body_constants": [
+        "mass of a planet or moon", "GM gravitational parameter", "standard gravitational parameter",
+        "JPL DE440 body constants", "mass of an asteroid", "Kuiper belt object mass",
+        "J2 oblateness of a planet", "reference radius", "satellite ephemeris GM",
+        "Ceres Vesta Pallas Hygiea Io Europa Ganymede Callisto Titan Triton Charon Eris",
+    ],
     "list_bodies": [
         "list solar system bodies", "available planets",
     ],
@@ -1025,6 +1031,9 @@ _COLLOQUIAL: dict[str, list[str]] = {
                           "gravity on the surface of", "how much would I weigh on",
                           "surface temperature of the sun", "how hot is the sun",
                           "temperature of the sun", "how hot is a planet"],
+    "body_constants": ["mass of the earth", "what is the mass of", "how massive is", "how much does the moon weigh",
+                       "mass of jupiter", "mass of ceres", "GM of", "gravitational parameter of",
+                       "how heavy is io", "how massive is pluto", "what does the earth weigh"],
     "asteroid_analysis": ["jump off an asteroid", "gravity on an asteroid",
                           "how heavy on ceres", "tiny world gravity"],
     "light_travel_time": ["how long for light to get there", "how far in light years",

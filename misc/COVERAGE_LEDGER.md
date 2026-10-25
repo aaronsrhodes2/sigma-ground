@@ -289,3 +289,8 @@ when their batch is reached (do NOT pre-list unverified):
 - orbital ephemeris least-squares fit internals
 - QC gate/state primitives (covered indirectly via high-level QC tools)
 - inventory env-resolver / builder / checksum plumbing (internal-only)
+
+## 2026-10-25: the reduced solar-system model (documented non-capability until `body_position` lands)
+`field/interface/reduced_model.py` (build_system, propagate_dense, kernel_state, reduced_masses, hermite) is library code factored out of `scripts/fair_jpl_contest.py` and checked against it by `tests/test_reduced_model.py`. It has no tool yet; `body_position` will call it and these five come out of `EXCLUDE_SET` the day it does.
+The new `body_constants` tool is exercised explicitly (earth, ceres, io) in `test_coverage_ledger.py`, because the harness skips parameters whose name contains the token `body` (it reads them as structured objects).
+

@@ -859,6 +859,11 @@ def main() -> int:
         return t_astr.solar_system_body(body_name).to_dict()
 
     @server.tool()
+    def body_constants(body_name: str) -> dict[str, Any]:
+        """GM, mass, radius, gravity field, orbit and physical data of a body with sources (e.g. 'earth', 'io', 'ceres', '4 vesta', 'eris'). GM is exact; mass is GM/G with G's uncertainty."""
+        return t_astr.body_constants(body_name).to_dict()
+
+    @server.tool()
     def named_star(star_name: str) -> dict[str, Any]:
         """Named bright star data (e.g. 'sirius_a', 'vega')."""
         return t_astr.named_star(star_name).to_dict()

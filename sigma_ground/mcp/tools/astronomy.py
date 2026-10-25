@@ -49,7 +49,8 @@ _SOLAR_SYSTEM_BODIES: dict[str, dict] = {
         "source": "NASA Planetary Fact Sheet 2024",
     },
     "moon": {
-        "mass_kg":           7.342e22,
+        # 7.342e22 was the pre-2024 Fact Sheet value, 5.2e-4 below DE440's GM / G (4902.800118 km^3/s^2 / 6.6743e-11 = 7.34579e22 kg); corrected 2026-10-25, see body_constants and tests/test_body_data.py
+        "mass_kg":           7.3458e22,
         "radius_m":          1.7374e6,
         "semimajor_axis_km": 384399.0,
         "orbital_period_d":  27.3217,
@@ -300,4 +301,34 @@ def list_bodies() -> ToolResult:
         notes=("For arbitrary cosmological queries (luminosity distances "
                 "at given redshift, galaxy catalogs, etc.), use astropy "
                 "directly."),
+    )
+
+
+def body_constants(body_name: str) -> ToolResult:
+    """Everything the n-body work holds about one body: GM, mass, radius, gravity field, orbit and physical data, each with its source.
+
+    Covers the Sun, the planets (planet alone and, separately, planet plus moons), their moons (the 23 added from Horizons included), DE440's 343 asteroids by name or number and its Kuiper-belt objects.
+    A GM from JPL is exact to its published digits; the mass in kg is GM / G and carries G's uncertainty (2.2e-5), so ask for the GM when an exact value matters.
+    A moon with no published mass is reported as "mass unknown", never as zero.
+    """
+    from sigma_ground.field.interface import body_data
+    entry, close = body_data.resolve(body_name)
+    if entry is None:
+        return ToolResult(
+            value=None,
+            source="sigma-ground body catalogue (DE440 header, satellite ephemerides, Horizons headers)",
+            notes=(f"'{body_name}' is not in the catalogue." + (f" Close names: {', '.join(close)}." if close else "")
+                   + " It holds the Sun, planets, 40+ moons, DE440's 343 asteroids (by name or number) and its Kuiper-belt objects."),
+            inputs={"body_name": body_name},
+        )
+    d = body_data.describe(entry)
+    jpl = "gm_km3_s2" in d and not str(d["sources"].get("gm_km3_s2", "")).startswith("predictor table")
+    notes = ["GM (km^3/s^2) is the exact quantity; mass_kg = GM / G is derived and inherits G's relative uncertainty of 2.2e-5.", *d["notes"]]
+    return ToolResult(
+        value=d,
+        units="GM in km^3/s^2, mass in kg, radii in km (see the field names)",
+        source="sigma-ground: JPL DE440 header and satellite ephemerides (JUP365, SAT441, URA111, NEP095, PLU058, MAR097), JPL Horizons headers; per-field sources in value['sources']",
+        provenance_tag="VERIFIED" if jpl else "EMPIRICAL-INPUT",
+        notes=" ".join(notes),
+        inputs={"body_name": body_name},
     )
