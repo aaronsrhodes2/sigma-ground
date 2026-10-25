@@ -1,0 +1,24 @@
+--- a/core/compose.core.yml
++++ b/core/compose.core.yml
+@@ -91,10 +91,12 @@
+       - MENTAT_RATE_PER_MIN=600
+       - MENTAT_INSTANCE=home
+       - MENTAT_RESEARCH_DIR=/research
++      - SIGMA_DATASETS=/datasets   # read-only JPL data (the DE440 kernel for the ephemeris tools); sigma_ground/field/datasets.py reads this
+     ports:
+       - "127.0.0.1:7350:8080"
+     volumes:
+       - ${CORE_STATE:-/var/lib/skippy-core}/mentat-research:/research   # <YYYY-MM>.jsonl, appended forever (mentat/research.py)
++      - ${CORE_DATASETS:-/srv/datasets}/jpl:/datasets/jpl:ro            # DE440s kernel + Horizons copies, mirrored from the PC by tools/sync_datasets.sh; read-only
+     command: gunicorn --bind 0.0.0.0:8080 --workers 1 --threads 4 --timeout 120 app:app
+     depends_on:
+       - ollama
+--- a/mentat/requirements.txt
++++ b/mentat/requirements.txt
+@@ -7,5 +7,6 @@
+ astropy==8.0.1
+ periodictable==2.1.0
+ numpy==2.4.6
++jplephem==2.24
+ Flask==3.1.3
+ gunicorn==23.0.0
