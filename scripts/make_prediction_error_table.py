@@ -1,4 +1,4 @@
-"""Measure how far the forecast model (reduced_model, predictor `restated_zon`, step 0.25 d) lands from DE440 at each lead time, by hindcast: start it from DE440's own state at several past epochs and compare with DE440
+"""Measure how far the forecast model (reduced_model, predictor `restated_zon`, step 0.025 d) lands from DE440 at each lead time, by hindcast: start it from DE440's own state at several past epochs and compare with DE440
 at +1, +2 ... years. This is the error Mentat quotes with a prediction ("our integration is typically X km from DE440 at this lead"); it is measured with the same code that builds the forecast table.
 
 Starts are chosen so that every target lies inside the span DE440 was fitted to (data end about 2020), so the comparison is with JPL's reconstruction and not with JPL's own extrapolation. Output: fixtures/prediction_error_table.json
@@ -30,10 +30,10 @@ def jd_jan1(year: int) -> float:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--starts", nargs="+", type=int, default=[2000, 2002, 2004, 2006, 2008, 2010, 2012, 2015])
+    ap.add_argument("--starts", nargs="+", type=int, default=[2000, 2005, 2010, 2015])
     ap.add_argument("--max-lead", type=int, default=20)
     ap.add_argument("--predictor", default="restated_zon")
-    ap.add_argument("--dt-days", type=float, default=0.25)
+    ap.add_argument("--dt-days", type=float, default=0.025, help="the same step as the forecast table (0.25 d is too coarse for Mercury and the Moon)")
     ap.add_argument("--out", type=Path, default=OUT)
     a = ap.parse_args()
     from jplephem.spk import SPK
