@@ -110,4 +110,5 @@ def test_descriptions_no_longer_mention_the_old_names(server):
 def test_the_vocabulary_shrank(server):
     mod, srv = server
     names = {p for t in srv._tool_manager.list_tools() for p in t.parameters.get("properties", {})}
-    assert len(names) <= 290
+    # 291 since 2026-10-26: body_position adds ONE genuinely new concept, `when` (the time asked about); its other names (body_name, central_body) are existing ones.
+    assert len(names) <= 291

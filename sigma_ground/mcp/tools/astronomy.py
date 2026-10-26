@@ -332,3 +332,25 @@ def body_constants(body_name: str) -> ToolResult:
         notes=" ".join(notes),
         inputs={"body_name": body_name},
     )
+
+
+def body_position(body_name: str, when: str, central_body: str = "sun") -> ToolResult:
+    """Where is a body at a given time? A known value from the past, or a labelled prediction.
+
+    Sun, planets and the Moon (Mars to Pluto as planet-system barycentres). `when` is an ISO date or date-time (UTC), "JD 2462000.5" (TDB) or "now". `central_body` is the body the position is measured from: "sun" (default), "ssb" (the solar-system barycentre) or "earth".
+    Up to today the value is JPL's DE440 (labelled known; its fitting data end about 2020). After today it is our own N-body prediction from DE440's state at 2026-01-01, with JPL's extrapolation beside it,
+    the difference, and the error this model measured against DE440 at that lead. A prediction is not an observation and not a claim to beat JPL.
+    """
+    from sigma_ground.field.interface import where_when
+    try:
+        d = where_when.position_at(body_name, when, central_body)
+    except where_when.WhereWhenError as e:
+        return ToolResult(value=None, source="sigma-ground body_position (JPL DE440 kernel; our N-body forecast table)", notes=str(e), inputs={"body_name": body_name, "when": when, "central_body": central_body})
+    known = d["kind"] == "known"
+    tag = "VERIFIED" if known and not d.get("beyond_fit_data", False) and d["method"].startswith("JPL") else "DERIVED"
+    notes = f"{d['kind'].upper()}. {d['basis']}."
+    if d["kind"] == "prediction" and d.get("expected_distance_from_de440"):
+        e = d["expected_distance_from_de440"]
+        notes += f" Measured by hindcast, this model lands typically {e['typical_km']:.3g} km (largest seen {e['largest_seen_km']:.3g} km) from DE440 at this lead." + (f" {e['note']}." if e.get("note") else "")
+    notes += " " + " ".join(d["notes"])
+    return ToolResult(value=d, units="km (position), km/s (velocity)", source=d["method"], provenance_tag=tag, notes=notes.strip(), inputs={"body_name": body_name, "when": when, "central_body": central_body})

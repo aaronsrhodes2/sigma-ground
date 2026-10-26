@@ -864,6 +864,14 @@ def main() -> int:
         return t_astr.body_constants(body_name).to_dict()
 
     @server.tool()
+    def body_position(body_name: str, when: str, central_body: str = "sun") -> dict[str, Any]:
+        """Where a planet, the Sun or the Moon is at a time, e.g. body_position('mars', '2031-06-15'). `when` is an ISO date or date-time (UTC), 'JD 2462000.5' (TDB) or 'now'; `central_body` is 'sun' (default), 'ssb' or 'earth'.
+
+        Up to today the value is JPL's DE440 (known); after today it is our N-body prediction with JPL's value beside it and the measured error at that lead.
+        """
+        return t_astr.body_position(body_name, when, central_body).to_dict()
+
+    @server.tool()
     def named_star(star_name: str) -> dict[str, Any]:
         """Named bright star data (e.g. 'sirius_a', 'vega')."""
         return t_astr.named_star(star_name).to_dict()

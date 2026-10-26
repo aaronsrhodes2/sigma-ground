@@ -3,7 +3,7 @@
 `misc/SKIPPYTEL_MENTAT_DATA.patch` is a unified diff against the SkippyTel repo (checked: `git apply --check --cached` succeeds against the index; the working tree here is CRLF, so use `git apply --ignore-whitespace` there).
 
 ## What it changes
-* `core/compose.core.yml`, service `mentat`: mounts `${CORE_DATASETS:-/srv/datasets}/jpl` read-only at `/datasets/jpl` and sets `SIGMA_DATASETS=/datasets`. Only `jpl/` is mounted (106 MB: the DE440s kernel and the Horizons copies); nothing else on the box is exposed, nothing is writable.
+* `core/compose.core.yml`, service `mentat`: mounts `${CORE_DATASETS:-/srv/datasets}/jpl` (106 MB: the DE440s kernel and the Horizons copies) and `.../forecast` (the sealed N-body forecast table that `body_position` serves for future dates, about 20 MB) read-only under `/datasets`, and sets `SIGMA_DATASETS=/datasets`. Nothing else on the box is exposed, nothing is writable. The forecast folder is created by `scripts/make_forecast_table.py` on the PC and has to be mirrored with `tools/sync_datasets.sh --apply` before the container is started, or the mount source will not exist.
 * `mentat/requirements.txt`: adds `jplephem==2.24`, the package that reads the kernel. The image does not have it today (astropy does not pull it in), so without this the kernel cannot be read.
 * The container's user (`mentat`, non-root) can read the files: they are mode 644 in directories mode 755.
 

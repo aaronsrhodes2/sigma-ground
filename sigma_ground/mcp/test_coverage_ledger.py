@@ -122,6 +122,11 @@ def _compute_uncovered():
                 _A.body_constants(name)
             except Exception:
                 pass
+        for args in (("mars", "2015-06-15"), ("moon", "2031-06-15", "earth")):          # a known and a predicted position (they answer or say what data is missing)
+            try:
+                _A.body_position(*args)
+            except Exception:
+                pass
     finally:
         sys.settrace(old)
 
@@ -133,9 +138,11 @@ _P = "sigma_ground.field.interface."
 _INV = "sigma_ground.inventory."
 
 EXCLUDE_SET = frozenset(
-    # The reduced solar-system model (2026-10-25): library code factored out of scripts/fair_jpl_contest.py, checked against it by tests/test_reduced_model.py. Not yet behind a tool:
-    # body_position (next) will call it, and these five entries come out of this set the day it does.
+    # The reduced solar-system model (2026-10-25): library code factored out of scripts/fair_jpl_contest.py, checked against it by tests/test_reduced_model.py. build_system, propagate_dense and
+    # reduced_masses run only when a forecast table or error table is BUILT (scripts/make_forecast_table.py, make_prediction_error_table.py); kernel_state and hermite run inside body_position
+    # but only on a machine that has the JPL kernel / the forecast table installed, so they stay listed so that this invariant does not depend on what data a machine holds.
     [_P + "reduced_model." + n for n in ("build_system", "propagate_dense", "kernel_state", "reduced_masses", "hermite")]
+    + [_P + "where_when.expected_error"]          # reached by body_position only for a future date on a machine that has the sealed forecast table; unit-tested in tests/test_where_when.py
     # Nagatha-format / serialization export aggregators (re-bundle covered physics)
     + [_P + n for n in (
         "friction.material_friction_properties",
