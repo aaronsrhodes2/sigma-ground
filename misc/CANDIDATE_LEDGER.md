@@ -253,6 +253,8 @@ Why ours differed (`v2physics_restated/CONSTANTS_AUDIT.md`, 16 rows): 4 CONVENTI
 Not compared (no value in the local data): Mars (same mean-radius pattern, not verified), Uranus and Neptune (J2 R^2 agree with remembered paper values to about 1e-3).
 Prediction, falsifiable and NOT yet run: with the header values the Moon and Mercury errors against the answer key do not get worse, and Mercury (Sun J2 4 %) moves by about 0.01-0.06 km at +5 to +20 yr (an estimate from the known size of the Sun's J2 precession). If they get worse the header is not what produced the answer key's trajectories and the difference needs a new explanation.
 
+Result (2026-10-27): the effect test was run, see C18 (Moon much better, Venus slightly worse, the Mercury prediction not supported as stated).
+
 ## C16. The full shoot-out on r8 with measured zonals (2026-10-26): supported, one open item
 21 jobs, 0 failed; fixture r8 (56 bodies); predictor `restated_zon`; table `SHOOTOUT_FULL_RESTATED_r8.md`, paired comparison `PAIRED_R4_TO_R8.md` (21 windows, 7 of them to +20 yr), figures F1-F9.
 * Supported (C13's prediction): adding 23 moons and the current Neptune and Triton did not disturb the planets; Mercury, Venus, Earth, Mars, Uranus are unchanged within 1 % at +5 yr, the Moon 0.40 -> 0.40 km.
