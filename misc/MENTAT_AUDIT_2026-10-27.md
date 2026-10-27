@@ -172,6 +172,24 @@ Two lessons from deploying them:
   state file does not claim: the portal's Recovery or a hand-run). A live suite run must bracket itself with the process start (`/health.uptime_s`; NOT `/health.since`, which is the readiness
   contract's "last made progress" clock and moves on its own) or it measures the outage. Item 3 (the dashboard on the live service) needs the same guard.
 
+Item 3b (the cascade) was measured as a replay of `/ask` on this PC (same code path as the box, the live router and chat slot, scorers unchanged,
+rows paired per question; `misc/audit_2026-10-27/` holds the runners). `before` = the cascade runs ahead of the router, `after` = only when the router missed:
+
+| variant | physics (150) | maths (329) | adversarial (18) |
+|---|---|---|---|
+| router only (C0) | 108 | 317 | 1 |
+| cascade after the router | 121 (+13, −0) | 317 (+0, −0) | 7 (+6, −0) |
+| cascade before the router, every stage | 133 (+26, −1) | **298 (+0, −19)** | 8 (+7, −0) |
+| **cascade before, `math` stage off (shipped)** | **132 (+24, −0)** | **317 (+0, −0)** | **8** |
+
+The harness's maths regexes ("integral of … from a to b", "factor …", "gradient of …") answered 27 of the 329 and got 7 right, against the router's
+317; they took 19 answers the router had right: 18 of them are "Over the interval [a, b], what is the integral of …", which the stage reads as
+an indefinite integral (it only knows "from a to b"), so it returns an antiderivative where a number was asked for. They also read
+"are its emission wavelengths redshifted" as `factor_expression` (the one physics loss with every stage on, modern_012). So the deployed
+configuration is `MENTAT_CASCADE=before`, `MENTAT_CASCADE_OFF=math` (SkippyTel fa4ffe0, `core/compose.core.yml`); every other stage only gained.
+The ahead-of-router order wins by 11 on physics and the same on adversarial, and costs nothing once `math` is off. The maths stage's regexes are a
+bug list for the router-free path, not part of this deploy. Live check: pending the deploy (the box's CI defers while the private Skippy is working).
+
 ## Reproduce
 
 `misc/audit_2026-10-27/`: `ask_math_suite.py` (329 through a deployed `/ask`), `audit_replay.py` (deployed physics; local replay of `app._ask` in

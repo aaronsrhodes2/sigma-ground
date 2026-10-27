@@ -26,7 +26,7 @@ PARTS = sys.argv[2].split(",")
 OUT.mkdir(parents=True, exist_ok=True)
 BASE = "http://127.0.0.1:17350"
 
-os.environ.update({"MENTAT_USE_LLM": "1", "OLLAMA_URL": "http://127.0.0.1:17434", "MENTAT_ROUTER_MODEL": "mentat-router-v31-4b",
+os.environ.update({"MENTAT_USE_LLM": "1", "OLLAMA_URL": "http://127.0.0.1:17434", "MENTAT_ROUTER_MODEL": os.environ.get("MENTAT_ROUTER_MODEL") or "mentat-router-v31-4b",
                    "MENTAT_INSTANCE": "home", "SIGMA_DATASETS": "D:/datasets"})
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "tools"))
@@ -39,6 +39,8 @@ from sigma_ground.mcp.benchmark import tweaks as T  # noqa: E402
 BENCH = REPO / "sigma_ground" / "mcp" / "benchmark"
 PHYS_Q = json.loads((BENCH / "questions.json").read_text(encoding="utf-8"))
 PHYS_GT = json.loads((BENCH / "ground_truth.json").read_text(encoding="utf-8"))
+ADV_Q = json.loads((BENCH / "adversarial_questions.json").read_text(encoding="utf-8"))
+ADV_GT = json.loads((BENCH / "adversarial_ground_truth.json").read_text(encoding="utf-8"))
 MATH = json.loads((REPO / "local-cache" / "router_math_suite.json").read_text(encoding="utf-8"))["items"]
 
 
@@ -69,7 +71,7 @@ def record_of(res: dict, qid: str, seconds: float) -> dict:
 
 def score_physics(q, res, seconds):
     rec = record_of(res, q["id"], seconds)
-    truth = PHYS_GT.get(q["id"])
+    truth = PHYS_GT.get(q["id"]) or ADV_GT.get(q["id"])
     ok, rel, notes = SC._score_one(rec, q, truth)
     return bool(ok), notes
 
@@ -168,18 +170,28 @@ def app():
 
 
 def replay(suite, variant, limit=0):
+    import os as _os
+    _os.environ["MENTAT_CASCADE"] = {"CB": "before", "CA": "after", "CBm": "before"}.get(variant, "")
+    _os.environ["MENTAT_CASCADE_OFF"] = "math" if variant == "CBm" else ""      # CBm: before-mode with the maths stage off
     A = app()
+    import cascade_stage as CS
+    CS.MODE = _os.environ["MENTAT_CASCADE"]
+    CS.OFF = ("math",) if variant == "CBm" else ()
     T.configure(None)
-    if variant == "S":
+    if variant in ("S", "C0", "CB", "CA", "CBm"):
         T.configure(None, on=["structured_results"])
     state = {n: T.on(n) for n in sorted(T.REGISTRY)}
-    items = (PHYS_Q if suite == "physics" else MATH)
+    items = {"physics": PHYS_Q, "adversarial": ADV_Q, "math": MATH}[suite]
     if limit:
         items = items[:limit]
+    only = os.environ.get("REPLAY_IDS")                       # a second pass over the rows a transport failure spoiled (merge_replay.py)
+    if only:
+        keep = set(only.split(","))
+        items = [q for q in items if q["id"] in keep]
     rows = []
     v0 = deployed_ref()
     for i, q in enumerate(items, 1):
-        question = qtext(q) if suite == "physics" else q["question"]
+        question = qtext(q) if suite != "math" else q["question"]
         t = time.time()
         try:
             res = A._ask(question, None)
@@ -187,7 +199,7 @@ def replay(suite, variant, limit=0):
             res = {"value": None, "error": f"{type(e).__name__}: {e}"[:300]}
         dt = time.time() - t
         rec = LAST.get("rec") or {}
-        ok = score_physics(q, res, dt)[0] if suite == "physics" else score_math(q, res)
+        ok = score_physics(q, res, dt)[0] if suite != "math" else score_math(q, res)
         inp = res.get("inputs") or {}
         rows.append({"id": q["id"], "ok": ok, "seconds": round(dt, 2), "route": inp.get("route"), "interpreter": res.get("interpreter"),
                      "interpreted_as": res.get("interpreted_as"), "router_plan": rec.get("router_plan"), "router_error": rec.get("router_error"),
