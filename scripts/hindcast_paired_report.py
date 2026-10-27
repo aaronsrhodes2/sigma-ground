@@ -4,7 +4,7 @@ scripts/run_hindcast_variants.py. Same code, step, fixture snapshot and DE440 an
 For every body and lead: median heliocentric position error of each over the starts that have the lead, their ratio, and in how many starts the new one is closer to DE440.
 Written to <out>/<label>.md and .json.
 
-usage: python scripts/hindcast_paired_report.py NEW_DIR [--new restated_hdr] [--control-table PATH] [--out DIR] [--label HINDCAST_HDR_PAIRED]
+usage: python scripts/hindcast_paired_report.py NEW_DIR [--new restated_hdr] [--control-table PATH | --control-dir DIR [--control restated_zon]] [--out DIR] [--label HINDCAST_HDR_PAIRED]
 """
 from __future__ import annotations
 
@@ -52,15 +52,22 @@ def main() -> int:
     ap.add_argument("new_dir", type=Path)
     ap.add_argument("--new", default="restated_hdr")
     ap.add_argument("--control-table", type=Path, default=DEFAULT_CONTROL)
+    ap.add_argument("--control-dir", type=Path, default=None, help="per-start files of the control predictor (same step as NEW_DIR), instead of the stored table")
+    ap.add_argument("--control", default="restated_zon", help="predictor name of the files in --control-dir")
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--label", default="HINDCAST_PAIRED")
     a = ap.parse_args()
-    control = json.loads(a.control_table.read_text(encoding="utf-8"))
     new = load_new(a.new_dir, a.new)
+    if a.control_dir:
+        control = {"metadata": {"predictor": a.control}, "per_start": load_new(a.control_dir, a.control)}
+    else:
+        control = json.loads(a.control_table.read_text(encoding="utf-8"))
+    dts = {json.loads(f.read_text(encoding="utf-8"))["metadata"]["dt_days"] for f in a.new_dir.glob(f"{a.new}_*.json")}
+    step = ", ".join(f"{d:g}" for d in sorted(dts))
     starts = sorted(set(control["per_start"]) & set(new))
     rows = compare(control["per_start"], new)
     lines = [f"# Hindcast, `{a.new}` against `{control['metadata']['predictor']}` ({len(starts)} starts: {', '.join(starts)})", "",
-             "Same code, step (0.025 d), fixture snapshot (j2010) and DE440 answer key; only the predictor's configuration differs. Median heliocentric position error over the starts that reach the lead, km. "
+             f"Same code, step ({step} d), fixture snapshot (j2010) and DE440 answer key; only the predictor's configuration differs. Median heliocentric position error over the starts that reach the lead, km. "
              "Ratio below 1 means the new configuration is closer to DE440.", "",
              "| body | lead | control | new | ratio | starts better |", "|---|---|---|---|---|---|"]
     for r in sorted(rows, key=lambda r: (r["body"], r["lead"])):
