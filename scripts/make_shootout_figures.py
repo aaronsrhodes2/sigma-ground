@@ -129,9 +129,9 @@ def f2_inner(out: Path, r2, ctrl, cand_d):
         data[b] = {"leads_yr": leads, "r2": s_r2, "control_0.025d": s_ct, "restated": s_cd}
     from matplotlib.lines import Line2D
     legend_row(fig, [Line2D([], [], color=ORANGE, marker="o", linewidth=2, markersize=7), Line2D([], [], color=AQUA, marker="s", linewidth=2, markersize=7), Line2D([], [], color=BLUE, marker="o", linewidth=2.4, markersize=7)],
-               ["r2 baseline (step 0.05 d)", "same stack at the finer step only (0.025 d; 6 windows, to +5 yr)", "restated model (+ asteroids, ring, 7 KBOs, lunar figure; r4 fixture)"], y=0.87)
+               ["r2 baseline (step 0.05 d)", "same stack at the finer step only (0.025 d; 6 windows, to +5 yr)", "restated model (+ asteroids, ring, 7 KBOs, lunar figure, measured zonals; r8 run)"], y=0.87)
     fig.text(0.5, 0.03, "lead time (years)", ha="center", color=INK2)
-    title(fig, "Inner system error against lead time", "Median over windows (5-yr leads: 16 windows; 10 and 20 yr: 7 windows), km against DE440 on a log axis.")
+    title(fig, "Inner system error against lead time", "Median over windows (5-yr leads: up to 21 windows; 10 and 20 yr: 7 windows), km against DE440 on a log axis.")
     save(fig, out / "F2_inner_system_vs_lead.png", data)
 
 
@@ -343,7 +343,8 @@ def main() -> int:
     fine_r4 = R.load([RES / "rolling_shootout_r4_fine_0.0125.json"])
     fine_old = R.load([RES / "rolling_shootout_fine_0.0125.json"])
     f1_headline(a.out, r2, fine_r4, a.fine_candidate)
-    f2_inner(a.out, r2, full["de440_stack"], full[a.candidate])
+    ctrl = full.get("de440_stack") or R.load([RES / "rolling_shootout_r4_full_short_0.025.json", RES / "rolling_shootout_r4_full_long_0.025.json"], {"de440_stack"})["de440_stack"]   # the control arm lives in the r4 run
+    f2_inner(a.out, r2, ctrl, full[a.candidate])
     f3_ladder(a.out, RES / "shootout_restated_runs.jsonl", RES / "ring_reduced_runs.jsonl", RES / "kbo_reduced_runs.jsonl")
     f4_fixture(a.out, fine_old, fine_r4, a.fine_candidate)
     f5_moons(a.out)

@@ -1,0 +1,1306 @@
+[
+ {
+  "body": "Mercury",
+  "lead": 1,
+  "r2": 0.29764932566096924,
+  "control": null,
+  "candidate": 0.005366881912551368,
+  "n": 16
+ },
+ {
+  "body": "Mercury",
+  "lead": 3,
+  "r2": 0.7393762743266141,
+  "control": null,
+  "candidate": 0.016477499069328435,
+  "n": 16
+ },
+ {
+  "body": "Mercury",
+  "lead": 5,
+  "r2": 1.3499420759997893,
+  "control": null,
+  "candidate": 0.0269556501771072,
+  "n": 16
+ },
+ {
+  "body": "Mercury",
+  "lead": 10,
+  "r2": 2.6298863918724504,
+  "control": null,
+  "candidate": 0.0598289132725808,
+  "n": 7
+ },
+ {
+  "body": "Mercury",
+  "lead": 20,
+  "r2": 5.841455101009596,
+  "control": null,
+  "candidate": 0.10396824168924236,
+  "n": 7
+ },
+ {
+  "body": "Venus",
+  "lead": 1,
+  "r2": 0.03476228761142058,
+  "control": null,
+  "candidate": 0.014862204758356885,
+  "n": 16
+ },
+ {
+  "body": "Venus",
+  "lead": 3,
+  "r2": 0.10241570027132935,
+  "control": null,
+  "candidate": 0.042850243116348406,
+  "n": 16
+ },
+ {
+  "body": "Venus",
+  "lead": 5,
+  "r2": 0.17660918897292488,
+  "control": null,
+  "candidate": 0.06984272122653606,
+  "n": 16
+ },
+ {
+  "body": "Venus",
+  "lead": 10,
+  "r2": 0.2798501048718605,
+  "control": null,
+  "candidate": 0.13078969250842465,
+  "n": 7
+ },
+ {
+  "body": "Venus",
+  "lead": 20,
+  "r2": 0.5933826956991018,
+  "control": null,
+  "candidate": 0.28286409582903854,
+  "n": 7
+ },
+ {
+  "body": "Earth",
+  "lead": 1,
+  "r2": 0.07654184268928971,
+  "control": null,
+  "candidate": 0.012177342652006724,
+  "n": 16
+ },
+ {
+  "body": "Earth",
+  "lead": 3,
+  "r2": 0.2965028401872713,
+  "control": null,
+  "candidate": 0.03528358911784002,
+  "n": 16
+ },
+ {
+  "body": "Earth",
+  "lead": 5,
+  "r2": 0.4505867337327282,
+  "control": null,
+  "candidate": 0.05862854652654102,
+  "n": 16
+ },
+ {
+  "body": "Earth",
+  "lead": 10,
+  "r2": 0.7654715498300685,
+  "control": null,
+  "candidate": 0.06588730974809645,
+  "n": 7
+ },
+ {
+  "body": "Earth",
+  "lead": 20,
+  "r2": 1.8871757926143282,
+  "control": null,
+  "candidate": 0.1662557938071159,
+  "n": 7
+ },
+ {
+  "body": "Moon",
+  "lead": 1,
+  "r2": 0.7591387992301388,
+  "control": null,
+  "candidate": 0.09819882973654812,
+  "n": 16
+ },
+ {
+  "body": "Moon",
+  "lead": 3,
+  "r2": 2.3044034587688804,
+  "control": null,
+  "candidate": 0.26898340823079997,
+  "n": 16
+ },
+ {
+  "body": "Moon",
+  "lead": 5,
+  "r2": 3.9012490617918223,
+  "control": null,
+  "candidate": 0.4012531310136737,
+  "n": 16
+ },
+ {
+  "body": "Moon",
+  "lead": 10,
+  "r2": 6.875265759242359,
+  "control": null,
+  "candidate": 0.6234731446876081,
+  "n": 7
+ },
+ {
+  "body": "Moon",
+  "lead": 20,
+  "r2": 14.666071750281377,
+  "control": null,
+  "candidate": 0.9951958104361208,
+  "n": 7
+ },
+ {
+  "body": "Mars",
+  "lead": 1,
+  "r2": 0.3750586787411243,
+  "control": null,
+  "candidate": 0.012084605581596006,
+  "n": 16
+ },
+ {
+  "body": "Mars",
+  "lead": 3,
+  "r2": 1.0254420198286145,
+  "control": null,
+  "candidate": 0.040565350902789545,
+  "n": 16
+ },
+ {
+  "body": "Mars",
+  "lead": 5,
+  "r2": 1.2575495634950404,
+  "control": null,
+  "candidate": 0.06482735397719316,
+  "n": 16
+ },
+ {
+  "body": "Mars",
+  "lead": 10,
+  "r2": 1.4906623696940116,
+  "control": null,
+  "candidate": 0.023919119572474962,
+  "n": 7
+ },
+ {
+  "body": "Mars",
+  "lead": 20,
+  "r2": 3.9183364055071057,
+  "control": null,
+  "candidate": 0.1830197301079791,
+  "n": 7
+ },
+ {
+  "body": "Jupiter",
+  "lead": 1,
+  "r2": 17.739362884740824,
+  "control": null,
+  "candidate": 1.2064577415057214,
+  "n": 16
+ },
+ {
+  "body": "Jupiter",
+  "lead": 3,
+  "r2": 39.560215257499294,
+  "control": null,
+  "candidate": 3.500165198038925,
+  "n": 16
+ },
+ {
+  "body": "Jupiter",
+  "lead": 5,
+  "r2": 38.34336324643789,
+  "control": null,
+  "candidate": 5.7275820729565226,
+  "n": 16
+ },
+ {
+  "body": "Jupiter",
+  "lead": 10,
+  "r2": 61.32808724024084,
+  "control": null,
+  "candidate": 10.30786715977349,
+  "n": 7
+ },
+ {
+  "body": "Jupiter",
+  "lead": 20,
+  "r2": 67.62497888097869,
+  "control": null,
+  "candidate": 22.18388472673373,
+  "n": 7
+ },
+ {
+  "body": "Saturn",
+  "lead": 1,
+  "r2": 0.2809906612362159,
+  "control": null,
+  "candidate": 0.021889116630470044,
+  "n": 16
+ },
+ {
+  "body": "Saturn",
+  "lead": 3,
+  "r2": 1.088077474835915,
+  "control": null,
+  "candidate": 0.06524753351640572,
+  "n": 16
+ },
+ {
+  "body": "Saturn",
+  "lead": 5,
+  "r2": 1.5705575561798217,
+  "control": null,
+  "candidate": 0.17444078991309164,
+  "n": 16
+ },
+ {
+  "body": "Saturn",
+  "lead": 10,
+  "r2": 5.394161049918925,
+  "control": null,
+  "candidate": 0.48741122793240366,
+  "n": 7
+ },
+ {
+  "body": "Saturn",
+  "lead": 20,
+  "r2": 12.335353263610909,
+  "control": null,
+  "candidate": 1.5768167496966337,
+  "n": 7
+ },
+ {
+  "body": "Uranus",
+  "lead": 1,
+  "r2": 152.72934624293543,
+  "control": null,
+  "candidate": 0.04488023025912753,
+  "n": 16
+ },
+ {
+  "body": "Uranus",
+  "lead": 3,
+  "r2": 460.8015184989541,
+  "control": null,
+  "candidate": 0.11893341478305325,
+  "n": 16
+ },
+ {
+  "body": "Uranus",
+  "lead": 5,
+  "r2": 777.8606603022549,
+  "control": null,
+  "candidate": 0.20629438557321633,
+  "n": 16
+ },
+ {
+  "body": "Uranus",
+  "lead": 10,
+  "r2": 1629.7752889235626,
+  "control": null,
+  "candidate": 0.5397701529216191,
+  "n": 7
+ },
+ {
+  "body": "Uranus",
+  "lead": 20,
+  "r2": 3923.8462225961434,
+  "control": null,
+  "candidate": 1.1768142314658758,
+  "n": 7
+ },
+ {
+  "body": "Neptune",
+  "lead": 1,
+  "r2": 88.1569548074254,
+  "control": null,
+  "candidate": 0.026392405283150972,
+  "n": 16
+ },
+ {
+  "body": "Neptune",
+  "lead": 3,
+  "r2": 264.9827954600448,
+  "control": null,
+  "candidate": 0.078364982834117,
+  "n": 16
+ },
+ {
+  "body": "Neptune",
+  "lead": 5,
+  "r2": 440.7666429933478,
+  "control": null,
+  "candidate": 0.12982150143910012,
+  "n": 16
+ },
+ {
+  "body": "Neptune",
+  "lead": 10,
+  "r2": 825.3053163035845,
+  "control": null,
+  "candidate": 0.27407253067147924,
+  "n": 7
+ },
+ {
+  "body": "Neptune",
+  "lead": 20,
+  "r2": 1672.6098572228118,
+  "control": null,
+  "candidate": 1.0163037377725432,
+  "n": 7
+ },
+ {
+  "body": "Pluto",
+  "lead": 1,
+  "r2": 13.500099669262728,
+  "control": null,
+  "candidate": 2.2042682680623242,
+  "n": 16
+ },
+ {
+  "body": "Pluto",
+  "lead": 3,
+  "r2": 41.48220642239353,
+  "control": null,
+  "candidate": 6.63096958563262,
+  "n": 16
+ },
+ {
+  "body": "Pluto",
+  "lead": 5,
+  "r2": 43.40030525488318,
+  "control": null,
+  "candidate": 11.060099136224517,
+  "n": 16
+ },
+ {
+  "body": "Pluto",
+  "lead": 10,
+  "r2": 122.2679189401103,
+  "control": null,
+  "candidate": 21.977134208819876,
+  "n": 7
+ },
+ {
+  "body": "Pluto",
+  "lead": 20,
+  "r2": 278.9436414619985,
+  "control": null,
+  "candidate": 43.8636488136228,
+  "n": 7
+ },
+ {
+  "body": "Europa",
+  "lead": 1,
+  "r2": 101306.5926563633,
+  "control": null,
+  "candidate": 4815.697089750942,
+  "n": 16
+ },
+ {
+  "body": "Europa",
+  "lead": 5,
+  "r2": 918084.8256069031,
+  "control": null,
+  "candidate": 66151.03275543911,
+  "n": 16
+ },
+ {
+  "body": "Europa",
+  "lead": 20,
+  "r2": 513155.63655322953,
+  "control": null,
+  "candidate": 244918.5573080642,
+  "n": 7
+ },
+ {
+  "body": "Ganymede",
+  "lead": 1,
+  "r2": 600.6629401181976,
+  "control": null,
+  "candidate": 46.76515138266255,
+  "n": 16
+ },
+ {
+  "body": "Ganymede",
+  "lead": 5,
+  "r2": 84971.98937455288,
+  "control": null,
+  "candidate": 6357.027581941753,
+  "n": 16
+ },
+ {
+  "body": "Ganymede",
+  "lead": 20,
+  "r2": 296281.76373873185,
+  "control": null,
+  "candidate": 22817.749527908658,
+  "n": 7
+ },
+ {
+  "body": "Callisto",
+  "lead": 1,
+  "r2": 17.22834784119403,
+  "control": null,
+  "candidate": 6.415383428639521,
+  "n": 16
+ },
+ {
+  "body": "Callisto",
+  "lead": 5,
+  "r2": 86.50255294629841,
+  "control": null,
+  "candidate": 32.45418323078975,
+  "n": 16
+ },
+ {
+  "body": "Callisto",
+  "lead": 20,
+  "r2": 370.5697923480431,
+  "control": null,
+  "candidate": 106.14794778380467,
+  "n": 7
+ },
+ {
+  "body": "Himalia",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 1.9353017108658384,
+  "n": 16
+ },
+ {
+  "body": "Himalia",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 8.170175343862706,
+  "n": 16
+ },
+ {
+  "body": "Himalia",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 20.596849581266838,
+  "n": 7
+ },
+ {
+  "body": "Tethys",
+  "lead": 1,
+  "r2": 208031.78170992565,
+  "control": null,
+  "candidate": 13916.807046252306,
+  "n": 16
+ },
+ {
+  "body": "Tethys",
+  "lead": 5,
+  "r2": 573619.2038259691,
+  "control": null,
+  "candidate": 68834.61465861343,
+  "n": 16
+ },
+ {
+  "body": "Tethys",
+  "lead": 20,
+  "r2": 469196.7877973999,
+  "control": null,
+  "candidate": 266259.2624917797,
+  "n": 7
+ },
+ {
+  "body": "Dione",
+  "lead": 1,
+  "r2": 44327.00641057234,
+  "control": null,
+  "candidate": 2936.8834437119076,
+  "n": 16
+ },
+ {
+  "body": "Dione",
+  "lead": 5,
+  "r2": 218951.26601171453,
+  "control": null,
+  "candidate": 29572.755202793378,
+  "n": 16
+ },
+ {
+  "body": "Dione",
+  "lead": 20,
+  "r2": 698049.1430896932,
+  "control": null,
+  "candidate": 156238.99977707118,
+  "n": 7
+ },
+ {
+  "body": "Rhea",
+  "lead": 1,
+  "r2": 5341.430620109171,
+  "control": null,
+  "candidate": 338.5067332947598,
+  "n": 16
+ },
+ {
+  "body": "Rhea",
+  "lead": 5,
+  "r2": 26636.507853791238,
+  "control": null,
+  "candidate": 1688.8214624147308,
+  "n": 16
+ },
+ {
+  "body": "Rhea",
+  "lead": 20,
+  "r2": 106611.63017060392,
+  "control": null,
+  "candidate": 6754.151461472375,
+  "n": 7
+ },
+ {
+  "body": "Titan",
+  "lead": 1,
+  "r2": 66.16104066021164,
+  "control": null,
+  "candidate": 11.879058499313398,
+  "n": 16
+ },
+ {
+  "body": "Titan",
+  "lead": 5,
+  "r2": 330.3381373282182,
+  "control": null,
+  "candidate": 59.68631189000578,
+  "n": 16
+ },
+ {
+  "body": "Titan",
+  "lead": 20,
+  "r2": 1333.6616413628735,
+  "control": null,
+  "candidate": 242.47473212114627,
+  "n": 7
+ },
+ {
+  "body": "Hyperion",
+  "lead": 1,
+  "r2": 68.25696483930298,
+  "control": null,
+  "candidate": 10.965339618573402,
+  "n": 16
+ },
+ {
+  "body": "Hyperion",
+  "lead": 5,
+  "r2": 324.46108001888183,
+  "control": null,
+  "candidate": 56.11671116392948,
+  "n": 16
+ },
+ {
+  "body": "Hyperion",
+  "lead": 20,
+  "r2": 1368.4560961079105,
+  "control": null,
+  "candidate": 220.2379229122126,
+  "n": 7
+ },
+ {
+  "body": "Iapetus",
+  "lead": 1,
+  "r2": 8.736965634631614,
+  "control": null,
+  "candidate": 6.5585512891157585,
+  "n": 16
+ },
+ {
+  "body": "Iapetus",
+  "lead": 5,
+  "r2": 42.77213767694857,
+  "control": null,
+  "candidate": 32.20040983955509,
+  "n": 16
+ },
+ {
+  "body": "Iapetus",
+  "lead": 20,
+  "r2": 163.8797777884536,
+  "control": null,
+  "candidate": 124.62881370367151,
+  "n": 7
+ },
+ {
+  "body": "Phoebe",
+  "lead": 1,
+  "r2": 3.4362748822166127,
+  "control": null,
+  "candidate": 3.522311370626163,
+  "n": 16
+ },
+ {
+  "body": "Phoebe",
+  "lead": 5,
+  "r2": 13.437894626177115,
+  "control": null,
+  "candidate": 13.448255220450704,
+  "n": 16
+ },
+ {
+  "body": "Phoebe",
+  "lead": 20,
+  "r2": 65.72132007327784,
+  "control": null,
+  "candidate": 63.756084616872414,
+  "n": 7
+ },
+ {
+  "body": "Helene",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 2813.9992112776918,
+  "n": 16
+ },
+ {
+  "body": "Helene",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 29028.86977509997,
+  "n": 16
+ },
+ {
+  "body": "Helene",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 156196.90702446533,
+  "n": 7
+ },
+ {
+  "body": "Ariel",
+  "lead": 1,
+  "r2": 32860.042125244785,
+  "control": null,
+  "candidate": 2064.2627871736945,
+  "n": 16
+ },
+ {
+  "body": "Ariel",
+  "lead": 5,
+  "r2": 159420.50858697877,
+  "control": null,
+  "candidate": 10289.62728706683,
+  "n": 16
+ },
+ {
+  "body": "Ariel",
+  "lead": 20,
+  "r2": 377213.88064452726,
+  "control": null,
+  "candidate": 42400.677738946426,
+  "n": 7
+ },
+ {
+  "body": "Umbriel",
+  "lead": 1,
+  "r2": 3912.7475069931597,
+  "control": null,
+  "candidate": 144.00702405460174,
+  "n": 16
+ },
+ {
+  "body": "Umbriel",
+  "lead": 5,
+  "r2": 18201.874414862818,
+  "control": null,
+  "candidate": 721.9739995404468,
+  "n": 16
+ },
+ {
+  "body": "Umbriel",
+  "lead": 20,
+  "r2": 71345.3483022336,
+  "control": null,
+  "candidate": 2576.015750191417,
+  "n": 7
+ },
+ {
+  "body": "Titania",
+  "lead": 1,
+  "r2": 400.70396824756085,
+  "control": null,
+  "candidate": 459.4284819396512,
+  "n": 16
+ },
+ {
+  "body": "Titania",
+  "lead": 5,
+  "r2": 1756.1831136009805,
+  "control": null,
+  "candidate": 2262.9506134435915,
+  "n": 16
+ },
+ {
+  "body": "Titania",
+  "lead": 20,
+  "r2": 7517.285676986478,
+  "control": null,
+  "candidate": 6776.811215448817,
+  "n": 7
+ },
+ {
+  "body": "Oberon",
+  "lead": 1,
+  "r2": 422.8475482394639,
+  "control": null,
+  "candidate": 282.57577962987625,
+  "n": 16
+ },
+ {
+  "body": "Oberon",
+  "lead": 5,
+  "r2": 1217.9194348668175,
+  "control": null,
+  "candidate": 1412.1916466907246,
+  "n": 16
+ },
+ {
+  "body": "Oberon",
+  "lead": 20,
+  "r2": 3589.306505920618,
+  "control": null,
+  "candidate": 5559.208121561824,
+  "n": 7
+ },
+ {
+  "body": "Triton",
+  "lead": 1,
+  "r2": 999.82541035192,
+  "control": null,
+  "candidate": 51.04745320923443,
+  "n": 16
+ },
+ {
+  "body": "Triton",
+  "lead": 5,
+  "r2": 5463.289980930264,
+  "control": null,
+  "candidate": 255.95772365525895,
+  "n": 16
+ },
+ {
+  "body": "Triton",
+  "lead": 20,
+  "r2": 18918.222493561727,
+  "control": null,
+  "candidate": 1053.934605926274,
+  "n": 7
+ },
+ {
+  "body": "Nereid",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 4.427881097678025,
+  "n": 16
+ },
+ {
+  "body": "Nereid",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 27.670879290310005,
+  "n": 16
+ },
+ {
+  "body": "Nereid",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 126.48958280326788,
+  "n": 7
+ },
+ {
+  "body": "Charon",
+  "lead": 1,
+  "r2": 49.83283686799908,
+  "control": null,
+  "candidate": 18.06545914160263,
+  "n": 16
+ },
+ {
+  "body": "Charon",
+  "lead": 5,
+  "r2": 264.89583655873275,
+  "control": null,
+  "candidate": 90.51236750876907,
+  "n": 16
+ },
+ {
+  "body": "Charon",
+  "lead": 20,
+  "r2": 957.1570714878333,
+  "control": null,
+  "candidate": 361.81079529090886,
+  "n": 7
+ },
+ {
+  "body": "Nix",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 25.293071787888856,
+  "n": 16
+ },
+ {
+  "body": "Nix",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 125.83806256757742,
+  "n": 16
+ },
+ {
+  "body": "Nix",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 324.4467519931744,
+  "n": 7
+ },
+ {
+  "body": "Hydra",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 16.265543032043354,
+  "n": 16
+ },
+ {
+  "body": "Hydra",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 80.62831527973606,
+  "n": 16
+ },
+ {
+  "body": "Hydra",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 381.74914935784125,
+  "n": 7
+ },
+ {
+  "body": "Kerberos",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 14.786962138369855,
+  "n": 16
+ },
+ {
+  "body": "Kerberos",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 75.57949800821368,
+  "n": 16
+ },
+ {
+  "body": "Kerberos",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 273.99556680866516,
+  "n": 7
+ },
+ {
+  "body": "Styx",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 17.085620198944625,
+  "n": 16
+ },
+ {
+  "body": "Styx",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 84.14982938856946,
+  "n": 16
+ },
+ {
+  "body": "Styx",
+  "lead": 20,
+  "r2": null,
+  "control": null,
+  "candidate": 214.96953743834516,
+  "n": 7
+ },
+ {
+  "body": "Phobos",
+  "lead": 1,
+  "r2": 12965.10722733871,
+  "control": null,
+  "candidate": 14671.456288652853,
+  "n": 16
+ },
+ {
+  "body": "Phobos",
+  "lead": 5,
+  "r2": 15703.099028086532,
+  "control": null,
+  "candidate": 13203.515733169843,
+  "n": 16
+ },
+ {
+  "body": "Deimos",
+  "lead": 1,
+  "r2": 28807.50826574237,
+  "control": null,
+  "candidate": 7989.521990980936,
+  "n": 16
+ },
+ {
+  "body": "Deimos",
+  "lead": 5,
+  "r2": 7320.723436649016,
+  "control": null,
+  "candidate": 35424.653023869425,
+  "n": 16
+ },
+ {
+  "body": "Mimas",
+  "lead": 1,
+  "r2": 143571.0077759048,
+  "control": null,
+  "candidate": 249526.80779449063,
+  "n": 16
+ },
+ {
+  "body": "Mimas",
+  "lead": 5,
+  "r2": 257725.88157411473,
+  "control": null,
+  "candidate": 195251.4281883183,
+  "n": 16
+ },
+ {
+  "body": "Enceladus",
+  "lead": 1,
+  "r2": 473132.2177406838,
+  "control": null,
+  "candidate": 53622.663619761464,
+  "n": 16
+ },
+ {
+  "body": "Enceladus",
+  "lead": 5,
+  "r2": 389784.54882862367,
+  "control": null,
+  "candidate": 145169.02575548622,
+  "n": 16
+ },
+ {
+  "body": "Io",
+  "lead": 1,
+  "r2": 368605.01144342014,
+  "control": null,
+  "candidate": 25815.474089215255,
+  "n": 16
+ },
+ {
+  "body": "Io",
+  "lead": 5,
+  "r2": 726743.0317672158,
+  "control": null,
+  "candidate": 117574.51017774845,
+  "n": 16
+ },
+ {
+  "body": "Miranda",
+  "lead": 1,
+  "r2": 257824.54267354257,
+  "control": null,
+  "candidate": 25330.899447526055,
+  "n": 16
+ },
+ {
+  "body": "Miranda",
+  "lead": 5,
+  "r2": 213731.7154097316,
+  "control": null,
+  "candidate": 120980.60516078337,
+  "n": 16
+ },
+ {
+  "body": "Amalthea",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 174838.82205399848,
+  "n": 16
+ },
+ {
+  "body": "Amalthea",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 216626.06231520732,
+  "n": 16
+ },
+ {
+  "body": "Thebe",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 221898.92730774777,
+  "n": 16
+ },
+ {
+  "body": "Thebe",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 202541.08801619802,
+  "n": 16
+ },
+ {
+  "body": "Janus",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 208660.7197221684,
+  "n": 16
+ },
+ {
+  "body": "Janus",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 233466.28894365364,
+  "n": 16
+ },
+ {
+  "body": "Epimetheus",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 146626.93117455568,
+  "n": 16
+ },
+ {
+  "body": "Epimetheus",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 224073.5125764386,
+  "n": 16
+ },
+ {
+  "body": "Prometheus",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 231745.6093646982,
+  "n": 16
+ },
+ {
+  "body": "Prometheus",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 241261.3915099689,
+  "n": 16
+ },
+ {
+  "body": "Pandora",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 91318.67761169033,
+  "n": 16
+ },
+ {
+  "body": "Pandora",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 225961.9227379752,
+  "n": 16
+ },
+ {
+  "body": "Atlas",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 240947.54415726624,
+  "n": 16
+ },
+ {
+  "body": "Atlas",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 200620.33564102827,
+  "n": 16
+ },
+ {
+  "body": "Pan",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 138629.05678750298,
+  "n": 16
+ },
+ {
+  "body": "Pan",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 216342.40100346983,
+  "n": 16
+ },
+ {
+  "body": "Puck",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 135476.69226520354,
+  "n": 16
+ },
+ {
+  "body": "Puck",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 169165.11112580448,
+  "n": 16
+ },
+ {
+  "body": "Portia",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 115940.14398763215,
+  "n": 16
+ },
+ {
+  "body": "Portia",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 104255.89532533518,
+  "n": 16
+ },
+ {
+  "body": "Juliet",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 74857.91794946417,
+  "n": 16
+ },
+ {
+  "body": "Juliet",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 63730.12967093232,
+  "n": 16
+ },
+ {
+  "body": "Belinda",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 94440.02176670903,
+  "n": 16
+ },
+ {
+  "body": "Belinda",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 36212.186626524446,
+  "n": 16
+ },
+ {
+  "body": "Proteus",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 70724.66043258722,
+  "n": 16
+ },
+ {
+  "body": "Proteus",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 235045.34711435263,
+  "n": 16
+ },
+ {
+  "body": "Larissa",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 42042.96964697576,
+  "n": 16
+ },
+ {
+  "body": "Larissa",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 145877.45856149643,
+  "n": 16
+ },
+ {
+  "body": "Galatea",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 120412.47853807356,
+  "n": 16
+ },
+ {
+  "body": "Galatea",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 36974.312361279095,
+  "n": 16
+ },
+ {
+  "body": "Despina",
+  "lead": 1,
+  "r2": null,
+  "control": null,
+  "candidate": 91435.22947679626,
+  "n": 16
+ },
+ {
+  "body": "Despina",
+  "lead": 5,
+  "r2": null,
+  "control": null,
+  "candidate": 90928.35412929882,
+  "n": 16
+ }
+]

@@ -88,3 +88,28 @@ Diagnosis and tables: `MOON_DIAGNOSIS.md`, `diag/`. Predictor `restated_zon` (Ju
 * System-local models (`scripts/system_local_moons.py`: Sun + planet + all its moons, step = shortest period / 300; r7 fixture; windows J2010, J2015; raw runs in `system_local/`, controls in `system_local_control/`, table `SYSTEM_LOCAL_MOONS.md`). +5 yr, km, measured zonals against the table's: Io 159 vs 8,588, Europa 100 vs 5,179, Ganymede 23.1 vs 644, Callisto 39.6 vs 193, Amalthea 3,021 vs 73,887, Thebe 4,107 vs 47,104; Mimas 1,963 vs 22,667, Enceladus 358 vs 9,075, Tethys 672 vs 6,826, Dione 167 vs 3,657, Helene 182 vs 3,682, Rhea 93.6 vs 1,487, Titan 52.9 vs 221, Hyperion 43.1 vs 203 (better in 2 of 2 windows); Himalia, Iapetus, Phoebe unchanged. Other systems with the measured zonals (no control run): Miranda 165, Ariel 106, Umbriel 596, Titania 3,431, Oberon 1,329, Triton 145, Nereid 6,258, Charon 91.6, Nix 127, Kerberos 72.3, Hydra 76.4, Styx 109 km. Figure F9.
 * The 14 small close-in moons (Saturn: Pan, Atlas, Prometheus, Pandora, Janus, Epimetheus; Uranus: Juliet, Portia, Belinda, Puck; Neptune: Despina, Galatea, Larissa, Proteus) lose their orbital phase within a year (errors 28,000-270,000 km, larger than their orbits) with either set of zonals. Proteus is unchanged by +-2 % in Neptune's J2 or by switching the zonals off. Not explained; several have no published mass in the data held (Horizons gives none for Janus, Epimetheus, Atlas, Prometheus, Pandora, Pan, Puck, Portia, Juliet, Belinda, Nereid).
 * The fixture's planet-centre velocity "defect" at Neptune (2.9 mm/s) was mostly missing mass: with Proteus, Larissa, Galatea and Despina (GM 3.14 km^3/s^2) in the barycentre it is 0.52 mm/s (Uranus keeps 5 mm/s: its small moons have no masses). Fixture r7 (`scripts/build_fixture_r7.py`): original + 23 Horizons moons in their own frame, each system shifted rigidly over ALL its members; Neptune's shift is 0.22 mm/s. With the small moons in, Triton in the Sun+Neptune system goes from 302/246 km to 39/11 km at +1 yr. The full shoot-out above was run on r4, not r7.
+
+# Full 56-body shoot-out on the r8 fixture (finished 2026-10-26)
+21 jobs, 0 failed, 160,229 s wall (44.5 h), step 0.025 d, fixture r8 (original 33 bodies + the 23 Horizons moons, Neptune and Triton from the current Horizons vintage, each planet system shifted rigidly onto DE440's barycentre), predictor `restated_zon`
+(DE440's 343 asteroids, the ring, the 7 identified Kuiper-belt objects, the Moon's C22, measured Jupiter and Saturn zonals). 14 five-year windows J2007-J2020 and 7 twenty-year windows J2000-J2006; the five-year numbers use all 21 (the long jobs carry +1 to +5 too).
+Raw runs `rolling_shootout_r8_full_short_0.025.json` / `_long_0.025.json`; table `SHOOTOUT_FULL_RESTATED_r8.md` (all 56 bodies; the 22 moons whose period is under about 2 days are in the step-limited table, not the headline); paired comparison with the earlier candidate on the same windows `PAIRED_R4_TO_R8.md`. Figures F1-F9 regenerated.
+
+Median heliocentric position error, km, earlier candidate (r4 fixture) -> r8 run, same windows; windows better in brackets:
+| body | +5 yr | +20 yr |
+|---|---|---|
+| Mercury, Venus, Earth, Mars, Uranus | unchanged within 1 % | unchanged within 2 % |
+| Moon | 0.40 -> 0.40 (13/21) | 0.95 -> 1.00 (2/7) |
+| Saturn | 0.17 -> 0.16 | 1.54 -> 1.58 |
+| Neptune | 0.20 -> 0.13 (14/21) | 1.33 -> 1.02 (7/7) |
+| Triton (new truth track) | 930 -> 261 (17/21) | 2,319 -> 1,054 (6/7) |
+| Callisto | 210 -> 31.9 (21/21) | 976 -> 106 (7/7) |
+| Titan | 227 -> 59.8 (21/21) | 930 -> 242 (7/7) |
+| Ganymede | 7,019 -> 6,355 (21/21) | 25,651 -> 22,818 (7/7) |
+| Jupiter | 5.54 -> 5.79 (0/21) | 20.55 -> 22.18 (0/7) |
+| Io, Europa | +7 to +8 % (0/21) | +7 to +9 % (0/7) |
+
+* Adding 23 moons did not disturb the planets: the inner system and the Moon are unchanged to within the noise of the windows (the Moon at +20 yr is 5 % higher, better in 2 of 7 windows; not explained, not distinguishable from window noise with 7 windows).
+* New moons scored in the full system, median km at +5 / +20 yr: Himalia 7.4 / 20.6, Nereid 26.6 / 126.5, Nix 84 / 324, Hydra 90 / 382, Kerberos 75 / 274, Styx 81 / 215. The fast inner moons (Amalthea, Thebe, Janus, Epimetheus, Prometheus, Pandora, Atlas, Pan, Puck, Portia, Juliet, Belinda, Proteus,
+  Larissa, Galatea, Despina) are step-limited at 0.025 d (3e4 to 2.4e5 km) and are scored in the system-local models instead (`SYSTEM_LOCAL_MOONS.md`); Helene follows Dione's global-step error (29,069 km at +5 yr; 182 km in the system-local model).
+* NOT resolved: Jupiter's planet-centre error is 4 to 8 % worse in every window with the measured zonals, as are Io and Europa. These are the step-limited bodies, and the converged check (system-local, Io 8,588 -> 159 km) says the zonals help them; but Jupiter's own error at a converged step with the
+  measured zonals has not been measured. The test that would settle it is the 0.0125 d arm on three windows (about 3 days).
