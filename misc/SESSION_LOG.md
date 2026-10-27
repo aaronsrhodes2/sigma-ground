@@ -3970,3 +3970,16 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - Observed: the box's stack was recreated four times in an hour (deploys from other sessions and a `repair()` nobody's state file claims); a live
   suite run must bracket itself with container start times. The research log's "97% plain questions" is the Wolfram trickle, not people.
 - Memory: `feedback_perfect_mentat_goal.md` (the standing goal).
+
+## 2026-10-27 (later) — Mentat self-improvement programme, steps 1-3
+
+- Step 1 DONE: the daily job measures the LIVE Mentat (`benchmark/live_ask.py`, `tools/ask_suites.py`, live rows + history on the dashboard;
+  bracketed by the process start from /health.uptime_s, NOT /health.since, which is the readiness "last progress" clock). First uncut run:
+  physics 110/150, maths 317/329, adversarial refusals 1/6.
+- Step 2 (vanilla baseline): the box's chat slot (Qwen3.6-35B) made to write router plans: physics 39 vs the router's 109; maths unmeasurable
+  (the shim dropped most connections). The trained 4B router stays first. The honest baseline (the chat model in its own tool loop) is still to run.
+- Step 3: the harness cascade lifted into `cascade_answer` (sigma-ground ad1bd52); SkippyTel gained `cascade_stage` (MENTAT_CASCADE=before|after,
+  unset = off). Adversarial, same code path: off 1/18, before 8/18, after 7/18, no losses. Physics and maths comparison running.
+- Incident: a local SkippyTel commit (app.py importing cascade_stage, not in the image's COPY list) was pushed by another session from the shared
+  checkout; the deploy's smoke test has no Mentat check; the live Mentat crash-looped ~6 min until a131f67. Lessons in memory
+  (`feedback_shared_checkout_commits.md`), the windows-shell skill (worktrees, explicit staging, binary edits) and audit finding 15.

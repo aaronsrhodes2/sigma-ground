@@ -33,6 +33,11 @@ Scripts: `tools/audit/` was not created; the one-off runners are recorded at the
 | v3.1 router in the harness, 2026-10-14 (4070, Ollama): `model-only` / `trained` profile | 309 (315 on master tools) | 109 / 140 | |
 | Wolfram free API, trickle (math: 324 with an oracle) | 52 strict, 54 lenient (225 no result) | 56 (merged run) | |
 | public cloud Mentat (keywords only), 5 probes | 0 of 1 | 1 of 4 | 0.1 s |
+| **programme step 2: the box's chat slot (Qwen3.6-35B-A3B, "vanilla Qwen") as the router, same code path, same prompt and grammar** | not measurable: the shim dropped 261 of 329 connections (RemoteProtocolError), 79 again on the retry; the 68 that answered all ended in `clarify` | **39** (router 28 of 56 it answered; 44 `clarify`; 24 to the translator) | 1.5 s |
+
+Step 2's answer for the chat slot: the trained 4B router stays first (109 vs 39 on physics; 317 vs nothing on maths). A 35B that writes
+grammar-constrained plans it was never trained to write is not a baseline, it is a different system; the honest "vanilla Qwen" baseline is the
+chat model with Mentat's tools in its own tool-calling loop (the harness's chain mode), which is a separate run and not yet made.
 
 Row S, and the live service after the fix, equal the October `model-only` measurement of this router (109) exactly. The harness's 140 came from its `trained` profile, where the
 benchmark's own cascade (regex classifiers and the semantic interpreter, `benchmark/interpreter_demo.py`) answers ahead of the model; `/ask` has no such
@@ -91,6 +96,15 @@ weak spots as in October).
     the keyword translator then answers with its falling-object offer. "Is the Earth flat?" is routed to `body_constants(earth)` and comes back as
     the Earth's constants record, tagged VERIFIED. The stored (harness) adversarial run scores 6 of 6 because the harness's cascade has a refusal
     classifier that /ask does not have (finding 3b).
+
+### S2 — a Mentat that cannot boot passes the deploy
+
+15. **skippy-core's deploy smoke test never asks Mentat anything.** `core/smoke.py` checks the model slots, the Flask health, intent, matter and
+    the car; a Mentat container that crash-loops at import passes. Seen 2026-10-27 09:21 UTC: another session's push carried my local commit
+    (app.py importing `cascade_stage`, not yet in the image's COPY list) to the trunk, CI passed (the tests import by path), the deployer
+    reported "deployed", and the live Mentat was down for six minutes until a131f67. Proposed (core/ is the Captain's): a `check_mentat` in
+    smoke.py that waits for `GET 127.0.0.1:7350/health` to say `ready` and asks one known question. On the sigma-ground side,
+    `mentat/tests/test_mentat_image_files.py` now fails before the push when app.py imports a module the Dockerfile does not copy.
 
 ### S3 — the dashboard measures the wrong system
 
