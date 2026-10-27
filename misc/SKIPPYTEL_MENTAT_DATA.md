@@ -1,5 +1,7 @@
 # Giving the Mentat container on skippy-core its data (patch, for approval; nothing applied or deployed)
 
+> **APPLIED 2026-10-27** (SkippyTel `2e570ce`, with the pin bump to sigma-ground `ef2d4c0`). The text below was written before; the pipeline notes in item 1 and 2 are out of date (sigma-ground comes from the house trunk through skippy-core's deployer, not GitHub). Current state: [MENTAT_HANDOFF.md](MENTAT_HANDOFF.md).
+
 `misc/SKIPPYTEL_MENTAT_DATA.patch` is a unified diff against the SkippyTel repo (checked: `git apply --check --cached` succeeds against the index; the working tree here is CRLF, so use `git apply --ignore-whitespace` there).
 
 ## What it changes

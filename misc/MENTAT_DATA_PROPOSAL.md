@@ -49,3 +49,7 @@ The live Mentat is built from a git ref (`SIGMA_GROUND_REF`; `tools/check_mentat
 * Item 2 `body_position`: written and tested for known dates; the prediction branch waits for the forecast table (rebuilding at 0.025 d, the first build at 0.25 d was rejected).
 * Principle adopted 2026-10-26 (the Captain): keep calculations as calculations. The constants file now holds only JPL's raw header values; GM in km^3/s^2, the Earth and Moon split, masses and orbit periods are calculated when asked. A stored forecast or error table is a cache of a calculation and carries a physics fingerprint; `body_position` says STALE when the code has changed since it was built.
 
+
+## Status 2026-10-27
+* Item 2 `body_position` DONE: prediction branch served from the sealed 30-yr forecast table, with JPL cross-check, hindcast expected error and staleness check (ledger C17). Live on the skippy-core Mentat (224 tools); the public cloud Mentat has the tools but no data volume, so `body_position` refuses there.
+* Deployed: sigma-ground `ef2d4c0`, SkippyTel `2e570ce`. How Mentat is really deployed, the open problems and the roadmap: [MENTAT_HANDOFF.md](MENTAT_HANDOFF.md).
