@@ -8,6 +8,8 @@ DE440's own state (a kernel) at the start epoch: this is a propagation from JPL'
 """
 from __future__ import annotations
 
+import dataclasses
+import hashlib
 import json
 from pathlib import Path
 
@@ -109,3 +111,34 @@ def hermite(t: float, jd: np.ndarray, pos: np.ndarray, vel: np.ndarray) -> tuple
     d00, d10, d01, d11 = (6 * s ** 2 - 6 * s) / h, (3 * s ** 2 - 4 * s + 1), (-6 * s ** 2 + 6 * s) / h, (3 * s ** 2 - 2 * s)
     v = d00 * pos[i] + d10 * vel[i] + d01 * pos[i + 1] + d11 * vel[i + 1]
     return p, v
+
+
+# What a stored forecast or error table depends on: the engine and layer code, the predictor's configuration and body parameters, and the mass and body data it reads.
+# A stored table is a cache of a CALCULATION; the fingerprint is how a table recognises that the calculation has since changed (the Captain, 2026-10-26: keep calculations as calculations).
+FINGERPRINT_CODE = ("nbody.py", "reduced_model.py", "prescribed_sources.py", "perturber_paths.py", "lunar_figure.py", "figure_forces.py", "asteroid_perturbers.py", "../constants.py", "../scale.py")
+FINGERPRINT_DATA = ("fixtures/de440_state_vectors_v2physics.json", "fixtures/de440_perturbers_v2physics.json")
+
+
+def model_fingerprint(predictor_name: str = "restated_zon") -> str:
+    """sha256 over the physics code (line endings normalised), the named predictor's full configuration, the body-parameter table and the data files above. Same physics, same fingerprint, on any machine."""
+    from sigma_ground.field.interface import rolling_shootout as rs
+    h = hashlib.sha256()
+    base = Path(__file__).parent
+    for rel in FINGERPRINT_CODE + FINGERPRINT_DATA:
+        h.update(rel.encode())
+        h.update((base / rel).read_bytes().replace(b"\r\n", b"\n"))
+
+    def plain(x):
+        if isinstance(x, np.ndarray):
+            return [round(float(v), 12) for v in x]
+        if dataclasses.is_dataclass(x):
+            return {f.name: plain(getattr(x, f.name)) for f in dataclasses.fields(x)}
+        if isinstance(x, (tuple, list)):
+            return [plain(v) for v in x]
+        if isinstance(x, dict):
+            return {str(k): plain(v) for k, v in sorted(x.items())}
+        return x
+    pred = next(p for p in rs.PREDICTORS if p.name == predictor_name)
+    h.update(json.dumps(plain(pred), sort_keys=True, default=str).encode())
+    h.update(json.dumps(plain(rs._BODY_PARAMS), sort_keys=True, default=str).encode())
+    return h.hexdigest()

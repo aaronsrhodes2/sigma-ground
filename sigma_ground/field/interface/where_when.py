@@ -107,6 +107,26 @@ def _forecast():
     return None, "the forecast table named in the manifest is not on this machine's data volume (forecast/ is mirrored by sync_datasets.sh)"
 
 
+@functools.lru_cache(maxsize=2)
+def _current_fingerprint(predictor: str) -> str:
+    from sigma_ground.field.interface import reduced_model as rm
+    return rm.model_fingerprint(predictor)
+
+
+def freshness(recorded: str | None, predictor: str) -> dict:
+    """Does the physics code that built a stored table still match the physics code now? A stored table is a cache of a calculation: when the equations, constants or configuration change, the table is
+    the answer of the OLD calculation and must be rebuilt (scripts/make_forecast_table.py), so the answer says so instead of passing it off as current."""
+    if not recorded:
+        return {"checked": False, "stale": None, "note": "this table was sealed without a physics fingerprint, so it cannot be checked against the current code"}
+    try:
+        now = _current_fingerprint(predictor)
+    except Exception as e:                                         # a machine without the full engine data cannot compute it: say so, do not guess
+        return {"checked": False, "stale": None, "note": f"the current physics fingerprint could not be computed here ({type(e).__name__})"}
+    if now == recorded:
+        return {"checked": True, "stale": False, "note": "the physics code and configuration are the ones this table was built with"}
+    return {"checked": True, "stale": True, "note": "STALE: the physics code, constants or configuration have changed since this table was built, so it is the answer of the earlier calculation. Rebuild it with scripts/make_forecast_table.py"}
+
+
 def _kernel_state(name: str, jd: float):
     from sigma_ground.field.interface import reduced_model as rm
     k = _kernel()
@@ -153,6 +173,9 @@ def expected_error(body: str, lead_years: float) -> dict | None:
             m = math.exp(math.log(med[lo]) + f * (math.log(med[hi]) - math.log(med[lo])))
             x = math.exp(math.log(mx[lo]) + f * (math.log(mx[hi]) - math.log(mx[lo])))
     meta = doc.get("metadata", {})
+    fr = freshness(meta.get("model_fingerprint"), meta.get("predictor", "restated_zon"))
+    if fr.get("stale"):
+        flag = (flag + "; " if flag else "") + "the error table itself is stale (" + fr["note"] + ")"
     n = t[str(min(ks, key=lambda k: abs(k - lead_years)))]["n_starts"]
     return {"typical_km": m, "largest_seen_km": x, "lead_years": lead_years, "hindcast_starts_at_that_lead": n,
             "basis": f"median and maximum distance from DE440 of this same model started from DE440's state at past epochs {meta.get('starts')} (targets inside DE440's fitted span)", "note": flag}
@@ -215,6 +238,9 @@ def position_at(body: str, when: str, center: str = "sun", now: datetime.datetim
                        basis=f"a prediction made on {info['created_utc'][:10]} (table sealed, sha256 {info['sha256'][:12]}, commit {info['git_commit'][:10]}), {lead:.2f} yr after its start state, which is JPL's",
                        forecast_table={"file": info["file"], "sha256": info["sha256"], "created_utc": info["created_utc"], "git_commit": info["git_commit"]})
             out["lead_years_from_start"] = lead
+            out["table_freshness"] = freshness(info.get("model_fingerprint"), info["predictor"])
+            if out["table_freshness"].get("stale"):
+                out["notes"].append(out["table_freshness"]["note"])
             out["expected_distance_from_de440"] = expected_error(b, lead)
             if jpl is not None:
                 out["cross_check"] = {"jpl_de440_extrapolation_position_km": [float(x) for x in jpl[0]], "difference_km": float(np.linalg.norm(p - jpl[0])),

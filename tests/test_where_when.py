@@ -129,6 +129,37 @@ class TestKnown(unittest.TestCase):
         self.assertIn("JPL's own prediction, not ours", " ".join(r["notes"]))
 
 
+class TestFreshness(unittest.TestCase):
+    """A stored table is a cache of a calculation: it must notice when the calculation has changed (the Captain, 2026-10-26)."""
+
+    def test_matching_fingerprint_is_fresh_changed_is_stale_missing_is_unchecked(self):         # BUG if an out-of-date table were served as current
+        from sigma_ground.field.interface import where_when as ww
+        with mock.patch.object(ww, "_current_fingerprint", return_value="abc"):
+            self.assertEqual(ww.freshness("abc", "restated_zon")["stale"], False)
+            r = ww.freshness("old", "restated_zon")
+            self.assertTrue(r["stale"])
+            self.assertIn("Rebuild", r["note"])
+            r = ww.freshness(None, "restated_zon")
+            self.assertIsNone(r["stale"])
+            self.assertFalse(r["checked"])
+
+    def test_the_fingerprint_is_stable_and_depends_on_the_predictor(self):                      # BY CONSTRUCTION
+        from sigma_ground.field.interface import reduced_model as rm
+        a = rm.model_fingerprint("restated_zon")
+        self.assertEqual(a, rm.model_fingerprint("restated_zon"))
+        self.assertNotEqual(a, rm.model_fingerprint("de440_stack"))
+
+    def test_the_fingerprint_changes_when_a_body_parameter_changes(self):                       # BUG if a constants edit left a table looking current
+        import dataclasses
+        from sigma_ground.field.interface import reduced_model as rm
+        from sigma_ground.field.interface import rolling_shootout as rs
+        before = rm.model_fingerprint("restated_zon")
+        e = rs._BODY_PARAMS["Earth"]
+        with mock.patch.dict(rs._BODY_PARAMS, {"Earth": dataclasses.replace(e, j2=e.j2 * 1.001)}):
+            self.assertNotEqual(before, rm.model_fingerprint("restated_zon"))
+        self.assertEqual(before, rm.model_fingerprint("restated_zon"))
+
+
 class TestSealedTable(unittest.TestCase):
     def test_a_table_that_no_longer_matches_its_seal_is_refused(self):                           # BUG if an edited forecast were served
         from sigma_ground.field.interface import where_when as ww

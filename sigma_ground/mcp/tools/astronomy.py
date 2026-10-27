@@ -16,6 +16,13 @@ from sigma_ground.mcp.provenance import ToolResult
 # IAU 2015 nominal values. All quantities in SI.
 # Each entry: {mass_kg, radius_m, semimajor_axis_au_or_km, orbital_period_d,
 #              source}
+def _mass_from_de440_gm(name: str) -> float:
+    """mass = GM / G, calculated from JPL's DE440 header value each time the module loads, so a change to the GM or to G reaches the answer without anyone retyping a number."""
+    from sigma_ground.field.constants import G
+    from sigma_ground.field.interface import de440_constants
+    return de440_constants.gm_km3_s2(name) * 1e9 / G
+
+
 _SOLAR_SYSTEM_BODIES: dict[str, dict] = {
     "sun": {
         # M = GM☉/G from field.constants (IAU 2015 nominal GM☉). Was 1.98892e30,
@@ -49,8 +56,8 @@ _SOLAR_SYSTEM_BODIES: dict[str, dict] = {
         "source": "NASA Planetary Fact Sheet 2024",
     },
     "moon": {
-        # 7.342e22 was the pre-2024 Fact Sheet value, 5.2e-4 below DE440's GM / G (4902.800118 km^3/s^2 / 6.6743e-11 = 7.34579e22 kg); corrected 2026-10-25, see body_constants and tests/test_body_data.py
-        "mass_kg":           7.3458e22,
+        # Calculated, not typed: DE440's lunar GM divided by G. The Fact Sheet number this replaced (7.342e22) was 5.2e-4 below it (2026-10-25); see body_constants and tests/test_body_data.py.
+        "mass_kg":           _mass_from_de440_gm("Moon"),
         "radius_m":          1.7374e6,
         "semimajor_axis_km": 384399.0,
         "orbital_period_d":  27.3217,

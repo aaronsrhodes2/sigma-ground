@@ -24,26 +24,12 @@ OUT = _ROOT / "sigma_ground/field/interface/fixtures/de440_header_constants.json
 
 
 def build(header: Path) -> dict:
+    """The header's constants exactly as JPL wrote them, plus the cited-paper values. NOTHING derived is stored: GM in km^3/s^2, the Earth/Moon split and the field blocks are calculated by
+    sigma_ground/field/interface/de440_constants.py when asked (the Captain, 2026-10-26: keep calculations as calculations)."""
     c = mp.parse_header(header)
-    au_km = c["AU"]
-    conv = au_km ** 3 / 86400.0 ** 2                      # au^3/day^2 -> km^3/s^2
-    emrat = c["EMRAT"]
-    gmb = c["GMB"] * conv
-    gm = {"Sun": c["GMS"] * conv, "Mercury": c["GM1"] * conv, "Venus": c["GM2"] * conv, "Earth": gmb * emrat / (1.0 + emrat), "Moon": gmb / (1.0 + emrat),
-          "Earth-Moon barycentre": gmb, "Mars system": c["GM4"] * conv, "Jupiter system": c["GM5"] * conv, "Saturn system": c["GM6"] * conv, "Uranus system": c["GM7"] * conv,
-          "Neptune system": c["GM8"] * conv, "Pluto system": c["GM9"] * conv}
-    moon_keys = sorted(k for k in c if re.fullmatch(r"(J[2-6]|[CS][2-6][0-6])M", k))
     return {
-        "metadata": {"source": "JPL DE440 ASCII header header.440 (Park et al. 2021, AJ 161:105)", "header_file": str(header), "au_km": au_km, "emrat": emrat, "units": "GM km^3/s^2 (converted from au^3/day^2 with the header's AU); radii km; J, C, S dimensionless; tau days",
+        "metadata": {"source": "JPL DE440 ASCII header header.440 (Park et al. 2021, AJ 161:105)", "header_file": str(header), "units": "raw: exactly as in the header (GM in au^3/day^2, AU in km, rates per year, radii km); other_sources: J dimensionless, radii km",
                      "generator": "scripts/make_de440_constants.py", "constants_in_header": len(c)},
-        "gm_km3_s2": gm,
-        "sun": {"gm_km3_s2": gm["Sun"], "j2": c["J2SUN"], "j3": c["J3SUN"], "j4": c["J4SUN"], "reference_radius_km": c["ASUN"], "gm_rate_per_yr": c["GMSDOT"],
-                "header_names": {"j2": "J2SUN", "reference_radius_km": "ASUN", "gm_rate_per_yr": "GMSDOT"}},
-        "earth": {"gm_km3_s2": gm["Earth"], "reference_radius_km": c["RE"], "j2": c["J2E"], "j3": c["J3E"], "j4": c["J4E"], "j5": c["J5E"], "j2_rate_per_yr": c["J2EDOT"], "j2_t2": c["J2ET2"],
-                  "k2": [c["K2E0"], c["K2E1"], c["K2E2"]], "tidal_time_delay_days": [c["TAUE0"], c["TAUE1"], c["TAUE2"]],
-                  "header_names": {"reference_radius_km": "RE", "j2": "J2E", "j3": "J3E", "j4": "J4E", "j5": "J5E", "k2": "K2E0..2", "tidal_time_delay_days": "TAUE0..2"}},
-        "moon": {"gm_km3_s2": gm["Moon"], "reference_radius_km": c["AM"], "k2": c["K2M"], "tidal_time_delay_days": c["TAUM"], "libration_lbet": c["LBET"], "libration_lgam": c["LGAM"], "core_oblateness": c["COBLAT"],
-                 "gravity": {k: c[k] for k in moon_keys}, "header_names": {"reference_radius_km": "AM", "gravity": ", ".join(moon_keys), "k2": "K2M", "tidal_time_delay_days": "TAUM"}},
         "other_sources": {
             "Jupiter": {"reference_radius_km": 71492.0, "j2": 14696.514e-6, "j2_uncertainty": 0.272e-6,
                         "citation": "Folkner et al. 2017 (Juno), as tabulated in arXiv:1708.06177 Table 1; radius 71492 km from its Section 2 and Appendix A",
@@ -64,9 +50,10 @@ def main() -> int:
     doc = build(a.header)
     a.out.write_text(json.dumps(doc, indent=1), encoding="utf-8")
     print("wrote", a.out, f"({doc['metadata']['constants_in_header']} header constants)")
+    from sigma_ground.field.interface import de440_constants as dc
+    dc.load.cache_clear()
     for k in ("Sun", "Earth", "Moon"):
-        print(f"  GM {k:8s} {doc['gm_km3_s2'][k]:.6f} km^3/s^2")
-    print("  moon gravity keys:", ", ".join(doc["moon"]["gravity"]))
+        print(f"  GM {k:8s} {dc.gm_km3_s2(k):.6f} km^3/s^2 (calculated from the header values)")
     return 0
 
 

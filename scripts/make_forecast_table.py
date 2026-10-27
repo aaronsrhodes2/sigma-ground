@@ -74,6 +74,7 @@ def main() -> int:
         raise SystemExit(f"the kernel ends at JD {kernel[0, 3].end_jd}; asked for {jd1}")
     if a.dt_days > MAX_STEP_DAYS and not a.force:
         raise SystemExit(refusal(a.dt_days, {}))
+    fingerprint = rm.model_fingerprint(a.predictor)                      # of the physics as it is when the build STARTS
     t0 = time.time()
     system, order = rm.build_system(kernel, a.start_jd, a.predictor, dt_days=a.dt_days, horizon_days=jd1 - a.start_jd + 10.0, fixture_key=a.fixture_key)
     print(f"built {len(order)} bodies with layers of {a.predictor} in {time.time() - t0:.0f} s; integrating {a.years} yr at {a.dt_days} d", flush=True)
@@ -107,7 +108,7 @@ def main() -> int:
              "start_jd_tdb": a.start_jd, "end_jd_tdb": float(d["jd"][-1]), "dt_days": a.dt_days, "stored_every_steps": a.every, "bodies": order, "frame": "ICRF, solar-system barycentre, km and km/s",
              "start_state": "JPL DE440s kernel state at the start epoch (a propagation from JPL's state, not an independent measurement)",
              "reference_points": "Sun, Mercury, Venus, Earth, Moon: body centres; Mars, Jupiter, Saturn, Uranus, Neptune, Pluto: planet-system barycentres",
-             "checked_against_de440_at_jd": check_jd, "heliocentric_error_km_at_check": check, "wall_seconds": time.time() - t0}
+             "checked_against_de440_at_jd": check_jd, "heliocentric_error_km_at_check": check, "model_fingerprint": fingerprint, "wall_seconds": time.time() - t0}
     doc = json.loads(MANIFEST.read_text(encoding="utf-8")) if MANIFEST.exists() else {"tables": []}
     doc["tables"].append(entry)
     MANIFEST.write_text(json.dumps(doc, indent=1), encoding="utf-8")

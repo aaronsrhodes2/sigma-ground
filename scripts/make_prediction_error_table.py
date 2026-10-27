@@ -40,6 +40,7 @@ def main() -> int:
     from sigma_ground.field import datasets
     from sigma_ground.field.interface import reduced_model as rm
     kernel = SPK.open(str(datasets.de440_kernel()))
+    fingerprint = rm.model_fingerprint(a.predictor)                      # of the physics as it is when the build STARTS
     cells: dict[str, dict[int, list[float]]] = {}
     per_start = {}
     for y in a.starts:
@@ -68,7 +69,7 @@ def main() -> int:
         print(f"start {y}: leads 1..{leads[-1]} in {time.time() - t0:.0f} s", flush=True)
     table = {n: {str(k): {"median_km": statistics.median(v), "max_km": max(v), "n_starts": len(v)} for k, v in sorted(c.items())} for n, c in cells.items()}
     doc = {"metadata": {"what": "hindcast error of the forecast model against DE440 by lead, heliocentric position, km", "predictor": a.predictor, "dt_days": a.dt_days, "starts": list(per_start),
-                        "targets_end": DATA_END_YEAR, "reference_points": "Mercury, Venus, Earth, Moon: centres; Mars..Pluto: system barycentres",
+                        "targets_end": DATA_END_YEAR, "model_fingerprint": fingerprint, "reference_points": "Mercury, Venus, Earth, Moon: centres; Mars..Pluto: system barycentres",
                         "generator": "scripts/make_prediction_error_table.py"}, "table": table, "per_start": per_start}
     a.out.write_text(json.dumps(doc, indent=1), encoding="utf-8")
     print("wrote", a.out)
