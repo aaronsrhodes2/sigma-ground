@@ -155,8 +155,8 @@ Two lessons from deploying them:
   actually replayed (defaults + `structured_results`) is what shipped. The new `router_miss` field found this in one re-ask.
 * **The live measurement was cut three times by stack recreations** (07:14, 07:20, 07:52, 08:03 UTC: `docker compose up --recreate` of every
   container, ~1 min of 502s from the model shim each time; two were deploys of other sessions' pushes, 07:52 was a `repair()` that the doctor's
-  state file does not claim: the portal's Recovery or a hand-run). A live suite run must bracket itself with the containers' `StartedAt`
-  (`misc/audit_2026-10-27/audit_replay.py` prints both) or it measures the outage. Item 3 (the dashboard on the live service) needs the same guard.
+  state file does not claim: the portal's Recovery or a hand-run). A live suite run must bracket itself with the process start (`/health.uptime_s`; NOT `/health.since`, which is the readiness
+  contract's "last made progress" clock and moves on its own) or it measures the outage. Item 3 (the dashboard on the live service) needs the same guard.
 
 ## Reproduce
 

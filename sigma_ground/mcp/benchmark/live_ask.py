@@ -20,9 +20,10 @@ How an /ask reply becomes a harness record (the same mapping as the audit; `scor
   elapsed_s         the round trip
 
 A live run must bracket itself: skippy-core recreates every container on each trunk push and on a repair (about a minute of 502s from the
-model shim), and a run that overlaps one measures the outage. `/health` reports `since` (the container's start); it is read before and after,
-rows that hit transport trouble are asked again once the service is back, and a run whose `since` still changed is marked `cut` in the meta
-file and the history line, so the dashboard shows it instead of a false drop.
+model shim), and a run that overlaps one measures the outage. `/health` reports `uptime_s`; `now - uptime_s` is the process start, read
+before and after (not `since`: that is the readiness contract's "last made progress" clock and moves on its own). Rows that hit transport
+trouble are asked again once the service is back, and a run whose start moved is marked `cut` in the meta file and the history line, so the
+dashboard shows it instead of a false drop.
 """
 from __future__ import annotations
 
@@ -52,8 +53,12 @@ def _get(url: str, timeout: float = 15) -> dict:
         return json.loads(r.read().decode())
 
 
+START_TOLERANCE_S = 20.0                                       # two readings of now - uptime_s agree within this unless the process restarted
+
+
 def service_state(base: str) -> dict:
-    """{"since", "ready", "ref"}: the container's start time and the sigma-ground commit it serves."""
+    """{"started", "since", "ready", "ref"}: the process start (now - uptime_s, epoch seconds), the readiness clock, and the commit served."""
+    now = time.time()
     try:
         h = _get(base.rstrip("/") + "/health")
     except urllib.error.HTTPError as e:                       # /health answers 503 with a body while not ready
@@ -67,7 +72,15 @@ def service_state(base: str) -> dict:
         ref = _get(base.rstrip("/") + "/version").get("sigma_ground_ref")
     except Exception:  # noqa: BLE001
         ref = None
-    return {"since": h.get("since"), "ready": bool(h.get("ready")), "ref": ref}
+    up = h.get("uptime_s")
+    started = round(now - float(up)) if isinstance(up, (int, float)) else None
+    return {"started": started, "since": h.get("since"), "ready": bool(h.get("ready")), "ref": ref}
+
+
+def restarted(before: dict, after: dict) -> bool:
+    """The process start moved between two readings: the container was recreated or the worker restarted."""
+    a, b = before.get("started"), after.get("started")
+    return a is None or b is None or abs(float(b) - float(a)) > START_TOLERANCE_S
 
 
 def ask(base: str, question: str, timeout: float = 180) -> tuple[dict, str | None]:
@@ -110,7 +123,7 @@ def record(qid: str, result: dict, elapsed_s: float, transport_error: str | None
     ev = v if isinstance(v, (int, float, str, list)) and not isinstance(v, bool) else None
     inputs = result.get("inputs") if isinstance(result.get("inputs"), dict) else {}
     calls = [{"name": c.get("tool"), "args": c.get("args"), "result_text": json.dumps(c, default=str)} for c in (inputs.get("chain") or []) if isinstance(c, dict)]
-    return {"id": qid, "system": SYSTEM, "model": result.get("interpreter"), "sigma_ground_ref": state.get("ref"), "mentat_since": state.get("since"),
+    return {"id": qid, "system": SYSTEM, "model": result.get("interpreter"), "sigma_ground_ref": state.get("ref"), "mentat_started": state.get("started"),
             "answer_text": f"<ERROR transport: {transport_error}>" if transport_error else answer_text(result),
             "extracted_value": None if transport_error else ev, "extracted_units": "" if transport_error else (result.get("units") or ""),
             "elapsed_s": round(elapsed_s, 3), "tool_calls": calls, "route": inputs.get("route"), "router_miss": inputs.get("router_miss"),
@@ -197,7 +210,7 @@ def run_all(base: str, results_dir: Path, suites=("physics", "adversarial", "mat
     t0 = time.time()
     first = service_state(base)
     meta["ref"] = first["ref"]
-    meta["since_before"] = first["since"]
+    meta["started_before"] = first["started"]
     cut = False
     for name in suites:
         items = corpora.get(name) or []
@@ -205,12 +218,12 @@ def run_all(base: str, results_dir: Path, suites=("physics", "adversarial", "mat
             meta["suites"][name] = {"n": 0, "note": "corpus not available on this machine"}
             continue
         recs, before, after = run_corpus(base, items, workers, timeout)
-        suite_cut = before["since"] != after["since"] or any(hit_outage(r) for r in recs)
+        suite_cut = restarted(before, after) or any(hit_outage(r) for r in recs)
         if suite_cut and retry_cut:
             # the box recreates its stack on every trunk push; one more try usually lands between pushes (the first try is kept if the
             # second is cut as well: it is at least as complete)
             recs2, before2, after2 = run_corpus(base, items, workers, timeout)
-            if before2["since"] == after2["since"] and not any(hit_outage(r) for r in recs2):
+            if not restarted(before2, after2) and not any(hit_outage(r) for r in recs2):
                 recs, before, after, suite_cut = recs2, before2, after2, False
             retried.append(name)
         cut = cut or suite_cut
@@ -223,8 +236,8 @@ def run_all(base: str, results_dir: Path, suites=("physics", "adversarial", "mat
             (results_dir / f"{prefix}live_mentat_run.json").write_text(json.dumps(recs, indent=1, default=str), encoding="utf-8")
             meta["suites"][name] = {"n": len(recs), "answered": sum(r["extracted_value"] is not None for r in recs), "cut": suite_cut,
                                     "by_route": _by_route(recs, "extracted_value"), "re_asked": sum(bool(r.get("re_asked")) for r in recs)}
-        meta["suites"][name]["since_before"], meta["suites"][name]["since_after"] = before["since"], after["since"]
-    meta["since_after"] = service_state(base)["since"]
+        meta["suites"][name]["started_before"], meta["suites"][name]["started_after"] = before["started"], after["started"]
+    meta["started_after"] = service_state(base)["started"]
     meta["cut"] = cut
     meta["retried_suites"] = retried
     meta["wall_s"] = round(time.time() - t0, 1)

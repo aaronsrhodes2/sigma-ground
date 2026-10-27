@@ -20,9 +20,10 @@ class FakeMentat:
     def __init__(self):
         self.answers: dict[str, dict] = {}
         self.since = "2026-10-27T08:00:00Z"
+        self.uptime_s = 1000.0                                   # the process start is now - uptime_s; a restart resets it
         self.ref = "abc123"
         self.fail_next = 0
-        self.flip_since_after: int | None = None               # after this many asks the container "restarts": since changes
+        self.flip_since_after: int | None = None               # after this many asks the container "restarts": uptime resets
         self.asked: list[str] = []
         outer = self
 
@@ -40,7 +41,7 @@ class FakeMentat:
 
             def do_GET(self):
                 if self.path == "/health":
-                    self._send(200, {"ready": True, "since": outer.since})
+                    self._send(200, {"ready": True, "since": outer.since, "uptime_s": outer.uptime_s})
                 elif self.path == "/version":
                     self._send(200, {"sigma_ground_ref": outer.ref})
                 else:
@@ -51,7 +52,7 @@ class FakeMentat:
                 q = json.loads(self.rfile.read(n))["question"]
                 outer.asked.append(q)
                 if outer.flip_since_after is not None and len(outer.asked) > outer.flip_since_after:
-                    outer.since = "2026-10-27T08:05:00Z"
+                    outer.since, outer.uptime_s = "2026-10-27T08:05:00Z", 1.0
                 if outer.fail_next > 0:
                     outer.fail_next -= 1
                     self._send(502, {"error": "bad gateway"})
@@ -80,7 +81,9 @@ def test_a_number_a_string_and_a_record_map_as_the_audit_says(fake):
     fake.answers["q4"] = {"value": None, "units": "", "notes": "no", "clarification": {"sentence": "Which body?"},
                           "inputs": {"route": "clarify", "router_miss": {"reason": "clarify: body"}}}
     state = L.service_state(fake.url)
-    assert state == {"since": "2026-10-27T08:00:00Z", "ready": True, "ref": "abc123"}
+    assert state["since"] == "2026-10-27T08:00:00Z" and state["ready"] and state["ref"] == "abc123"
+    import time as _t
+    assert abs(state["started"] - (_t.time() - 1000.0)) < 5
     r1 = L.record("q1", L.ask(fake.url, "q1")[0], 0.5, None, state)
     assert r1["extracted_value"] == 2953.25 and r1["extracted_units"] == "m" and r1["tool_calls"][0]["name"] == "schwarzschild_radius"
     assert r1["system"] == "live_mentat" and r1["sigma_ground_ref"] == "abc123" and r1["route"] == "router"
@@ -111,12 +114,17 @@ def test_a_502_during_the_run_is_re_asked_and_a_changed_since_marks_the_run_cut(
     fake.fail_next = 2                                           # the first two asks hit a recreation
     recs, before, after = L.run_corpus(fake.url, items, workers=1, timeout=5)
     assert all(r["extracted_value"] == 1.0 for r in recs) and sum(bool(r.get("re_asked")) for r in recs) == 2
-    assert before["since"] == after["since"]
-    # the container restarts partway through: every row still answers, and the run is reported as cut (before != after)
+    assert not L.restarted(before, after)
+    # the container restarts partway through: every row still answers, and the run is reported as cut (the start moved)
     fake.flip_since_after = len(fake.asked) + 1
     recs2, b2, a2 = L.run_corpus(fake.url, items, workers=1, timeout=5)
     assert all(r["extracted_value"] == 1.0 for r in recs2)
-    assert b2["since"] == "2026-10-27T08:00:00Z" and a2["since"] == "2026-10-27T08:05:00Z"
+    assert L.restarted(b2, a2) and a2["started"] - b2["started"] > 900
+    # the readiness clock alone moving is NOT a restart (it is "last made progress")
+    fake.flip_since_after = None
+    fake.since = "2026-10-27T08:09:00Z"
+    _, b3, a3 = L.run_corpus(fake.url, items[:1], workers=1, timeout=5)
+    assert not L.restarted(b3, a3)
 
 
 def test_transport_failure_is_an_error_record_not_an_answer(fake):
