@@ -193,7 +193,7 @@ def catalog() -> dict[str, dict]:
 
 def resolve(name: str) -> tuple[dict | None, list[str]]:
     """(entry or None, close names when not found). Accepts planet/moon names, nicknames (Luna, Terra), asteroid numbers and names ('1', 'Ceres', '1 Ceres', '(1) Ceres')."""
-    from sigma_ground.mcp.tools.aliases import BODY_ALIASES
+    from sigma_ground.field.interface.body_aliases import BODY_ALIASES
     cat = catalog()
     key = _norm(name)
     key = BODY_ALIASES.get(key, key)

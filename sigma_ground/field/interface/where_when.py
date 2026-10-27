@@ -67,7 +67,7 @@ def _utc_to_jd_tdb(t: datetime.datetime) -> float:
 
 
 def canonical_body(name: str) -> str:
-    from sigma_ground.mcp.tools.aliases import BODY_ALIASES
+    from sigma_ground.field.interface.body_aliases import BODY_ALIASES
     key = re.sub(r"\s+", " ", name.strip().lower().replace("_", " ").replace("-", " "))
     key = BODY_ALIASES.get(key, key)
     for b in SUPPORTED:

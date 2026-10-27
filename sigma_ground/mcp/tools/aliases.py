@@ -19,23 +19,9 @@ Adding aliases:
 
 from __future__ import annotations
 
-
-def _norm(s: str) -> str:
-    """Lowercase, trim, collapse separators. Returns space-separated form.
-
-    All alias-dict keys go through this on lookup, AND the dicts below
-    are normalized at module import (see `_normalize_dict()`), so you
-    can spell keys naturally in this file ('k_B', 'h-bar', 'α CMa')
-    without worrying about matching the lookup form.
-    """
-    return (
-        s.strip()
-         .lower()
-         .replace("'", "")
-         .replace("’", "")
-         .replace("-", " ")
-         .replace("_", " ")
-    )
+# BODY_ALIASES and _norm live in the field tier so physics modules can use them
+# without importing mcp (tests/test_layering.py); re-exported here.
+from sigma_ground.field.interface.body_aliases import BODY_ALIASES, _norm
 
 
 def _normalize_dict(d: dict[str, str]) -> dict[str, str]:
@@ -271,51 +257,7 @@ STAR_ALIASES: dict[str, str] = {
 }
 
 
-# ============================================================
-# SOLAR SYSTEM BODIES — formal / nickname / mythological name
-# -> canonical key in astronomy._SOLAR_SYSTEM_BODIES
-# ============================================================
-BODY_ALIASES: dict[str, str] = {
-    # Sun
-    "sol": "sun",
-    "helios": "sun",
-    "the sun": "sun",
-    "our star": "sun",
-    # Mercury (no common alternate name)
-    # Venus (Morning Star, Evening Star, Phosphorus, Hesperus)
-    "morning star": "venus",
-    "evening star": "venus",
-    "phosphorus": "venus",
-    "hesperus": "venus",
-    # Earth
-    "terra": "earth",
-    "gaia": "earth",
-    "the earth": "earth",
-    "our planet": "earth",
-    "planet earth": "earth",
-    "world": "earth",
-    # Moon (Luna)
-    "luna": "moon",
-    "the moon": "moon",
-    "earths moon": "moon",
-    # Mars (Red Planet, Ares)
-    "ares": "mars",
-    "red planet": "mars",
-    "the red planet": "mars",
-    # Jupiter (Zeus, Jove)
-    "zeus": "jupiter",
-    "jove": "jupiter",
-    # Saturn (Cronus, Kronos)
-    "cronus": "saturn",
-    "kronos": "saturn",
-    # Uranus
-    "ouranos": "uranus",
-    # Neptune (Poseidon)
-    "poseidon": "neptune",
-    # Pluto (Hades; dwarf planet)
-    "hades": "pluto",
-    "dwarf planet pluto": "pluto",
-}
+# SOLAR SYSTEM BODIES: BODY_ALIASES is imported above from field.interface.body_aliases.
 
 
 # ============================================================
@@ -414,6 +356,5 @@ MATERIAL_ALIASES: dict[str, str] = {
 # Normalize all dict keys so 'k_B' / 'k-B' / 'k B' all match.
 CONSTANT_ALIASES = _normalize_dict(CONSTANT_ALIASES)
 STAR_ALIASES = _normalize_dict(STAR_ALIASES)
-BODY_ALIASES = _normalize_dict(BODY_ALIASES)
 ELEMENT_ALIASES = _normalize_dict(ELEMENT_ALIASES)
 MATERIAL_ALIASES = _normalize_dict(MATERIAL_ALIASES)
