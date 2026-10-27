@@ -180,6 +180,27 @@ class TestSealedTable(unittest.TestCase):
                 self.assertIn("does not match its sealed sha256", info)
 
 
+@unittest.skipUnless(KERNEL.exists() and (FIX / "forecast_manifest.json").exists(), "DE440s kernel or sealed forecast table not available")
+class TestRealForecast(unittest.TestCase):
+    """The sealed 30-year table built on 2026-10-26 (its start state is DE440's, 2026-01-01)."""
+    def setUp(self):
+        from sigma_ground.field.interface import where_when
+        self.ww = where_when
+        if self.ww._forecast()[0] is None:
+            self.skipTest("the forecast table file is not installed on this machine")
+
+    def test_a_future_date_is_a_labelled_prediction_that_agrees_with_jpls_extrapolation(self):  # BUG if the table were off by more than the hindcast says
+        r = self.ww.position_at("Mars", "2030-06-15", "sun", now=datetime.datetime(2026, 10, 27, tzinfo=datetime.timezone.utc))
+        self.assertEqual(r["kind"], "prediction")
+        self.assertLess(r["cross_check"]["difference_km"], 5.0)                                  # measured 0.06 km on 2026-10-27; 5 km would mean the table or the extrapolation broke
+        self.assertGreater(r["expected_distance_from_de440"]["typical_km"], 0.0)
+
+    def test_the_table_and_the_error_table_carry_the_current_physics_fingerprint(self):         # BUG if the physics changes and the stored tables keep being served unmarked
+        r = self.ww.position_at("Mars", "2030-06-15", "sun", now=datetime.datetime(2026, 10, 27, tzinfo=datetime.timezone.utc))
+        self.assertTrue(r["table_freshness"]["checked"])
+        self.assertFalse(r["table_freshness"]["stale"])
+
+
 class TestTool(unittest.TestCase):
     def test_tool_labels_a_pre_2020_value_verified_and_refuses_a_moon(self):
         from sigma_ground.mcp.tools import astronomy

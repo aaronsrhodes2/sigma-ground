@@ -1,0 +1,48 @@
+{
+ "tables": [
+  {
+   "file": "forecast_restated_zon_2026-10-27_30yr.npz",
+   "sha256": "e63efe35c5d6883b978d24db619770f6d86afc0787884f6019fcb1036b21710f",
+   "bytes": 21684250,
+   "created_utc": "2026-10-27T02:41:55Z",
+   "git_commit": "582999ca108f6159778c39abbd1a2f2396721d81",
+   "predictor": "restated_zon",
+   "start_jd_tdb": 2461041.5,
+   "end_jd_tdb": 2471999.0,
+   "dt_days": 0.025,
+   "stored_every_steps": 10,
+   "bodies": [
+    "Sun",
+    "Mercury",
+    "Venus",
+    "Earth",
+    "Moon",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto"
+   ],
+   "frame": "ICRF, solar-system barycentre, km and km/s",
+   "start_state": "JPL DE440s kernel state at the start epoch (a propagation from JPL's state, not an independent measurement)",
+   "reference_points": "Sun, Mercury, Venus, Earth, Moon: body centres; Mars, Jupiter, Saturn, Uranus, Neptune, Pluto: planet-system barycentres",
+   "checked_against_de440_at_jd": 2461340.5,
+   "heliocentric_error_km_at_check": {
+    "Mercury": 0.00580436166404172,
+    "Venus": 0.011899162445204269,
+    "Earth": 0.02723369039373826,
+    "Moon": 0.04708757447599423,
+    "Mars": 0.009897462304984646,
+    "Jupiter": 0.0008336902245353932,
+    "Saturn": 0.000794079086073096,
+    "Uranus": 0.0017349577807889175,
+    "Neptune": 0.0020162360057713945,
+    "Pluto": 0.00245134381901911
+   },
+   "wall_seconds": 11708.068465948105,
+   "model_fingerprint_note": "stamped 2026-10-27T05:03:46Z after the build. commits touched the physics files since the build started, so the current code was RUN again from the same start state for 1 yr at the same step: it reproduces every stored sample (all bodies) to within 0 km (tolerance 0.0001 km)",
+   "model_fingerprint": "b53a5b5e410b8da6b795b003350150af3bb7fb4f4b7669f2f2552652cc8104dd"
+  }
+ ]
+}
