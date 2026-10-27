@@ -100,17 +100,13 @@ def summary():
 
 
 def refresh():
-    """Re-freeze the snapshot from the live container (needs Docker and skippytel-mentat)."""
-    code = (
-        "import json,urllib.request\n"
-        "b='http://localhost:8080'\n"
-        "t=json.load(urllib.request.urlopen(b+'/tools',timeout=30))\n"
-        "r=urllib.request.Request(b+'/tools/list_simulation_scenarios',data=b'{}',headers={'content-type':'application/json'})\n"
-        "v=json.load(urllib.request.urlopen(r,timeout=60))\n"
-        "print(json.dumps({'tools':t,'verbs':v}))\n")
-    raw = subprocess.run(["docker", "exec", "-i", "skippytel-mentat", "python", "-c", code],
-                         capture_output=True, text=True, check=True, encoding="utf-8").stdout
-    live = json.loads(raw)
+    """Re-freeze the snapshot from the live Mentat (skippy-core's, over the tailnet; MENTAT_URL overrides)."""
+    import os
+    import urllib.request
+    b = os.environ.get("MENTAT_URL", "http://skippy-core:7350").rstrip("/")
+    tools = json.load(urllib.request.urlopen(b + "/tools", timeout=30))
+    req = urllib.request.Request(b + "/tools/list_simulation_scenarios", data=b"{}", headers={"content-type": "application/json"})
+    live = {"tools": tools, "verbs": json.load(urllib.request.urlopen(req, timeout=60))}
     cat = (live["verbs"].get("result") or live["verbs"])["inputs"]["catalog"]
 
     def first(d):

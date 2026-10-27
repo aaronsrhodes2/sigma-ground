@@ -1,10 +1,9 @@
 {
   "mcpServers": {
     "mentat": {
-      "comment": "PLATINUM_RULES §21 — Mentat does the physics. sigma-ground's MCP server, run over stdio inside SkippyTel's skippytel-mentat container (the copy with Qwen for the `simulate` front door). Needs Docker Desktop up; tools appear as mcp__mentat__*. Shell equivalent: tools/mentat_call.sh.",
-      "command": "docker",
-      "args": ["exec", "-i", "skippytel-mentat", "python", "-m", "sigma_ground.mcp.server"],
-      "env": {"MSYS_NO_PATHCONV": "1"}
+      "comment": "PLATINUM_RULES §21 — Mentat does the physics. There is ONE Mentat: skippy-core's (the chat model, the router, the DE440 data), over the tailnet; the same server the user-level config names. Tools appear as mcp__mentat__*. Shell equivalent: tools/mentat_call.sh. (Until 2026-10-27 this ran stdio inside a `skippytel-mentat` container on the PC; that container is gone, and this entry shadowed the working user-level one.)",
+      "type": "http",
+      "url": "http://skippy-core:7350/mcp"
     }
   }
 }

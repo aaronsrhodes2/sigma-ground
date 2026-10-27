@@ -7,7 +7,7 @@ suite run offline, deterministically, and a prediction is always traceable to th
     from mentat_io import call
     r = call("free_fall_time", {"height_m": 2.0})     # {"value":..., "units":..., "source":..., "tag":...}
 
-Modes: a cache hit is returned as is. On a miss it asks the live container (docker exec skippytel-mentat); if that
+Modes: a cache hit is returned as is. On a miss it asks the live Mentat (skippy-core's, over HTTP: tools/mentat_client.py, MENTAT_URL); if that
 is unavailable it raises. MENTAT_OFFLINE=1 forbids live calls (what the tests set); MENTAT_REFRESH=1 re-asks everything.
 """
 from __future__ import annotations
