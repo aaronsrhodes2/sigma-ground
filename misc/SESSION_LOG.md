@@ -3987,3 +3987,14 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - Step 3 measured and shipped (SkippyTel fa4ffe0): the cascade ahead of the router with its `math` stage off. Replay, paired per question against the router alone: physics 108 -> 132 (+24, -0), maths 317 -> 317 (+0, -0), adversarial 1 -> 8 of 18. With the maths regexes on, maths fell to 298 (-19: "Over the interval [a, b]" read as an indefinite integral) so `MENTAT_CASCADE_OFF=math` names the stage out. Runners and rows: `misc/audit_2026-10-27/` and `.../cascade/`. NOT yet confirmed live: the box CI defers while the private Skippy is working (quiet gate, up to 4 h), fa4ffe0 had not deployed at 08:57 local. A live run just before it (still on ad1bd52 without the cascade env) read physics 110, adversarial 1, maths 317, as before.
 
 - Step 3 CONFIRMED LIVE (SkippyTel fa4ffe0 deployed 09:26 PDT, 50 min behind the box CI quiet gate; env read back from the container): physics 110 -> 134 of 150, adversarial 1 -> 8 of 18, maths 317 of 329 (first pass cut by an unrelated 16:30 UTC container recreation, re-asked whole). History line appended (ref column is sigma-ground ad1bd52; the cascade env is not in the ref).
+
+## 2026-10-27 (afternoon) — quarksum merged; repo audit
+
+- quarksum merged (f019fda): unrelated history, kept as tags `quarksum-legacy/master` (d2c88ae) and `quarksum-legacy/nostalgic-kapitsa`
+  (d8f832b), pushed to the trunk. 224 of its 261 files were already here byte for byte; six non-SSBM unique files copied to
+  `misc/quarksum_legacy/` with a README. Directory moved to `../_archive/quarksum-legacy/` (the folder `_archive` did not exist before:
+  CLAUDE.md said matter-shaper and sigma-api were archived there, and they never were; CLAUDE.md corrected).
+- Audit (read-only, findings in the session reply): `tests/test_layering.py` FAILS on master since c967cda (field.interface.body_data and
+  where_when import mcp.tools.aliases, tier 1 -> tier 4); `field/constants.py` and `inventory/physics.py` still describe SSBM as the model
+  in docstrings; 7 of 8 side branches are merged and undeleted; the beautiful-einstein worktree is merged with 11 dirty files; stale editable
+  installs (quarksum, materia -> missing paths; sigma_api -> sigma-api/). Full suite not run (0.5 GB free RAM, other jobs running).
