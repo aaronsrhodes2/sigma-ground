@@ -15,10 +15,10 @@ See also: [LOGGING_STANDARD.md](../LOGGING_STANDARD.md) — format for session l
 
 | Directory | Status | Why it's not canonical |
 |---|---|---|
-| `quarksum/` | Archived to `../_archive/quarksum-legacy/` | Was a parallel fork of this repo that stalled in 2026-06; its own structure was already folded into `sigma_ground/{inventory,field}` before it stopped. No unique code. |
+| `quarksum/` | Merged 2026-10-27, directory moved to `../_archive/quarksum-legacy/` | Was a parallel fork of this repo (unrelated git history) that stalled in 2026-06; its code was already in `sigma_ground/`. History kept as tags `quarksum-legacy/*`; its few unique files are in `misc/quarksum_legacy/` (see its README). |
 | `sigma-ground-mentat/` | Removed | Was a stale `git worktree` of *this repo*, not a separate project — frozen a month behind master. Anything unique (`run_gemini.py`, a `GOLDEN_RULES.md` fix) was extracted before removal. |
-| `matter-shaper/` | Archived to `../_archive/matter-shaper-legacy/` | Its renderer was folded into `sigma_ground/radiance/entangler/` (2026-06-03); the rest were stale prototypes of roles this repo already rebuilt (`radiance/web/`, `deckard/`). |
-| `sigma-api/` | Archived to `../_archive/sigma-api-legacy/` | An early prototype of this repo's own MCP/Mentat layer ("Nagatha") — confirmed fully redundant before archiving. |
+| `matter-shaper/` | Marked for `../_archive/matter-shaper-legacy/`, still in place as of 2026-10-27 | Its renderer was folded into `sigma_ground/radiance/entangler/` (2026-06-03); the rest were stale prototypes of roles this repo already rebuilt (`radiance/web/`, `deckard/`). |
+| `sigma-api/` | Marked for `../_archive/sigma-api-legacy/`, still in place as of 2026-10-27 (still pip-installed editable) | An early prototype of this repo's own MCP/Mentat layer ("Nagatha") — confirmed fully redundant before archiving. |
 | `ssbm-theory/` | Stays separate (own repo now) | Unverified SSBM black-hole-merger research, extracted from `field/` but never merged back and currently broken in isolation. Not ready to fold in. |
 
 ## Session Persistence
