@@ -3998,3 +3998,7 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   where_when import mcp.tools.aliases, tier 1 -> tier 4); `field/constants.py` and `inventory/physics.py` still describe SSBM as the model
   in docstrings; 7 of 8 side branches are merged and undeleted; the beautiful-einstein worktree is merged with 11 dirty files; stale editable
   installs (quarksum, materia -> missing paths; sigma_api -> sigma-api/). Full suite not run (0.5 GB free RAM, other jobs running).
+- Layering fixed (466187b): BODY_ALIASES moved to `field/interface/body_aliases.py`, mcp re-exports; 938 tests passed in the alias/body slice.
+- Code audit `misc/CODE_AUDIT_2026-10-27.md`: 8-row scorecard against PROJECT_GOAL, overall 6.5/10. New defect: `_lookup_scipy` returns
+  `units ""`/`uncertainty null` for c, h, k, e, m_e... (attribute branch shadows the CODATA dict branch), confirmed on the LIVE /ask.
+  Live pin is 3 commits behind master (`tools/check_mentat_deploy.sh`). `tests/` did not finish in 25 min on the loaded machine.
