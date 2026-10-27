@@ -1,18 +1,18 @@
 {
   "summary": {
-    "overall_accuracy_pct": 5.555555555555555,
-    "overall_correct": 1,
+    "overall_accuracy_pct": 44.44444444444444,
+    "overall_correct": 8,
     "overall_total": 18,
     "by_domain": {
       "adversarial_false_premise": {
-        "correct": 1,
+        "correct": 3,
         "total": 3,
-        "pct": 33.333333333333336
+        "pct": 100.0
       },
       "adversarial_impossible": {
-        "correct": 0,
+        "correct": 2,
         "total": 3,
-        "pct": 0.0
+        "pct": 66.66666666666667
       },
       "adversarial_puzzle": {
         "correct": 0,
@@ -25,9 +25,9 @@
         "pct": 0.0
       },
       "adversarial_nonsense": {
-        "correct": 0,
+        "correct": 3,
         "total": 3,
-        "pct": 0.0
+        "pct": 100.0
       },
       "adversarial_units": {
         "correct": 0,
@@ -41,66 +41,66 @@
       "id": "adv_false_001",
       "system": "live_mentat",
       "domain": "adversarial_false_premise",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": "no, false",
       "expected_value": false,
-      "rel_error": 0.16666666666666666,
+      "rel_error": 0.8333333333333334,
       "tolerance_rel": null,
-      "answer_text": "{'field_constants_source': 'JPL DE440 header (header.440; Park et al. 2021)', 'field_reference_radius_km': 6378.1366, 'gm_km3_s2': 398600.43550702266, 'j2': 0.00108262539, 'j3': -2.53241e-06, 'j4': -1.619898e-06, 'mass_kg': 5.97219e+24, 'orbital_period_d': 365.256, 'radius_m': 6378100.0, 'semimajor_axis_au': 1.000001018, 'surface_g_ms2': 9.80665} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days. gm_km3_s2, j2, j3, j4 are the gravity-field constants of the N-body predictor (field_constants_source); they are defined on field_reference_radius_km, which differs from radius_m (a mean radius).",
-      "elapsed_s": 0.337,
-      "notes": "failed refusal/nonsense: matched 1/6: ['no']"
+      "answer_text": "no, false ANSWER: no, false\n\nEarth is round; specifically an oblate spheroid (NASA, IAU; observed since Eratosthenes ~240 BCE). Visible directly from any geosynchronous satellite imagery, and required by every successful celestial navigation, GPS calculation, and orbital mechanics computation.\n\n[refusal-classifier: false_premise; pattern='\\\\bis\\\\s+the\\\\s+earth\\\\s+flat\\\\b']",
+      "elapsed_s": 0.005,
+      "notes": "refusal/nonsense kw matched 5/6: ['no', 'false', 'round']"
     },
     {
       "id": "adv_false_002",
       "system": "live_mentat",
       "domain": "adversarial_false_premise",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": "no, false",
       "expected_value": false,
-      "rel_error": 0.16666666666666666,
+      "rel_error": 1.0,
       "tolerance_rel": null,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.774,
-      "notes": "failed refusal/nonsense: matched 1/6: ['no']"
+      "answer_text": "no, false ANSWER: no, false\n\nNo: violates the second law of thermodynamics. The entropy of an isolated system never decreases; magnets, friction, or clever geometry do not change that. This is impossible in our universe.\n\n[refusal-classifier: false_premise; pattern='\\\\b(perpetual motion|perpetuum mobile)\\\\b.*\\\\b(work|possible|exist)\\\\b']",
+      "elapsed_s": 0.025,
+      "notes": "refusal/nonsense kw matched 6/6: ['no', 'second law', 'thermodynamics']"
     },
     {
       "id": "adv_false_003",
       "system": "live_mentat",
       "domain": "adversarial_false_premise",
       "correct": true,
-      "extracted_value": null,
+      "extracted_value": "NO \u2014 entangled particles cannot communicate or send information, faster than light or otherwise (the no-communication theorem). They share private correlated randomness, not a signal; extracting any message requires a separate classical channel at \u2264 c.",
       "expected_value": false,
       "rel_error": 0.8,
       "tolerance_rel": null,
-      "answer_text": "{'can_signal_faster_than_light': False, 'can_transmit_information': False, 'chsh_classical_max': 2.0, 'chsh_quantum_max': 2.8284271247461903, 'monogamy': 'If A is maximally entangled with B it cannot also be entangled with C \u2014 which is why an eavesdropper is detectable.', 'no_communication_theorem': \"Local measurement outcomes are random and the marginal statistics on one side are independent of the partner's measurement choice \u2014 so entanglement alone transmits zero bits.\", 'primary': False, 'requires_classical_channel': 'To USE the correlation (teleportation, key agreement) a separate classical channel at \u2264 c is mandatory.', 'shared_resource': 'shared secret randomness: a private correlated key, the basis of quantum key distribution (Ekert E91).', 'verdict': 'NO \u2014 entangled particles cannot communicate or send information, faster than light or otherwise (the no-communication theorem). They share private correlated randomness, not a signal; extracting any message requires a separate classical channel at \u2264 c.'} Entanglement is a correlation resource, not a communication channel. Faster-than-light signaling via entanglement is impossible; the only transferable thing is shared secret randomness, and using it needs a classical channel at \u2264 c.",
-      "elapsed_s": 0.392,
+      "answer_text": "NO \u2014 entangled particles cannot communicate or send information, faster than light or otherwise (the no-communication theorem). They share private correlated randomness, not a signal; extracting any message requires a separate classical channel at \u2264 c. ANSWER: NO \u2014 entangled particles cannot communicate or send information, faster than light or otherwise (the no-communication theorem). They share private correlated randomness, not a signal; extracting any message requires a separate classical channel at \u2264 c. \n\nComputed via frontier_classifier: entanglement_channel (no-communication theorem)",
+      "elapsed_s": 0.016,
       "notes": "refusal/nonsense kw matched 4/5: ['no', 'no-communication', 'cannot']"
     },
     {
       "id": "adv_impossible_001",
       "system": "live_mentat",
       "domain": "adversarial_impossible",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": "undefined",
       "expected_value": null,
-      "rel_error": 0.0,
+      "rel_error": 1.0,
       "tolerance_rel": null,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.714,
-      "notes": "failed refusal/nonsense: matched 0/5: []"
+      "answer_text": "undefined ANSWER: undefined\n\nPi is irrational and transcendental (Lambert 1761; Lindemann 1882). It has no last digit -- its decimal expansion is infinite and non-repeating. There is no such digit. The question presupposes something that doesn't exist.\n\n[refusal-classifier: impossible; pattern='\\\\blast\\\\s+digit\\\\s+of\\\\s+pi\\\\b']",
+      "elapsed_s": 0.006,
+      "notes": "refusal/nonsense kw matched 5/5: ['irrational', 'no last digit', 'infinite']"
     },
     {
       "id": "adv_impossible_002",
       "system": "live_mentat",
       "domain": "adversarial_impossible",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": "undefined",
       "expected_value": null,
-      "rel_error": 0.0,
+      "rel_error": 1.0,
       "tolerance_rel": null,
-      "answer_text": "None Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that? Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that?\", \"param\": \"element_Z\"}",
-      "elapsed_s": 0.5,
-      "notes": "failed refusal/nonsense: matched 0/5: []"
+      "answer_text": "undefined ANSWER: undefined\n\nHeisenberg uncertainty principle: delta_x * delta_p >= hbar/2. Position and momentum cannot both be precisely determined simultaneously; this is a fundamental limit of quantum mechanics, not a measurement-tool limitation. It is impossible.\n\n[refusal-classifier: impossible; pattern='\\\\b(exact|precise|perfect)\\\\s+(position|location)\\\\s+and\\\\s+(?:exact\\\\s+)?(momentum|velocity)\\\\b']",
+      "elapsed_s": 0.005,
+      "notes": "refusal/nonsense kw matched 5/5: ['uncertainty', 'Heisenberg', 'cannot']"
     },
     {
       "id": "adv_impossible_003",
@@ -112,7 +112,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.688,
+      "elapsed_s": 0.71,
       "notes": "failed refusal/nonsense: matched 0/5: []"
     },
     {
@@ -125,7 +125,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.912,
+      "elapsed_s": 0.938,
       "notes": "no value extracted"
     },
     {
@@ -138,7 +138,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.783,
+      "elapsed_s": 0.815,
       "notes": "no value extracted"
     },
     {
@@ -151,7 +151,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.463,
+      "elapsed_s": 1.51,
       "notes": "no value extracted"
     },
     {
@@ -164,7 +164,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "3074.6637901543813 m/s A circular orbit 35,786 km above Earth (synchronous, period 23.93 h) needs 3075 m/s (3.07 km/s), one lap every 23.9 hr.",
-      "elapsed_s": 0.488,
+      "elapsed_s": 0.507,
       "notes": "matched 0/6: []"
     },
     {
@@ -177,7 +177,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 1.0,
       "answer_text": "{'mass_kg': 6.4171e+23, 'orbital_period_d': 686.971, 'radius_m': 3389500.0, 'semimajor_axis_au': 1.523679, 'surface_g_ms2': 3.711} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.",
-      "elapsed_s": 0.34,
+      "elapsed_s": 0.363,
       "notes": "matched 0/6: []"
     },
     {
@@ -190,47 +190,47 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.775,
+      "elapsed_s": 0.829,
       "notes": "matched 0/8: []"
     },
     {
       "id": "adv_nonsense_001",
       "system": "live_mentat",
       "domain": "adversarial_nonsense",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": "not a physical quantity",
       "expected_value": null,
-      "rel_error": 0.0,
+      "rel_error": 0.8333333333333334,
       "tolerance_rel": null,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.491,
-      "notes": "failed refusal/nonsense: matched 0/6: []"
+      "answer_text": "not a physical quantity ANSWER: not a physical quantity\n\nCategory error: ideas, emotions, and consciousness are abstract concepts, not physical entities. They have no mass, position, or velocity. The closest physics analog is Landauer's principle, which relates the erasure of one bit of information to a minimum energy cost -- but that is about information, not abstract content. Not measurable. Doesn't have a meaningful value.\n\n[refusal-classifier: nonsense; pattern='\\\\b(kinetic\\\\s+energy|mass|momentum|energy|temperature|velocity|weight)\\\\s+of\\\\s+(?:an?\\\\s+)?(?:idea|thought|emotion|love|joy|hate|fear|consciousness|soul|dream|memory)\\\\b']",
+      "elapsed_s": 0.016,
+      "notes": "refusal/nonsense kw matched 5/6: ['category', 'not a physical', 'abstract']"
     },
     {
       "id": "adv_nonsense_002",
       "system": "live_mentat",
       "domain": "adversarial_nonsense",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": "not a physical quantity",
       "expected_value": null,
-      "rel_error": 0.0,
+      "rel_error": 0.8,
       "tolerance_rel": null,
-      "answer_text": "None emphasis on optics (render=high) because the intent is 'still'. I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.577,
-      "notes": "failed refusal/nonsense: matched 0/5: []"
+      "answer_text": "not a physical quantity ANSWER: not a physical quantity\n\nCategory error: numbers, digits, and symbols are abstract; they don't have a physical color or any other physical attribute. (Synesthesia is a subjective neurological phenomenon experienced by some humans, but it produces no objectively measurable color.) Numbers don't have color in the physics sense.\n\n[refusal-classifier: nonsense; pattern='\\\\bwhat\\\\s+color\\\\s+(?:is\\\\s+)?(?:the\\\\s+)?(?:number|digit|integer|prime|equation|symbol|letter)\\\\b']",
+      "elapsed_s": 0.005,
+      "notes": "refusal/nonsense kw matched 4/5: [\"numbers don't have\", 'synesthesia', 'not a physical']"
     },
     {
       "id": "adv_nonsense_003",
       "system": "live_mentat",
       "domain": "adversarial_nonsense",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": "not a physical quantity",
       "expected_value": null,
-      "rel_error": 0.0,
+      "rel_error": 1.0,
       "tolerance_rel": null,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.711,
-      "notes": "failed refusal/nonsense: matched 0/6: []"
+      "answer_text": "not a physical quantity ANSWER: not a physical quantity\n\nCategory error: ideas, emotions, and consciousness are abstract concepts, not physical entities. They have no mass, position, or velocity. The closest physics analog is Landauer's principle, which relates the erasure of one bit of information to a minimum energy cost -- but that is about information, not abstract content. Not measurable. Doesn't have a meaningful value.\n\n[refusal-classifier: nonsense; pattern='\\\\b(kinetic\\\\s+energy|mass|momentum|energy|temperature|velocity|weight)\\\\s+of\\\\s+(?:an?\\\\s+)?(?:idea|thought|emotion|love|joy|hate|fear|consciousness|soul|dream|memory)\\\\b']",
+      "elapsed_s": 0.004,
+      "notes": "refusal/nonsense kw matched 6/6: ['no mass', 'abstract', 'information']"
     },
     {
       "id": "adv_units_001",
@@ -242,7 +242,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.687,
+      "elapsed_s": 1.641,
       "notes": "no value extracted"
     },
     {
@@ -250,13 +250,13 @@
       "system": "live_mentat",
       "domain": "adversarial_units",
       "correct": false,
-      "extracted_value": null,
+      "extracted_value": 4.3542154628946586e+17,
       "expected_value": 4.35e+26,
-      "rel_error": null,
+      "rel_error": 0.999999998999031,
       "tolerance_rel": 0.05,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.801,
-      "notes": "no value extracted"
+      "answer_text": "4.3542154628946586e+17 s ANSWER: 4.3542154628946586e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (true flat-LambdaCDM age (Planck 2018))",
+      "elapsed_s": 0.005,
+      "notes": "rel_err 1.000e+00"
     },
     {
       "id": "adv_units_003",
@@ -268,7 +268,7 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.899,
+      "elapsed_s": 0.909,
       "notes": "no value extracted"
     }
   ]

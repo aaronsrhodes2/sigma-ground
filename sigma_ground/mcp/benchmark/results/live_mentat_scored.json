@@ -1,13 +1,13 @@
 {
   "summary": {
-    "overall_accuracy_pct": 73.33333333333333,
-    "overall_correct": 110,
+    "overall_accuracy_pct": 89.33333333333333,
+    "overall_correct": 134,
     "overall_total": 150,
     "by_domain": {
       "classical_mechanics_intro": {
-        "correct": 12,
+        "correct": 14,
         "total": 15,
-        "pct": 80.0
+        "pct": 93.33333333333333
       },
       "electromagnetism_intro": {
         "correct": 14,
@@ -15,19 +15,19 @@
         "pct": 93.33333333333333
       },
       "waves_optics": {
-        "correct": 9,
+        "correct": 12,
         "total": 12,
-        "pct": 75.0
+        "pct": 100.0
       },
       "thermodynamics_statmech": {
-        "correct": 10,
+        "correct": 12,
         "total": 12,
-        "pct": 83.33333333333333
+        "pct": 100.0
       },
       "modern_physics": {
-        "correct": 8,
+        "correct": 12,
         "total": 12,
-        "pct": 66.66666666666667
+        "pct": 100.0
       },
       "quantum_mechanics": {
         "correct": 12,
@@ -35,9 +35,9 @@
         "pct": 100.0
       },
       "classical_mechanics_advanced": {
-        "correct": 7,
+        "correct": 8,
         "total": 10,
-        "pct": 70.0
+        "pct": 80.0
       },
       "electrodynamics_advanced": {
         "correct": 9,
@@ -45,24 +45,24 @@
         "pct": 90.0
       },
       "general_relativity": {
-        "correct": 6,
+        "correct": 9,
         "total": 10,
-        "pct": 60.0
+        "pct": 90.0
       },
       "cosmology": {
-        "correct": 4,
+        "correct": 8,
         "total": 8,
-        "pct": 50.0
+        "pct": 100.0
       },
       "astrophysics": {
-        "correct": 5,
+        "correct": 9,
         "total": 12,
-        "pct": 41.666666666666664
+        "pct": 75.0
       },
       "atomic_molecular": {
-        "correct": 2,
+        "correct": 3,
         "total": 8,
-        "pct": 25.0
+        "pct": 37.5
       },
       "nuclear_physics": {
         "correct": 7,
@@ -86,8 +86,8 @@
       "expected_value": 1.428,
       "rel_error": 6.091122481407533e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "1.4280869812290344 s Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.; ignored unknown argument 'initial_velocity_m_s'; ignored unknown argument 'angle_deg'; ignored unknown argument 'material_key'",
-      "elapsed_s": 0.984,
+      "answer_text": "1.4280869812290344 s Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.; ignored unknown argument 'initial_velocity_m_s'; ignored unknown argument 'body_key'",
+      "elapsed_s": 0.915,
       "notes": "match"
     },
     {
@@ -100,7 +100,7 @@
       "rel_error": 0.00014140464017577665,
       "tolerance_rel": 0.02,
       "answer_text": "31.315571206669695 m/s",
-      "elapsed_s": 0.385,
+      "elapsed_s": 0.393,
       "notes": "match"
     },
     {
@@ -113,21 +113,21 @@
       "rel_error": 1.5899752798138924e-05,
       "tolerance_rel": 0.02,
       "answer_text": "1019.7162129779283 m Vacuum, level ground. Air resistance reduces real range substantially for fast/small projectiles.",
-      "elapsed_s": 0.581,
+      "elapsed_s": 0.555,
       "notes": "match"
     },
     {
       "id": "mech_intro_004",
       "system": "live_mentat",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 127.46452662224104,
       "expected_value": 127.47,
-      "rel_error": null,
+      "rel_error": 4.2938556201148474e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "None Your question doesn't give everything I need. I'd assume copper for the material (a common metal); 0.05 m for the ball radius (a fist-sized ball); 10000 m for the drop height (the height of a cruising airliner); and 288.15 K for the air temperature (the standard atmosphere at sea level, 15 \u00b0C). Use those? Your question doesn't give everything I need. I'd assume copper for the material (a common metal); 0.05 m for the ball radius (a fist-sized ball); 10000 m for the drop height (the height of a cruising airliner); and 288.15 K for the air temperature (the standard atmosphere at sea level, 15 \u00b0C). Use those? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume copper for the material (a common metal); 0.05 m for the ball radius (a fist-sized ball); 10000 m for the drop height (the height of a cruising airliner); and 288.15 K for the air temperature (the standard atmosphere at sea level, 15 \\u00b0C). Use those?\", \"param\": \"material_key\"}",
-      "elapsed_s": 0.703,
-      "notes": "no value extracted"
+      "answer_text": "127.46452662224104 m ANSWER: 127.46452662224104 m\n\nComputed via classical_intro_classifier: projectile_max_height (h_max = v0^2/(2g), v0=50.0m/s straight up)",
+      "elapsed_s": 0.028,
+      "notes": "match"
     },
     {
       "id": "mech_intro_005",
@@ -139,7 +139,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "875.0 J Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
-      "elapsed_s": 0.517,
+      "elapsed_s": 0.536,
       "notes": "match"
     },
     {
@@ -151,8 +151,8 @@
       "expected_value": 0.1274,
       "rel_error": 0.0005064884006359333,
       "tolerance_rel": 0.02,
-      "answer_text": "0.12746452662224103 m Mass cancels; result depends only on v, mu, g. Coulomb friction model assumes constant mu, no slip-stick.",
-      "elapsed_s": 0.696,
+      "answer_text": "0.12746452662224103 m ANSWER: 0.12746452662224103 m\n\nComputed via classical_intro_classifier: friction_stopping_distance (d = v^2/(2 mu g), v=1.0m/s, mu=0.4)",
+      "elapsed_s": 0.018,
       "notes": "match"
     },
     {
@@ -164,8 +164,8 @@
       "expected_value": 7670,
       "rel_error": 0.00018345330711294215,
       "tolerance_rel": 0.02,
-      "answer_text": "7668.592913134444 m/s Central: earth. Radius from radius 6.3781e+06 m + altitude 400.0 km. Newtonian.",
-      "elapsed_s": 0.504,
+      "answer_text": "7668.592913134444 m/s ANSWER: 7668.592913134444 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 400 km altitude)",
+      "elapsed_s": 0.019,
       "notes": "match"
     },
     {
@@ -178,7 +178,7 @@
       "rel_error": 0.0005428238300439994,
       "tolerance_rel": 0.01,
       "answer_text": "11179.927972637128 m/s Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.",
-      "elapsed_s": 0.819,
+      "elapsed_s": 0.816,
       "notes": "match"
     },
     {
@@ -191,7 +191,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "37500.0 kg m/s",
-      "elapsed_s": 0.586,
+      "elapsed_s": 0.529,
       "notes": "match"
     },
     {
@@ -204,7 +204,7 @@
       "rel_error": 8.01212015249772e-06,
       "tolerance_rel": 0.01,
       "answer_text": "4.2845806475542445e+23 eV 1 eV = 1.602176634e-19 J (defined exactly via SI 2019).",
-      "elapsed_s": 0.941,
+      "elapsed_s": 0.93,
       "notes": "match [unit-converted ev->j]"
     },
     {
@@ -216,8 +216,8 @@
       "expected_value": 3.508,
       "rel_error": 6.615656445746877e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "3.508232077228117 s Vacuum assumption. For air at sea level, terminal velocity for a 1 cm copper ball is ~30 m/s -- much higher than the impact speed at modest heights, so the assumption is good.",
-      "elapsed_s": 0.555,
+      "answer_text": "3.508232077228117 s ANSWER: 3.508232077228117 s\n\nComputed via classical_intro_classifier: free_fall_time (t = sqrt(2h/g), h=10.0m, g=1.625m/s^2 (explicit g=1.625m/s^2))",
+      "elapsed_s": 0.006,
       "notes": "match"
     },
     {
@@ -229,8 +229,8 @@
       "expected_value": 4.079,
       "rel_error": 3.313265219113234e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "4.078864851911712 s",
-      "elapsed_s": 0.609,
+      "answer_text": "4.078864851911712 s ANSWER: 4.078864851911712 s\n\nComputed via classical_intro_classifier: projectile_flight_time (t = 2v0 sin(theta)/g, v0=40.0m/s, theta=30.0\u00b0)",
+      "elapsed_s": 0.017,
       "notes": "match"
     },
     {
@@ -243,21 +243,21 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "800.0 J Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
-      "elapsed_s": 0.564,
+      "elapsed_s": 0.591,
       "notes": "match"
     },
     {
       "id": "mech_intro_014",
       "system": "live_mentat",
       "domain": "classical_mechanics_intro",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 20.0,
       "expected_value": 20.0,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "None Your question doesn't give everything I need. I'd assume copper for the material (a common metal); 0.05 m for the ball radius (a fist-sized ball); 10000 m for the drop height (the height of a cruising airliner); and 288.15 K for the air temperature (the standard atmosphere at sea level, 15 \u00b0C). Use those? Your question doesn't give everything I need. I'd assume copper for the material (a common metal); 0.05 m for the ball radius (a fist-sized ball); 10000 m for the drop height (the height of a cruising airliner); and 288.15 K for the air temperature (the standard atmosphere at sea level, 15 \u00b0C). Use those? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume copper for the material (a common metal); 0.05 m for the ball radius (a fist-sized ball); 10000 m for the drop height (the height of a cruising airliner); and 288.15 K for the air temperature (the standard atmosphere at sea level, 15 \\u00b0C). Use those?\", \"param\": \"material_key\"}",
-      "elapsed_s": 0.547,
-      "notes": "no value extracted"
+      "answer_text": "20.0 m/s ANSWER: 20.0 m/s\n\nComputed via classical_intro_classifier: inverse_kinetic_energy (v = sqrt(2 KE / m), m=0.5kg, KE=100.0J -> 20.0m/s)",
+      "elapsed_s": 0.007,
+      "notes": "match"
     },
     {
       "id": "mech_intro_015",
@@ -268,8 +268,8 @@
       "expected_value": 0.0,
       "rel_error": null,
       "tolerance_rel": 0.1,
-      "answer_text": "3074.668174017167 m/s Central: earth. Radius from radius 6.3781e+06 m + altitude 35786.0 km. Newtonian.",
-      "elapsed_s": 0.507,
+      "answer_text": "3074.668174017167 m/s ANSWER: 3074.668174017167 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 35,786 km altitude)",
+      "elapsed_s": 0.006,
       "notes": "no match"
     },
     {
@@ -282,7 +282,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "0.05 A",
-      "elapsed_s": 0.587,
+      "elapsed_s": 0.576,
       "notes": "match"
     },
     {
@@ -295,7 +295,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "24.0 W Equivalent forms: P = I^2 R = V^2 / R.",
-      "elapsed_s": 0.576,
+      "elapsed_s": 0.518,
       "notes": "match"
     },
     {
@@ -308,7 +308,7 @@
       "rel_error": 2.121267223867071e-05,
       "tolerance_rel": 0.01,
       "answer_text": "8.854187817e-09 F Vacuum gap: eps_r=1. Common dielectrics: paper~3, glass~5-10, water~80, vacuum ferroelectric~1000+. Edge effects ignored (plate dimensions much larger than gap).",
-      "elapsed_s": 0.592,
+      "elapsed_s": 0.583,
       "notes": "match"
     },
     {
@@ -321,7 +321,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "0.001 s After 1 tau, capacitor is 63% charged. After 5 tau, effectively fully charged (>99%). Same formula for discharge: 63% discharged at t=tau.",
-      "elapsed_s": 0.61,
+      "elapsed_s": 0.606,
       "notes": "match"
     },
     {
@@ -334,7 +334,7 @@
       "rel_error": 4.214359256818396e-06,
       "tolerance_rel": 0.01,
       "answer_text": "5032.921210448703 Hz Angular frequency: omega_0 = 3.162e+04 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.",
-      "elapsed_s": 0.643,
+      "elapsed_s": 0.625,
       "notes": "match"
     },
     {
@@ -347,7 +347,7 @@
       "rel_error": 2.5156771180914372e-05,
       "tolerance_rel": 0.01,
       "answer_text": "2.99792458 m",
-      "elapsed_s": 0.47,
+      "elapsed_s": 0.472,
       "notes": "match"
     },
     {
@@ -360,7 +360,7 @@
       "rel_error": 4.18338586748991e-05,
       "tolerance_rel": 0.01,
       "answer_text": "545077196363636.3 Hz",
-      "elapsed_s": 0.439,
+      "elapsed_s": 0.419,
       "notes": "match"
     },
     {
@@ -373,7 +373,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "250.0 W Equivalent forms: P = I^2 R = V^2 / R.",
-      "elapsed_s": 1.02,
+      "elapsed_s": 1.025,
       "notes": "match"
     },
     {
@@ -386,7 +386,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "0.2 A",
-      "elapsed_s": 0.579,
+      "elapsed_s": 0.591,
       "notes": "match"
     },
     {
@@ -399,7 +399,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "10.0 V",
-      "elapsed_s": 0.604,
+      "elapsed_s": 0.579,
       "notes": "match"
     },
     {
@@ -412,7 +412,7 @@
       "rel_error": 0.0006918066666666833,
       "tolerance_rel": 0.02,
       "answer_text": "0.12491352416666666 m",
-      "elapsed_s": 0.503,
+      "elapsed_s": 0.482,
       "notes": "match"
     },
     {
@@ -425,7 +425,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 3.417,
+      "elapsed_s": 1.009,
       "notes": "no value extracted"
     },
     {
@@ -438,7 +438,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "0.0001 s Current reaches 63% of asymptotic value in 1 tau.",
-      "elapsed_s": 0.613,
+      "elapsed_s": 0.585,
       "notes": "match"
     },
     {
@@ -451,7 +451,7 @@
       "rel_error": 0.0006918066666666666,
       "tolerance_rel": 0.02,
       "answer_text": "2.99792458e+18 Hz",
-      "elapsed_s": 0.403,
+      "elapsed_s": 0.418,
       "notes": "match"
     },
     {
@@ -464,7 +464,7 @@
       "rel_error": 0.0006918066666666478,
       "tolerance_rel": 0.02,
       "answer_text": "2.99792458e-14 m",
-      "elapsed_s": 0.394,
+      "elapsed_s": 0.384,
       "notes": "match"
     },
     {
@@ -472,26 +472,26 @@
       "system": "live_mentat",
       "domain": "waves_optics",
       "correct": true,
-      "extracted_value": 22.036901808917197,
+      "extracted_value": 22.030108725578987,
       "expected_value": 22.08,
-      "rel_error": 0.0019519108280254378,
+      "rel_error": 0.002259568587908104,
       "tolerance_rel": 0.02,
-      "answer_text": "22.036901808917197 deg",
-      "elapsed_s": 1.221,
+      "answer_text": "22.030108725578987 deg ANSWER: 22.030108725578987 deg\n\nComputed via optics_classifier: snells_law_refraction_angle (Snell: n1 sin(\u03b81) = n2 sin(\u03b82), n1=1, n2=1.333, \u03b81=30.0\u00b0)",
+      "elapsed_s": 0.041,
       "notes": "match"
     },
     {
       "id": "optics_002",
       "system": "live_mentat",
       "domain": "waves_optics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 48.60662639169028,
       "expected_value": 48.61,
-      "rel_error": null,
+      "rel_error": 6.940152869208892e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.581,
-      "notes": "no value extracted"
+      "answer_text": "48.60662639169028 deg ANSWER: 48.60662639169028 deg\n\nComputed via optics_classifier: critical_angle_for_tir (asin(n2/n1), n1=1.333, n2=1.0)",
+      "elapsed_s": 0.007,
+      "notes": "match"
     },
     {
       "id": "optics_003",
@@ -503,7 +503,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
       "answer_text": "0.3 m Negative d_i = virtual image (same side as object). Positive d_i = real image (opposite side).",
-      "elapsed_s": 0.56,
+      "elapsed_s": 0.581,
       "notes": "match"
     },
     {
@@ -516,7 +516,7 @@
       "rel_error": 0.0002860331870806905,
       "tolerance_rel": 0.01,
       "answer_text": "6.561122764193189e-07 m Balmer (visible) series. Notable lines: H-alpha (n=3->2) = 656.3 nm; Lyman-alpha (n=2->1) = 121.6 nm. For hydrogen-like ions (He+, Li2+), multiply 1/lambda by Z^2.",
-      "elapsed_s": 0.504,
+      "elapsed_s": 0.512,
       "notes": "match"
     },
     {
@@ -529,7 +529,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
       "answer_text": "0.00633 m Spacing between adjacent bright fringes. Far-field (Fraunhofer) approximation: L >> d. For 633 nm laser, d=0.1 mm slits, L=1 m: y=6.33 mm.",
-      "elapsed_s": 0.808,
+      "elapsed_s": 0.835,
       "notes": "match"
     },
     {
@@ -542,21 +542,21 @@
       "rel_error": 1.1842378929335003e-16,
       "tolerance_rel": 0.02,
       "answer_text": "30.000000000000004 deg Half-width of the central diffraction maximum. For visible light through 0.1 mm slit: ~0.4 deg. For radio waves through a dish, this sets the beamwidth.",
-      "elapsed_s": 0.61,
+      "elapsed_s": 0.651,
       "notes": "match"
     },
     {
       "id": "optics_007",
       "system": "live_mentat",
       "domain": "waves_optics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 30.00000000000001,
       "expected_value": 30.0,
-      "rel_error": null,
+      "rel_error": 3.552713678800501e-16,
       "tolerance_rel": 0.02,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.966,
-      "notes": "no value extracted"
+      "answer_text": "30.00000000000001 deg ANSWER: 30.00000000000001 deg\n\nComputed via optics_classifier: diffraction_grating_angle (d sin(\u03b8) = m \u03bb, d=1.000e-06m, \u03bb=5.000e-07m)",
+      "elapsed_s": 0.007,
+      "notes": "match"
     },
     {
       "id": "optics_008",
@@ -568,7 +568,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "2.42 dimensionless",
-      "elapsed_s": 0.332,
+      "elapsed_s": 0.32,
       "notes": "match"
     },
     {
@@ -580,8 +580,8 @@
       "expected_value": 1.216e-07,
       "rel_error": 0.0008036726070314888,
       "tolerance_rel": 0.01,
-      "answer_text": "1.2150227341098497e-07 m Lyman (UV) series. Notable lines: H-alpha (n=3->2) = 656.3 nm; Lyman-alpha (n=2->1) = 121.6 nm. For hydrogen-like ions (He+, Li2+), multiply 1/lambda by Z^2.",
-      "elapsed_s": 0.485,
+      "answer_text": "1.2150227341098497e-07 m Lyman (UV) series for Z=1. Notable H lines: H-alpha (3->2)=656 nm, Lyman-alpha (2->1)=121.6 nm.",
+      "elapsed_s": 0.464,
       "notes": "match"
     },
     {
@@ -594,7 +594,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.02,
       "answer_text": "-0.5 dimensionless |m|>1: enlarged. |m|<1: reduced. m<0: inverted. m>0: upright.",
-      "elapsed_s": 0.65,
+      "elapsed_s": 0.64,
       "notes": "match"
     },
     {
@@ -602,26 +602,26 @@
       "system": "live_mentat",
       "domain": "waves_optics",
       "correct": true,
-      "extracted_value": 343.0260170616086,
+      "extracted_value": 343.4,
       "expected_value": 343.0,
-      "rel_error": 7.585149157034124e-05,
+      "rel_error": 0.0011661807580174263,
       "tolerance_rel": 0.02,
-      "answer_text": "343.0260170616086 m/s Air at T=293 K (20 C): ~343 m/s. Helium at same T: ~1007 m/s (lighter, smaller M). Sound speed is independent of pressure for an ideal gas.",
-      "elapsed_s": 0.428,
+      "answer_text": "343.4 m/s ANSWER: 343.4 m/s\n\nComputed via optics_classifier: speed_of_sound_in_ideal_gas (v \u2248 331.4 + 0.6 T, T=20.0\u00b0C)",
+      "elapsed_s": 0.008,
       "notes": "match"
     },
     {
       "id": "optics_012",
       "system": "live_mentat",
       "domain": "waves_optics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 8.698580519999998,
       "expected_value": 8.6986,
-      "rel_error": null,
+      "rel_error": 2.2394408298350456e-06,
       "tolerance_rel": 0.05,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.623,
-      "notes": "no value extracted"
+      "answer_text": "8.698580519999998 year ANSWER: 8.698580519999998 year\n\nComputed via astro_classifier: light_travel_time_from_star (sirius_a at 2.667 pc = 8.70 ly)",
+      "elapsed_s": 0.03,
+      "notes": "match"
     },
     {
       "id": "thermo_001",
@@ -632,8 +632,8 @@
       "expected_value": 101325,
       "rel_error": 0.0006236403839748381,
       "tolerance_rel": 0.02,
-      "answer_text": "101388.19036190625 Pa Ideal gas law. Valid when intermolecular forces are negligible (low pressure, high temperature). For real gases at high pressure / low T, use Van der Waals.",
-      "elapsed_s": 0.703,
+      "answer_text": "101388.19036190625 Pa ANSWER: 101388.19036190625 Pa\n\nComputed via thermo_classifier: tool=ideal_gas_pressure (PV=nRT, n=1.0, T=273.15K, V=0.0224m^3)",
+      "elapsed_s": 0.007,
       "notes": "match"
     },
     {
@@ -645,8 +645,8 @@
       "expected_value": 4.83e-07,
       "rel_error": 7.869047619040252e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "4.829619925e-07 m Wavelength of peak emission for blackbody at T=6000.0 K. Sun's surface T=5778 K -> 501 nm (visible green/yellow). Human body T=310 K -> 9.35 um (far IR).",
-      "elapsed_s": 0.419,
+      "answer_text": "4.829619925e-07 m ANSWER: 4.829619925e-07 m\n\nComputed via thermo_classifier: tool=blackbody_peak_wavelength (lambda_max = b/T, T=6000.0K)",
+      "elapsed_s": 0.005,
       "notes": "match"
     },
     {
@@ -658,8 +658,8 @@
       "expected_value": 459.0,
       "rel_error": 0.0006543092352941152,
       "tolerance_rel": 0.02,
-      "answer_text": "459.300327939 W Total radiated power. Real surfaces have emissivity<1; ideal blackbody emits at emissivity=1. Sun (T=5778 K, A=4 pi R_sun^2): 3.85e26 W = solar luminosity.",
-      "elapsed_s": 0.393,
+      "answer_text": "459.300327939 W ANSWER: 459.300327939 W\n\nComputed via thermo_classifier: tool=blackbody_total_power (P=sigma T^4 A, T=300.0K, A=1m^2)",
+      "elapsed_s": 0.015,
       "notes": "match"
     },
     {
@@ -671,8 +671,8 @@
       "expected_value": 0.5,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "0.5 dimensionless Upper bound on efficiency of ANY heat engine operating between these temperatures. Real engines achieve less. Coal plant (T_hot=800 K, T_cold=300 K) Carnot = 0.625; real efficiency ~0.35-0.40.",
-      "elapsed_s": 0.597,
+      "answer_text": "0.5 dimensionless ANSWER: 0.5 dimensionless\n\nComputed via thermo_classifier: tool=carnot_efficiency (eta = 1 - T_c/T_h, T_h=600.0K, T_c=300.0K)",
+      "elapsed_s": 0.016,
       "notes": "match"
     },
     {
@@ -684,8 +684,8 @@
       "expected_value": 6.213e-21,
       "rel_error": 1.2795750844893337e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "6.2129205000000004e-21 J At room T=300 K and f=3: E = 6.213e-21 J = ~26 meV per particle. This sets typical kinetic energies in gases.",
-      "elapsed_s": 0.417,
+      "answer_text": "6.2129205000000004e-21 J ANSWER: 6.2129205000000004e-21 J\n\nComputed via thermo_classifier: tool=thermal_energy_per_molecule (<E> = (3/2) k_B T, T=300.0K)",
+      "elapsed_s": 0.004,
       "notes": "match"
     },
     {
@@ -697,8 +697,8 @@
       "expected_value": 395.0,
       "rel_error": 6.237424726396632e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "394.97536217233073 m/s Most probable speed. RMS speed = sqrt(3 k_B T / m), and mean speed = sqrt(8 k_B T / (pi m)). All scale as sqrt(T/m).",
-      "elapsed_s": 0.704,
+      "answer_text": "394.97536217233073 m/s ANSWER: 394.97536217233073 m/s\n\nComputed via thermo_classifier: tool=maxwell_boltzmann_most_probable_speed (v_mp = sqrt(2 k T / m), m=5.31e-26kg, T=300.0K)",
+      "elapsed_s": 0.004,
       "notes": "match"
     },
     {
@@ -710,8 +710,8 @@
       "expected_value": 0.02447,
       "rel_error": 0.00018783422201798465,
       "tolerance_rel": 0.02,
-      "answer_text": "0.02446540369658722 m^3 Molar volume at STP (T=273.15 K, P=100 kPa) is 22.711 L; at NTP (T=293.15 K, P=101.325 kPa) is 24.055 L.",
-      "elapsed_s": 0.714,
+      "answer_text": "0.02446540369658722 m^3 ANSWER: 0.02446540369658722 m^3\n\nComputed via thermo_classifier: tool=ideal_gas_volume (V=nRT/P, n=1.0, T=298.15K, P=101325.0Pa)",
+      "elapsed_s": 0.005,
       "notes": "match"
     },
     {
@@ -723,35 +723,35 @@
       "expected_value": 1538.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "1811.15 K",
-      "elapsed_s": 0.333,
+      "answer_text": "1811.15 K ANSWER: 1811.15 K\n\nComputed via thermo_classifier: tool=melting_point (melting point of iron)",
+      "elapsed_s": 0.004,
       "notes": "match [unit-converted k->c]"
     },
     {
       "id": "thermo_009",
       "system": "live_mentat",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": 373.15,
+      "correct": true,
+      "extracted_value": 273.15,
       "expected_value": 273.15,
-      "rel_error": 0.36609921288669234,
+      "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "373.15 K",
-      "elapsed_s": 0.31,
-      "notes": "rel_err 3.661e-01"
+      "answer_text": "273.15 K ANSWER: 273.15 K\n\nComputed via thermo_classifier: tool=melting_point (melting point of water)",
+      "elapsed_s": 0.009,
+      "notes": "match"
     },
     {
       "id": "thermo_010",
       "system": "live_mentat",
       "domain": "thermodynamics_statmech",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 77.355,
       "expected_value": -196.0,
-      "rel_error": null,
+      "rel_error": 0.0010459183673471476,
       "tolerance_rel": 0.01,
-      "answer_text": "None Your question doesn't give everything I need. I'd assume 8 for the n carbon (the scenario's standing illustrative value, not a measured one); cortical for the bone (the scenario's standing illustrative value, not a measured one); and oak for the wood (the scenario's standing illustrative value, not a measured one). Use those? Your question doesn't give everything I need. I'd assume 8 for the n carbon (the scenario's standing illustrative value, not a measured one); cortical for the bone (the scenario's standing illustrative value, not a measured one); and oak for the wood (the scenario's standing illustrative value, not a measured one). Use those? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume 8 for the n carbon (the scenario's standing illustrative value, not a measured one); cortical for the bone (the scenario's standing illustrative value, not a measured one); and oak for the wood (the scenario's standing illustrative value, not a measured one). Use those?\", \"param\": \"n_carbon\"}",
-      "elapsed_s": 1.024,
-      "notes": "no value extracted"
+      "answer_text": "77.355 K ANSWER: 77.355 K\n\nComputed via thermo_classifier: tool=boiling_point (boiling point of nitrogen)",
+      "elapsed_s": 0.004,
+      "notes": "match [unit-converted k->c]"
     },
     {
       "id": "thermo_011",
@@ -762,8 +762,8 @@
       "expected_value": 373.15,
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
-      "answer_text": "373.15 K",
-      "elapsed_s": 0.444,
+      "answer_text": "373.15 K ANSWER: 373.15 K\n\n100.0 degC = 373.15 K (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.004,
       "notes": "match"
     },
     {
@@ -775,47 +775,47 @@
       "expected_value": 5.02e-07,
       "rel_error": 0.0009598314943756029,
       "tolerance_rel": 0.02,
-      "answer_text": "5.015181645898235e-07 m Wavelength of peak emission for blackbody at T=5778.0 K. Sun's surface T=5778 K -> 501 nm (visible green/yellow). Human body T=310 K -> 9.35 um (far IR).",
-      "elapsed_s": 0.439,
+      "answer_text": "5.015181645898235e-07 m ANSWER: 5.015181645898235e-07 m\n\nComputed via thermo_classifier: tool=blackbody_peak_wavelength (lambda_max = b/T, T=5778.0K)",
+      "elapsed_s": 0.014,
       "notes": "match"
     },
     {
       "id": "modern_001",
       "system": "live_mentat",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 1.0000004055611922,
+      "correct": true,
+      "extracted_value": 2.2941573387056167,
       "expected_value": 2.294,
-      "rel_error": 0.5640800324493496,
+      "rel_error": 6.858705563061357e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "1.0000004055611922 dimensionless At v = 0.5c gamma ~ 1.155; at v = 0.99c gamma ~ 7.09. Diverges at v = c.",
-      "elapsed_s": 0.463,
-      "notes": "rel_err 5.641e-01"
+      "answer_text": "2.2941573387056167 dimensionless ANSWER: 2.2941573387056167 dimensionless\n\nComputed via modern_classifier: tool=lorentz_factor (gamma at v=0.9c)",
+      "elapsed_s": 0.005,
+      "notes": "match"
     },
     {
       "id": "modern_002",
       "system": "live_mentat",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 239819236.96335027,
+      "correct": true,
+      "extracted_value": 2237058951.517117,
       "expected_value": 70.89,
-      "rel_error": 0.8927999288984615,
+      "rel_error": 2.651289555742075e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "239819236.96335027 s t > t0: moving clocks tick slower when measured from the rest frame. Classic muon-lifetime experiment confirms this to high precision.",
-      "elapsed_s": 0.777,
-      "notes": "rel_err 8.928e-01"
+      "answer_text": "2237058951.517117 s ANSWER: 2237058951.517117 s\n\nComputed via modern_classifier: tool=relativistic_time_dilation (delta_t = gamma * tau, tau=10.0yr, v=0.99c)",
+      "elapsed_s": 0.028,
+      "notes": "match [unit-converted s->year]"
     },
     {
       "id": "modern_003",
       "system": "live_mentat",
       "domain": "modern_physics",
       "correct": true,
-      "extracted_value": 0.7996883029272266,
+      "extracted_value": 0.8,
       "expected_value": 0.8,
-      "rel_error": 0.000389621340966817,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "0.7996883029272266 m",
-      "elapsed_s": 0.637,
+      "answer_text": "0.8 m ANSWER: 0.8 m\n\nComputed via modern_classifier: tool=relativistic_length_contraction (L = L_0 / gamma, L_0=1.0m, v=0.6c)",
+      "elapsed_s": 0.014,
       "notes": "match"
     },
     {
@@ -827,8 +827,8 @@
       "expected_value": 8.988e+16,
       "rel_error": 4.986789406141522e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "8.987551787368176e+16 J This is the REST energy. Total energy at finite v is gamma m c^2 (see relativity.relativistic_energy).",
-      "elapsed_s": 0.376,
+      "answer_text": "8.987551787368176e+16 J ANSWER: 8.987551787368176e+16 J\n\nComputed via modern_classifier: tool=mass_to_energy (E = m c^2, m=1.0kg)",
+      "elapsed_s": 0.003,
       "notes": "match"
     },
     {
@@ -840,8 +840,8 @@
       "expected_value": 4260000000.0,
       "rel_error": 0.00018206230674842154,
       "tolerance_rel": 0.02,
-      "answer_text": "4259224414.5732517 kg Inverse of E = m c^2. For 1 joule, this is ~1.11e-17 kg (tiny). For typical stellar luminosities (1e26-1e27 W) the rate is millions of tonnes per second.",
-      "elapsed_s": 0.434,
+      "answer_text": "4259224414.5732517 kg/s ANSWER: 4259224414.5732517 kg/s\n\nComputed via modern_classifier: tool=luminosity_to_mass_conversion_rate (dm/dt = L/c^2, L=3.828e+26W)",
+      "elapsed_s": 0.006,
       "notes": "match"
     },
     {
@@ -849,26 +849,26 @@
       "system": "live_mentat",
       "domain": "modern_physics",
       "correct": true,
-      "extracted_value": 2.2542581519496867,
+      "extracted_value": 3.611719738057809e-19,
       "expected_value": 2.254,
       "rel_error": 0.00011453058992311553,
       "tolerance_rel": 0.02,
-      "answer_text": "2.2542581519496867 eV 1 eV = 1.602176634e-19 J (defined exactly via SI 2019).",
-      "elapsed_s": 0.856,
-      "notes": "match"
+      "answer_text": "3.611719738057809e-19 J ANSWER: 3.611719738057809e-19 J\n\nComputed via modern_classifier: tool=photon_energy_from_wavelength (E = hc/lambda, lambda=5.5e-07m)",
+      "elapsed_s": 0.005,
+      "notes": "match [unit-converted j->ev]"
     },
     {
       "id": "modern_007",
       "system": "live_mentat",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": 5399562.029683667,
+      "correct": true,
+      "extracted_value": 298136146.07734805,
       "expected_value": 298342500.0,
-      "rel_error": 0.9819014654979306,
+      "rel_error": 0.0006916678738428033,
       "tolerance_rel": 0.02,
-      "answer_text": "5399562.029683667 m/s If u = v = 0.9c, classical addition would give 1.8c, but the relativistic answer is ~0.994c < c, as required.",
-      "elapsed_s": 0.806,
-      "notes": "rel_err 9.819e-01"
+      "answer_text": "298136146.07734805 m/s ANSWER: 298136146.07734805 m/s\n\nComputed via modern_classifier: tool=relativistic_velocity_addition (u'=(u+v)/(1+uv/c^2), u=0.9c, v=0.9c)",
+      "elapsed_s": 0.004,
+      "notes": "match"
     },
     {
       "id": "modern_008",
@@ -879,8 +879,8 @@
       "expected_value": 6.242e+18,
       "rel_error": 7.864875668645691e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "6.241509074460763e+18 electron_volt",
-      "elapsed_s": 0.543,
+      "answer_text": "6.241509074460763e+18 eV ANSWER: 6.241509074460763e+18 eV\n\n1.0 joule = 6.241509074460763e+18 eV (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.011,
       "notes": "match"
     },
     {
@@ -892,8 +892,8 @@
       "expected_value": 4184000000000000.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "4184000000000000.0 J 1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.",
-      "elapsed_s": 0.475,
+      "answer_text": "4184000000000000.0 J ANSWER: 4184000000000000.0 J\n\nComputed via modern_classifier: tool=joules_to_TNT (1.0 MT * 4.184e15 J/MT)",
+      "elapsed_s": 0.021,
       "notes": "match"
     },
     {
@@ -905,22 +905,22 @@
       "expected_value": 0.511,
       "rel_error": 4.417628072895805e-05,
       "tolerance_rel": 0.01,
-      "answer_text": "8.186760923113672e-14 J",
-      "elapsed_s": 1.299,
+      "answer_text": "8.186760923113672e-14 J ANSWER: 8.186760923113672e-14 J\n\nComputed via modern_classifier: tool=mass_to_energy (E = m c^2, m=9.109e-31kg)",
+      "elapsed_s": 0.006,
       "notes": "match [unit-converted j->mev]"
     },
     {
       "id": "modern_011",
       "system": "live_mentat",
       "domain": "modern_physics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 7.273895098796854e-11,
       "expected_value": 7.275e-11,
-      "rel_error": null,
+      "rel_error": 0.00015187645404066252,
       "tolerance_rel": 0.02,
-      "answer_text": "None Your question doesn't give everything I need. I'd assume 100 eV for the kinetic energy (the scenario's standing illustrative value, not a measured one). Use that? Your question doesn't give everything I need. I'd assume 100 eV for the kinetic energy (the scenario's standing illustrative value, not a measured one). Use that? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume 100 eV for the kinetic energy (the scenario's standing illustrative value, not a measured one). Use that?\", \"param\": \"kinetic_energy_eV\"}",
-      "elapsed_s": 0.636,
-      "notes": "no value extracted"
+      "answer_text": "7.273895098796854e-11 m ANSWER: 7.273895098796854e-11 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=9.1093837015e-31kg, v=10000000.0m/s)",
+      "elapsed_s": 0.025,
+      "notes": "match"
     },
     {
       "id": "modern_012",
@@ -931,8 +931,8 @@
       "expected_value": 1.003344,
       "rel_error": 2.7679381676372316e-06,
       "tolerance_rel": 0.001,
-      "answer_text": "1.0033412228058471 dimensionless theta = angle, in the observer's frame, between the source velocity and the line of sight from the observer to the source (0 = receding, 180 = approaching). Value > 1 is a redshift; the frequency ratio is its reciprocal. At theta = 90 deg the transverse Doppler factor is gamma, a redshift (pure time dilation, no classical analog).",
-      "elapsed_s": 0.511,
+      "answer_text": "1.0033412228058471 dimensionless ANSWER: 1.0033412228058471 dimensionless\n\nComputed via modern_classifier: tool=doppler_shift_factor (sqrt((1+beta)/(1-beta)), v=1000000.0m/s)",
+      "elapsed_s": 0.043,
       "notes": "match"
     },
     {
@@ -945,7 +945,7 @@
       "rel_error": 2.25545352050864e-05,
       "tolerance_rel": 0.001,
       "answer_text": "-13.605693122994 eV Ground state of hydrogen (n=1, Z=1): -13.606 eV. Bound states are negative. Ionization energy from level n is |E_n|.",
-      "elapsed_s": 0.334,
+      "elapsed_s": 0.344,
       "notes": "match"
     },
     {
@@ -958,7 +958,7 @@
       "rel_error": 0.00012445773257867263,
       "tolerance_rel": 0.001,
       "answer_text": "-3.4014232807485 eV Ground state of hydrogen (n=1, Z=1): -13.606 eV. Bound states are negative. Ionization energy from level n is |E_n|.",
-      "elapsed_s": 0.354,
+      "elapsed_s": 0.339,
       "notes": "match"
     },
     {
@@ -971,7 +971,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "24.587 eV First ionization energy: minimum energy to remove the outermost electron from the neutral atom. Larger IE -> less reactive (noble gases peak).",
-      "elapsed_s": 0.361,
+      "elapsed_s": 0.385,
       "notes": "match"
     },
     {
@@ -984,7 +984,7 @@
       "rel_error": 5.094619581029329e-05,
       "tolerance_rel": 0.01,
       "answer_text": "-54.422772491976 eV Ground state of hydrogen (n=1, Z=1): -13.606 eV. Bound states are negative. Ionization energy from level n is |E_n|.",
-      "elapsed_s": 0.445,
+      "elapsed_s": 0.429,
       "notes": "match"
     },
     {
@@ -996,8 +996,8 @@
       "expected_value": 3.88e-11,
       "rel_error": 0.0009269554425037312,
       "tolerance_rel": 0.05,
-      "answer_text": "3.876403412883085e-11 m electron at 1000 eV (non-relativistic regime). Exact at all energies; reduces to h/sqrt(2 m KE) non-relativistically.",
-      "elapsed_s": 0.624,
+      "answer_text": "3.876403412883085e-11 m ANSWER: 3.876403412883085e-11 m\n\nComputed via new_tools_classifier: de_broglie_from_kinetic_energy (1 keV electron)",
+      "elapsed_s": 0.024,
       "notes": "match"
     },
     {
@@ -1010,7 +1010,7 @@
       "rel_error": 0.0001870116355895775,
       "tolerance_rel": 0.01,
       "answer_text": "4.860090936439399e-07 m Balmer (visible) series. Notable lines: H-alpha (n=3->2) = 656.3 nm; Lyman-alpha (n=2->1) = 121.6 nm. For hydrogen-like ions (He+, Li2+), multiply 1/lambda by Z^2.",
-      "elapsed_s": 0.5,
+      "elapsed_s": 0.513,
       "notes": "match"
     },
     {
@@ -1023,7 +1023,7 @@
       "rel_error": 1.0586468469480203e-05,
       "tolerance_rel": 0.01,
       "answer_text": "6.626070145940079e-19 J = 4.136 eV.",
-      "elapsed_s": 0.576,
+      "elapsed_s": 0.615,
       "notes": "match"
     },
     {
@@ -1036,7 +1036,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "5.139 eV First ionization energy: minimum energy to remove the outermost electron from the neutral atom. Larger IE -> less reactive (noble gases peak).",
-      "elapsed_s": 0.35,
+      "elapsed_s": 0.359,
       "notes": "match"
     },
     {
@@ -1049,7 +1049,7 @@
       "rel_error": 0.0002788847852063487,
       "tolerance_rel": 0.02,
       "answer_text": "1.986445855931795e-15 J = 1.24e+04 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.",
-      "elapsed_s": 0.458,
+      "elapsed_s": 0.462,
       "notes": "match"
     },
     {
@@ -1062,7 +1062,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
       "answer_text": "11.26 eV First ionization energy: minimum energy to remove the outermost electron from the neutral atom. Larger IE -> less reactive (noble gases peak).",
-      "elapsed_s": 0.349,
+      "elapsed_s": 0.374,
       "notes": "match"
     },
     {
@@ -1074,8 +1074,8 @@
       "expected_value": 1.142e-34,
       "rel_error": 0.0,
       "tolerance_rel": 0.05,
-      "answer_text": "1.1424258872310483e-34 m Matter wave. Electron at 1 keV: ~0.04 nm (X-ray scale). Proton at thermal speed (300 K, ~2500 m/s): ~80 nm. Macroscopic objects: << atomic scale, no diffraction.",
-      "elapsed_s": 0.613,
+      "answer_text": "1.1424258872310483e-34 m ANSWER: 1.1424258872310483e-34 m\n\nComputed via modern_classifier: tool=de_broglie_wavelength (lambda = h/(m v), m=0.145kg, v=40.0m/s)",
+      "elapsed_s": 0.006,
       "notes": "match"
     },
     {
@@ -1088,7 +1088,7 @@
       "rel_error": 0.00022814604636712133,
       "tolerance_rel": 0.01,
       "answer_text": "4.050075780366167e-06 m Brackett (IR) series. Notable lines: H-alpha (n=3->2) = 656.3 nm; Lyman-alpha (n=2->1) = 121.6 nm. For hydrogen-like ions (He+, Li2+), multiply 1/lambda by Z^2.",
-      "elapsed_s": 0.486,
+      "elapsed_s": 0.489,
       "notes": "match"
     },
     {
@@ -1100,8 +1100,8 @@
       "expected_value": 13070,
       "rel_error": 0.001019007529997651,
       "tolerance_rel": 0.05,
-      "answer_text": "13056.68157158293 m/s Central: sun. Radius from 5.2038 AU. Newtonian.",
-      "elapsed_s": 0.922,
+      "answer_text": "13056.68157158293 m/s ANSWER: 13056.68157158293 m/s\n\nComputed via new_tools_classifier: orbital_velocity (jupiter heliocentric orbit at 5.2038 AU)",
+      "elapsed_s": 0.006,
       "notes": "match"
     },
     {
@@ -1113,8 +1113,8 @@
       "expected_value": 5.196,
       "rel_error": 4.822192427780748e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "163981196.70755467 s Central: sun. a from 3.0 AU. T = 1898 days = 5.196 years.",
-      "elapsed_s": 0.418,
+      "answer_text": "163981196.70755467 s ANSWER: 163981196.70755467 s\n\nComputed via new_tools_classifier: orbital_period (Kepler III at 3 AU)",
+      "elapsed_s": 0.019,
       "notes": "match [unit-converted s->year]"
     },
     {
@@ -1127,7 +1127,7 @@
       "rel_error": 4.095794850445033e-05,
       "tolerance_rel": 0.02,
       "answer_text": "617674.7002752088 m/s Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.",
-      "elapsed_s": 0.823,
+      "elapsed_s": 0.857,
       "notes": "match"
     },
     {
@@ -1140,7 +1140,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.653,
+      "elapsed_s": 1.755,
       "notes": "no value extracted"
     },
     {
@@ -1153,7 +1153,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "{'mass_kg': 6.4171e+23, 'orbital_period_d': 686.971, 'radius_m': 3389500.0, 'semimajor_axis_au': 1.523679, 'surface_g_ms2': 3.711} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.",
-      "elapsed_s": 0.341,
+      "elapsed_s": 0.345,
       "notes": "no value extracted"
     },
     {
@@ -1166,7 +1166,7 @@
       "rel_error": 0.0010038135593220339,
       "tolerance_rel": 0.02,
       "answer_text": "4724738000.0 J Non-relativistic. For v > 0.1 c (~3e7 m/s) use the relativistic form K = (gamma - 1) m c^2.",
-      "elapsed_s": 0.599,
+      "elapsed_s": 0.592,
       "notes": "match"
     },
     {
@@ -1179,21 +1179,21 @@
       "rel_error": 0.011281812283407583,
       "tolerance_rel": 0.02,
       "answer_text": "60201.60628523125 m/s Velocity needed to escape gravitational binding to infinity. For Earth's surface, ~11.2 km/s. For the Sun's surface, ~617 km/s. When v_esc -> c, you're at the Schwarzschild radius.",
-      "elapsed_s": 0.826,
+      "elapsed_s": 0.856,
       "notes": "match"
     },
     {
       "id": "mech_adv_008",
       "system": "live_mentat",
       "domain": "classical_mechanics_advanced",
-      "correct": false,
-      "extracted_value": 7905.402882628884,
+      "correct": true,
+      "extracted_value": 1018.8354733699033,
       "expected_value": 1018,
-      "rel_error": 6.765621692169828,
+      "rel_error": 0.0008207007562900763,
       "tolerance_rel": 0.02,
-      "answer_text": "7905.402882628884 m/s A circular orbit 0 km above Earth needs 7905 m/s (7.91 km/s), one lap every 84.5 min.",
-      "elapsed_s": 0.623,
-      "notes": "rel_err 6.766e+00"
+      "answer_text": "1018.8354733699033 m/s ANSWER: 1018.8354733699033 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Moon orbit radius 384,000 km)",
+      "elapsed_s": 0.007,
+      "notes": "match"
     },
     {
       "id": "mech_adv_009",
@@ -1204,8 +1204,8 @@
       "expected_value": 7660,
       "rel_error": 0.0005315148016791968,
       "tolerance_rel": 0.02,
-      "answer_text": "7664.071403380863 m/s Central: earth. Radius from radius 6.3781e+06 m + altitude 408.0 km. Newtonian.",
-      "elapsed_s": 0.485,
+      "answer_text": "7664.071403380863 m/s ANSWER: 7664.071403380863 m/s\n\nComputed via new_tools_classifier: orbital_velocity (Earth orbit at 408 km altitude)",
+      "elapsed_s": 0.026,
       "notes": "match"
     },
     {
@@ -1218,7 +1218,7 @@
       "rel_error": 0.0694419235725787,
       "tolerance_rel": 0.1,
       "answer_text": "53041810356.363014 J Central: earth. PE change only (not orbital KE). r1=6.378e+06 m, r2=4.216e+07 m.",
-      "elapsed_s": 0.641,
+      "elapsed_s": 0.651,
       "notes": "match"
     },
     {
@@ -1231,7 +1231,7 @@
       "rel_error": 3.488535002100755e-05,
       "tolerance_rel": 0.05,
       "answer_text": "0.09200320945220193 m",
-      "elapsed_s": 1.272,
+      "elapsed_s": 1.345,
       "notes": "match"
     },
     {
@@ -1244,7 +1244,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.1,
       "answer_text": "1.2",
-      "elapsed_s": 0.46,
+      "elapsed_s": 0.488,
       "notes": "match"
     },
     {
@@ -1257,7 +1257,7 @@
       "rel_error": 2.1212672238509273e-05,
       "tolerance_rel": 0.01,
       "answer_text": "8.854187817e-06 F Vacuum gap: eps_r=1. Common dielectrics: paper~3, glass~5-10, water~80, vacuum ferroelectric~1000+. Edge effects ignored (plate dimensions much larger than gap).",
-      "elapsed_s": 0.566,
+      "elapsed_s": 0.546,
       "notes": "match"
     },
     {
@@ -1270,7 +1270,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.096,
+      "elapsed_s": 1.083,
       "notes": "no value extracted"
     },
     {
@@ -1283,7 +1283,7 @@
       "rel_error": 8.199072684179189e-06,
       "tolerance_rel": 0.01,
       "answer_text": "299.792458 m",
-      "elapsed_s": 0.464,
+      "elapsed_s": 0.498,
       "notes": "match"
     },
     {
@@ -1296,7 +1296,7 @@
       "rel_error": 0.0003453368440941023,
       "tolerance_rel": 0.02,
       "answer_text": "159154943.09189537 Hz Angular frequency: omega_0 = 1.000e+09 rad/s. Resonant frequency where impedance is purely resistive. Tuner circuits select stations by sweeping this.",
-      "elapsed_s": 0.625,
+      "elapsed_s": 0.681,
       "notes": "match"
     },
     {
@@ -1308,8 +1308,8 @@
       "expected_value": 18000000.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "18000000.0 J Solved for energy_j. 1 hour = 3600 s; 1 kWh = 3.6e6 J.",
-      "elapsed_s": 0.569,
+      "answer_text": "18000000.0 J ANSWER: 18000000.0 J\n\nComputed via new_tools_classifier: energy_power_time (E = P t)",
+      "elapsed_s": 0.022,
       "notes": "match"
     },
     {
@@ -1322,7 +1322,7 @@
       "rel_error": 0.0006918066666666833,
       "tolerance_rel": 0.02,
       "answer_text": "0.12491352416666666 m ignored unknown argument 'power_w'",
-      "elapsed_s": 0.612,
+      "elapsed_s": 0.664,
       "notes": "match"
     },
     {
@@ -1335,7 +1335,7 @@
       "rel_error": 0.0006423831775701613,
       "tolerance_rel": 0.01,
       "answer_text": "0.0107068735 m",
-      "elapsed_s": 0.533,
+      "elapsed_s": 0.521,
       "notes": "match"
     },
     {
@@ -1347,8 +1347,8 @@
       "expected_value": 200.0,
       "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "200.0 s Solved for time_s. 1 hour = 3600 s; 1 kWh = 3.6e6 J.",
-      "elapsed_s": 0.502,
+      "answer_text": "200.0 s ANSWER: 200.0 s\n\nComputed via new_tools_classifier: energy_power_time (t = E / P)",
+      "elapsed_s": 0.018,
       "notes": "match"
     },
     {
@@ -1360,8 +1360,8 @@
       "expected_value": 2954,
       "rel_error": 0.000253867264641242,
       "tolerance_rel": 0.01,
-      "answer_text": "2953.2500761002498 m Event horizon radius for non-rotating uncharged black hole.",
-      "elapsed_s": 0.767,
+      "answer_text": "2953.2500761002498 m ANSWER: 2953.2500761002498 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=1.988e+30 kg (Sun collapsed (mass = M_sun))",
+      "elapsed_s": 0.004,
       "notes": "match"
     },
     {
@@ -1369,12 +1369,12 @@
       "system": "live_mentat",
       "domain": "general_relativity",
       "correct": true,
-      "extracted_value": 44298.75114176996,
+      "extracted_value": 44298.751141503744,
       "expected_value": 44313,
-      "rel_error": 0.00032155029517394376,
+      "rel_error": 0.0003215503011814977,
       "tolerance_rel": 0.01,
-      "answer_text": "44298.75114176996 m Radius of circular photon orbit around a non-rotating black hole. Photons can orbit here but the orbits are unstable.",
-      "elapsed_s": 0.577,
+      "answer_text": "44298.751141503744 m ANSWER: 44298.751141503744 m\n\nComputed via gr_classifier: tool=photon_sphere_radius, mass=1.988e+31 kg (10.0 solar masses)",
+      "elapsed_s": 0.01,
       "notes": "match"
     },
     {
@@ -1382,12 +1382,12 @@
       "system": "live_mentat",
       "domain": "general_relativity",
       "correct": true,
-      "extracted_value": 88597.50228353991,
+      "extracted_value": 88597.50228300749,
       "expected_value": 88625,
-      "rel_error": 0.00031027042550167493,
+      "rel_error": 0.00031027043150929663,
       "tolerance_rel": 0.01,
-      "answer_text": "88597.50228353991 m For a non-rotating black hole, this is the smallest stable circular orbit for a massive particle. Below r_ISCO, orbits are unstable and the particle plunges into the horizon.",
-      "elapsed_s": 0.542,
+      "answer_text": "88597.50228300749 m ANSWER: 88597.50228300749 m\n\nComputed via gr_classifier: tool=isco_radius, mass=1.988e+31 kg (10.0 solar masses)",
+      "elapsed_s": 0.018,
       "notes": "match"
     },
     {
@@ -1395,12 +1395,12 @@
       "system": "live_mentat",
       "domain": "general_relativity",
       "correct": true,
-      "extracted_value": 6.17026040717829e-08,
+      "extracted_value": 6.17026040718434e-08,
       "expected_value": 6.17e-08,
-      "rel_error": 4.22053773565947e-05,
+      "rel_error": 4.220537833709197e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "6.17026040717829e-08 K Semiclassical thermal radiation temperature of a non-rotating black hole. Tiny for stellar-mass BHs (~6 nK for 10 M_sun); diverges as M -> 0.",
-      "elapsed_s": 0.549,
+      "answer_text": "6.17026040718434e-08 K ANSWER: 6.17026040718434e-08 K\n\nComputed via gr_classifier: tool=hawking_temperature, mass=1.988e+30 kg (1.0 solar masses)",
+      "elapsed_s": 0.003,
       "notes": "match"
     },
     {
@@ -1408,39 +1408,39 @@
       "system": "live_mentat",
       "domain": "general_relativity",
       "correct": true,
-      "extracted_value": 6.612840243370048e+77,
+      "extracted_value": 6.61287082827783e+77,
       "expected_value": 6.618e+77,
-      "rel_error": 0.0007796549758163409,
+      "rel_error": 0.0007750335028966344,
       "tolerance_rel": 0.1,
-      "answer_text": "6.612840243370048e+77 s Order-of-magnitude evaporation timescale = 2.096e+70 years (one species, no greybody factors). Page 2013 (photons + gravitons, greybody) gives 0.553x this: 1.159e+70 years. Tiny BHs evaporate fast.",
-      "elapsed_s": 0.594,
+      "answer_text": "6.61287082827783e+77 s ANSWER: 6.61287082827783e+77 s\n\nComputed via gr_classifier: tool=hawking_evaporation_time, mass=1.988e+31 kg (10.0 solar masses)",
+      "elapsed_s": 0.012,
       "notes": "match"
     },
     {
       "id": "gr_006",
       "system": "live_mentat",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": 0.0,
+      "correct": true,
+      "extracted_value": 0.1809750943439583,
       "expected_value": 0.181,
-      "rel_error": 1.0,
+      "rel_error": 0.0001376003096225687,
       "tolerance_rel": 0.05,
-      "answer_text": "0.0 At or below event horizon (r_s = 2.953e+04 m). Clock stops relative to infinity.",
-      "elapsed_s": 0.793,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "0.1809750943439583 dimensionless ANSWER: 0.1809750943439583 dimensionless\n\nComputed via gr_classifier: tool=gravitational_time_dilation, mass=1.988e+31 kg (10.0 solar masses), radius=3.053e+04 m",
+      "elapsed_s": 0.003,
+      "notes": "match"
     },
     {
       "id": "gr_007",
       "system": "live_mentat",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": 12097.39319566524,
+      "correct": true,
+      "extracted_value": 12108325312.011023,
       "expected_value": 12100000000.0,
-      "rel_error": 0.9999990002154383,
+      "rel_error": 0.0006880423149605428,
       "tolerance_rel": 0.02,
-      "answer_text": "12097.39319566524 m Event horizon radius for non-rotating uncharged black hole.",
-      "elapsed_s": 0.632,
-      "notes": "rel_err 1.000e+00"
+      "answer_text": "12108325312.011023 m ANSWER: 12108325312.011023 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=8.152e+36 kg (4.1e6 solar masses (Sgr A*))",
+      "elapsed_s": 0.003,
+      "notes": "match"
     },
     {
       "id": "gr_008",
@@ -1452,21 +1452,21 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "None Your question doesn't give everything I need. I'd assume 5000 m for the orbit altitude (the International Space Station's orbit). Use that? Your question doesn't give everything I need. I'd assume 5000 m for the orbit altitude (the International Space Station's orbit). Use that? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume 5000 m for the orbit altitude (the International Space Station's orbit). Use that?\", \"param\": \"altitude_m\"}",
-      "elapsed_s": 0.474,
+      "elapsed_s": 0.456,
       "notes": "no value extracted"
     },
     {
       "id": "gr_009",
       "system": "live_mentat",
       "domain": "general_relativity",
-      "correct": false,
-      "extracted_value": 29532.5007610025,
+      "correct": true,
+      "extracted_value": Infinity,
       "expected_value": Infinity,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "29532.5007610025 m M = 1.988e+31 kg (10 M_sun): r_s=2.95e+04 m, T_H=6.17e-09 K; escape velocity, redshift, time dilation and tidal force at r = 3 r_s",
-      "elapsed_s": 0.519,
-      "notes": "expected inf, extracted finite"
+      "answer_text": "inf ANSWER: inf \n\nComputed via gr_classifier: tool=gravitational_redshift, mass=1.988e+30 kg (arbitrary placeholder mass (answer is mass-independent at r=r_s)), radius=2953 m",
+      "elapsed_s": 0.005,
+      "notes": "both inf"
     },
     {
       "id": "gr_010",
@@ -1477,8 +1477,8 @@
       "expected_value": 1.486e-15,
       "rel_error": 0.0005167874672053359,
       "tolerance_rel": 0.02,
-      "answer_text": "1.485232053823733e-15 m M = 1e+12 kg (5.029e-19 M_sun): r_s=1.49e-15 m, T_H=1.23e+11 K; escape velocity, redshift, time dilation and tidal force at r = 3 r_s",
-      "elapsed_s": 0.6,
+      "answer_text": "1.485232053823733e-15 m ANSWER: 1.485232053823733e-15 m\n\nComputed via gr_classifier: tool=schwarzschild_radius, mass=1e+12 kg (1000000000000.0 kg)",
+      "elapsed_s": 0.004,
       "notes": "match"
     },
     {
@@ -1490,22 +1490,22 @@
       "expected_value": 1.32e+26,
       "rel_error": 0.039878973774840405,
       "tolerance_rel": 0.05,
-      "answer_text": "1.3726402453827894e+26 m ~4447.96 Gpc. The Hubble radius is the distance at which the cosmological recession velocity equals c.",
-      "elapsed_s": 0.288,
+      "answer_text": "1.3726402453827894e+26 m ANSWER: 1.3726402453827894e+26 m\n\nComputed via cosmology_classifier: tool=hubble_radius (Hubble radius c/H_0)",
+      "elapsed_s": 0.027,
       "notes": "match"
     },
     {
       "id": "cosmo_002",
       "system": "live_mentat",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": 1.3726402453827894e+26,
+      "correct": true,
+      "extracted_value": 4.3542154628946586e+17,
       "expected_value": 13700000000.0,
-      "rel_error": 317491565.6624823,
+      "rel_error": 0.0071296492657565375,
       "tolerance_rel": 0.05,
-      "answer_text": "1.3726402453827894e+26 m ~4447.96 Gpc. The Hubble radius is the distance at which the cosmological recession velocity equals c.",
-      "elapsed_s": 0.276,
-      "notes": "rel_err 3.175e+08"
+      "answer_text": "4.3542154628946586e+17 s ANSWER: 4.3542154628946586e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (true flat-LambdaCDM age (Planck 2018))",
+      "elapsed_s": 0.023,
+      "notes": "match [unit-converted s->year]"
     },
     {
       "id": "cosmo_003",
@@ -1516,8 +1516,8 @@
       "expected_value": 8.62e-27,
       "rel_error": 0.010316442121625946,
       "tolerance_rel": 0.05,
-      "answer_text": "8.531072268911585e-27 kg/m^3 ~853.107e-29 kg/m^3. Density at which the universe would be spatially flat. Current best estimate matches this closely (Omega_total ~ 1).",
-      "elapsed_s": 0.257,
+      "answer_text": "8.531072268911585e-27 kg/m^3 ANSWER: 8.531072268911585e-27 kg/m^3\n\nComputed via cosmology_classifier: tool=critical_density (rho_crit = 3 H^2 / (8 pi G))",
+      "elapsed_s": 0.009,
       "notes": "match"
     },
     {
@@ -1529,8 +1529,8 @@
       "expected_value": "transition",
       "rel_error": 0.0,
       "tolerance_rel": 0,
-      "answer_text": "transition Newtonian gravity well-tested above ~1e-9 m/s^2. Galaxy outskirts probe the transition (~1e-10 m/s^2). MOND is one phenomenological resolution; dark matter is another. The classifier just flags which regime your input is in.",
-      "elapsed_s": 0.649,
+      "answer_text": "transition ANSWER: transition \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 1e-10 m/s^2)",
+      "elapsed_s": 0.005,
       "notes": "string match"
     },
     {
@@ -1542,61 +1542,61 @@
       "expected_value": "newtonian",
       "rel_error": 0.0,
       "tolerance_rel": 0,
-      "answer_text": "newtonian Newtonian gravity well-tested above ~1e-9 m/s^2. Galaxy outskirts probe the transition (~1e-10 m/s^2). MOND is one phenomenological resolution; dark matter is another. The classifier just flags which regime your input is in.",
-      "elapsed_s": 0.411,
+      "answer_text": "newtonian ANSWER: newtonian \n\nComputed via cosmology_classifier: tool=mond_regime_classifier (acceleration 9.8 m/s^2)",
+      "elapsed_s": 0.038,
       "notes": "string match"
     },
     {
       "id": "cosmo_006",
       "system": "live_mentat",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 1.2e-10,
       "expected_value": 1.2e-10,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.05,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.542,
-      "notes": "no value extracted"
+      "answer_text": "1.2e-10 m/s^2 ANSWER: 1.2e-10 m/s^2\n\nComputed via cosmology_classifier: tool=mond_a0_constant (MOND characteristic acceleration)",
+      "elapsed_s": 0.026,
+      "notes": "match"
     },
     {
       "id": "cosmo_007",
       "system": "live_mentat",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 0.41216400000000003,
       "expected_value": 0.412,
-      "rel_error": null,
+      "rel_error": 0.0003980582524273131,
       "tolerance_rel": 0.02,
-      "answer_text": "{'eta': 0.41216400000000003, 'high': 0.4489000000000001, 'in_band': True, 'low': 0.376996, 'note': 'DESI DR2 Union3 (arXiv:2411.08639)'} Consistency check of the adopted Holographic Dark Energy c^2 against the central DESI 2024 Union3 fit.",
-      "elapsed_s": 0.277,
-      "notes": "no value extracted"
+      "answer_text": "0.41216400000000003 dimensionless ANSWER: 0.41216400000000003 dimensionless\n\nComputed via cosmology_classifier: tool=eta_value_report (SSBM eta parameter)",
+      "elapsed_s": 0.004,
+      "notes": "match"
     },
     {
       "id": "cosmo_008",
       "system": "live_mentat",
       "domain": "cosmology",
-      "correct": false,
-      "extracted_value": 1.3726402453827894e+26,
+      "correct": true,
+      "extracted_value": 4.3542154628946586e+17,
       "expected_value": 4.35e+17,
-      "rel_error": 315549480.69719297,
+      "rel_error": 0.0009690719298065656,
       "tolerance_rel": 0.05,
-      "answer_text": "1.3726402453827894e+26 m ~4447.96 Gpc. The Hubble radius is the distance at which the cosmological recession velocity equals c.",
-      "elapsed_s": 0.269,
-      "notes": "rel_err 3.155e+08"
+      "answer_text": "4.3542154628946586e+17 s ANSWER: 4.3542154628946586e+17 s\n\nComputed via cosmology_classifier: tool=age_of_universe (true flat-LambdaCDM age (Planck 2018))",
+      "elapsed_s": 0.004,
+      "notes": "match"
     },
     {
       "id": "astro_001",
       "system": "live_mentat",
       "domain": "astrophysics",
       "correct": true,
-      "extracted_value": 133908189.69464588,
+      "extracted_value": 4.243289559999999,
       "expected_value": 4.24,
-      "rel_error": 0.0007769985994304261,
+      "rel_error": 0.0007758396226412534,
       "tolerance_rel": 0.05,
-      "answer_text": "133908189.69464588 s ~4.2433 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.",
-      "elapsed_s": 1.14,
-      "notes": "match [unit-converted s->year]"
+      "answer_text": "4.243289559999999 year ANSWER: 4.243289559999999 year\n\nComputed via astro_classifier: light_travel_time_from_star (proxima_centauri at 1.301 pc = 4.24 ly)",
+      "elapsed_s": 0.03,
+      "notes": "match"
     },
     {
       "id": "astro_002",
@@ -1608,60 +1608,60 @@
       "rel_error": null,
       "tolerance_rel": 0.01,
       "answer_text": "{'field_constants_source': 'JPL DE440 header (header.440; Park et al. 2021)', 'field_reference_radius_km': 696000.0, 'gm_km3_s2': 132712440041.27942, 'j2': 2.1961391516529825e-07, 'j3': 0.0, 'j4': 0.0, 'luminosity_w': 3.828e+26, 'mass_kg': 1.988409870698051e+30, 'radius_m': 695700000.0, 'surface_temp_k': 5772.0} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days. gm_km3_s2, j2, j3, j4 are the gravity-field constants of the N-body predictor (field_constants_source); they are defined on field_reference_radius_km, which differs from radius_m (a mean radius).",
-      "elapsed_s": 0.375,
+      "elapsed_s": 0.361,
       "notes": "no value extracted"
     },
     {
       "id": "astro_003",
       "system": "live_mentat",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 25.4,
       "expected_value": 25.4,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.05,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.153,
-      "notes": "no value extracted"
+      "answer_text": "25.4 L_sun ANSWER: 25.4 L_sun\n\nComputed via astro_classifier: named_star_field (sirius_a.luminosity_solar)",
+      "elapsed_s": 0.019,
+      "notes": "match"
     },
     {
       "id": "astro_004",
       "system": "live_mentat",
       "domain": "astrophysics",
       "correct": true,
-      "extracted_value": 17291757008.993473,
+      "extracted_value": 547.9420799999999,
       "expected_value": 547,
-      "rel_error": 0.0017234269832463174,
+      "rel_error": 0.0017222669104203273,
       "tolerance_rel": 0.05,
-      "answer_text": "17291757008.993473 s ~547.9427 years. Sun-Earth (1 AU): 8.32 min. Earth-Moon: 1.28 s. Alpha Centauri (4.24 ly): 4.24 yr.",
-      "elapsed_s": 1.134,
-      "notes": "match [unit-converted s->year]"
+      "answer_text": "547.9420799999999 year ANSWER: 547.9420799999999 year\n\nComputed via astro_classifier: light_travel_time_from_star (betelgeuse at 168.0 pc = 547.94 ly)",
+      "elapsed_s": 0.014,
+      "notes": "match"
     },
     {
       "id": "astro_005",
       "system": "live_mentat",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 2.135,
       "expected_value": 2.135,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.02,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.114,
-      "notes": "no value extracted"
+      "answer_text": "2.135 M_sun ANSWER: 2.135 M_sun\n\nComputed via astro_classifier: named_star_field (vega.mass_solar)",
+      "elapsed_s": 0.016,
+      "notes": "match"
     },
     {
       "id": "astro_006",
       "system": "live_mentat",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 4332.59,
       "expected_value": 4332.59,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "{'field_constants_source': 'Folkner et al. 2017 (Juno), as tabulated in arXiv:1708.06177 Table 1; radius 71492 km from its Section 2 and Appendix A', 'field_reference_radius_km': 71492.0, 'j2': 0.014696514, 'mass_kg': 1.89813e+27, 'orbital_period_d': 4332.59, 'radius_m': 69911000.0, 'semimajor_axis_au': 5.2038} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days. gm_km3_s2, j2, j3, j4 are the gravity-field constants of the N-body predictor (field_constants_source); they are defined on field_reference_radius_km, which differs from radius_m (a mean radius).",
-      "elapsed_s": 0.35,
-      "notes": "no value extracted"
+      "answer_text": "4332.59 day ANSWER: 4332.59 day\n\nComputed via astro_classifier: solar_system_body_orbital_period (jupiter orbital period)",
+      "elapsed_s": 0.004,
+      "notes": "match"
     },
     {
       "id": "astro_007",
@@ -1673,21 +1673,21 @@
       "rel_error": 299752366.15914416,
       "tolerance_rel": 0.01,
       "answer_text": "3.0856775814671916e+16 meter",
-      "elapsed_s": 0.522,
+      "elapsed_s": 0.637,
       "notes": "rel_err 2.998e+08"
     },
     {
       "id": "astro_008",
       "system": "live_mentat",
       "domain": "astrophysics",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 5.015181645898235e-07,
       "expected_value": 5.02e-07,
-      "rel_error": null,
+      "rel_error": 0.0009598314943756029,
       "tolerance_rel": 0.02,
-      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.015,
-      "notes": "no value extracted"
+      "answer_text": "5.015181645898235e-07 m ANSWER: 5.015181645898235e-07 m\n\nComputed via astro_classifier: blackbody_peak_wavelength_sun (Wien at T=5778.0K)",
+      "elapsed_s": 0.007,
+      "notes": "match"
     },
     {
       "id": "astro_009",
@@ -1698,8 +1698,8 @@
       "expected_value": 1.21e+34,
       "rel_error": 0.0016322909090908785,
       "tolerance_rel": 0.02,
-      "answer_text": "1.208024928e+34 J Solved for energy_j. 1 hour = 3600 s; 1 kWh = 3.6e6 J.",
-      "elapsed_s": 1.263,
+      "answer_text": "1.208024928e+34 J ANSWER: 1.208024928e+34 J\n\nComputed via astro_classifier: sun_energy_per_year (L_sun * year_s = 3.828e+26 * 3.156e+07)",
+      "elapsed_s": 0.016,
       "notes": "match"
     },
     {
@@ -1707,12 +1707,12 @@
       "system": "live_mentat",
       "domain": "astrophysics",
       "correct": true,
-      "extracted_value": 29784.67666928036,
+      "extracted_value": 29784.691829676933,
       "expected_value": 29780,
-      "rel_error": 0.00015704060713100197,
+      "rel_error": 0.00015754968693528154,
       "tolerance_rel": 0.02,
-      "answer_text": "29784.67666928036 m/s Central: sun. Radius from 1.000001018 AU. Newtonian.",
-      "elapsed_s": 0.901,
+      "answer_text": "29784.691829676933 m/s ANSWER: 29784.691829676933 m/s\n\nComputed via astro_classifier: earth_orbital_velocity (v=sqrt(GM_sun/r), r=1 AU)",
+      "elapsed_s": 0.004,
       "notes": "match"
     },
     {
@@ -1725,7 +1725,7 @@
       "rel_error": null,
       "tolerance_rel": 0.001,
       "answer_text": "{'field_constants_source': 'Folkner et al. 2017 (Juno), as tabulated in arXiv:1708.06177 Table 1; radius 71492 km from its Section 2 and Appendix A', 'field_reference_radius_km': 71492.0, 'j2': 0.014696514, 'mass_kg': 1.89813e+27, 'orbital_period_d': 4332.59, 'radius_m': 69911000.0, 'semimajor_axis_au': 5.2038} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days. gm_km3_s2, j2, j3, j4 are the gravity-field constants of the N-body predictor (field_constants_source); they are defined on field_reference_radius_km, which differs from radius_m (a mean radius).",
-      "elapsed_s": 0.361,
+      "elapsed_s": 0.339,
       "notes": "no value extracted"
     },
     {
@@ -1733,13 +1733,13 @@
       "system": "live_mentat",
       "domain": "astrophysics",
       "correct": true,
-      "extracted_value": 433.78798235987006,
+      "extracted_value": 133.0,
       "expected_value": 433.5,
       "rel_error": 0.0006643191692504195,
       "tolerance_rel": 0.05,
-      "answer_text": "433.78798235987006 light_year",
-      "elapsed_s": 0.886,
-      "notes": "match"
+      "answer_text": "133.0 parsec ANSWER: 133.0 parsec\n\nComputed via astro_classifier: named_star_field (polaris.distance_pc)",
+      "elapsed_s": 0.03,
+      "notes": "match [unit-converted parsec->light_year]"
     },
     {
       "id": "atom_001",
@@ -1751,7 +1751,7 @@
       "rel_error": null,
       "tolerance_rel": 0,
       "answer_text": "{'atomic_mass_amu': 196.96657, 'atomic_number': 79, 'covalent_radius_angstrom': 1.36, 'name': 'gold', 'symbol': 'Au'} Atomic mass in unified atomic mass units (amu). For natural abundance weighted; use isotope-specific lookups for pure isotopes.",
-      "elapsed_s": 0.316,
+      "elapsed_s": 0.347,
       "notes": "no value extracted"
     },
     {
@@ -1764,21 +1764,21 @@
       "rel_error": null,
       "tolerance_rel": 0.001,
       "answer_text": "{'atomic_mass_amu': 12.011, 'atomic_number': 6, 'covalent_radius_angstrom': 0.76, 'name': 'carbon', 'symbol': 'C'} Atomic mass in unified atomic mass units (amu). For natural abundance weighted; use isotope-specific lookups for pure isotopes.",
-      "elapsed_s": 0.334,
+      "elapsed_s": 0.362,
       "notes": "no value extracted"
     },
     {
       "id": "atom_003",
       "system": "live_mentat",
       "domain": "atomic_molecular",
-      "correct": false,
-      "extracted_value": null,
+      "correct": true,
+      "extracted_value": 13.598,
       "expected_value": 13.598,
-      "rel_error": null,
+      "rel_error": 0.0,
       "tolerance_rel": 0.01,
-      "answer_text": "None Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that? Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that?\", \"param\": \"element_Z\"}",
-      "elapsed_s": 0.398,
-      "notes": "no value extracted"
+      "answer_text": "13.598 eV First ionization energy: minimum energy to remove the outermost electron from the neutral atom. Larger IE -> less reactive (noble gases peak).",
+      "elapsed_s": 0.356,
+      "notes": "match"
     },
     {
       "id": "atom_004",
@@ -1790,7 +1790,7 @@
       "rel_error": 0.12291048114857439,
       "tolerance_rel": 0.01,
       "answer_text": "21.565 eV First ionization energy: minimum energy to remove the outermost electron from the neutral atom. Larger IE -> less reactive (noble gases peak).",
-      "elapsed_s": 0.364,
+      "elapsed_s": 0.373,
       "notes": "rel_err 1.229e-01"
     },
     {
@@ -1803,7 +1803,7 @@
       "rel_error": 0.00031649741083769373,
       "tolerance_rel": 0.01,
       "answer_text": "4.100701727620744e-07 m Balmer (visible) series. Notable lines: H-alpha (n=3->2) = 656.3 nm; Lyman-alpha (n=2->1) = 121.6 nm. For hydrogen-like ions (He+, Li2+), multiply 1/lambda by Z^2.",
-      "elapsed_s": 0.506,
+      "elapsed_s": 0.524,
       "notes": "match"
     },
     {
@@ -1816,7 +1816,7 @@
       "rel_error": null,
       "tolerance_rel": 0,
       "answer_text": "{'atomic_mass_amu': 55.845, 'atomic_number': 26, 'covalent_radius_angstrom': 1.32, 'name': 'iron', 'symbol': 'Fe'} Atomic mass in unified atomic mass units (amu). For natural abundance weighted; use isotope-specific lookups for pure isotopes.",
-      "elapsed_s": 0.327,
+      "elapsed_s": 0.323,
       "notes": "no value extracted"
     },
     {
@@ -1829,7 +1829,7 @@
       "rel_error": 2.432907074850658e-06,
       "tolerance_rel": 0.02,
       "answer_text": "3.3725736093918423e-19 J = 2.105 eV. Visible: ~1.6-3.3 eV. UV starts at ~3.3 eV. X-rays: 100 eV to 100 keV. Gamma: > 100 keV.",
-      "elapsed_s": 0.488,
+      "elapsed_s": 0.477,
       "notes": "match [unit-converted j->ev]"
     },
     {
@@ -1842,7 +1842,7 @@
       "rel_error": null,
       "tolerance_rel": 0.001,
       "answer_text": "{'atomic_mass_amu': 238.02891, 'atomic_number': 92, 'covalent_radius_angstrom': 1.96, 'name': 'uranium', 'symbol': 'U'} Atomic mass in unified atomic mass units (amu). For natural abundance weighted; use isotope-specific lookups for pure isotopes.",
-      "elapsed_s": 0.332,
+      "elapsed_s": 0.338,
       "notes": "no value extracted"
     },
     {
@@ -1854,8 +1854,8 @@
       "expected_value": 9e+16,
       "rel_error": 0.0013831347368693334,
       "tolerance_rel": 0.01,
-      "answer_text": "8.987551787368176e+16 J This is the REST energy. Total energy at finite v is gamma m c^2 (see relativity.relativistic_energy).",
-      "elapsed_s": 0.404,
+      "answer_text": "8.987551787368176e+16 joule ANSWER: 8.987551787368176e+16 joule\n\n1.0 kilogram = 8.987551787368176e+16 joule (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.02,
       "notes": "match"
     },
     {
@@ -1867,8 +1867,8 @@
       "expected_value": 21.5,
       "rel_error": 0.0008946832486798733,
       "tolerance_rel": 0.01,
-      "answer_text": "21.480764310153383 MT_TNT 1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.",
-      "elapsed_s": 0.88,
+      "answer_text": "21.480764310153383 megaton_TNT ANSWER: 21.480764310153383 megaton_TNT\n\n1.0 kilogram = 21.480764310153383 megaton_TNT (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.025,
       "notes": "match"
     },
     {
@@ -1881,7 +1881,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "8.01088317e-13 J",
-      "elapsed_s": 0.5,
+      "elapsed_s": 0.51,
       "notes": "match [unit-converted j->ev]"
     },
     {
@@ -1893,8 +1893,8 @@
       "expected_value": 3.2e-11,
       "rel_error": 0.0013603962499998514,
       "tolerance_rel": 0.02,
-      "answer_text": "3.2043532679999995e-11 joule",
-      "elapsed_s": 0.58,
+      "answer_text": "3.2043532679999995e-11 joule ANSWER: 3.2043532679999995e-11 joule\n\n200.0 MeV = 3.2043532679999995e-11 joule (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.007,
       "notes": "match"
     },
     {
@@ -1907,7 +1907,7 @@
       "rel_error": 0.0011394150511329407,
       "tolerance_rel": 0.1,
       "answer_text": "0.019622332535002205 MT_TNT 1 ton TNT = 4.184e9 J by IUPAC convention. Real TNT energy density is ~4.6e6 J/kg; the 4.184e9 J/ton value rounds for convention.",
-      "elapsed_s": 0.98,
+      "elapsed_s": 1.023,
       "notes": "match"
     },
     {
@@ -1919,8 +1919,8 @@
       "expected_value": 2.82e-12,
       "rel_error": 5.997310638297673e-05,
       "tolerance_rel": 0.02,
-      "answer_text": "2.81983087584e-12 joule",
-      "elapsed_s": 0.56,
+      "answer_text": "2.81983087584e-12 joule ANSWER: 2.81983087584e-12 joule\n\n17.6 MeV = 2.81983087584e-12 joule (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.041,
       "notes": "match"
     },
     {
@@ -1933,7 +1933,7 @@
       "rel_error": 0.0011457708663095909,
       "tolerance_rel": 0.02,
       "answer_text": "0.046553278345283396 kg Inverse of E = m c^2. For 1 joule, this is ~1.11e-17 kg (tiny). For typical stellar luminosities (1e26-1e27 W) the rate is millions of tonnes per second.",
-      "elapsed_s": 0.85,
+      "elapsed_s": 0.809,
       "notes": "match"
     },
     {
@@ -1952,7 +1952,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "['-2', '2'] 2 solution(s)",
-      "elapsed_s": 0.502,
+      "elapsed_s": 0.742,
       "notes": "list match"
     },
     {
@@ -1965,7 +1965,7 @@
       "rel_error": null,
       "tolerance_rel": 0.001,
       "answer_text": "1/3",
-      "elapsed_s": 0.625,
+      "elapsed_s": 0.634,
       "notes": "couldn't coerce to float"
     },
     {
@@ -1978,7 +1978,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0,
       "answer_text": "cos(x)",
-      "elapsed_s": 0.41,
+      "elapsed_s": 0.426,
       "notes": "string match"
     },
     {
@@ -1999,7 +1999,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "['1', '2', '3'] 3 solution(s)",
-      "elapsed_s": 0.631,
+      "elapsed_s": 0.66,
       "notes": "list match"
     },
     {
@@ -2012,7 +2012,7 @@
       "rel_error": null,
       "tolerance_rel": 0.001,
       "answer_text": "pi",
-      "elapsed_s": 0.696,
+      "elapsed_s": 0.717,
       "notes": "couldn't coerce to float"
     },
     {
@@ -2024,8 +2024,8 @@
       "expected_value": 9460700000000000.0,
       "rel_error": 3.2209647066284737e-06,
       "tolerance_rel": 0.001,
-      "answer_text": "9460730472580800.0 meter",
-      "elapsed_s": 0.549,
+      "answer_text": "9460730472580800.0 meter ANSWER: 9460730472580800.0 meter\n\n1.0 light_year = 9460730472580800.0 meter (pint conversion via conversion-classifier)",
+      "elapsed_s": 0.018,
       "notes": "match"
     },
     {
@@ -2038,7 +2038,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 0.001,
       "answer_text": "1",
-      "elapsed_s": 0.495,
+      "elapsed_s": 0.516,
       "notes": "match"
     }
   ]

@@ -1,35 +1,8 @@
 {
- "url": "http://skippy-core:7350",
+ "url": "http://127.0.0.1:17350",
  "system": "live_mentat",
- "at": "2026-10-27T08:58:30+00:00",
+ "at": "2026-10-27T16:34:23+00:00",
  "suites": {
-  "physics": {
-   "n": 150,
-   "answered": 125,
-   "cut": false,
-   "by_route": {
-    "router": "121/131",
-    "deterministic": "3/8",
-    "clarify": "0/10",
-    "qwen": "0/1"
-   },
-   "re_asked": 0,
-   "started_before": 1793091413,
-   "started_after": 1793091414
-  },
-  "adversarial": {
-   "n": 18,
-   "answered": 1,
-   "cut": false,
-   "by_route": {
-    "router": "0/3",
-    "clarify": "0/13",
-    "deterministic": "1/2"
-   },
-   "re_asked": 0,
-   "started_before": 1793091414,
-   "started_after": 1793091413
-  },
   "math": {
    "n": 329,
    "ok": 317,
@@ -38,14 +11,14 @@
     "router": "317/325",
     "clarify": "0/4"
    },
-   "started_before": 1793091413,
-   "started_after": 1793091414
+   "started_before": 1793118641,
+   "started_after": 1793118641
   }
  },
- "ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
- "started_before": 1793091413,
- "started_after": 1793091414,
+ "ref": "ad1bd52a0ef238a86ddb88d7c67c097c6a215a9f",
+ "started_before": 1793118641,
+ "started_after": 1793118642,
  "cut": false,
  "retried_suites": [],
- "wall_s": 290.3
+ "wall_s": 181.4
 }

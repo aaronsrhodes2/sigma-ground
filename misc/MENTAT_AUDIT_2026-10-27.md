@@ -188,7 +188,11 @@ an indefinite integral (it only knows "from a to b"), so it returns an antideriv
 "are its emission wavelengths redshifted" as `factor_expression` (the one physics loss with every stage on, modern_012). So the deployed
 configuration is `MENTAT_CASCADE=before`, `MENTAT_CASCADE_OFF=math` (SkippyTel fa4ffe0, `core/compose.core.yml`); every other stage only gained.
 The ahead-of-router order wins by 11 on physics and the same on adversarial, and costs nothing once `math` is off. The maths stage's regexes are a
-bug list for the router-free path, not part of this deploy. Live check: pending the deploy (the box's CI defers while the private Skippy is working).
+bug list for the router-free path, not part of this deploy. **Live check (SkippyTel fa4ffe0 deployed 09:26 PDT after the box's CI had waited 50 minutes behind its quiet gate; container env read back as
+`MENTAT_CASCADE=before`, `MENTAT_CASCADE_OFF=math`): physics 134 of 150 (was 110), adversarial 8 of 18 (was 1), maths 317 of 329 (unchanged), the
+physics and adversarial runs uncut; the first maths pass was cut by an unrelated recreation of the container at 16:30 UTC and was re-asked whole (317).**
+In the live physics run 75 answers came from the cascade (routes: cascade 75, router 71, clarify 3, deterministic 1). The replay said 132 and the live
+scorer says 134; the 2-question difference was not investigated (the two runs are separate samples of a stack with a temperature-0.7 translator).
 
 ## Reproduce
 
