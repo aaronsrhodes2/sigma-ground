@@ -1,0 +1,309 @@
+{
+ "measured": "2026-10-27, live skippycore-mentat-1 (sigma-ground ef2d4c0) through an SSH tunnel; scorers unchanged",
+ "runs": {
+  "math329_live_before_fix": {
+   "n": 329,
+   "ok": 0,
+   "summary": null,
+   "wall_s": 199.1,
+   "ref": "ef2d4c041803838cbed7def02b9943e8fbe02718"
+  },
+  "physics150_live_before_fix": {
+   "n": 150,
+   "ok": 105,
+   "summary": {
+    "part": "http_physics",
+    "n": 150,
+    "ok": 105,
+    "p50_s": 0.68,
+    "p90_s": 1.15,
+    "by_route": {
+     "router": "104/124",
+     "deterministic": "1/8",
+     "clarify": "0/17",
+     "qwen": "0/1"
+    },
+    "ref_before": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "ref_after": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "rows_retried": 0
+   },
+   "wall_s": null,
+   "ref": null
+  },
+  "physics150_replay_as_deployed": {
+   "n": 150,
+   "ok": 105,
+   "summary": {
+    "part": "replay_physics_D",
+    "n": 150,
+    "ok": 105,
+    "p50_s": 0.87,
+    "p90_s": 1.27,
+    "by_route": {
+     "router": "104/124",
+     "deterministic": "1/8",
+     "clarify": "0/17",
+     "qwen": "0/1"
+    },
+    "tweaks_on": [
+     "answer_key_hint",
+     "body_name_chain",
+     "cascade.astro",
+     "cascade.clarification",
+     "cascade.classical_intro",
+     "cascade.conversion",
+     "cascade.cosmology",
+     "cascade.frontier",
+     "cascade.gr",
+     "cascade.math",
+     "cascade.modern",
+     "cascade.new_tools",
+     "cascade.optics",
+     "cascade.refusal",
+     "cascade.semantic",
+     "cascade.thermo",
+     "hidden_tools",
+     "param_aliases",
+     "pattern_hints"
+    ],
+    "ref_before": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "ref_after": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "router_errors": {
+     "mond_regime_classifier returned no value": 3,
+     "parallel_plate_capacitance returned no value": 2,
+     "solve_equation returned no value": 2,
+     "integrate_expr returned no value": 2,
+     "kinetic_energy returned no value": 1,
+     "critical_angle_for_tir returned no value": 1,
+     "diffraction_grating_angle returned no value": 1,
+     "named_star returned no value": 1
+    }
+   },
+   "wall_s": null,
+   "ref": null
+  },
+  "physics150_replay_structured_results": {
+   "n": 150,
+   "ok": 109,
+   "summary": {
+    "part": "replay_physics_S",
+    "n": 150,
+    "ok": 109,
+    "p50_s": 0.84,
+    "p90_s": 1.25,
+    "by_route": {
+     "router": "108/132",
+     "deterministic": "1/7",
+     "clarify": "0/10",
+     "qwen": "0/1"
+    },
+    "tweaks_on": [
+     "answer_key_hint",
+     "body_name_chain",
+     "cascade.astro",
+     "cascade.clarification",
+     "cascade.classical_intro",
+     "cascade.conversion",
+     "cascade.cosmology",
+     "cascade.frontier",
+     "cascade.gr",
+     "cascade.math",
+     "cascade.modern",
+     "cascade.new_tools",
+     "cascade.optics",
+     "cascade.refusal",
+     "cascade.semantic",
+     "cascade.thermo",
+     "hidden_tools",
+     "param_aliases",
+     "pattern_hints",
+     "structured_results"
+    ],
+    "ref_before": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "ref_after": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "router_errors": {
+     "parallel_plate_capacitance: missing required param": 2,
+     "kinetic_energy: missing required parameter velocit": 1,
+     "critical_angle_for_tir: missing required parameter": 1,
+     "diffraction_grating_angle: missing required parame": 1,
+     "named_star: declined ('sirius_b' not in lookup. Av": 1,
+     "boiling_point: unknown_key ('liquid_nitrogen' not ": 1,
+     "de_broglie_wavelength: missing required parameter ": 1,
+     "bad reference: $1 has no field 'orbital_radius_m'": 1
+    }
+   },
+   "wall_s": null,
+   "ref": null
+  },
+  "math329_replay_structured_results": {
+   "n": 329,
+   "ok": 317,
+   "summary": {
+    "part": "replay_math_S",
+    "n": 329,
+    "ok": 317,
+    "p50_s": 0.83,
+    "p90_s": 1.02,
+    "by_route": {
+     "router": "317/325",
+     "clarify": "0/4"
+    },
+    "tweaks_on": [
+     "answer_key_hint",
+     "body_name_chain",
+     "cascade.astro",
+     "cascade.clarification",
+     "cascade.classical_intro",
+     "cascade.conversion",
+     "cascade.cosmology",
+     "cascade.frontier",
+     "cascade.gr",
+     "cascade.math",
+     "cascade.modern",
+     "cascade.new_tools",
+     "cascade.optics",
+     "cascade.refusal",
+     "cascade.semantic",
+     "cascade.thermo",
+     "hidden_tools",
+     "param_aliases",
+     "pattern_hints",
+     "structured_results"
+    ],
+    "ref_before": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "ref_after": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "router_errors": {
+     "solve_ode: declined (could not read 'x'' - 4*x' + ": 1,
+     "solve_ode: declined (could not read 'f' + 2*f': ('": 1,
+     "solve_ode: declined (could not read 'f' + 3*f': ('": 1,
+     "solve_equation: missing required parameter equatio": 1
+    }
+   },
+   "wall_s": null,
+   "ref": null
+  },
+  "math60_replay_as_deployed": {
+   "n": 60,
+   "ok": 0,
+   "summary": {
+    "part": "replay_math_D",
+    "n": 60,
+    "ok": 0,
+    "p50_s": 1.04,
+    "p90_s": 1.24,
+    "by_route": {
+     "clarify": "0/60"
+    },
+    "tweaks_on": [
+     "answer_key_hint",
+     "body_name_chain",
+     "cascade.astro",
+     "cascade.clarification",
+     "cascade.classical_intro",
+     "cascade.conversion",
+     "cascade.cosmology",
+     "cascade.frontier",
+     "cascade.gr",
+     "cascade.math",
+     "cascade.modern",
+     "cascade.new_tools",
+     "cascade.optics",
+     "cascade.refusal",
+     "cascade.semantic",
+     "cascade.thermo",
+     "hidden_tools",
+     "param_aliases",
+     "pattern_hints"
+    ],
+    "ref_before": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "ref_after": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "router_errors": {
+     "integrate_expr returned no value": 36,
+     "differentiate_expr returned no value": 24
+    }
+   },
+   "wall_s": null,
+   "ref": null
+  },
+  "math329_live_f9fb119_trained_profile": {
+   "n": 329,
+   "ok": 313,
+   "summary": null,
+   "wall_s": 115.8,
+   "ref": "ef2d4c041803838cbed7def02b9943e8fbe02718"
+  },
+  "physics150_live_f9fb119_trained_profile_cut_by_recreation": {
+   "n": 150,
+   "ok": 100,
+   "summary": {
+    "part": "http_physics",
+    "n": 150,
+    "ok": 100,
+    "p50_s": 0.67,
+    "p90_s": 1.31,
+    "by_route": {
+     "deterministic": "2/14",
+     "router": "97/120",
+     "qwen": "1/5",
+     "clarify": "0/11"
+    },
+    "ref_before": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "ref_after": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "rows_retried": 0
+   },
+   "wall_s": null,
+   "ref": null
+  },
+  "math329_live_0d62ade": {
+   "n": 329,
+   "ok": 317,
+   "summary": null,
+   "wall_s": 181.8,
+   "ref": "ef2d4c041803838cbed7def02b9943e8fbe02718"
+  },
+  "physics150_live_0d62ade_cut_by_recreation": {
+   "n": 150,
+   "ok": 102,
+   "summary": {
+    "part": "http_physics",
+    "n": 150,
+    "ok": 102,
+    "p50_s": 0.56,
+    "p90_s": 1.13,
+    "by_route": {
+     "router": "101/125",
+     "deterministic": "1/10",
+     "clarify": "0/14",
+     "qwen": "0/1"
+    },
+    "ref_before": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "ref_after": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "rows_retried": 1
+   },
+   "wall_s": null,
+   "ref": null
+  },
+  "physics150_live_0d62ade_clean": {
+   "n": 150,
+   "ok": 109,
+   "summary": {
+    "part": "http_physics",
+    "n": 150,
+    "ok": 109,
+    "p50_s": 0.56,
+    "p90_s": 0.95,
+    "by_route": {
+     "router": "108/132",
+     "deterministic": "1/7",
+     "clarify": "0/10",
+     "qwen": "0/1"
+    },
+    "ref_before": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "ref_after": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+    "rows_retried": 0
+   },
+   "wall_s": null,
+   "ref": null
+  }
+ }
+}

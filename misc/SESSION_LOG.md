@@ -3950,3 +3950,23 @@ temperature is about 5778 K. What wavelength ...") at 0.72, which it would have 
 Verified through the real runner on astro_002, thermo_012, astro_003 (the first now 5772 K in 0.6 s; the others unchanged), scored with the unchanged scorer; ONE row of the stored
 2026-07-15 run replaced (136 -> 137 of 150). My first end-to-end attempt timed out because I ran it against the main Ollama (NUM_PARALLEL=4, 32k context), which my own notes
 warn about; it passed on a session-only single-slot server on 11435. The main Ollama on 11434 was down afterwards (not mine, not touched).
+
+## 2026-10-27 — Mentat on skippy-core put through its paces; audit; the router stage fixed and deployed
+
+Captain: "Mentat has a new home using our latest 3.1 4:b model. Let's start putting it through its paces"; "Look at Mentat's router code as well, I may
+have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix router_stage and deploy it"; "Can you make perfecting Mentat be your goal?"
+
+- Live Mentat (`skippycore-mentat-1`, sigma-ground ef2d4c0, router v3.1 4B byte-identical to the trained GGUF, behind an Ollama shim over llama-swap).
+  Measured through the deployed `/ask` with the unchanged scorers: **maths 0 of 329** (every question fell to the keyword translator's falling-object
+  clarification), physics 105 of 150. Cause: SkippyTel's `router_stage.py` ran the benchmark harness at the registry defaults, where `structured_results`
+  is off and a symbolic result counts as "returned no value"; the router's plans and the tools' values were right. Visible since 2026-10-14 in the
+  trickle scorer's "deployed front door" line, which the daily job does not run. The model and the harness were not corrupted.
+- Fix (SkippyTel f9fb119, 0d62ade): the stage runs the harness with `structured_results` on; a miss carries its reason into the research log
+  (`inputs.router_miss`); real-harness tests with the model faked at the HTTP level. First version used the `trained` profile and lost 2 physics
+  answers to `strict_params` (pre-rename and invented parameter names); corrected to the replayed configuration. Live after: **maths 317 of 329,
+  physics 109 of 150** (= the October model-only measurement), stack unchanged through the run.
+- Audit `misc/MENTAT_AUDIT_2026-10-27.md`: 13 findings, ordered improvement list (next: the dashboard on the LIVE service, the cascade behind the
+  router for the 31-answer gap to 140, `body_position` reachable, the cloud copy, measure the slim MCP, "show the work", v3.2 on the M5).
+- Observed: the box's stack was recreated four times in an hour (deploys from other sessions and a `repair()` nobody's state file claims); a live
+  suite run must bracket itself with container start times. The research log's "97% plain questions" is the Wolfram trickle, not people.
+- Memory: `feedback_perfect_mentat_goal.md` (the standing goal).
