@@ -57,11 +57,11 @@ What this requires (partly built — see the playground and front-door tools):
 |---|---|---|
 | Math, terse suite (≥500 questions) | `misc/CONTENDER_PLAN.md` gate 1; Wolfram free-tier trickle + historic data | final-answer accuracy ≥ Wolfram's on the same questions |
 | Math, silently wrong answers | notation suite (`test_mathparse.py`, contract census) | **zero** |
-| Physics, narrative benchmark (150) + terse suite (≥300) + adversarial set | daily_job; trickle | ≥ Wolfram, compared question by question (paired), not by totals |
+| Physics, narrative benchmark (150) + terse suite (≥300) + adversarial set | daily_job's LIVE rows (`benchmark/live_ask.py`: the deployed `/ask`, every day); trickle | ≥ Wolfram, compared question by question (paired), not by totals |
 | One answer per question | material / constant conflict report | empty |
 | Ceiling and baselines | frontier model driving Mentat; P1-30B-A3B; Phi-4-mini-reasoning; stock Qwen3 | measured and recorded |
 | Latency | harness | median ≤ 5 s for a one-tool question, on this PC |
-| Deployed = measured | `tools/check_mentat_deploy.sh` | the live Mentat runs master |
+| Deployed = measured | daily_job's LIVE rows; `tools/check_mentat_deploy.sh` | the live Mentat runs master AND the daily counts come from the live service, not a stored run (audit 2026-10-27) |
 
 ## Current state (as of 2026-10-13)
 

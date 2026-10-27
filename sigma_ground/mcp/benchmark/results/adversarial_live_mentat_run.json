@@ -1,0 +1,362 @@
+[
+ {
+  "id": "adv_false_001",
+  "system": "live_mentat",
+  "model": "router mentat-router-v31-4b",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "{'field_constants_source': 'JPL DE440 header (header.440; Park et al. 2021)', 'field_reference_radius_km': 6378.1366, 'gm_km3_s2': 398600.43550702266, 'j2': 0.00108262539, 'j3': -2.53241e-06, 'j4': -1.619898e-06, 'mass_kg': 5.97219e+24, 'orbital_period_d': 365.256, 'radius_m': 6378100.0, 'semimajor_axis_au': 1.000001018, 'surface_g_ms2': 9.80665} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days. gm_km3_s2, j2, j3, j4 are the gravity-field constants of the N-body predictor (field_constants_source); they are defined on field_reference_radius_km, which differs from radius_m (a mean radius).",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 4.18,
+  "tool_calls": [
+   {
+    "name": "solar_system_body",
+    "args": {
+     "body_name": "earth"
+    },
+    "result_text": "{\"args\": {\"body_name\": \"earth\"}, \"formula\": null, \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\", \"tool\": \"solar_system_body\", \"units\": \"\", \"value\": {\"field_constants_source\": \"JPL DE440 header (header.440; Park et al. 2021)\", \"field_reference_radius_km\": 6378.1366, \"gm_km3_s2\": 398600.43550702266, \"j2\": 0.00108262539, \"j3\": -2.53241e-06, \"j4\": -1.619898e-06, \"mass_kg\": 5.97219e+24, \"orbital_period_d\": 365.256, \"radius_m\": 6378100.0, \"semimajor_axis_au\": 1.000001018, \"surface_g_ms2\": 9.80665}}"
+   }
+  ],
+  "route": "router",
+  "router_miss": null,
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_false_002",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 8.791,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"velocity_m_s\", \"question\": \"What is the velocity?\"}}",
+   "reason": "clarify: velocity_m_s"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_false_003",
+  "system": "live_mentat",
+  "model": "router mentat-router-v31-4b",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "{'can_signal_faster_than_light': False, 'can_transmit_information': False, 'chsh_classical_max': 2.0, 'chsh_quantum_max': 2.8284271247461903, 'monogamy': 'If A is maximally entangled with B it cannot also be entangled with C \u2014 which is why an eavesdropper is detectable.', 'no_communication_theorem': \"Local measurement outcomes are random and the marginal statistics on one side are independent of the partner's measurement choice \u2014 so entanglement alone transmits zero bits.\", 'primary': False, 'requires_classical_channel': 'To USE the correlation (teleportation, key agreement) a separate classical channel at \u2264 c is mandatory.', 'shared_resource': 'shared secret randomness: a private correlated key, the basis of quantum key distribution (Ekert E91).', 'verdict': 'NO \u2014 entangled particles cannot communicate or send information, faster than light or otherwise (the no-communication theorem). They share private correlated randomness, not a signal; extracting any message requires a separate classical channel at \u2264 c.'} Entanglement is a correlation resource, not a communication channel. Faster-than-light signaling via entanglement is impossible; the only transferable thing is shared secret randomness, and using it needs a classical channel at \u2264 c.",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 0.638,
+  "tool_calls": [
+   {
+    "name": "entanglement_channel",
+    "args": {
+     "scenario": "faster-than-light signaling"
+    },
+    "result_text": "{\"args\": {\"scenario\": \"faster-than-light signaling\"}, \"formula\": \"CHSH: |S| \\u2264 2 (classical) < |S| \\u2264 2\\u221a2 (quantum); no-signaling\", \"source\": \"sigma-ground (no-communication theorem; Bell 1964; Tsirelson 1980; Ekert 1991)\", \"tool\": \"entanglement_channel\", \"units\": \"\", \"value\": {\"can_signal_faster_than_light\": false, \"can_transmit_information\": false, \"chsh_classical_max\": 2.0, \"chsh_quantum_max\": 2.8284271247461903, \"monogamy\": \"If A is maximally entangled with B it cannot also be entangled with C \\u2014 which is why an eavesdropper is detectable.\", \"no_communication_theorem\": \"Local measurement outcomes are random and the marginal statistics on one side are independent of the partner's measurement choice \\u2014 so entanglement alone transmits zero bits.\", \"primary\": false, \"requires_classical_channel\": \"To USE the correlation (teleportation, key agreement) a separate classical channel at \\u2264 c is mandatory.\", \"shared_resource\": \"shared secret randomness: a private correlated key, the basis of quantum key distribution (Ekert E91).\", \"verdict\": \"NO \\u2014 entangled particles cannot communicate or send information, faster than light or otherwise (the no-communication theorem). They share private correlated randomness, not a signal; extracting any message requires a separate classical channel at \\u2264 c.\"}}"
+   }
+  ],
+  "route": "router",
+  "router_miss": null,
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_impossible_001",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 1.14,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"n_digits\", \"question\": \"How many digits?\"}}",
+   "reason": "clarify: n_digits"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_impossible_002",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that? Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that?\", \"param\": \"element_Z\"}",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 0.514,
+  "tool_calls": [],
+  "route": "deterministic",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"n\", \"question\": \"What is the quantum number n?\"}}",
+   "reason": "clarify: n"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_impossible_003",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 1.06,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"lookup_constant\", \"tool_args\": {\"name\": \"avogadro_number\"}}",
+   "reason": "error: lookup_constant: unknown_key (Constant 'avogadro_number' (resolved to 'avogadro_number') not found in sigma_ground.field.constants)"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_puzzle_001",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 1.015,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"host_intent\", \"question\": \"What is the host's intent?\"}}",
+   "reason": "clarify: host_intent"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_puzzle_002",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 0.808,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"day_of_year\", \"question\": \"What is the day of the year?\"}}",
+   "reason": "clarify: day_of_year"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_puzzle_003",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 1.529,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"relativistic_velocity_addition\", \"tool_args\": {\"velocity1_m_s\": 16.6666666667, \"velocity2_m_s\": 11.1111111111, \"separation_m\": 100000.0}}",
+   "reason": "error: relativistic_velocity_addition: missing required parameter u_m_s (relativistic_velocity_addition needs 'u_m_s' (speed of the second frame or object))"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_open_001",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "3074.6637901543813 m/s A circular orbit 35,786 km above Earth (synchronous, period 23.93 h) needs 3075 m/s (3.07 km/s), one lap every 23.9 hr.",
+  "extracted_value": 3074.6637901543813,
+  "extracted_units": "m/s",
+  "elapsed_s": 0.591,
+  "tool_calls": [
+   {
+    "name": null,
+    "args": null,
+    "result_text": "{\"inputs\": {\"central_body\": \"earth\", \"period_s\": 86164.0905, \"semimajor_axis_au\": null}, \"outputs\": {\"altitude_m\": 35786120.23542948, \"orbital_period_s\": 86164.09049999987, \"orbital_velocity_m_s\": 3074.6637901543813}, \"result\": {\"formula\": \"Kepler III / T = 2\\u03c0\\u221a(r\\u00b3/\\u03bc)\", \"label\": \"Orbital period\", \"source\": \"materia.bodies.orbital_period\", \"units\": \"s\", \"value\": 86164.09049999987}, \"scenario\": \"orbital_velocity\", \"steps\": [{\"formula\": \"(mass & radius from table)\", \"label\": \"Central body\", \"source\": \"materia.bodies\", \"units\": \"\", \"value\": \"Earth\"}, {\"formula\": \"r = (\\u03bc T\\u00b2 / 4\\u03c0\\u00b2)^(1/3)\", \"label\": \"Orbit radius\", \"source\": \"Kepler III\", \"units\": \"m\", \"value\": 42164220.23542948}, {\"formula\": \"v = \\u221a(G\\u00b7M / r)\", \"label\": \"Orbital velocity\", \"source\": \"materia.bodies.circular_orbital_velocity\", \"units\": \"m/s\", \"value\": 3074.6637901543813}, {\"formula\": \"Kepler III / T = 2\\u03c0\\u221a(r\\u00b3/\\u03bc)\", \"label\": \"Orbital period\", \"source\": \"materia.bodies.orbital_period\", \"units\": \"s\", \"value\": 86164.09049999987}], \"summary\": \"A circular orbit 35,786 km above Earth (synchronous, period 23.93 h) needs 3075 m/s (3.07 km/s), one lap every 23.9 hr.\", \"validation\": {\"note\": \"v=\\u221a(GM/r): 3.07 km/s\", \"passed\": true}}"
+   }
+  ],
+  "route": "deterministic",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"mass_kg\", \"question\": \"What is the mass?\"}}",
+   "reason": "clarify: mass_kg"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_open_002",
+  "system": "live_mentat",
+  "model": "router mentat-router-v31-4b",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "{'mass_kg': 6.4171e+23, 'orbital_period_d': 686.971, 'radius_m': 3389500.0, 'semimajor_axis_au': 1.523679, 'surface_g_ms2': 3.711} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 0.357,
+  "tool_calls": [
+   {
+    "name": "solar_system_body",
+    "args": {
+     "body_name": "mars"
+    },
+    "result_text": "{\"args\": {\"body_name\": \"mars\"}, \"formula\": null, \"source\": \"sigma-ground via NASA Planetary Fact Sheet 2024\", \"tool\": \"solar_system_body\", \"units\": \"\", \"value\": {\"mass_kg\": 6.4171e+23, \"orbital_period_d\": 686.971, \"radius_m\": 3389500.0, \"semimajor_axis_au\": 1.523679, \"surface_g_ms2\": 3.711}}"
+   }
+  ],
+  "route": "router",
+  "router_miss": null,
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_open_003",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 0.796,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"acceleration_m_s2\", \"question\": \"What is the acceleration?\"}}",
+   "reason": "clarify: acceleration_m_s2"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_nonsense_001",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 0.517,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"decline\": \"not a question about a physical system\"}",
+   "reason": "decline: not a question about a physical system"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_nonsense_002",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None emphasis on optics (render=high) because the intent is 'still'. I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 0.601,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"material_color_analysis\", \"tool_args\": {\"material_number\": 7}}",
+   "reason": "error: material_color_analysis returned no value"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_nonsense_003",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 1.203,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"energy_j\", \"question\": \"What is the energy?\"}}",
+   "reason": "clarify: energy_j"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_units_001",
+  "system": "live_mentat",
+  "model": null,
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "<ERROR transport: URLError: <urlopen error [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond>>",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 21.033,
+  "tool_calls": [],
+  "route": null,
+  "router_miss": null,
+  "transport_error": "URLError: <urlopen error [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond>",
+  "re_asked": true
+ },
+ {
+  "id": "adv_units_002",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 2.126,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"steps\": [{\"tool\": \"hubble_radius\", \"tool_args\": {}}, {\"tool\": \"convert_units\", \"tool_args\": {\"value\": 13787000000.0, \"from_units\": \"year\", \"to_units\": \"nanosecond\"}}, {\"tool\": \"convert_units\", \"tool_args\": {\"value\": \"$1\", \"from_units\": \"nanosecond\", \"to_units\": \"dollar\"}}]}",
+   "reason": "error: convert_units: declined ('dollar' is not defined in the unit registry)"
+  },
+  "transport_error": null,
+  "re_asked": true
+ },
+ {
+  "id": "adv_units_003",
+  "system": "live_mentat",
+  "model": "keywords + qwen",
+  "sigma_ground_ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+  "mentat_since": "2026-10-27T08:45:37Z",
+  "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+  "extracted_value": null,
+  "extracted_units": "",
+  "elapsed_s": 0.899,
+  "tool_calls": [],
+  "route": "clarify",
+  "router_miss": {
+   "plan": "{\"tool\": \"request_clarification\", \"tool_args\": {\"variable\": \"heart_rate_bpm\", \"question\": \"What is the heart rate?\"}}",
+   "reason": "clarify: heart_rate_bpm"
+  },
+  "transport_error": null,
+  "re_asked": true
+ }
+]

@@ -47,7 +47,9 @@ multi-step chains, without giving up its precision.
    clearly beats translator plus Mentat, the front end changes before we train.
 5. **Local and fast.** Median answer time on this PC within a budget we set from the baselines (target ≤ 5 s for a
    one-tool question).
-6. **Deployed is what we measured.** The live Mentat reports the commit it runs, and it is master.
+6. **Deployed is what we measured.** The live Mentat reports the commit it runs, and it is master; and the suite counts on the daily dashboard are
+   taken from the live service itself (`benchmark/live_ask.py`), in the configuration it serves. A matching commit is not enough: on 2026-10-27
+   the live service ran master and answered 0 of 329 maths questions because one harness switch differed from the measurement.
 
 ## Workstreams, in order
 

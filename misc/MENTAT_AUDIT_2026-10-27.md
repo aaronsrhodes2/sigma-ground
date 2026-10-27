@@ -84,6 +84,14 @@ weak spots as in October).
 9. **`find_tools` is a substring match.** "integral" finds only `nonlinear_optics_analysis` (not `integrate_expr`); "skid" and any phrase ("temperature
    of the sun") find nothing.
 
+### S1 — refusals: the right decision is thrown away
+
+14. **Live adversarial set (2026-10-27, first daily live run): 1 of 6 refusal questions right.** The router declines "What is the kinetic energy of
+    love?" with `{"decline": "not a question about a physical system"}`, which is the right answer; `router_stage` counts a decline as a miss, and
+    the keyword translator then answers with its falling-object offer. "Is the Earth flat?" is routed to `body_constants(earth)` and comes back as
+    the Earth's constants record, tagged VERIFIED. The stored (harness) adversarial run scores 6 of 6 because the harness's cascade has a refusal
+    classifier that /ask does not have (finding 3b).
+
 ### S3 — the dashboard measures the wrong system
 
 13. **The daily job's TARGET DASHBOARD says PASS (91.3%, "sg matches WA-correct 30/30") while the live Mentat answers 105 of 150 and 0 of 329.**
@@ -130,7 +138,7 @@ A professor also explains: Mentat returns a value, a formula and a source, but n
 | 3 | daily job: ask the LIVE `/ask` the 150, the 329 and the adversarial set (`tools/ask_suites.py`), score them with the unchanged scorers, and put those rows on the dashboard beside the stored run; red when a count drops | half a day | findings 2 and 13 | the dashboard goes red on a regression like this one |
 | 3b | behind the router, the benchmark's own cascade (regex classifiers + semantic interpreter) instead of, or ahead of, the keyword translator | a day | the 31-answer gap between 109 and 140 on physics; the Sun-temperature fix of 1c0ff2f reaches users | the 150 through `/ask`, paired |
 | 4 | deterministic intents ahead of the router for "where is X / right now / on <date>" → `body_position`, and "<field> of <body>" → that field | a day | 3, 4, 6 until the router is retrained | probes 3/4 answer with a position / a single value |
-| 5 | the fallback says "I could not read this as a calculation" for maths and anything it cannot place, instead of a falling-object or incline clarification | small | 5 | no `clarify` with an unrelated scenario |
+| 5 | a router DECLINE becomes /ask's answer (value null, the decline's reason as the refusal) instead of a miss that falls to the translator; the fallback says "I could not read this as a calculation" for anything it cannot place, instead of a falling-object or incline clarification | small | 5, 14 | the live adversarial refusal row; no `clarify` with an unrelated scenario |
 | 6 | cloud copy: answer `ask` through the home router (tailnet) or say in the connector's instructions that `call_tool` is the way | small–medium | 7 | the 5 probes |
 | 7 | measure Claude with the full list vs a compact catalogue (~5 K tokens: name + one line) vs 3 tools, 50 questions, before keeping the slim MCP | half a day | 8, 9 | paired counts |
 | 8 | `find_tools`: word stems and synonyms (integral → integrate), ranking | small | 9 | the probe words |

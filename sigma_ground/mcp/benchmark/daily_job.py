@@ -538,6 +538,8 @@ def main() -> int:
                               "can drop to 0.5.")
     parser.add_argument("--skip-wolfram", action="store_true")
     parser.add_argument("--skip-gemini", action="store_true")
+    parser.add_argument("--skip-live", action="store_true",
+                        help="Do not ask the live Mentat (MENTAT_URL); score and show what is stored.")
     args = parser.parse_args()
 
     # Auto-load env vars from the dev-root .env
@@ -566,9 +568,26 @@ def main() -> int:
     sg_path = results_dir / f"{prefix}sigma_ground_run.json"
     wf_path = results_dir / f"{prefix}wolfram_run.json"
     gm_path = results_dir / f"{prefix}gemini_run.json"
+    live_path = results_dir / f"{prefix}live_mentat_run.json"
 
     print(f"\n=== Daily job: corpus={args.corpus} ({len(questions)} questions) ===")
     print(f"  plan file: {plan_path}")
+
+    # Step 0: the LIVE Mentat (what a user gets from /ask), every corpus, today. Audit 2026-10-27: the stored sigma_ground run is the
+    # harness's cascade on this PC, a different front end, and it said PASS for 13 days while the deployed service answered no maths at all.
+    live_meta = None
+    if args.skip_live:
+        print("  [Live]    skipped")
+    else:
+        from sigma_ground.mcp.benchmark import live_ask
+        url = os.environ.get("MENTAT_URL") or live_ask.DEFAULT_URL
+        try:
+            live_meta = live_ask.run_all(url, results_dir)
+            print(f"  [Live]    {url} at {str(live_meta.get('ref'))[:12]}: " + ", ".join(
+                f"{k} {v.get('ok', v.get('answered'))}/{v['n']}" + (" CUT" if v.get("cut") else "") for k, v in live_meta["suites"].items())
+                  + f"  ({live_meta['wall_s']:.0f}s)")
+        except live_ask.Unreachable as e:
+            print(f"  [Live]    unreachable, nothing measured: {e}")
 
     # Loaded early (not just at Step 4) so the Wolfram step's tool-call-
     # synthesis phrasing variant can use sigma_ground's own successful
@@ -611,11 +630,21 @@ def main() -> int:
     # Step 3: Re-score (write _scored.json files)
     from sigma_ground.mcp.benchmark.score import score_run, summarize
     print("  [Score]")
+    live_counts: dict[str, int | None] = {}
     for label, path in [("sigma_ground", sg_path), ("wolfram", wf_path),
-                            ("gemini", gm_path)]:
-        if not path.exists():
+                            ("gemini", gm_path), ("live_mentat", live_path),
+                            ("adversarial_live_mentat", results_dir / "adversarial_live_mentat_run.json")]:
+        if not path.exists() or (label == "adversarial_live_mentat" and prefix):
+            continue
+        if label == "adversarial_live_mentat":                 # the live adversarial set is scored here too, for the dashboard's refusal row
+            rows = score_run(path, here / "adversarial_questions.json", here / "adversarial_ground_truth.json")
+            with (results_dir / "adversarial_live_mentat_scored.json").open("w", encoding="utf-8") as f:
+                json.dump({"summary": summarize(rows), "rows": [r.to_dict() for r in rows]}, f, indent=2, default=str)
+            live_counts["adversarial"] = sum(r.correct for r in rows)
             continue
         rows = score_run(path, q_path, gt_path)
+        if label == "live_mentat":
+            live_counts["physics"] = sum(r.correct for r in rows)
         summary = summarize(rows)
         scored_path = results_dir / f"{prefix}{label}_scored.json"
         with scored_path.open("w", encoding="utf-8") as f:
@@ -634,6 +663,14 @@ def main() -> int:
                                   gm_records, plan_path)
     print(f"  [Catalog] {stats}")
     print(f"  [Plan]    appended to {plan_path}")
+
+    # Step 5b: the live run's history line (scored counts), so tomorrow can say "below yesterday".
+    if live_meta is not None and not prefix:
+        from sigma_ground.mcp.benchmark import live_ask
+        math_path = results_dir / "live_mentat_math.json"
+        if math_path.exists():
+            live_counts["math"] = json.loads(math_path.read_text(encoding="utf-8"))["summary"]["answer_ok"]
+        live_ask.append_history(results_dir, live_meta, live_counts)
 
     # Step 6: Print target-progress dashboard (from PROJECT_GOAL.md).
     _print_target_dashboard(results_dir, prefix)
@@ -732,7 +769,52 @@ def _print_target_dashboard(results_dir: Path, prefix: str) -> None:
     # Target 8: conversation mode -- placeholder
     _row("conversation mode built", False, "roadmap")
 
+    # LIVE rows (audit 2026-10-27): the deployed /ask, measured today, against the stored run and against the previous live run.
+    # A row is red when today's count is below the previous run's; a run cut by a container recreation says so instead of going red.
+    _print_live_rows(results_dir, sg_scored, _scored, _row)
+
     print("  +--------------------------------------------------------------+")
+
+
+def _print_live_rows(results_dir: Path, sg_scored, _scored, _row) -> None:
+    from sigma_ground.mcp.benchmark import live_ask
+    meta_path = results_dir / "live_mentat_meta.json"
+    if not meta_path.exists():
+        _row("LIVE Mentat measured today", False, "no live run")
+        return
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    cut = " (cut by recreation)" if meta.get("cut") else ""
+    prev = live_ask.previous_history(results_dir, before_at=meta.get("at"))
+    live_scored = _scored("live_mentat")
+    adv_scored = _scored("adversarial_live_mentat")
+    math_path = results_dir / "live_mentat_math.json"
+    math = json.loads(math_path.read_text(encoding="utf-8")) if math_path.exists() else None
+    if live_scored:
+        n_ok, n = live_scored["summary"]["overall_correct"], live_scored["summary"]["overall_total"]
+        stored = sg_scored["summary"]["overall_correct"] if sg_scored else None
+        _row("LIVE physics (150)", bool(prev is None or meta.get("cut") or n_ok >= (prev.get("physics") or 0)),
+             f"{n_ok}/{n}" + (f" prev {prev.get('physics')}" if prev else "") + (f" stored {stored}" if stored is not None else "") + cut)
+    if math:
+        n_ok, n = math["summary"]["answer_ok"], math["summary"]["n"]
+        _row("LIVE math (329)", bool(prev is None or meta.get("cut") or n_ok >= (prev.get("math") or 0)),
+             f"{n_ok}/{n}" + (f" prev {prev.get('math')}" if prev else "") + cut)
+    if adv_scored:
+        rows = [r for r in adv_scored["rows"] if r.get("domain") in ("adversarial_false_premise", "adversarial_nonsense")]
+        ok = sum(1 for r in rows if r.get("correct"))
+        _row("LIVE adversarial refusal >= 50%", bool(rows) and ok / len(rows) >= 0.5, f"{ok}/{len(rows)}" + cut)
+    ref = str(meta.get("ref") or "")
+    try:
+        import subprocess
+        repo = str(results_dir.parents[3])
+        master = subprocess.run(["git", "rev-parse", "origin/master"], capture_output=True, text=True, cwd=repo, timeout=20).stdout.strip()
+        # docs-only commits do not change what Mentat serves: count the commits ahead that touch code (the package, tools, the datasets index)
+        code_ahead = subprocess.run(["git", "rev-list", "--count", f"{ref}..origin/master", "--", "sigma_ground", "tools", "pyproject.toml"],
+                                    capture_output=True, text=True, cwd=repo, timeout=20).stdout.strip() if ref else ""
+    except Exception:  # noqa: BLE001
+        master, code_ahead = "", ""
+    behind = code_ahead.isdigit() and int(code_ahead) > 0
+    _row("LIVE serves master's code", bool(ref) and not behind and bool(master),
+         f"{ref[:12]}" + ("" if ref == master else (f" {code_ahead} code commits behind" if behind else " docs-only behind")))
 
 
 if __name__ == "__main__":

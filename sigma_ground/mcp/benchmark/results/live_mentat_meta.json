@@ -1,0 +1,56 @@
+{
+ "url": "http://skippy-core:7350",
+ "system": "live_mentat",
+ "at": "2026-10-27T08:42:14+00:00",
+ "suites": {
+  "physics": {
+   "n": 150,
+   "answered": 125,
+   "cut": true,
+   "by_route": {
+    "router": "121/131",
+    "deterministic": "3/8",
+    "clarify": "0/10",
+    "qwen": "0/1"
+   },
+   "re_asked": 0,
+   "since_before": "2026-10-27T08:40:54Z",
+   "since_after": "2026-10-27T08:44:04Z"
+  },
+  "adversarial": {
+   "n": 18,
+   "answered": 1,
+   "cut": true,
+   "by_route": {
+    "router": "0/3",
+    "clarify": "0/12",
+    "deterministic": "1/2",
+    "None": "0/1"
+   },
+   "re_asked": 18,
+   "since_before": "2026-10-27T08:45:37Z",
+   "since_after": "2026-10-27T08:46:38Z"
+  },
+  "math": {
+   "n": 329,
+   "ok": 317,
+   "cut": true,
+   "by_route": {
+    "router": "317/325",
+    "clarify": "0/4"
+   },
+   "since_before": "2026-10-27T08:46:53Z",
+   "since_after": "2026-10-27T08:49:53Z"
+  }
+ },
+ "ref": "ef2d4c041803838cbed7def02b9943e8fbe02718",
+ "since_before": "2026-10-27T08:40:54Z",
+ "since_after": "2026-10-27T08:53:07Z",
+ "cut": true,
+ "retried_suites": [
+  "physics",
+  "adversarial",
+  "math"
+ ],
+ "wall_s": 640.9
+}
