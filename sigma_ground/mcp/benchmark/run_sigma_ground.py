@@ -1078,46 +1078,14 @@ def _scope_tools(tools_for_ollama: list[dict], category: str | None) -> list[dic
     return scoped or tools_for_ollama          # never hand the model an empty list
 
 
-async def _run_one_question(session, ollama_url: str, model: str,
-                              tools_for_ollama: list[dict],
-                              question: str,
-                              system_prompt: str,
-                              real_params_by_tool: dict[str, set[str]] | None = None,
-                              primary_tool_expected: str | None = None,
-                              tool_category: str = "auto",
-                              finalize: str = "chain",
-                              router: bool = False,
-                              router_format: str = "schema",
-                              router_plan: str = "v1") -> dict:
-    """Multi-turn tool loop for a single question.
-
-    finalize="chain" (default): after the first successful tool call the
-    harness ends the question itself unless the model extends a data-flow
-    chain (see _is_chain_step). finalize="model": the legacy loop, where the
-    model must write its own ANSWER: line (kept for A/B against old runs).
-    router=True: no loop at all -- the deterministic cascade, then ONE model
-    call that must return a JSON plan (_route_once); `system_prompt` is then
-    the router prompt (_router_system_prompt).
+def cascade_answer(question: str, t0: float | None = None, router: bool = False) -> dict | None:
+    """The deterministic cascade, ahead of any model: the pattern classifiers (frontier, new tools, refusal, clarification, conversion, GR,
+    cosmology, maths, thermo, modern, classical intro, optics, astro) and then the semantic interpreter, each behind its `cascade.*` tweak
+    switch. Returns the harness record of the first stage that answers, or None. Lifted out of _run_one_question on 2026-10-27 so a
+    deployed front door (SkippyTel mentat/app.py /ask) can run the same stages the benchmark measured (misc/MENTAT_AUDIT_2026-10-27.md,
+    finding 3b: the 31-answer gap between the router alone and the harness); the body is the block that sat here, unchanged.
     """
-    import httpx
-
-    t0 = time.time()
-    if not _tw.on("answer_key_hint"):
-        primary_tool_expected = None
-
-    # Static tool-category flag: a leading /simulation /question /render pins the
-    # visible tool set (or the run-wide --tools default), so routing is
-    # deterministic. Runs FIRST so every classifier below (frontier included)
-    # sees the flag-stripped question. The Q&A pre-classifiers are
-    # pattern-specific and won't fire on sim/render prompts.
-    _flag_cat, question = _split_tool_flag(question)
-    tools_for_ollama = _scope_tools(tools_for_ollama, _flag_cat or tool_category)
-
-    # Frontier router: black-hole-thermodynamics / holography questions
-    # (Bekenstein-Hawking entropy, bubble-pop thread count, baryon-vs-disc
-    # crossover, gravitational binding energy, Unruh T). Most specialized of
-    # the pre-classifiers, so it runs before them. These tools are HIDDEN
-    # from Qwen's flat list.
+    t0 = time.time() if t0 is None else t0
     from sigma_ground.mcp.benchmark.frontier_classifier import (
         classify_for_frontier, execute_frontier_match)
     fr = classify_for_frontier(question) if _tw.on("cascade.frontier") else None
@@ -1422,6 +1390,53 @@ async def _run_one_question(session, ollama_url: str, model: str,
             return sem
     except Exception:
         pass   # router is best-effort; never block the LLM path on its failure
+
+    return None
+
+
+async def _run_one_question(session, ollama_url: str, model: str,
+                              tools_for_ollama: list[dict],
+                              question: str,
+                              system_prompt: str,
+                              real_params_by_tool: dict[str, set[str]] | None = None,
+                              primary_tool_expected: str | None = None,
+                              tool_category: str = "auto",
+                              finalize: str = "chain",
+                              router: bool = False,
+                              router_format: str = "schema",
+                              router_plan: str = "v1") -> dict:
+    """Multi-turn tool loop for a single question.
+
+    finalize="chain" (default): after the first successful tool call the
+    harness ends the question itself unless the model extends a data-flow
+    chain (see _is_chain_step). finalize="model": the legacy loop, where the
+    model must write its own ANSWER: line (kept for A/B against old runs).
+    router=True: no loop at all -- the deterministic cascade, then ONE model
+    call that must return a JSON plan (_route_once); `system_prompt` is then
+    the router prompt (_router_system_prompt).
+    """
+    import httpx
+
+    t0 = time.time()
+    if not _tw.on("answer_key_hint"):
+        primary_tool_expected = None
+
+    # Static tool-category flag: a leading /simulation /question /render pins the
+    # visible tool set (or the run-wide --tools default), so routing is
+    # deterministic. Runs FIRST so every classifier below (frontier included)
+    # sees the flag-stripped question. The Q&A pre-classifiers are
+    # pattern-specific and won't fire on sim/render prompts.
+    _flag_cat, question = _split_tool_flag(question)
+    tools_for_ollama = _scope_tools(tools_for_ollama, _flag_cat or tool_category)
+
+    # Frontier router: black-hole-thermodynamics / holography questions
+    # (Bekenstein-Hawking entropy, bubble-pop thread count, baryon-vs-disc
+    # crossover, gravitational binding energy, Unruh T). Most specialized of
+    # the pre-classifiers, so it runs before them. These tools are HIDDEN
+    # from Qwen's flat list.
+    hit = cascade_answer(question, t0, router)
+    if hit is not None:
+        return hit
 
     if router:
         async with httpx.AsyncClient(timeout=120.0) as http:
