@@ -361,3 +361,26 @@ def body_position(body_name: str, when: str, central_body: str = "sun") -> ToolR
         notes += f" Measured by hindcast, this model lands typically {e['typical_km']:.3g} km (largest seen {e['largest_seen_km']:.3g} km) from DE440 at this lead." + (f" {e['note']}." if e.get("note") else "")
     notes += " " + " ".join(d["notes"])
     return ToolResult(value=d, units="km (position), km/s (velocity)", source=d["method"], provenance_tag=tag, notes=notes.strip(), inputs={"body_name": body_name, "when": when, "central_body": central_body})
+
+
+def small_body(body_name: str) -> ToolResult:
+    """Orbit, physical data and, for comets, the non-gravitational force terms of an asteroid, Kuiper-belt object or comet, each with its source.
+
+    Asteroids (DE440's 343, by name or number), the 30 Kuiper-belt objects, and 20 comets (by designation or name: '1P', 'Halley', '67P', 'Tempel 2'). Elements are osculating at their epoch; perihelion, aphelion
+    and period are CALCULATED from them and the Sun's GM when asked (checked against the periods Horizons gives). Comets carry the Marsden A1, A2, A3 and DT exactly as JPL's solution has them.
+    No position is given: elements drift, and body_position handles planets and the Moon.
+    """
+    from sigma_ground.field.interface import small_body_data
+    entry, close = small_body_data.resolve(body_name)
+    if entry is None:
+        return ToolResult(value=None, source="sigma-ground small-body catalogue (DE440 perturber catalogue, JPL SBDB, JPL Horizons)",
+                          notes=(f"'{body_name}' is not a small body in the catalogue." + (f" Close names: {', '.join(close)}." if close else "")
+                                 + " It holds DE440's 343 asteroids, its 30 Kuiper-belt objects and 20 comets; planets and moons are in body_constants."),
+                          inputs={"body_name": body_name})
+    d = small_body_data.describe(entry)
+    notes = list(d.get("notes", []))
+    if "orbit" in d and "calculated" in d["orbit"]:
+        notes.append("Perihelion, aphelion, period and mean motion are calculated from the elements and the Sun's DE440 GM; the elements are osculating at their epoch and drift.")
+    return ToolResult(value=d, units="au, degrees, days, km (see the field names)",
+                      source="JPL SBDB osculating elements, JPL Horizons solutions and headers, JPL DE440 header masses; per-field sources in value['sources']",
+                      provenance_tag="VERIFIED" if "orbit" in d else "EMPIRICAL-INPUT", notes=" ".join(notes), inputs={"body_name": body_name})

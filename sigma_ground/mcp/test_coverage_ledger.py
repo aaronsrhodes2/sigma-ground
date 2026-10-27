@@ -122,6 +122,11 @@ def _compute_uncovered():
                 _A.body_constants(name)
             except Exception:
                 pass
+        for name in ("ceres", "halley", "eris"):
+            try:
+                _A.small_body(name)
+            except Exception:
+                pass
         for args in (("mars", "2015-06-15"), ("moon", "2031-06-15", "earth")):          # a known and a predicted position (they answer or say what data is missing)
             try:
                 _A.body_position(*args)

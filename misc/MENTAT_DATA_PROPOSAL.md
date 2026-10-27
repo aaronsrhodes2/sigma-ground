@@ -44,3 +44,8 @@ The live Mentat is built from a git ref (`SIGMA_GROUND_REF`; `tools/check_mentat
 * Item 6 DONE for the masses: the Moon in Mentat's old table was 7.342e22 kg (5.2e-4 below DE440's GM / G); now 7.3458e22, and a test fails if any planet's table mass leaves its four-digit agreement with GM / G.
 * Not done: the trained router (Qwen3-4B + LoRA, plan format v3) has never seen `body_constants`; the keyword/front-door route finds it, a router retrain would teach the trained stage. Items 2 to 5 open.
 
+## Status 2026-10-26
+* Item 3 DONE: `small_body(name)` (asteroids by name or number, the 30 Kuiper-belt objects, 20 comets by designation or name). Elements as held; perihelion, aphelion, period and mean motion are CALCULATED from them and the Sun's DE440 GM, and for all 20 comets the calculated period agrees with the period Horizons gives to 1e-4 and the perihelion distance to 1e-9. Comets carry JPL's A1, A2, A3, DT, the solution date and the observation count. Tests: `tests/test_small_body.py` (10).
+* Item 2 `body_position`: written and tested for known dates; the prediction branch waits for the forecast table (rebuilding at 0.025 d, the first build at 0.25 d was rejected).
+* Principle adopted 2026-10-26 (the Captain): keep calculations as calculations. The constants file now holds only JPL's raw header values; GM in km^3/s^2, the Earth and Moon split, masses and orbit periods are calculated when asked. A stored forecast or error table is a cache of a calculation and carries a physics fingerprint; `body_position` says STALE when the code has changed since it was built.
+

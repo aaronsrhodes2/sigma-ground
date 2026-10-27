@@ -176,6 +176,9 @@ def catalog() -> dict[str, dict]:
         nm = (k.get("name") or "").strip()
         e = {"name": nm or f"DE440 Kuiper-belt object {k['id']}", "kind": "kuiper-belt object", "parent": "Sun", "gm_km3_s2": k["gm_km3_s2"],
              "sources": {"gm_km3_s2": "JPL DE440 header (constant MA%d)" % k["id"]}, "notes": []}
+        if k.get("elements"):
+            e["elements"] = k["elements"]
+            e["sources"]["elements"] = "JPL SBDB osculating elements at the catalogue epoch (heliocentric ecliptic J2000)"
         if not nm:
             e["notes"].append("DE440 lists this object's mass but the object could not be identified by the 1 % mass match to the paper's table (ambiguous or absent), so it has no name here.")
         if k.get("match_pct") is not None:

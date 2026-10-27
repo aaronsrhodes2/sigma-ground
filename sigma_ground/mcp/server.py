@@ -872,6 +872,11 @@ def main() -> int:
         return t_astr.body_position(body_name, when, central_body).to_dict()
 
     @server.tool()
+    def small_body(body_name: str) -> dict[str, Any]:
+        """Orbit, physical data and non-gravitational terms of an asteroid, Kuiper-belt object or comet, e.g. small_body('Ceres'), small_body('1P'), small_body('67P'), small_body('Eris'). Period and perihelion are calculated from the elements."""
+        return t_astr.small_body(body_name).to_dict()
+
+    @server.tool()
     def named_star(star_name: str) -> dict[str, Any]:
         """Named bright star data (e.g. 'sirius_a', 'vega')."""
         return t_astr.named_star(star_name).to_dict()

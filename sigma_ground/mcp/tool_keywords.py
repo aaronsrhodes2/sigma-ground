@@ -784,6 +784,11 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "heliocentric position", "distance from the Sun on a date", "right ascension and declination of the Moon",
         "JPL DE440 position", "N-body prediction of a planet's position",
     ],
+    "small_body": [
+        "asteroid orbit", "comet orbit", "orbital elements of a comet", "non-gravitational parameters A1 A2 A3",
+        "perihelion and aphelion of an asteroid", "orbital period of a comet", "Kuiper belt object orbit",
+        "Halley Encke Tempel Churyumov-Gerasimenko Ceres Vesta Pallas Eris Haumea",
+    ],
     "list_bodies": [
         "list solar system bodies", "available planets",
     ],
@@ -1041,6 +1046,8 @@ _COLLOQUIAL: dict[str, list[str]] = {
                        "how heavy is io", "how massive is pluto", "what does the earth weigh"],
     "body_position": ["where is mars", "where will jupiter be", "where was the moon", "where is venus tonight",
                       "how far is mars from the sun on", "how far is the moon right now", "where is saturn in the sky"],
+    "small_body": ["how long is a year on halley's comet", "when does the comet come back", "how far does ceres get from the sun", "orbit of eris",
+                   "how eccentric is halley", "closest approach to the sun of a comet"],
     "asteroid_analysis": ["jump off an asteroid", "gravity on an asteroid",
                           "how heavy on ceres", "tiny world gravity"],
     "light_travel_time": ["how long for light to get there", "how far in light years",
