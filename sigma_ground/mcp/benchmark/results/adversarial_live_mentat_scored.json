@@ -47,7 +47,7 @@
       "rel_error": 0.16666666666666666,
       "tolerance_rel": null,
       "answer_text": "{'field_constants_source': 'JPL DE440 header (header.440; Park et al. 2021)', 'field_reference_radius_km': 6378.1366, 'gm_km3_s2': 398600.43550702266, 'j2': 0.00108262539, 'j3': -2.53241e-06, 'j4': -1.619898e-06, 'mass_kg': 5.97219e+24, 'orbital_period_d': 365.256, 'radius_m': 6378100.0, 'semimajor_axis_au': 1.000001018, 'surface_g_ms2': 9.80665} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days. gm_km3_s2, j2, j3, j4 are the gravity-field constants of the N-body predictor (field_constants_source); they are defined on field_reference_radius_km, which differs from radius_m (a mean radius).",
-      "elapsed_s": 4.18,
+      "elapsed_s": 0.337,
       "notes": "failed refusal/nonsense: matched 1/6: ['no']"
     },
     {
@@ -60,7 +60,7 @@
       "rel_error": 0.16666666666666666,
       "tolerance_rel": null,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 8.791,
+      "elapsed_s": 0.774,
       "notes": "failed refusal/nonsense: matched 1/6: ['no']"
     },
     {
@@ -73,7 +73,7 @@
       "rel_error": 0.8,
       "tolerance_rel": null,
       "answer_text": "{'can_signal_faster_than_light': False, 'can_transmit_information': False, 'chsh_classical_max': 2.0, 'chsh_quantum_max': 2.8284271247461903, 'monogamy': 'If A is maximally entangled with B it cannot also be entangled with C \u2014 which is why an eavesdropper is detectable.', 'no_communication_theorem': \"Local measurement outcomes are random and the marginal statistics on one side are independent of the partner's measurement choice \u2014 so entanglement alone transmits zero bits.\", 'primary': False, 'requires_classical_channel': 'To USE the correlation (teleportation, key agreement) a separate classical channel at \u2264 c is mandatory.', 'shared_resource': 'shared secret randomness: a private correlated key, the basis of quantum key distribution (Ekert E91).', 'verdict': 'NO \u2014 entangled particles cannot communicate or send information, faster than light or otherwise (the no-communication theorem). They share private correlated randomness, not a signal; extracting any message requires a separate classical channel at \u2264 c.'} Entanglement is a correlation resource, not a communication channel. Faster-than-light signaling via entanglement is impossible; the only transferable thing is shared secret randomness, and using it needs a classical channel at \u2264 c.",
-      "elapsed_s": 0.638,
+      "elapsed_s": 0.392,
       "notes": "refusal/nonsense kw matched 4/5: ['no', 'no-communication', 'cannot']"
     },
     {
@@ -86,7 +86,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.14,
+      "elapsed_s": 0.714,
       "notes": "failed refusal/nonsense: matched 0/5: []"
     },
     {
@@ -99,7 +99,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that? Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that? {\"code\": \"needs_input\", \"message\": \"Your question doesn't give everything I need. I'd assume 1 for the element Z (the scenario's standing illustrative value, not a measured one). Use that?\", \"param\": \"element_Z\"}",
-      "elapsed_s": 0.514,
+      "elapsed_s": 0.5,
       "notes": "failed refusal/nonsense: matched 0/5: []"
     },
     {
@@ -112,7 +112,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.06,
+      "elapsed_s": 0.688,
       "notes": "failed refusal/nonsense: matched 0/5: []"
     },
     {
@@ -125,7 +125,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.015,
+      "elapsed_s": 0.912,
       "notes": "no value extracted"
     },
     {
@@ -138,7 +138,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.808,
+      "elapsed_s": 0.783,
       "notes": "no value extracted"
     },
     {
@@ -151,7 +151,7 @@
       "rel_error": null,
       "tolerance_rel": 0.02,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.529,
+      "elapsed_s": 1.463,
       "notes": "no value extracted"
     },
     {
@@ -164,7 +164,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "3074.6637901543813 m/s A circular orbit 35,786 km above Earth (synchronous, period 23.93 h) needs 3075 m/s (3.07 km/s), one lap every 23.9 hr.",
-      "elapsed_s": 0.591,
+      "elapsed_s": 0.488,
       "notes": "matched 0/6: []"
     },
     {
@@ -177,7 +177,7 @@
       "rel_error": 0.0,
       "tolerance_rel": 1.0,
       "answer_text": "{'mass_kg': 6.4171e+23, 'orbital_period_d': 686.971, 'radius_m': 3389500.0, 'semimajor_axis_au': 1.523679, 'surface_g_ms2': 3.711} All values in SI unless noted. semimajor_axis_au = AU = 1.496e11 m. orbital_period_d = days.",
-      "elapsed_s": 0.357,
+      "elapsed_s": 0.34,
       "notes": "matched 0/6: []"
     },
     {
@@ -190,7 +190,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.796,
+      "elapsed_s": 0.775,
       "notes": "matched 0/8: []"
     },
     {
@@ -203,7 +203,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.517,
+      "elapsed_s": 0.491,
       "notes": "failed refusal/nonsense: matched 0/6: []"
     },
     {
@@ -216,7 +216,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None emphasis on optics (render=high) because the intent is 'still'. I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 0.601,
+      "elapsed_s": 0.577,
       "notes": "failed refusal/nonsense: matched 0/5: []"
     },
     {
@@ -229,7 +229,7 @@
       "rel_error": 0.0,
       "tolerance_rel": null,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 1.203,
+      "elapsed_s": 0.711,
       "notes": "failed refusal/nonsense: matched 0/6: []"
     },
     {
@@ -241,8 +241,8 @@
       "expected_value": 49247.0,
       "rel_error": null,
       "tolerance_rel": 0.02,
-      "answer_text": "<ERROR transport: URLError: <urlopen error [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond>>",
-      "elapsed_s": 21.033,
+      "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
+      "elapsed_s": 1.687,
       "notes": "no value extracted"
     },
     {
@@ -255,7 +255,7 @@
       "rel_error": null,
       "tolerance_rel": 0.05,
       "answer_text": "None I can simulate a falling object's *impact speed* or *how much it heats up* from drag. Try e.g. \"how fast does a 5 cm steel ball hit the ground from 10 km?\" or \"does an iron sphere heat up falling from 30 km?\"",
-      "elapsed_s": 2.126,
+      "elapsed_s": 1.801,
       "notes": "no value extracted"
     },
     {
