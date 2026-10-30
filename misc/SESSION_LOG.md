@@ -4050,3 +4050,15 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   `void`'s studio-light spheres sit inside a 35-degree orbit. tests/test_voxel_scene.py (3). Next: the tick.
 - E built (2026-10-30): extreme_in_group (tool + cascade cue + manifest; Kr/Xe/Rn first IEs added from NIST ASD so the noble-gas group is
   complete; refuses incomplete groups). Local pair: physics 147 -> 148 (+1 -0, atom_004). Suites now 148/150 and 328/329.
+- Voxel theater step 3 (2026-10-30): `materia/voxel_world.py` VoxelWorld: a VoxelField with per-cell T, melt, boil, stepped heat ->
+  phase -> settling. Heat = diffuse_fvm on material_grids under boundary_from_env; phase = enthalpy method on PHASE_DATA (latent
+  heat first, held at T_melt; boiled cells vent to a mass+energy ledger); settling = rigid solid pieces sink/float by density, liquids
+  fall/sink/spread, above the build's lowest layer (the theater's ground). Verified: gold sinks to the bottom of mercury, iron floats;
+  lead on a 1500 K tungsten plate in vacuum melts in ~4 s and puddles, E0 = E + radiated to 1e-9; mass exact. `field_from_voxel_exec`
+  gained `extent_m` (theater edge in metres -> block size). tests/test_voxel_world.py (9).
+  FLAGGED, not fixed (Mentat rule): (1) PHASE_DATA's L_*_J_mol has no stated mole basis for compounds (water_ice per H2O,
+  ceramic_alumina "per effective atom"), so latent heat is used only for pure elements; water/ice can't melt until that is settled.
+  (2) thermal.thermal_conductivity looks off for some materials (glass and granite conduct like metals, zinc like an insulator) --
+  verify against the handbook. (3) The air bath (solid's own k at the surface, the flagged upper bound) cools a 1 cm hot plate to
+  ambient in seconds; vacuum (radiative, exact ledger) is the honest theater for heat demos until a convection law exists.
+  (4) No thermal data for liquid mercury/water: inert to heat.

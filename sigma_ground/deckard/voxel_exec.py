@@ -94,12 +94,15 @@ def _resolve(names, counts, aliases):
     return resolved
 
 
-def field_from_voxel_exec(code: str, *, block_m: float = 1.0, grid_size: int = 256,
-                          seed: int = 1, aliases: dict | None = None, margin: int = 2,
-                          timeout_s: float = 60.0):
+def field_from_voxel_exec(code: str, *, block_m: float | None = None, extent_m: float | None = None,
+                          grid_size: int = 256, seed: int = 1, aliases: dict | None = None,
+                          margin: int = 2, timeout_s: float = 60.0):
     """Build a ``VoxelField`` from MineBench voxel.exec code whose blocks are materials.
 
-    ``block_m``: a block's edge in metres (Minecraft's convention is 1 m).
+    Scale: the theater is a real piece of space. ``extent_m`` is its edge in
+    metres (a room, a planet, a star system), and a block is then
+    ``extent_m / grid_size`` across, holding that block's volume of its
+    material. Or give ``block_m`` directly. Neither: 1 m blocks (Minecraft's).
     ``aliases``: extra name → material mappings, on top of ``MINECRAFT_ALIASES``.
 
     Returns ``(field, report)``. ``report`` says, per canonical material, the
@@ -109,6 +112,12 @@ def field_from_voxel_exec(code: str, *, block_m: float = 1.0, grid_size: int = 2
     import numpy as np
     from .voxelize import _finalize
 
+    if block_m is not None and extent_m is not None:
+        raise ValueError("give block_m or extent_m, not both")
+    if extent_m is not None:
+        block_m = float(extent_m) / grid_size
+    elif block_m is None:
+        block_m = 1.0
     raw = run_voxel_exec(code, grid_size=grid_size, seed=seed, timeout_s=timeout_s)
     cells = np.asarray(raw["cells"], dtype=np.int64).reshape(-1, 4)
     if not len(cells):
@@ -146,7 +155,7 @@ def field_from_voxel_exec(code: str, *, block_m: float = 1.0, grid_size: int = 2
     density = {canon: report_mats[canon]["density_kg_m3"] for canon in report_mats}
     field = _finalize(label, materials, pitch, lo, density.__getitem__, 1.0,
                       extra_note=f"from MineBench voxel.exec, {len(cells)} blocks of {block_m} m")
-    report = {"materials": report_mats, "blocks": int(len(cells)), "placed": raw["placed"],
+    report = {"block_m": pitch, "materials": report_mats, "blocks": int(len(cells)), "placed": raw["placed"],
               "outside": raw["outside"], "ms": raw["ms"]}
     return field, report
 
