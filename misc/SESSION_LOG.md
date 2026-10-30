@@ -4072,3 +4072,9 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   material's connected cells (ice on a granite floor floats up; a mixed object comes apart in liquid). Tests: ice melts on hot copper
   (energy incl. vented balances), ice floats up through its own water, water freezes; 3 mole-basis tests in test_phase_transition.
   Mentat serves the slope change only after its sigma-ground pin is bumped (not done).
+- Theater resolution (2026-10-30, the Captain's idea): `deckard/voxel_resample.py` resample_field(field, factor) and
+  VoxelWorld.resample(factor): n splits every block into n^3 (exact: mass, volume, CoM, contact areas, temperature, phase, energy),
+  1/n merges n^3 into 1 (lossy and reported: a merged block is matter when >= half its blocks were, of the majority material, ties to
+  the denser; per-material mass change in the report; the world keeps the winners' heat-capacity-weighted temperature). Same space:
+  the grid's low corner stays put. Demo tank at 5 cm: x2 = 3304 blocks, 297.9 kg (exact); x0.5 = 65 blocks, 356.6 kg (thin floor and
+  walls doubled, bolt and ring gone). tests/test_voxel_resample.py (7).
