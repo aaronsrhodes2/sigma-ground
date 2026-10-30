@@ -283,6 +283,22 @@ def test_ode_function_is_the_one_the_primes_name():
     assert MX.solve_ode("y'' + y", "y", "x").value == "Eq(y(x), C1*sin(x) + C2*cos(x))"
 
 
+def test_solve_equation_takes_a_system():
+    # "solve for x and y: 2x + y = 5, x - y = 1": the router writes equations=/variables= (renamed by param_aliases) and the
+    # equations arrive comma-separated in the one `equation` string (msuite_0324, 2026-10-29)
+    r = SY.solve_equation("2*x + y = 5, x - y = 1", "x,y")
+    assert r.value == ["2", "1"] and "order x, y" in r.notes
+    assert SY.solve_equation("2*x + y = 5 and x - y = 1", "y, x").value == ["1", "2"]
+    r = SY.solve_equation("x + y = 3; x - y = 1")
+    assert r.value == ["2", "1"] and "unknowns not given: solved for x, y" in r.notes
+    # a comma inside brackets or without '=' on both sides is not a system
+    assert SY.solve_equation("x^2 - 4").value == ["-2", "2"]
+    assert SY._split_system("Max(x, 2) - 3") == ["Max(x, 2) - 3"]
+    assert SY._split_system("x = 1, y") == ["x = 1, y"]
+    from sigma_ground.mcp.benchmark.param_aliases import PARAM_ALIASES
+    assert PARAM_ALIASES["equations"] == "equation" and PARAM_ALIASES["variables"] == "variable"
+
+
 def test_vector_calculus_infers_the_fields_own_variables():
     assert MX.gradient("log(x^2 + y^2)").value == ["2*x/(x**2 + y**2)", "2*y/(x**2 + y**2)"]        # two variables, not the old default x,y,z
     assert "variables not given: used x,y" in MX.gradient("x*y").notes

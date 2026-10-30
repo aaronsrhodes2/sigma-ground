@@ -43,8 +43,22 @@ If every row lands: physics 132 → **148 of 150** (A+B+C+D+E = 16; B is the sco
   deliberate decision, with a test saying "not the old default x,y,z"; Wolfram returns two components for a two-variable function too). The
   suite's two expected 3-vectors were generated with `variables='x,y,z'` before that change. msuite_0211/0212 move to group H (ground truth).
 - **G, primes** (2026-10-29, sigma-ground): `solve_ode` reads the function the primes name (`f' + 2*f` is about f), a function named like the
-  variable is a function of t (`x'' - 4*x' + 3*x` -> x(t)), and `func="y(t)"` names the variable. Paired replay: pending (the first after-run
-  was cut by the field-pick deploy landing mid-run).
+  variable is a function of t (`x'' - 4*x' + 3*x` -> x(t)), and `func="y(t)"` names the variable. Paired replay on the box: **317 -> 320,
+  +3 -0** (cda74e4). msuite_0285 stays: the question says y(t), the router passes no variable, the tool cannot know t.
+- **I, a system of equations** (2026-10-29): `solve_equation` reads `2*x + y = 5, x - y = 1` (commas, `;` or `and` at bracket depth 0 with
+  `=` on both sides) as a system and answers one value per unknown; `param_aliases` renames the router's `equations`/`variables` to the
+  singular parameters, so the vocabulary budget (291) is unchanged.
+- **C, light travel time** (2026-10-29): the astro classifier answers "how long does light take to travel 1 parsec / reach Earth from the
+  Sun" with `light_travel_time` over the stated distance (years for parsec and light-year distances, seconds otherwise); a named star keeps
+  its own rule; negative tests keep it narrow.
+- **H, ground truth** (2026-10-29): seven suite rows amended in `local-cache/router_math_suite.json` (now tracked: the suite's ground truth
+  was an untracked file), each with the reason in its `oracle` field and an `amended` record at the top; the five wild rows had `result:
+  None` because the tool refused those arguments when the suite was written; the two gradient rows per group F. The generator (`router_math.py
+  p_grad`) no longer writes `variables="x,y,z"` into a held-out call whose question names no variables.
+- **Paired, one engine** (2026-10-29, local Ollama with mentat-router-v31-4b, because the box's shim stopped serving the trained router that
+  evening: `mentat-router-v31-4b` 404, `mentat-router` answering as a chat model, the live interpreter reading `router qwen3-8b-stock`):
+  maths **320 -> 328 of 329, +8 -0** (F, H, I); physics **137 -> 139, +2 -0** (C). `audit_replay.py` now honours `OLLAMA_URL`. The box
+  and the local engine differ by two physics rows (139 vs 137 before) on the same code, so a pair is only a pair on one engine.
 
 ## Order of work
 

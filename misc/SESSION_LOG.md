@@ -4015,3 +4015,9 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - Field pick built (group A): sigma-ground c70cea6 + SkippyTel ad71d88 (stage change + pin bump to c70cea6, pushed = deploying). The harness
   already picked the field (3.711 for Mars' surface gravity); SkippyTel's router stage copied the record instead. Paired replay 150 physics:
   132 -> 139, +7 -0 (mech_adv_005, astro_002, astro_011, atom_001/002/006/008). Live not yet confirmed (box CI + quiet gate).
+- Static intents round 2 (sigma-ground): G primes (cda74e4, box pair 317 -> 320); I system of equations in solve_equation + param aliases
+  equations/variables; C light-travel-time cue in the astro classifier; H seven suite ground truths amended (suite file now tracked), p_grad
+  generator fixed; F reclassified as ground truth. Paired on ONE engine (local Ollama, the trained router): maths 320 -> 328/329 (+8 -0),
+  physics 137 -> 139 (+2 -0). Two box replays were cut by deploys (mine, then the other session's pin bump); then the box shim stopped
+  serving mentat-router-v31-4b (404; `mentat-router` answers as chat; live /ask says `router qwen3-8b-stock` and answered the indefinite
+  integral x^2 sin x with "-4 + pi**2"). Reported to the Captain, not touched: it belongs to the session that changed the router.

@@ -76,6 +76,39 @@ def _find_planet(question: str) -> str | None:
 def classify_for_astro(question: str) -> AstroMatch | None:
     q = question
 
+    # ── Light travel time over a stated distance, or from the Sun to the Earth ──
+    # "How long does it take light to travel 1 parsec?", "How long does light from the Sun take to reach Earth?" (mech_adv_004,
+    # astro_007, 2026-10-29): the router converted the parsec to metres and stopped; a stated distance over c is one formula.
+    # Parsec and light-year distances answer in years, anything shorter in seconds. A named star keeps the rule below.
+    if (re.search(r"\blight\b", q, re.IGNORECASE) and re.search(r"\bhow\s+long\b|\btravel\s+time\b|\btime\s+(?:for|does)\b", q, re.IGNORECASE)
+            and re.search(r"\b(?:travel|reach|get\s+to|cross|cover|take)\b", q, re.IGNORECASE) and not _find_star(q)):
+        dm = re.search(r"(\d+(?:\.\d+)?(?:e[+-]?\d+)?)\s*(parsecs?|pc|light[- ]?years?|ly|astronomical\s+units?|au|kilomet(?:er|re)s?|km|met(?:er|re)s?|m)\b",
+                       q, re.IGNORECASE)
+        distance_m, stated = None, ""
+        if dm:
+            unit = dm.group(2).lower()
+            per_unit = {"parsec": 3.0856775814913673e16, "pc": 3.0856775814913673e16,            # IAU 2015 (648000/pi AU)
+                        "light": 9.4607304725808e15, "ly": 9.4607304725808e15,                 # IAU Julian light-year
+                        "astronomical": 1.495978707e11, "au": 1.495978707e11,                   # IAU 2012 exact
+                        "kilomet": 1e3, "km": 1e3, "met": 1.0, "m": 1.0}
+            key = next(k for k in per_unit if unit.startswith(k))
+            distance_m, stated = float(dm.group(1)) * per_unit[key], f"{dm.group(1)} {dm.group(2)}"
+            in_years = key in ("parsec", "pc", "light", "ly")
+        elif re.search(r"\bsun\b", q, re.IGNORECASE) and re.search(r"\bearth\b|\bus\b", q, re.IGNORECASE):
+            distance_m, stated, in_years = 1.495978707e11, "1 AU (Sun to Earth, IAU 2012)", False
+        if distance_m is not None:
+            from sigma_ground.mcp.tools.astronomy import light_travel_time
+            r = light_travel_time(distance_m)
+            if isinstance(r.value, (int, float)):
+                seconds = float(r.value)
+                return AstroMatch(
+                    tool="light_travel_time",
+                    args={"distance_m": distance_m},
+                    rationale=f"t = d / c over {stated}: {seconds:.4g} s",
+                    result_override=seconds / (365.25 * 86400.0) if in_years else seconds,
+                    result_units="year" if in_years else "s",
+                )
+
     # ── Light travel time from a named star (in years) ──
     if re.search(r"\bhow\s+long\s+does\s+(?:the\s+)?light\s+(?:from|of)\b|"
                   r"\blight\s+take\s+to\s+reach\s+us|"

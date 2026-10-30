@@ -662,10 +662,11 @@ def p_grad(rng, holdout):
     c = s.replace("**", "^")
     vs = ",".join(names)
     args = {"scalar_field": s}
-    if rng.random() < 0.45 or not three:
+    if (rng.random() < 0.45 or not three) and not holdout:
         args["variables"] = vs
-        q = (finish(rng.choice(TPL["grad"]["vars"]).format(e=rng.choice([c, s]), vs=" and ".join(names) if len(names) == 2 else ", ".join(names), vc=", ".join(names)), rng)
-             if not holdout else q_for("grad", rng, True, e=rng.choice([c, s])))
+        q = finish(rng.choice(TPL["grad"]["vars"]).format(e=rng.choice([c, s]), vs=" and ".join(names) if len(names) == 2 else ", ".join(names), vc=", ".join(names)), rng)
+    # A held-out question never names the variables, so the expected call must not either: the tool infers the field's own
+    # variables (489ec0c), and an expected variables="x,y,z" for exp(x*y) made a 3-vector nobody asked for (msuite_0211/0212, 2026-10-29).
     else:
         q = q_for("grad", rng, holdout, e=rng.choice([c, s]))
     return P("math_gradient", "gradient", args, q, {"kind": "grad", "expr": s, "vars": args.get("variables", "x,y,z")})

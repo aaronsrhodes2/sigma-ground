@@ -37,6 +37,12 @@ PARAM_ALIASES: dict[str, str] = {
     "v0": "initial_speed_m_s",
     "velocity_m_s": "speed_m_s",
     "velocity": "speed_m_s",
+
+    # ===== Equations =====
+    # "solve for x and y: 2x + y = 5, x - y = 1" -> the router writes equations= / variables= (plural);
+    # solve_equation reads a comma-separated system in its singular parameters (msuite_0324, 2026-10-29)
+    "equations": "equation",
+    "variables": "variable",
     "v_m_s": "speed_m_s",  # only renamed if target tool has speed_m_s
     "v": "speed_m_s",
 

@@ -1,0 +1,8016 @@
+{
+ "generated_at": "2026-10-13T18:25:29",
+ "items": [
+  {
+   "id": "msuite_0000",
+   "question": "Work out d/dx(e^x sin(x)).",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "exp(x)*sin(x)",
+     "variable": "x"
+    },
+    "result": "exp(x)*sin(x) + exp(x)*cos(x)",
+    "spec": {
+     "kind": "diff",
+     "expr": "exp(x)*sin(x)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0001",
+   "question": "I need the rate of change of 1/(1 + x^2) with respect to x.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x"
+    },
+    "result": "-2*x/(x**2 + 1)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "1/(1 + x**2)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0002",
+   "question": "How does sin(u)cos(u) change with u? Give the derivative.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sin(u)*cos(u)",
+     "variable": "u"
+    },
+    "result": "-sin(u)**2 + cos(u)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "sin(u)*cos(u)",
+     "var": "u",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0003",
+   "question": "Work out d/dx((x² - 16)/(x - 4)).",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "(x**2 - 16)/(x - 4)",
+     "variable": "x"
+    },
+    "result": "2*x/(x - 4) - (x**2 - 16)/(x - 4)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "(x**2 - 16)/(x - 4)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0004",
+   "question": "work out d/dx(tangent of x).",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "tan(x)",
+     "variable": "x"
+    },
+    "result": "tan(x)**2 + 1",
+    "spec": {
+     "kind": "diff",
+     "expr": "tan(x)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0005",
+   "question": "what do you get for the second derivative of f(x) = cos(2x)?",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "cos(2*x)",
+     "variable": "x",
+     "order": 2
+    },
+    "result": "-4*cos(2*x)",
+    "spec": {
+     "kind": "diff",
+     "expr": "cos(2*x)",
+     "var": "x",
+     "order": 2
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0006",
+   "question": "I need the rate of change of e to the t with respect to t.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "exp(t)",
+     "variable": "t"
+    },
+    "result": "exp(t)",
+    "spec": {
+     "kind": "diff",
+     "expr": "exp(t)",
+     "var": "t",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0007",
+   "question": "How does sqrt(t^2 + 1) change with t? Give the derivative.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sqrt(t**2 + 1)",
+     "variable": "t"
+    },
+    "result": "t/sqrt(t**2 + 1)",
+    "spec": {
+     "kind": "diff",
+     "expr": "sqrt(t**2 + 1)",
+     "var": "t",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0008",
+   "question": "work out d/dx(x*sin(x)).",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "x*sin(x)",
+     "variable": "x"
+    },
+    "result": "x*cos(x) + sin(x)",
+    "spec": {
+     "kind": "diff",
+     "expr": "x*sin(x)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0009",
+   "question": "Work out d/dx(e^(-x^2)).",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "exp(-x**2)",
+     "variable": "x"
+    },
+    "result": "-2*x*exp(-x**2)",
+    "spec": {
+     "kind": "diff",
+     "expr": "exp(-x**2)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0010",
+   "question": "How does sqrt(u^2 + 1) change with u? Give the derivative.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sqrt(u**2 + 1)",
+     "variable": "u"
+    },
+    "result": "u/sqrt(u**2 + 1)",
+    "spec": {
+     "kind": "diff",
+     "expr": "sqrt(u**2 + 1)",
+     "var": "u",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0011",
+   "question": "I need the rate of change of 1 over (1 plus u squared) with respect to u.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "1/(1 + u**2)",
+     "variable": "u"
+    },
+    "result": "-2*u/(u**2 + 1)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "1/(1 + u**2)",
+     "var": "u",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0012",
+   "question": "Work out d/dt(ln(t)).",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "log(t)",
+     "variable": "t"
+    },
+    "result": "1/t",
+    "spec": {
+     "kind": "diff",
+     "expr": "log(t)",
+     "var": "t",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0013",
+   "question": "Work out d/du(1/u).",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "1/u",
+     "variable": "u"
+    },
+    "result": "-1/u**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "1/u",
+     "var": "u",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0014",
+   "question": "How does e to the t times sine of t change with t? Give the derivative.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "exp(t)*sin(t)",
+     "variable": "t"
+    },
+    "result": "exp(t)*sin(t) + exp(t)*cos(t)",
+    "spec": {
+     "kind": "diff",
+     "expr": "exp(t)*sin(t)",
+     "var": "t",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0015",
+   "question": "How does sin(3*x) change with x? Give the derivative.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sin(3*x)",
+     "variable": "x"
+    },
+    "result": "3*cos(3*x)",
+    "spec": {
+     "kind": "diff",
+     "expr": "sin(3*x)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0016",
+   "question": "How does square root of t change with t? Give the derivative.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sqrt(t)",
+     "variable": "t"
+    },
+    "result": "1/(2*sqrt(t))",
+    "spec": {
+     "kind": "diff",
+     "expr": "sqrt(t)",
+     "var": "t",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0017",
+   "question": "I need the rate of change of e^(-x^2) with respect to x.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "exp(-x**2)",
+     "variable": "x"
+    },
+    "result": "-2*x*exp(-x**2)",
+    "spec": {
+     "kind": "diff",
+     "expr": "exp(-x**2)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0018",
+   "question": "Take ln(y) and differentiate it 2 times in y.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "log(y)",
+     "variable": "y",
+     "order": 2
+    },
+    "result": "-1/y**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "log(y)",
+     "var": "y",
+     "order": 2
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0019",
+   "question": "Work out d/dx(1/(1 + x^2)).",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x"
+    },
+    "result": "-2*x/(x**2 + 1)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "1/(1 + x**2)",
+     "var": "x",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0020",
+   "question": "How does sqrt(z**2 + 1) change with z? Give the derivative?",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sqrt(z**2 + 1)",
+     "variable": "z"
+    },
+    "result": "z/sqrt(z**2 + 1)",
+    "spec": {
+     "kind": "diff",
+     "expr": "sqrt(z**2 + 1)",
+     "var": "z",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0021",
+   "question": "How does 1/t change with t? Give the derivative.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "1/t",
+     "variable": "t"
+    },
+    "result": "-1/t**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "1/t",
+     "var": "t",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0022",
+   "question": "I need the rate of change of 1/(1 + t^2) with respect to t.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "1/(1 + t**2)",
+     "variable": "t"
+    },
+    "result": "-2*t/(t**2 + 1)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "1/(1 + t**2)",
+     "var": "t",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0023",
+   "question": "How does t^2 + 2t + 7 change with t? Give the derivative.",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "t**2 + 2*t + 7",
+     "variable": "t"
+    },
+    "result": "2*t + 2",
+    "spec": {
+     "kind": "diff",
+     "expr": "t**2 + 2*t + 7",
+     "var": "t",
+     "order": 1
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_diff",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0024",
+   "question": "I want to integrate x sin(x) in x. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x*sin(x)",
+     "variable": "x"
+    },
+    "result": "-x*cos(x) + sin(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "x*sin(x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0025",
+   "question": "Give me an antiderivative for (4x + 1)^3.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "(4*x + 1)**3",
+     "variable": "x"
+    },
+    "result": "16*x**4 + 16*x**3 + 6*x**2 + x",
+    "spec": {
+     "kind": "int",
+     "expr": "(4*x + 1)**3",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0026",
+   "question": "I want to integrate sin(x) in x. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(x)",
+     "variable": "x"
+    },
+    "result": "-cos(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "sin(x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0027",
+   "question": "Give me an antiderivative for xe^x.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x*exp(x)",
+     "variable": "x"
+    },
+    "result": "(x - 1)*exp(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "x*exp(x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0028",
+   "question": "I want to integrate x minus 9 in x. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x - 9",
+     "variable": "x"
+    },
+    "result": "x**2/2 - 9*x",
+    "spec": {
+     "kind": "int",
+     "expr": "x - 9",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0029",
+   "question": "I want to integrate 1/(1 + x^2) in x. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x"
+    },
+    "result": "atan(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "1/(1 + x**2)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0030",
+   "question": "Give me an antiderivative for 1 over (1 plus x squared).",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x"
+    },
+    "result": "atan(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "1/(1 + x**2)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0031",
+   "question": "I want to integrate u times sine of u in u. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "u*sin(u)",
+     "variable": "u"
+    },
+    "result": "-u*cos(u) + sin(u)",
+    "spec": {
+     "kind": "int",
+     "expr": "u*sin(u)",
+     "var": "u"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0032",
+   "question": "Give me an antiderivative for (5z + 1)^2.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "(5*z + 1)**2",
+     "variable": "z"
+    },
+    "result": "25*z**3/3 + 5*z**2 + z",
+    "spec": {
+     "kind": "int",
+     "expr": "(5*z + 1)**2",
+     "var": "z"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0033",
+   "question": "I want to integrate 1 over x in x. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/x",
+     "variable": "x"
+    },
+    "result": "log(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "1/x",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0034",
+   "question": "Give me an antiderivative for 1/(1 + x^2).",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x"
+    },
+    "result": "atan(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "1/(1 + x**2)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0035",
+   "question": "I want to integrate e to the x times sine of x in x. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(x)*sin(x)",
+     "variable": "x"
+    },
+    "result": "exp(x)*sin(x)/2 - exp(x)*cos(x)/2",
+    "spec": {
+     "kind": "int",
+     "expr": "exp(x)*sin(x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0036",
+   "question": "I want to integrate t times e to the t in t. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "t*exp(t)",
+     "variable": "t"
+    },
+    "result": "(t - 1)*exp(t)",
+    "spec": {
+     "kind": "int",
+     "expr": "t*exp(t)",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0037",
+   "question": "I want to integrate tan(x) in x. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "tan(x)",
+     "variable": "x"
+    },
+    "result": "-log(cos(x))",
+    "spec": {
+     "kind": "int",
+     "expr": "tan(x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0038",
+   "question": "Give me an antiderivative for square root of u?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sqrt(u)",
+     "variable": "u"
+    },
+    "result": "2*u**(3/2)/3",
+    "spec": {
+     "kind": "int",
+     "expr": "sqrt(u)",
+     "var": "u"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0039",
+   "question": "I want to integrate sine of t in t. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(t)",
+     "variable": "t"
+    },
+    "result": "-cos(t)",
+    "spec": {
+     "kind": "int",
+     "expr": "sin(t)",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0040",
+   "question": "I want to integrate 6*t**3 + 9*t**2 - 6*t - 7 in t. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "6*t**3 + 9*t**2 - 6*t - 7",
+     "variable": "t"
+    },
+    "result": "3*t**4/2 + 3*t**3 - 3*t**2 - 7*t",
+    "spec": {
+     "kind": "int",
+     "expr": "6*t**3 + 9*t**2 - 6*t - 7",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0041",
+   "question": "Give me an antiderivative for 6z^2 + 3z",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "6*z**2 + 3*z",
+     "variable": "z"
+    },
+    "result": "2*z**3 + 3*z**2/2",
+    "spec": {
+     "kind": "int",
+     "expr": "6*z**2 + 3*z",
+     "var": "z"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0042",
+   "question": "I want to integrate exp(3*x) in x. What is it?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(3*x)",
+     "variable": "x"
+    },
+    "result": "exp(3*x)/3",
+    "spec": {
+     "kind": "int",
+     "expr": "exp(3*x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0043",
+   "question": "I want to integrate x*exp(x) in x. What is it",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x*exp(x)",
+     "variable": "x"
+    },
+    "result": "(x - 1)*exp(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "x*exp(x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0044",
+   "question": "give me an antiderivative for sine of 2 t.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(2*t)",
+     "variable": "t"
+    },
+    "result": "-cos(2*t)/2",
+    "spec": {
+     "kind": "int",
+     "expr": "sin(2*t)",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0045",
+   "question": "give me an antiderivative for x*sin(x).",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x*sin(x)",
+     "variable": "x"
+    },
+    "result": "-x*cos(x) + sin(x)",
+    "spec": {
+     "kind": "int",
+     "expr": "x*sin(x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_indef",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0046",
+   "question": "Find the exact value of ∫(cosine of 2 x) dx for x running from 0 up to pi/2.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "cos(2*x)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "pi/2"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "int_def",
+     "expr": "cos(2*x)",
+     "var": "x",
+     "lo": "0",
+     "hi": "pi/2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0047",
+   "question": "Over the interval [-1, 0], what is the integral of 3x² + 3x + 7?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "3*x**2 + 3*x + 7",
+     "variable": "x",
+     "lower": "-1",
+     "upper": "0"
+    },
+    "result": "13/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "3*x**2 + 3*x + 7",
+     "var": "x",
+     "lo": "-1",
+     "hi": "0"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0048",
+   "question": "Find the exact value of ∫(-5x^3 - 5x^2 + x + 2) dx for x running from 0 up to 2.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "-5*x**3 - 5*x**2 + x + 2",
+     "variable": "x",
+     "lower": "0",
+     "upper": "2"
+    },
+    "result": "-82/3",
+    "spec": {
+     "kind": "int_def",
+     "expr": "-5*x**3 - 5*x**2 + x + 2",
+     "var": "x",
+     "lo": "0",
+     "hi": "2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0049",
+   "question": "Over the interval [1, 2], what is the integral of log(x)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "log(x)",
+     "variable": "x",
+     "lower": "1",
+     "upper": "2"
+    },
+    "result": "-1 + 2*log(2)",
+    "spec": {
+     "kind": "int_def",
+     "expr": "log(x)",
+     "var": "x",
+     "lo": "1",
+     "hi": "2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0050",
+   "question": "Over the interval [0, ∞], what is the integral of xe^(-x)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x*exp(-x)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "int_def",
+     "expr": "x*exp(-x)",
+     "var": "x",
+     "lo": "0",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0051",
+   "question": "Over the interval [-∞, infinity], what is the integral of e to the minus x squared?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(-x**2)",
+     "variable": "x",
+     "lower": "-oo",
+     "upper": "oo"
+    },
+    "result": "sqrt(pi)",
+    "spec": {
+     "kind": "int_def",
+     "expr": "exp(-x**2)",
+     "var": "x",
+     "lo": "-oo",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0052",
+   "question": "Find the exact value of ∫(ln(x)) dx for x running from 1 up to 2?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "log(x)",
+     "variable": "x",
+     "lower": "1",
+     "upper": "2"
+    },
+    "result": "-1 + 2*log(2)",
+    "spec": {
+     "kind": "int_def",
+     "expr": "log(x)",
+     "var": "x",
+     "lo": "1",
+     "hi": "2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0053",
+   "question": "Over the interval [0, infinity], what is the integral of x times e to the minus x?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x*exp(-x)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "int_def",
+     "expr": "x*exp(-x)",
+     "var": "x",
+     "lo": "0",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0054",
+   "question": "Find the exact value of ∫(1 over (1 plus x squared)) dx for x running from 0 up to ∞.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "pi/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(1 + x**2)",
+     "var": "x",
+     "lo": "0",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0055",
+   "question": "Over the interval [negative infinity, infinity], what is the integral of 1 over (1 plus x squared)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x",
+     "lower": "-oo",
+     "upper": "oo"
+    },
+    "result": "pi",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(1 + x**2)",
+     "var": "x",
+     "lo": "-oo",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0056",
+   "question": "Find the exact value of ∫(1/(1 + x**2)) dx for x running from 0 up to ∞.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "pi/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(1 + x**2)",
+     "var": "x",
+     "lo": "0",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0057",
+   "question": "Find the exact value of ∫(3 x squared plus 1) dx for x running from -2 up to 0",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "3*x**2 + 1",
+     "variable": "x",
+     "lower": "-2",
+     "upper": "0"
+    },
+    "result": "10",
+    "spec": {
+     "kind": "int_def",
+     "expr": "3*x**2 + 1",
+     "var": "x",
+     "lo": "-2",
+     "hi": "0"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0058",
+   "question": "find the exact value of ∫(cosine of 3 x) dx for x running from pi/4 up to π.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "cos(3*x)",
+     "variable": "x",
+     "lower": "pi/4",
+     "upper": "pi"
+    },
+    "result": "-sqrt(2)/6",
+    "spec": {
+     "kind": "int_def",
+     "expr": "cos(3*x)",
+     "var": "x",
+     "lo": "pi/4",
+     "hi": "pi"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0059",
+   "question": "Over the interval [-∞, infinity], what is the integral of 1/(x^2 + 4)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(x**2 + 4)",
+     "variable": "x",
+     "lower": "-oo",
+     "upper": "oo"
+    },
+    "result": "pi/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(x**2 + 4)",
+     "var": "x",
+     "lo": "-oo",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0060",
+   "question": "Over the interval [0, 2], what is the integral of 1 over (t squared plus 16)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(t**2 + 16)",
+     "variable": "t",
+     "lower": "0",
+     "upper": "2"
+    },
+    "result": "atan(1/2)/4",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(t**2 + 16)",
+     "var": "t",
+     "lo": "0",
+     "hi": "2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0061",
+   "question": "Over the interval [0, 9], what is the integral of sqrt(x)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sqrt(x)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "9"
+    },
+    "result": "18",
+    "spec": {
+     "kind": "int_def",
+     "expr": "sqrt(x)",
+     "var": "x",
+     "lo": "0",
+     "hi": "9"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0062",
+   "question": "Over the interval [0, 1], what is the integral of x over (x squared plus 1)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x/(x**2 + 1)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "1"
+    },
+    "result": "log(2)/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "x/(x**2 + 1)",
+     "var": "x",
+     "lo": "0",
+     "hi": "1"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0063",
+   "question": "Find the exact value of ∫(1/(1 + x^2)) dx for x running from 0 up to 1",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "1"
+    },
+    "result": "pi/4",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(1 + x**2)",
+     "var": "x",
+     "lo": "0",
+     "hi": "1"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0064",
+   "question": "Find the exact value of ∫(t over (t squared plus 1)) dt for t running from 0 up to 2.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "t/(t**2 + 1)",
+     "variable": "t",
+     "lower": "0",
+     "upper": "2"
+    },
+    "result": "log(5)/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "t/(t**2 + 1)",
+     "var": "t",
+     "lo": "0",
+     "hi": "2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0065",
+   "question": "Find the exact value of ∫(x/(x^2 + 1)) dx for x running from 0 up to 1.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x/(x**2 + 1)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "1"
+    },
+    "result": "log(2)/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "x/(x**2 + 1)",
+     "var": "x",
+     "lo": "0",
+     "hi": "1"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0066",
+   "question": "Find the exact value of ∫(exp(u)) du for u running from 0 up to 1.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(u)",
+     "variable": "u",
+     "lower": "0",
+     "upper": "1"
+    },
+    "result": "-1 + E",
+    "spec": {
+     "kind": "int_def",
+     "expr": "exp(u)",
+     "var": "u",
+     "lo": "0",
+     "hi": "1"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0067",
+   "question": "Find the exact value of ∫(sqrt(x)) dx for x running from 1 up to 9.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sqrt(x)",
+     "variable": "x",
+     "lower": "1",
+     "upper": "9"
+    },
+    "result": "52/3",
+    "spec": {
+     "kind": "int_def",
+     "expr": "sqrt(x)",
+     "var": "x",
+     "lo": "1",
+     "hi": "9"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0068",
+   "question": "Over the interval [1, 2], what is the integral of 1/t?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/t",
+     "variable": "t",
+     "lower": "1",
+     "upper": "2"
+    },
+    "result": "log(2)",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/t",
+     "var": "t",
+     "lo": "1",
+     "hi": "2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0069",
+   "question": "over the interval [1, 2], what is the integral of natural log of t?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "log(t)",
+     "variable": "t",
+     "lower": "1",
+     "upper": "2"
+    },
+    "result": "-1 + 2*log(2)",
+    "spec": {
+     "kind": "int_def",
+     "expr": "log(t)",
+     "var": "t",
+     "lo": "1",
+     "hi": "2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0070",
+   "question": "Over the interval [pi over 2, π], what is the integral of sin(x)*cos(x)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(x)*cos(x)",
+     "variable": "x",
+     "lower": "pi/2",
+     "upper": "pi"
+    },
+    "result": "-1/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "sin(x)*cos(x)",
+     "var": "x",
+     "lo": "pi/2",
+     "hi": "pi"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0071",
+   "question": "Over the interval [negative infinity, infinity], what is the integral of 1/(x^2 + 25)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(x**2 + 25)",
+     "variable": "x",
+     "lower": "-oo",
+     "upper": "oo"
+    },
+    "result": "pi/5",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(x**2 + 25)",
+     "var": "x",
+     "lo": "-oo",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0072",
+   "question": "Over the interval [0, π/4], what is the integral of cos(2u)",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "cos(2*u)",
+     "variable": "u",
+     "lower": "0",
+     "upper": "pi/4"
+    },
+    "result": "1/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "cos(2*u)",
+     "var": "u",
+     "lo": "0",
+     "hi": "pi/4"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0073",
+   "question": "Find the exact value of ∫(e to the 3 u) du for u running from 0 up to 1.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(3*u)",
+     "variable": "u",
+     "lower": "0",
+     "upper": "1"
+    },
+    "result": "-1/3 + exp(3)/3",
+    "spec": {
+     "kind": "int_def",
+     "expr": "exp(3*u)",
+     "var": "u",
+     "lo": "0",
+     "hi": "1"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0074",
+   "question": "Over the interval [0, 2*pi], what is the integral of sine of x?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "sin(x)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "2*pi"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "int_def",
+     "expr": "sin(x)",
+     "var": "x",
+     "lo": "0",
+     "hi": "2*pi"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0075",
+   "question": "Over the interval [0, 1], what is the integral of 1/(1 + x^2)?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "1"
+    },
+    "result": "pi/4",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(1 + x**2)",
+     "var": "x",
+     "lo": "0",
+     "hi": "1"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0076",
+   "question": "Find the exact value of ∫(ln(u)) du for u running from 2 up to 3?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "log(u)",
+     "variable": "u",
+     "lower": "2",
+     "upper": "3"
+    },
+    "result": "-2*log(2) - 1 + 3*log(3)",
+    "spec": {
+     "kind": "int_def",
+     "expr": "log(u)",
+     "var": "u",
+     "lo": "2",
+     "hi": "3"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0077",
+   "question": "Over the interval [1, 2], what is the integral of 6 t cubed plus 7 t squared minus 9 t?",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "6*t**3 + 7*t**2 - 9*t",
+     "variable": "t",
+     "lower": "1",
+     "upper": "2"
+    },
+    "result": "76/3",
+    "spec": {
+     "kind": "int_def",
+     "expr": "6*t**3 + 7*t**2 - 9*t",
+     "var": "t",
+     "lo": "1",
+     "hi": "2"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0078",
+   "question": "Find the exact value of ∫(1/(x**2 + 4)) dx for x running from 0 up to 1.",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(x**2 + 4)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "1"
+    },
+    "result": "atan(1/2)/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(x**2 + 4)",
+     "var": "x",
+     "lo": "0",
+     "hi": "1"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_int_definite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0079",
+   "question": "Solve natural log of x = 2 for x?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "log(x) = 2",
+     "variable": "x"
+    },
+    "result": [
+     "exp(2)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "log(x) = 2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0080",
+   "question": "Where does 3x^2 - x - 5 cross zero?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "3*x**2 - x - 5",
+     "variable": "x"
+    },
+    "result": [
+     "1/6 - sqrt(61)/6",
+     "1/6 + sqrt(61)/6"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "3*x**2 - x - 5",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0081",
+   "question": "Where does x² - 4x + 4 cross zero?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 - 4*x + 4",
+     "variable": "x"
+    },
+    "result": [
+     "2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "x**2 - 4*x + 4",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0082",
+   "question": "If 2*y**2 - 4*y + 3 = -1, what is y?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "2*y**2 - 4*y + 3 = -1",
+     "variable": "y"
+    },
+    "result": [
+     "1 - I",
+     "1 + I"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "2*y**2 - 4*y + 3 = -1",
+     "var": "y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0083",
+   "question": "Find every x that satisfies 4x^2 - 8 = 0.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "4*x**2 - 8",
+     "variable": "x"
+    },
+    "result": [
+     "-sqrt(2)",
+     "sqrt(2)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "4*x**2 - 8",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0084",
+   "question": "Solve ln(x) = 2?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "log(x) = 2",
+     "variable": "x"
+    },
+    "result": [
+     "exp(2)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "log(x) = 2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0085",
+   "question": "If 2x + 9 = 5, what is x?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "2*x + 9 = 5",
+     "variable": "x"
+    },
+    "result": [
+     "-2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "2*x + 9 = 5",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0086",
+   "question": "Where does -7*x**2 - 2 cross zero?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "-7*x**2 - 2",
+     "variable": "x"
+    },
+    "result": [
+     "-sqrt(14)*I/7",
+     "sqrt(14)*I/7"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "-7*x**2 - 2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0087",
+   "question": "Solve e to the x = 5 for x.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "exp(x) = 5",
+     "variable": "x"
+    },
+    "result": [
+     "log(5)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "exp(x) = 5",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0088",
+   "question": "Solve e^x = 5 for x.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "exp(x) = 5",
+     "variable": "x"
+    },
+    "result": [
+     "log(5)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "exp(x) = 5",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0089",
+   "question": "If x**2 + 4*x + 5 = 17, what is x?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 + 4*x + 5 = 17",
+     "variable": "x"
+    },
+    "result": [
+     "-6",
+     "2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "x**2 + 4*x + 5 = 17",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0090",
+   "question": "Where does y² - 3y + 3 cross zero?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "y**2 - 3*y + 3",
+     "variable": "y"
+    },
+    "result": [
+     "3/2 - sqrt(3)*I/2",
+     "3/2 + sqrt(3)*I/2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "y**2 - 3*y + 3",
+     "var": "y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0091",
+   "question": "Where does x squared minus 4 x plus 2 cross zero?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 - 4*x + 2",
+     "variable": "x"
+    },
+    "result": [
+     "2 - sqrt(2)",
+     "sqrt(2) + 2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "x**2 - 4*x + 2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0092",
+   "question": "If 3 x squared minus x plus 6 = 27, what is x?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "3*x**2 - x + 6 = 27",
+     "variable": "x"
+    },
+    "result": [
+     "1/6 - sqrt(253)/6",
+     "1/6 + sqrt(253)/6"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "3*x**2 - x + 6 = 27",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0093",
+   "question": "Find every x that satisfies x**2 - 12*x + 5 = 0.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 - 12*x + 5",
+     "variable": "x"
+    },
+    "result": [
+     "6 - sqrt(31)",
+     "sqrt(31) + 6"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "x**2 - 12*x + 5",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0094",
+   "question": "Find every x that satisfies 6*x**3 - 8*x**2 - 8*x + 9 = 0.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "6*x**3 - 8*x**2 - 8*x + 9",
+     "variable": "x"
+    },
+    "result": [
+     "4/9 - 52/(27*(-1/2 - sqrt(3)*I/2)*(1067/108 + sqrt(13719)*I/12)**(1/3)) - (-1/2 - sqrt(3)*I/2)*(1067/108 + sqrt(13719)*I/12)**(1/3)/3",
+     "4/9 - (-1/2 + sqrt(3)*I/2)*(1067/108 + sqrt(13719)*I/12)**(1/3)/3 - 52/(27*(-1/2 + sqrt(3)*I/2)*(1067/108 + sqrt(13719)*I/12)**(1/3))",
+     "4/9 - (1067/108 + sqrt(13719)*I/12)**(1/3)/3 - 52/(27*(1067/108 + sqrt(13719)*I/12)**(1/3))"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "6*x**3 - 8*x**2 - 8*x + 9",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0095",
+   "question": "Where does 8*n**2 - 8*n + 3 cross zero?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "8*n**2 - 8*n + 3",
+     "variable": "n"
+    },
+    "result": [
+     "1/2 - sqrt(2)*I/4",
+     "1/2 + sqrt(2)*I/4"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "8*n**2 - 8*n + 3",
+     "var": "n"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0096",
+   "question": "Find every x that satisfies 3x^2 - 8x = 0.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "3*x**2 - 8*x",
+     "variable": "x"
+    },
+    "result": [
+     "0",
+     "8/3"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "3*x**2 - 8*x",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0097",
+   "question": "Find every x that satisfies minus x cubed minus 4 x squared plus x plus 7 = 0?",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "-x**3 - 4*x**2 + x + 7",
+     "variable": "x"
+    },
+    "result": [
+     "-4/3 + (-1/2 - sqrt(3)*I/2)*(25/54 + sqrt(331)*I/6)**(1/3) + 19/(9*(-1/2 - sqrt(3)*I/2)*(25/54 + sqrt(331)*I/6)**(1/3))",
+     "-4/3 + 19/(9*(-1/2 + sqrt(3)*I/2)*(25/54 + sqrt(331)*I/6)**(1/3)) + (-1/2 + sqrt(3)*I/2)*(25/54 + sqrt(331)*I/6)**(1/3)",
+     "-4/3 + 19/(9*(25/54 + sqrt(331)*I/6)**(1/3)) + (25/54 + sqrt(331)*I/6)**(1/3)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "-x**3 - 4*x**2 + x + 7",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0098",
+   "question": "Solve sine of x = 1/2.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "sin(x) = 1/2",
+     "variable": "x"
+    },
+    "result": [
+     "pi/6",
+     "5*pi/6"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "sin(x) = 1/2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0099",
+   "question": "Solve 2^x = 8.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "2**x = 8",
+     "variable": "x"
+    },
+    "result": [
+     "3"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "2**x = 8",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0100",
+   "question": "Find every x that satisfies x squared minus 9 x plus 9 = 0.",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 - 9*x + 9",
+     "variable": "x"
+    },
+    "result": [
+     "9/2 - 3*sqrt(5)/2",
+     "3*sqrt(5)/2 + 9/2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "x**2 - 9*x + 9",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_solve",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0101",
+   "question": "can (x + 3)² - (x - 3)² be simplified? What is it?",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "(x + 3)**2 - (x - 3)**2"
+    },
+    "result": "12*x",
+    "spec": {
+     "kind": "simplify",
+     "expr": "(x + 3)**2 - (x - 3)**2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0102",
+   "question": "Put sqrt(t^2) in its simplest form?",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "sqrt(t**2)"
+    },
+    "result": "sqrt(t**2)",
+    "spec": {
+     "kind": "simplify",
+     "expr": "sqrt(t**2)",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0103",
+   "question": "Put 1*x + 3*x - x in its simplest form.",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "1*x + 3*x - x"
+    },
+    "result": "3*x",
+    "spec": {
+     "kind": "simplify",
+     "expr": "1*x + 3*x - x",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0104",
+   "question": "Can ln(x^6) - 6ln(x) be simplified? What is it",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "log(x**6) - 6*log(x)"
+    },
+    "result": "-6*log(x) + log(x**6)",
+    "spec": {
+     "kind": "simplify",
+     "expr": "log(x**6) - 6*log(x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0105",
+   "question": "Can sin²(x) + cos²(x) be simplified? What is it?",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "sin(x)**2 + cos(x)**2"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "simplify",
+     "expr": "sin(x)**2 + cos(x)**2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0106",
+   "question": "Put exp(x)*exp(5*x) in its simplest form.",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "exp(x)*exp(5*x)"
+    },
+    "result": "exp(6*x)",
+    "spec": {
+     "kind": "simplify",
+     "expr": "exp(x)*exp(5*x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0107",
+   "question": "Put sin(x)**2 + cos(x)**2 in its simplest form.",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "sin(x)**2 + cos(x)**2"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "simplify",
+     "expr": "sin(x)**2 + cos(x)**2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0108",
+   "question": "Can 1/x + 1/x² be simplified? What is it?",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "1/(x) + 1/(x**2)"
+    },
+    "result": "(x + 1)/x**2",
+    "spec": {
+     "kind": "simplify",
+     "expr": "1/(x) + 1/(x**2)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0109",
+   "question": "Can e^x e^(4x) be simplified? What is it",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "exp(x)*exp(4*x)"
+    },
+    "result": "exp(5*x)",
+    "spec": {
+     "kind": "simplify",
+     "expr": "exp(x)*exp(4*x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0110",
+   "question": "Can e^x e^(1x) be simplified? What is it?",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "exp(x)*exp(1*x)"
+    },
+    "result": "exp(2*x)",
+    "spec": {
+     "kind": "simplify",
+     "expr": "exp(x)*exp(1*x)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0111",
+   "question": "Put exp(y)*exp(3*y) in its simplest form.",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "exp(y)*exp(3*y)"
+    },
+    "result": "exp(4*y)",
+    "spec": {
+     "kind": "simplify",
+     "expr": "exp(y)*exp(3*y)",
+     "var": "y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0112",
+   "question": "Can (x**2 + 2*x + 1)/(x + 1) be simplified? What is it?",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "(x**2 + 2*x + 1)/(x + 1)"
+    },
+    "result": "x + 1",
+    "spec": {
+     "kind": "simplify",
+     "expr": "(x**2 + 2*x + 1)/(x + 1)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_simplify",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0113",
+   "question": "break x cubed minus 1 into factors.",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**3 - 1"
+    },
+    "result": "(x - 1)*(x**2 + x + 1)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**3 - 1",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0114",
+   "question": "Break 2 y squared plus 12 y plus 5 into factors.",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "2*y**2 + 12*y + 5"
+    },
+    "result": "2*y**2 + 12*y + 5",
+    "spec": {
+     "kind": "factor",
+     "expr": "2*y**2 + 12*y + 5",
+     "var": "y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0115",
+   "question": "Express x**2 - 8*x + 16 as a product.",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 8*x + 16"
+    },
+    "result": "(x - 4)**2",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 8*x + 16",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0116",
+   "question": "Express t² - 5t + 6 as a product?",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "t**2 - 5*t + 6"
+    },
+    "result": "(t - 3)*(t - 2)",
+    "spec": {
+     "kind": "factor",
+     "expr": "t**2 - 5*t + 6",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0117",
+   "question": "Break x squared minus 25 into factors.",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 25"
+    },
+    "result": "(x - 5)*(x + 5)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 25",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0118",
+   "question": "Express y squared minus 11 y plus 30 as a product.",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "y**2 - 11*y + 30"
+    },
+    "result": "(y - 6)*(y - 5)",
+    "spec": {
+     "kind": "factor",
+     "expr": "y**2 - 11*y + 30",
+     "var": "y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0119",
+   "question": "Break 3x² + 22x + 30 into factors.",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "3*x**2 + 22*x + 30"
+    },
+    "result": "3*x**2 + 22*x + 30",
+    "spec": {
+     "kind": "factor",
+     "expr": "3*x**2 + 22*x + 30",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0120",
+   "question": "Express t squared minus 5 t plus 6 as a product.",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "t**2 - 5*t + 6"
+    },
+    "result": "(t - 3)*(t - 2)",
+    "spec": {
+     "kind": "factor",
+     "expr": "t**2 - 5*t + 6",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0121",
+   "question": "Express x^2 - 6x + 9 as a product.",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 6*x + 9"
+    },
+    "result": "(x - 3)**2",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 6*x + 9",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_factor",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0122",
+   "question": "Multiply out the brackets in (x + 5)*(x**2 - x + 5).",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 5)*(x**2 - x + 5)"
+    },
+    "result": "x**3 + 4*x**2 + 25",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 5)*(x**2 - x + 5)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0123",
+   "question": "Multiply out the brackets in (3x + 2)^2.",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(3*x + 2)**2"
+    },
+    "result": "9*x**2 + 12*x + 4",
+    "spec": {
+     "kind": "expand",
+     "expr": "(3*x + 2)**2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0124",
+   "question": "Multiply out the brackets in (x - 6)(x + 6).",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x - 6)*(x + 6)"
+    },
+    "result": "x**2 - 36",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x - 6)*(x + 6)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0125",
+   "question": "Multiply out the brackets in (x + 6)^2.",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 6)**2"
+    },
+    "result": "x**2 + 12*x + 36",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 6)**2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0126",
+   "question": "write (x + 4)**2 without brackets.",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 4)**2"
+    },
+    "result": "x**2 + 8*x + 16",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 4)**2",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0127",
+   "question": "Write (t + 2)*(t + 2) without brackets",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(t + 2)*(t + 2)"
+    },
+    "result": "t**2 + 4*t + 4",
+    "spec": {
+     "kind": "expand",
+     "expr": "(t + 2)*(t + 2)",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0128",
+   "question": "Write (x + 5)*(x + 4) without brackets.",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 5)*(x + 4)"
+    },
+    "result": "x**2 + 9*x + 20",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 5)*(x + 4)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0129",
+   "question": "Multiply out the brackets in (x - 6)(x + 3).",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x - 6)*(x + 3)"
+    },
+    "result": "x**2 - 3*x - 18",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x - 6)*(x + 3)",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0130",
+   "question": "Multiply out the brackets in (x - 1)^3.",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x - 1)**3"
+    },
+    "result": "x**3 - 3*x**2 + 3*x - 1",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x - 1)**3",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_expand",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0131",
+   "question": "As x gets closer and closer to 0, what value does (exp(x) - 1)/x settle on",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(exp(x) - 1)/x",
+     "variable": "x",
+     "point": "0"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "(exp(x) - 1)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0132",
+   "question": "As x gets closer and closer to infinity, what value does e^(-x) settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "exp(-x)",
+     "point": "oo"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "limit",
+     "expr": "exp(-x)",
+     "var": "x",
+     "point": "oo",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0133",
+   "question": "Approaching 0 from the right, what does x*log(x) tend to?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "x*log(x)",
+     "point": "0",
+     "direction": "+"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "limit",
+     "expr": "x*log(x)",
+     "var": "x",
+     "point": "0",
+     "dir": "+"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0134",
+   "question": "As x gets closer and closer to 0, what value does (sqrt(1 + x) - 1)/x settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(sqrt(1 + x) - 1)/x",
+     "point": "0"
+    },
+    "result": "1/2",
+    "spec": {
+     "kind": "limit",
+     "expr": "(sqrt(1 + x) - 1)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0135",
+   "question": "As x gets closer and closer to ∞, what value does (3*x**2 + x)/(x**2 + 2) settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(3*x**2 + x)/(x**2 + 2)",
+     "variable": "x",
+     "point": "oo"
+    },
+    "result": "3",
+    "spec": {
+     "kind": "limit",
+     "expr": "(3*x**2 + x)/(x**2 + 2)",
+     "var": "x",
+     "point": "oo",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0136",
+   "question": "Approaching 0 from the right, what does 1/x tend to?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "1/x",
+     "variable": "x",
+     "point": "0",
+     "direction": "+"
+    },
+    "result": "oo",
+    "spec": {
+     "kind": "limit",
+     "expr": "1/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0137",
+   "question": "Determine lim (1 - cos(x))/x^2 when x → 0?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(1 - cos(x))/x**2",
+     "variable": "x",
+     "point": "0"
+    },
+    "result": "1/2",
+    "spec": {
+     "kind": "limit",
+     "expr": "(1 - cos(x))/x**2",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0138",
+   "question": "As x gets closer and closer to 0, what value does (exp(2*x) - 1)/x settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(exp(2*x) - 1)/x",
+     "variable": "x",
+     "point": "0"
+    },
+    "result": "2",
+    "spec": {
+     "kind": "limit",
+     "expr": "(exp(2*x) - 1)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0139",
+   "question": "Approaching 0 from the left, what does 1/x tend to?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "1/x",
+     "variable": "x",
+     "point": "0",
+     "direction": "-"
+    },
+    "result": "-oo",
+    "spec": {
+     "kind": "limit",
+     "expr": "1/x",
+     "var": "x",
+     "point": "0",
+     "dir": "-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0140",
+   "question": "as x gets closer and closer to 0, what value does tan(x)/x settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "tan(x)/x",
+     "variable": "x",
+     "point": "0"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "tan(x)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0141",
+   "question": "Determine lim log(1 + x)/x when x → 0.",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "log(1 + x)/x",
+     "point": "0"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "log(1 + x)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0142",
+   "question": "Determine lim e^(-x) when x → positive infinity",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "exp(-x)",
+     "variable": "x",
+     "point": "oo"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "limit",
+     "expr": "exp(-x)",
+     "var": "x",
+     "point": "oo",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0143",
+   "question": "As x gets closer and closer to infinity, what value does exp(-x) settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "exp(-x)",
+     "point": "oo"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "limit",
+     "expr": "exp(-x)",
+     "var": "x",
+     "point": "oo",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0144",
+   "question": "Determine lim (sqrt(1 + x) - 1)/x when x → 0.",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(sqrt(1 + x) - 1)/x",
+     "point": "0"
+    },
+    "result": "1/2",
+    "spec": {
+     "kind": "limit",
+     "expr": "(sqrt(1 + x) - 1)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0145",
+   "question": "Approaching 0 from the right, what does abs(t)/t tend to?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "abs(t)/t",
+     "variable": "t",
+     "point": "0",
+     "direction": "+"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "abs(t)/t",
+     "var": "t",
+     "point": "0",
+     "dir": "+"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0146",
+   "question": "Approaching 0 from the left, what does abs(x)/x tend to?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "abs(x)/x",
+     "variable": "x",
+     "point": "0",
+     "direction": "-"
+    },
+    "result": "-1",
+    "spec": {
+     "kind": "limit",
+     "expr": "abs(x)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0147",
+   "question": "Determine lim (1 - cos(x))/x^2 when x → 0.",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(1 - cos(x))/x**2",
+     "variable": "x",
+     "point": "0"
+    },
+    "result": "1/2",
+    "spec": {
+     "kind": "limit",
+     "expr": "(1 - cos(x))/x**2",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0148",
+   "question": "As x gets closer and closer to positive infinity, what value does (1 + 1/x)^x settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(1 + 1/x)**x",
+     "variable": "x",
+     "point": "oo"
+    },
+    "result": "E",
+    "spec": {
+     "kind": "limit",
+     "expr": "(1 + 1/x)**x",
+     "var": "x",
+     "point": "oo",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0149",
+   "question": "Determine lim tan(x)/x when x → 0?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "tan(x)/x",
+     "variable": "x",
+     "point": "0"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "tan(x)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0150",
+   "question": "Approaching 0 from the right, what does |x|/x tend to",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "abs(x)/x",
+     "variable": "x",
+     "point": "0",
+     "direction": "+"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "abs(x)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0151",
+   "question": "Determine lim tan(x)/x when x → 0.",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "tan(x)/x",
+     "variable": "x",
+     "point": "0"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "tan(x)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0152",
+   "question": "As x gets closer and closer to ∞, what value does (5x^2 + x)/(x^2 + 3) settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(5*x**2 + x)/(x**2 + 3)",
+     "variable": "x",
+     "point": "oo"
+    },
+    "result": "5",
+    "spec": {
+     "kind": "limit",
+     "expr": "(5*x**2 + x)/(x**2 + 3)",
+     "var": "x",
+     "point": "oo",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0153",
+   "question": "Determine lim (1 + 1/n)^n when n → ∞.",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(1 + 1/n)**n",
+     "variable": "n",
+     "point": "oo"
+    },
+    "result": "E",
+    "spec": {
+     "kind": "limit",
+     "expr": "(1 + 1/n)**n",
+     "var": "n",
+     "point": "oo",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0154",
+   "question": "As x gets closer and closer to ∞, what value does x**2/exp(x) settle on?",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "x**2/exp(x)",
+     "variable": "x",
+     "point": "oo"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "limit",
+     "expr": "x**2/exp(x)",
+     "var": "x",
+     "point": "oo",
+     "dir": "+-"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_limit",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0155",
+   "question": "Approximate 1/(1 + x) near x = 0 with a polynomial of order 3.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "1/(1 + x)",
+     "point": "0",
+     "order": 3
+    },
+    "result": "x**2 - x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "1/(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0156",
+   "question": "Approximate exp(x) near x = 0 with a polynomial of order 4.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "exp(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 4
+    },
+    "result": "x**3/6 + x**2/2 + x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "exp(x)",
+     "var": "x",
+     "point": "0",
+     "order": 4
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0157",
+   "question": "Series for exp(x) around 0, to order 4.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "exp(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 4
+    },
+    "result": "x**3/6 + x**2/2 + x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "exp(x)",
+     "var": "x",
+     "point": "0",
+     "order": 4
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0158",
+   "question": "Series for 1/(1 + x) around 0, to order 4?",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "1/(1 + x)",
+     "point": "0",
+     "order": 4
+    },
+    "result": "-x**3 + x**2 - x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "1/(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 4
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0159",
+   "question": "Series for sqrt(1 + x) around 0, to order 6.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "sqrt(1 + x)",
+     "point": "0",
+     "order": 6
+    },
+    "result": "7*x**5/256 - 5*x**4/128 + x**3/16 - x**2/8 + x/2 + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "sqrt(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 6
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0160",
+   "question": "Approximate e^x near x = 1 with a polynomial of order 4.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "exp(x)",
+     "variable": "x",
+     "point": "1",
+     "order": 4
+    },
+    "result": "E*(x - 1)**3/6 + E*(x - 1)**2/2 + E*(x - 1) + E",
+    "spec": {
+     "kind": "series",
+     "expr": "exp(x)",
+     "var": "x",
+     "point": "1",
+     "order": 4
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0161",
+   "question": "Approximate log(1 + x) near x = 0 with a polynomial of order 4.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "log(1 + x)",
+     "variable": "x",
+     "point": "0",
+     "order": 4
+    },
+    "result": "x**3/3 - x**2/2 + x",
+    "spec": {
+     "kind": "series",
+     "expr": "log(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 4
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0162",
+   "question": "Series for cos(x) around pi/2, to order 6.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "cos(x)",
+     "variable": "x",
+     "point": "pi/2",
+     "order": 6
+    },
+    "result": "-x - (x - pi/2)**5/120 + (x - pi/2)**3/6 + pi/2",
+    "spec": {
+     "kind": "series",
+     "expr": "cos(x)",
+     "var": "x",
+     "point": "pi/2",
+     "order": 6
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0163",
+   "question": "approximate cosine of x near x = 0 with a polynomial of order 5.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "cos(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 5
+    },
+    "result": "x**4/24 - x**2/2 + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "cos(x)",
+     "var": "x",
+     "point": "0",
+     "order": 5
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0164",
+   "question": "Approximate sin(x) near x = 0 with a polynomial of order 3.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "sin(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 3
+    },
+    "result": "x",
+    "spec": {
+     "kind": "series",
+     "expr": "sin(x)",
+     "var": "x",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0165",
+   "question": "Series for 1/(1 - x) around 0, to order 4.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "1/(1 - x)",
+     "point": "0",
+     "order": 4
+    },
+    "result": "x**3 + x**2 + x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "1/(1 - x)",
+     "var": "x",
+     "point": "0",
+     "order": 4
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0166",
+   "question": "Approximate cosine of x near x = 0 with a polynomial of order 4.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "cos(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 4
+    },
+    "result": "1 - x**2/2",
+    "spec": {
+     "kind": "series",
+     "expr": "cos(x)",
+     "var": "x",
+     "point": "0",
+     "order": 4
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0167",
+   "question": "Approximate ln(1 + x) near x = 0 with a polynomial of order 3.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "log(1 + x)",
+     "variable": "x",
+     "point": "0",
+     "order": 3
+    },
+    "result": "-x**2/2 + x",
+    "spec": {
+     "kind": "series",
+     "expr": "log(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0168",
+   "question": "Approximate e^x near x = 0 with a polynomial of order 6.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "exp(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 6
+    },
+    "result": "x**5/120 + x**4/24 + x**3/6 + x**2/2 + x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "exp(x)",
+     "var": "x",
+     "point": "0",
+     "order": 6
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0169",
+   "question": "Series for sqrt(1 + x) around 0, to order 5.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "sqrt(1 + x)",
+     "point": "0",
+     "order": 5
+    },
+    "result": "-5*x**4/128 + x**3/16 - x**2/8 + x/2 + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "sqrt(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 5
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0170",
+   "question": "series for e^x around 1, to order 5.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "exp(x)",
+     "point": "1",
+     "order": 5
+    },
+    "result": "E*(x - 1)**4/24 + E*(x - 1)**3/6 + E*(x - 1)**2/2 + E*(x - 1) + E",
+    "spec": {
+     "kind": "series",
+     "expr": "exp(x)",
+     "var": "x",
+     "point": "1",
+     "order": 5
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0171",
+   "question": "Series for sin(x) around 0, to order 6.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "sin(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 6
+    },
+    "result": "x**5/120 - x**3/6 + x",
+    "spec": {
+     "kind": "series",
+     "expr": "sin(x)",
+     "var": "x",
+     "point": "0",
+     "order": 6
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0172",
+   "question": "Series for 1/(1 + x) around 0, to order 3.",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "1/(1 + x)",
+     "variable": "x",
+     "point": "0",
+     "order": 3
+    },
+    "result": "x**2 - x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "1/(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 3
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_series",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0173",
+   "question": "What does Σ_(i=1)^infinity 1/(i*(i + 1)) come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/(i*(i + 1))",
+     "variable": "i",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/(i*(i + 1))",
+     "var": "i",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0174",
+   "question": "What does Σ_(k=0)^positive infinity 1/k! come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/factorial(k)",
+     "variable": "k",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "E",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/factorial(k)",
+     "var": "k",
+     "lo": "0",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0175",
+   "question": "Total up 3*n with n going from 2 to 100.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "3*n",
+     "variable": "n",
+     "lower": "2",
+     "upper": "100"
+    },
+    "result": "15147",
+    "spec": {
+     "kind": "sum",
+     "expr": "3*n",
+     "var": "n",
+     "lo": "2",
+     "hi": "100"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0176",
+   "question": "What does Σ_(i=0)^infinity (2/3)^i come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "(2/3)**i",
+     "variable": "i",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "3",
+    "spec": {
+     "kind": "sum",
+     "expr": "(2/3)**i",
+     "var": "i",
+     "lo": "0",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0177",
+   "question": "What does Σ_(n=0)^50 n^3 come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "n**3",
+     "variable": "n",
+     "lower": "0",
+     "upper": "50"
+    },
+    "result": "1625625",
+    "spec": {
+     "kind": "sum",
+     "expr": "n**3",
+     "var": "n",
+     "lo": "0",
+     "hi": "50"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0178",
+   "question": "What does Σ_(k=1)^10 k come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "k",
+     "variable": "k",
+     "lower": "1",
+     "upper": "10"
+    },
+    "result": "55",
+    "spec": {
+     "kind": "sum",
+     "expr": "k",
+     "var": "k",
+     "lo": "1",
+     "hi": "10"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0179",
+   "question": "What does Σ_(n=1)^100 n come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "n",
+     "variable": "n",
+     "lower": "1",
+     "upper": "100"
+    },
+    "result": "5050",
+    "spec": {
+     "kind": "sum",
+     "expr": "n",
+     "var": "n",
+     "lo": "1",
+     "hi": "100"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0180",
+   "question": "Total up n**3 with n going from 1 to 100.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "n**3",
+     "variable": "n",
+     "lower": "1",
+     "upper": "100"
+    },
+    "result": "25502500",
+    "spec": {
+     "kind": "sum",
+     "expr": "n**3",
+     "var": "n",
+     "lo": "1",
+     "hi": "100"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0181",
+   "question": "Total up 1/n^4 with n going from 1 to infinity",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/n**4",
+     "variable": "n",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "pi**4/90",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/n**4",
+     "var": "n",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0182",
+   "question": "Total up n with n going from 2 to 50.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "n",
+     "variable": "n",
+     "lower": "2",
+     "upper": "50"
+    },
+    "result": "1274",
+    "spec": {
+     "kind": "sum",
+     "expr": "n",
+     "var": "n",
+     "lo": "2",
+     "hi": "50"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0183",
+   "question": "What does Σ_(n=1)^infinity n/2**n come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "n/2**n",
+     "variable": "n",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "2",
+    "spec": {
+     "kind": "sum",
+     "expr": "n/2**n",
+     "var": "n",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0184",
+   "question": "Total up 1/(n*(n + 1)) with n going from 1 to 5?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/(n*(n + 1))",
+     "variable": "n",
+     "lower": "1",
+     "upper": "5"
+    },
+    "result": "5/6",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/(n*(n + 1))",
+     "var": "n",
+     "lo": "1",
+     "hi": "5"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0185",
+   "question": "apply the Laplace transform to t.",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "t"
+    },
+    "result": "s**(-2)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "t",
+     "var": "t",
+     "svar": "s"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0186",
+   "question": "What does exp(-1*t) become under the Laplace transform, using p as the transform variable",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "exp(-1*t)",
+     "s_var": "p"
+    },
+    "result": "1/(p + 1)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "exp(-1*t)",
+     "var": "t",
+     "svar": "p"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0187",
+   "question": "Apply the Laplace transform to e^(-2t).",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "exp(-2*t)"
+    },
+    "result": "1/(s + 2)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "exp(-2*t)",
+     "var": "t",
+     "svar": "s"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0188",
+   "question": "Apply the Laplace transform to 1.",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "1"
+    },
+    "result": "1/s",
+    "spec": {
+     "kind": "laplace",
+     "expr": "1",
+     "var": "t",
+     "svar": "s"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0189",
+   "question": "What does cos(4*t) become under the Laplace transform (in terms of p)",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "cos(4*t)",
+     "s_var": "p"
+    },
+    "result": "p/(p**2 + 16)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "cos(4*t)",
+     "var": "t",
+     "svar": "p"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0190",
+   "question": "Apply the Laplace transform to e^(-1t).",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "exp(-1*t)"
+    },
+    "result": "1/(s + 1)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "exp(-1*t)",
+     "var": "t",
+     "svar": "s"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0191",
+   "question": "Apply the Laplace transform to t times e to the minus 3 t, using z as the transform variable",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "t*exp(-3*t)",
+     "s_var": "z"
+    },
+    "result": "(z + 3)**(-2)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "t*exp(-3*t)",
+     "var": "t",
+     "svar": "z"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0192",
+   "question": "Apply the Laplace transform to t*exp(-2*t).",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "t*exp(-2*t)"
+    },
+    "result": "(s + 2)**(-2)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "t*exp(-2*t)",
+     "var": "t",
+     "svar": "s"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0193",
+   "question": "what does e^(2t) sin(4t) become under the Laplace transform?",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "exp(2*t)*sin(4*t)"
+    },
+    "result": "4/((s - 2)**2 + 16)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "exp(2*t)*sin(4*t)",
+     "var": "t",
+     "svar": "s"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0194",
+   "question": "What does t**2 become under the Laplace transform?",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "t**2"
+    },
+    "result": "2/s**3",
+    "spec": {
+     "kind": "laplace",
+     "expr": "t**2",
+     "var": "t",
+     "svar": "s"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_laplace",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0195",
+   "question": "Apply the Fourier transform to e^(-1x^2).",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-1*x**2)"
+    },
+    "result": "sqrt(pi)*exp(-pi**2*k**2)",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-1*x**2)",
+     "xvar": "x",
+     "kvar": "k"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_fourier",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0196",
+   "question": "What is the frequency-domain form of exp(-1*x**2)? Use the Fourier transform, from x to p",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-1*x**2)",
+     "k_var": "p"
+    },
+    "result": "sqrt(pi)*exp(-pi**2*p**2)",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-1*x**2)",
+     "xvar": "x",
+     "kvar": "p"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_fourier",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0197",
+   "question": "What is the frequency-domain form of e^(-2x^2)? Use the Fourier transform.",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-2*x**2)"
+    },
+    "result": "sqrt(2)*sqrt(pi)*exp(-pi**2*k**2/2)/2",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-2*x**2)",
+     "xvar": "x",
+     "kvar": "k"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_fourier",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0198",
+   "question": "Apply the Fourier transform to exp(-t**2), writing the result in terms of f",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-t**2)",
+     "x_var": "t",
+     "k_var": "f"
+    },
+    "result": "sqrt(pi)*exp(-pi**2*f**2)",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-t**2)",
+     "xvar": "t",
+     "kvar": "f"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_fourier",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0199",
+   "question": "Apply the Fourier transform to e to the minus 2 t squared (transform variable f)",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-2*t**2)",
+     "x_var": "t",
+     "k_var": "f"
+    },
+    "result": "sqrt(2)*sqrt(pi)*exp(-pi**2*f**2/2)/2",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-2*t**2)",
+     "xvar": "t",
+     "kvar": "f"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_fourier",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0200",
+   "question": "Apply the Fourier transform to e to the minus x squared.",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-x**2)"
+    },
+    "result": "sqrt(pi)*exp(-pi**2*k**2)",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-x**2)",
+     "xvar": "x",
+     "kvar": "k"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_fourier",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0201",
+   "question": "Apply the Fourier transform to exp(-2*x**2).",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-2*x**2)"
+    },
+    "result": "sqrt(2)*sqrt(pi)*exp(-pi**2*k**2/2)/2",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-2*x**2)",
+     "xvar": "x",
+     "kvar": "k"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_fourier",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0202",
+   "question": "Apply the Fourier transform to e to the minus 3 x squared.",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-3*x**2)"
+    },
+    "result": "sqrt(3)*sqrt(pi)*exp(-pi**2*k**2/3)/3",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-3*x**2)",
+     "xvar": "x",
+     "kvar": "k"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_fourier",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0203",
+   "question": "What vector points in the direction of steepest increase of x^2 + y^2 + z^2?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x**2 + y**2 + z**2"
+    },
+    "result": [
+     "2*x",
+     "2*y",
+     "2*z"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "x**2 + y**2 + z**2",
+     "vars": "x,y,z"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0204",
+   "question": "What vector points in the direction of steepest increase of log(x^2 + y^2)?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "log(x**2 + y**2)",
+     "variables": "x,y"
+    },
+    "result": [
+     "2*x/(x**2 + y**2)",
+     "2*y/(x**2 + y**2)"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "log(x**2 + y**2)",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0205",
+   "question": "what vector points in the direction of steepest increase of x*y*z?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x*y*z",
+     "variables": "x,y,z"
+    },
+    "result": [
+     "y*z",
+     "x*z",
+     "x*y"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "x*y*z",
+     "vars": "x,y,z"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0206",
+   "question": "Give ∇f for f = x**2*y.",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x**2*y",
+     "variables": "x,y"
+    },
+    "result": [
+     "2*x*y",
+     "x**2"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "x**2*y",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0207",
+   "question": "Give ∇f for f = exp(x*y)?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "exp(x*y)",
+     "variables": "x,y"
+    },
+    "result": [
+     "y*exp(x*y)",
+     "x*exp(x*y)"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "exp(x*y)",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0208",
+   "question": "What vector points in the direction of steepest increase of sin(x)*cos(y)?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "sin(x)*cos(y)",
+     "variables": "x,y"
+    },
+    "result": [
+     "cos(x)*cos(y)",
+     "-sin(x)*sin(y)"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "sin(x)*cos(y)",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0209",
+   "question": "Give ∇f for f = x*y*z.",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x*y*z"
+    },
+    "result": [
+     "y*z",
+     "x*z",
+     "x*y"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "x*y*z",
+     "vars": "x,y,z"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0210",
+   "question": "What vector points in the direction of steepest increase of x**2*y?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x**2*y",
+     "variables": "x,y"
+    },
+    "result": [
+     "2*x*y",
+     "x**2"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "x**2*y",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0211",
+   "question": "Give ∇f for f = exp(x*y).",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "exp(x*y)"
+    },
+    "result": [
+     "y*exp(x*y)",
+     "x*exp(x*y)"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "exp(x*y)",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees; 2026-10-29: two variables, the field's own (489ec0c); the question names no third axis",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0212",
+   "question": "Give ∇f for f = x**3 + 2*y**2?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x**3 + 2*y**2"
+    },
+    "result": [
+     "3*x**2",
+     "4*y"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "x**3 + 2*y**2",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees; 2026-10-29: two variables, the field's own (489ec0c); the question names no third axis",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0213",
+   "question": "Give ∇f for f = sin(x)*cos(y)?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "sin(x)*cos(y)",
+     "variables": "x,y"
+    },
+    "result": [
+     "cos(x)*cos(y)",
+     "-sin(x)*sin(y)"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "sin(x)*cos(y)",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0214",
+   "question": "What vector points in the direction of steepest increase of x*y?",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x*y",
+     "variables": "x,y"
+    },
+    "result": [
+     "y",
+     "x"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "x*y",
+     "vars": "x,y"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_gradient",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0215",
+   "question": "How much does the field (t**2, s + t, s*t) spread out at a point? Give the divergence (variables r, s, t)",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "t**2, s + t, s*t",
+     "variables": "r,s,t"
+    },
+    "result": "s + 1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "t**2",
+      "s + t",
+      "s*t"
+     ],
+     "names": [
+      "r",
+      "s",
+      "t"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0216",
+   "question": "How much does the field (3*z*y, y*x, z) spread out at a point? Give the divergence?",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "3*z*y, y*x, z"
+    },
+    "result": "x + 1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "3*z*y",
+      "y*x",
+      "z"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0217",
+   "question": "How much does the field (x, z, x^2) spread out at a point? Give the divergence.",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x, z, x**2"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "x",
+      "z",
+      "x**2"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0218",
+   "question": "How much does the field (0, z**2, 4*y*z) spread out at a point? Give the divergence.",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "0, z**2, 4*y*z"
+    },
+    "result": "4*y",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "0",
+      "z**2",
+      "4*y*z"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0219",
+   "question": "How much does the field (y + z, 4*y, 2*y*x) spread out at a point? Give the divergence.",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "y + z, 4*y, 2*y*x"
+    },
+    "result": "4",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "y + z",
+      "4*y",
+      "2*y*x"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0220",
+   "question": "How much does the field (y*x, z**2 - y, x*y**2) spread out at a point? Give the divergence?",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "y*x, z**2 - y, x*y**2"
+    },
+    "result": "y - 1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "y*x",
+      "z**2 - y",
+      "x*y**2"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0221",
+   "question": "How much does the field (x**2, y*x**2, x + y) spread out at a point? Give the divergence?",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x**2, y*x**2, x + y"
+    },
+    "result": "x*(x + 2)",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "x**2",
+      "y*x**2",
+      "x + y"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0222",
+   "question": "How much does the field (x*y^2, sin(x), z^2 - y) spread out at a point? Give the divergence.",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x*y**2, sin(x), z**2 - y"
+    },
+    "result": "y**2 + 2*z",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "x*y**2",
+      "sin(x)",
+      "z**2 - y"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0223",
+   "question": "How much does the field (y*z, 4*z*y, z*y) spread out at a point? Give the divergence",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "y*z, 4*z*y, z*y"
+    },
+    "result": "y + 4*z",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "y*z",
+      "4*z*y",
+      "z*y"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_divergence",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0224",
+   "question": "how much does the field (z, 4*y, x**2) rotate? Give the curl.",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "z, 4*y, x**2"
+    },
+    "result": [
+     "0",
+     "1 - 2*x",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "z",
+      "4*y",
+      "x**2"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0225",
+   "question": "How much does the field (z**2, sin(z), y**2 - x) rotate? Give the curl.",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "z**2, sin(z), y**2 - x"
+    },
+    "result": [
+     "2*y - cos(z)",
+     "2*z + 1",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "z**2",
+      "sin(z)",
+      "y**2 - x"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0226",
+   "question": "How much does the field (2*z*x, sin(x), y + x) rotate? Give the curl.",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "2*z*x, sin(x), y + x"
+    },
+    "result": [
+     "1",
+     "2*x - 1",
+     "cos(x)"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "2*z*x",
+      "sin(x)",
+      "y + x"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0227",
+   "question": "How much does the field (x*z^2, 0, x^2 - z) rotate? Give the curl?",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "x*z**2, 0, x**2 - z"
+    },
+    "result": [
+     "0",
+     "2*x*(z - 1)",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "x*z**2",
+      "0",
+      "x**2 - z"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0228",
+   "question": "How much does the field (z + y, 0, 4*x*y) rotate? Give the curl",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "z + y, 0, 4*x*y"
+    },
+    "result": [
+     "4*x",
+     "1 - 4*y",
+     "-1"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "z + y",
+      "0",
+      "4*x*y"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0229",
+   "question": "How much does the field (z^2 - x, 4*x, z^2) rotate? Give the curl?",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "z**2 - x, 4*x, z**2"
+    },
+    "result": [
+     "0",
+     "2*z",
+     "4"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "z**2 - x",
+      "4*x",
+      "z**2"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0230",
+   "question": "How much does the field (2*z*x, y**2, y**2 - z) rotate? Give the curl.",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "2*z*x, y**2, y**2 - z"
+    },
+    "result": [
+     "2*y",
+     "2*x",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "2*z*x",
+      "y**2",
+      "y**2 - z"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0231",
+   "question": "How much does the field (sin(s), 0, r) rotate? Give the curl (variables r, s, t)",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "sin(s), 0, r",
+     "variables": "r,s,t"
+    },
+    "result": [
+     "0",
+     "-1",
+     "-cos(s)"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "sin(s)",
+      "0",
+      "r"
+     ],
+     "names": [
+      "r",
+      "s",
+      "t"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0232",
+   "question": "How much does the field (x**2, z**2, 3*z*x) rotate? Give the curl",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "x**2, z**2, 3*z*x"
+    },
+    "result": [
+     "-2*z",
+     "-3*z",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "x**2",
+      "z**2",
+      "3*z*x"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_curl",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0233",
+   "question": "Work out the determinant of this matrix: [[-2, -2, -3], [2, 2, -3], [2, -2, 3]]?",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[-2, -2, -3], [2, 2, -3], [2, -2, 3]]"
+    },
+    "result": "48",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       -2,
+       -2,
+       -3
+      ],
+      [
+       2,
+       2,
+       -3
+      ],
+      [
+       2,
+       -2,
+       3
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0234",
+   "question": "Work out the determinant of this matrix: [0 -2; 6 3]",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[0, -2], [6, 3]]"
+    },
+    "result": "12",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       0,
+       -2
+      ],
+      [
+       6,
+       3
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0235",
+   "question": "What is |A| for A = [[-5, -2], [2, 0]]",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[-5, -2], [2, 0]]"
+    },
+    "result": "4",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       -5,
+       -2
+      ],
+      [
+       2,
+       0
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0236",
+   "question": "What is |A| for A = the matrix with rows (0, 5) and (3, -2)?",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[0, 5], [3, -2]]"
+    },
+    "result": "-15",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       0,
+       5
+      ],
+      [
+       3,
+       -2
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0237",
+   "question": "What is |A| for A = [-1 2; -5 -4]?",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[-1, 2], [-5, -4]]"
+    },
+    "result": "14",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       -1,
+       2
+      ],
+      [
+       -5,
+       -4
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0238",
+   "question": "What is |A| for A = [[4, 5], [4, 6]]?",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[4, 5], [4, 6]]"
+    },
+    "result": "4",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       4,
+       5
+      ],
+      [
+       4,
+       6
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0239",
+   "question": "Work out the determinant of this matrix: [[5, 5], [2, -1]]",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[5, 5], [2, -1]]"
+    },
+    "result": "-15",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       5,
+       5
+      ],
+      [
+       2,
+       -1
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0240",
+   "question": "Work out the determinant of this matrix: [[6, 1, 4], [3, -2, 3], [3, -3, 6]]",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[6, 1, 4], [3, -2, 3], [3, -3, 6]]"
+    },
+    "result": "-39",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       6,
+       1,
+       4
+      ],
+      [
+       3,
+       -2,
+       3
+      ],
+      [
+       3,
+       -3,
+       6
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0241",
+   "question": "What is |A| for A = [4 2; 0 -3]?",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[4, 2], [0, -3]]"
+    },
+    "result": "-12",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       4,
+       2
+      ],
+      [
+       0,
+       -3
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0242",
+   "question": "What is |A| for A = the matrix with rows (1, 6) and (-1, 0)?",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[1, 6], [-1, 0]]"
+    },
+    "result": "6",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       1,
+       6
+      ],
+      [
+       -1,
+       0
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_det",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0243",
+   "question": "What are the characteristic values of [[-1, 0], [0, 4]]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[-1, 0], [0, 4]]"
+    },
+    "result": [
+     "-1",
+     "4"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       -1,
+       0
+      ],
+      [
+       0,
+       4
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0244",
+   "question": "Which numbers λ satisfy det(A - λI) = 0 for A = [[-4, -2, 2], [0, -2, -2], [0, 0, -4]]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[-4, -2, 2], [0, -2, -2], [0, 0, -4]]"
+    },
+    "result": [
+     "-4",
+     "-4",
+     "-2"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       -4,
+       -2,
+       2
+      ],
+      [
+       0,
+       -2,
+       -2
+      ],
+      [
+       0,
+       0,
+       -4
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0245",
+   "question": "Which numbers λ satisfy det(A - λI) = 0 for A = [[-4, 3, 2], [0, -4, 2], [0, 0, 1]]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[-4, 3, 2], [0, -4, 2], [0, 0, 1]]"
+    },
+    "result": [
+     "1",
+     "-4",
+     "-4"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       -4,
+       3,
+       2
+      ],
+      [
+       0,
+       -4,
+       2
+      ],
+      [
+       0,
+       0,
+       1
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0246",
+   "question": "What are the characteristic values of [[4, 1, 0], [0, 4, 1], [0, 0, 8]]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[4, 1, 0], [0, 4, 1], [0, 0, 8]]"
+    },
+    "result": [
+     "8",
+     "4",
+     "4"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       4,
+       1,
+       0
+      ],
+      [
+       0,
+       4,
+       1
+      ],
+      [
+       0,
+       0,
+       8
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0247",
+   "question": "What are the characteristic values of [[-3, 3, -3], [0, -1, 2], [0, 0, -3]]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[-3, 3, -3], [0, -1, 2], [0, 0, -3]]"
+    },
+    "result": [
+     "-3",
+     "-3",
+     "-1"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       -3,
+       3,
+       -3
+      ],
+      [
+       0,
+       -1,
+       2
+      ],
+      [
+       0,
+       0,
+       -3
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0248",
+   "question": "What are the characteristic values of [[2, 1, 0], [0, 5, 1], [0, 0, 7]]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[2, 1, 0], [0, 5, 1], [0, 0, 7]]"
+    },
+    "result": [
+     "7",
+     "5",
+     "2"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       2,
+       1,
+       0
+      ],
+      [
+       0,
+       5,
+       1
+      ],
+      [
+       0,
+       0,
+       7
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0249",
+   "question": "Which numbers λ satisfy det(A - λI) = 0 for A = [6 3; 0 3]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[6, 3], [0, 3]]"
+    },
+    "result": [
+     "3",
+     "6"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       6,
+       3
+      ],
+      [
+       0,
+       3
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0250",
+   "question": "which numbers λ satisfy det(A - λI) = 0 for A = [[-1, 3], [0, 2]]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[-1, 3], [0, 2]]"
+    },
+    "result": [
+     "2",
+     "-1"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       -1,
+       3
+      ],
+      [
+       0,
+       2
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0251",
+   "question": "Which numbers λ satisfy det(A - λI) = 0 for A = the matrix with rows (2, 0) and (0, -1)?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[2, 0], [0, -1]]"
+    },
+    "result": [
+     "2",
+     "-1"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       2,
+       0
+      ],
+      [
+       0,
+       -1
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0252",
+   "question": "Which numbers λ satisfy det(A - λI) = 0 for A = [4 -1; -1 -2]?",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[4, -1], [-1, -2]]"
+    },
+    "result": [
+     "1 - sqrt(10)",
+     "1 + sqrt(10)"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       4,
+       -1
+      ],
+      [
+       -1,
+       -2
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_eig",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0253",
+   "question": "Give me the matrix that undoes [[1, -2], [2, -2]]",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[1, -2], [2, -2]]"
+    },
+    "result": "[[-1, 1], [-1, 1/2]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       1,
+       -2
+      ],
+      [
+       2,
+       -2
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0254",
+   "question": "What is A^-1 for A = [[-2, 3, 4], [5, 2, 3], [3, -4, -4]]?",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[-2, 3, 4], [5, 2, 3], [3, -4, -4]]"
+    },
+    "result": "[[-4/25, 4/25, -1/25], [-29/25, 4/25, -26/25], [26/25, -1/25, 19/25]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       -2,
+       3,
+       4
+      ],
+      [
+       5,
+       2,
+       3
+      ],
+      [
+       3,
+       -4,
+       -4
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0255",
+   "question": "Give me the matrix that undoes [[-1, -2, 0], [-4, 1, -4], [-2, -4, 3]].",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[-1, -2, 0], [-4, 1, -4], [-2, -4, 3]]"
+    },
+    "result": "[[13/27, -2/9, -8/27], [-20/27, 1/9, 4/27], [-2/3, 0, 1/3]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       -1,
+       -2,
+       0
+      ],
+      [
+       -4,
+       1,
+       -4
+      ],
+      [
+       -2,
+       -4,
+       3
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0256",
+   "question": "Give me the matrix that undoes [[2, -1, -1], [-4, -3, 0], [1, 0, -1]].",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[2, -1, -1], [-4, -3, 0], [1, 0, -1]]"
+    },
+    "result": "[[3/7, -1/7, -3/7], [-4/7, -1/7, 4/7], [3/7, -1/7, -10/7]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       2,
+       -1,
+       -1
+      ],
+      [
+       -4,
+       -3,
+       0
+      ],
+      [
+       1,
+       0,
+       -1
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0257",
+   "question": "What is A^-1 for A = [1 5 4; 0 4 -2; 1 4 0]?",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[1, 5, 4], [0, 4, -2], [1, 4, 0]]"
+    },
+    "result": "[[-4/9, -8/9, 13/9], [1/9, 2/9, -1/9], [2/9, -1/18, -2/9]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       1,
+       5,
+       4
+      ],
+      [
+       0,
+       4,
+       -2
+      ],
+      [
+       1,
+       4,
+       0
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0258",
+   "question": "What is A^-1 for A = the matrix with rows (4, 1, 2) and (5, 4, 1) and (5, 4, 0)",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[4, 1, 2], [5, 4, 1], [5, 4, 0]]"
+    },
+    "result": "[[4/11, -8/11, 7/11], [-5/11, 10/11, -6/11], [0, 1, -1]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       4,
+       1,
+       2
+      ],
+      [
+       5,
+       4,
+       1
+      ],
+      [
+       5,
+       4,
+       0
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0259",
+   "question": "Give me the matrix that undoes [[0, -2], [-2, 5]].",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[0, -2], [-2, 5]]"
+    },
+    "result": "[[-5/4, -1/2], [-1/2, 0]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       0,
+       -2
+      ],
+      [
+       -2,
+       5
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0260",
+   "question": "What is A^-1 for A = [[-3, -3], [0, 3]]",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[-3, -3], [0, 3]]"
+    },
+    "result": "[[-1/3, -1/3], [0, 1/3]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       -3,
+       -3
+      ],
+      [
+       0,
+       3
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0261",
+   "question": "Give me the matrix that undoes [[-2, 5], [3, 2]].",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[-2, 5], [3, 2]]"
+    },
+    "result": "[[-2/19, 5/19], [3/19, 2/19]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       -2,
+       5
+      ],
+      [
+       3,
+       2
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0262",
+   "question": "What is A^-1 for A = [[1, 0], [3, 2]]?",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[1, 0], [3, 2]]"
+    },
+    "result": "[[1, 0], [-3/2, 1/2]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       1,
+       0
+      ],
+      [
+       3,
+       2
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_inv",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0263",
+   "question": "what do you get when you multiply [[-2, 3], [-2, 4]] on the right by [[-1, -4], [3, 4]]?",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[-2, 3], [-2, 4]]",
+     "matrix_b": "[[-1, -4], [3, 4]]"
+    },
+    "result": "[[11, 20], [14, 24]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       -2,
+       3
+      ],
+      [
+       -2,
+       4
+      ]
+     ],
+     "B": [
+      [
+       -1,
+       -4
+      ],
+      [
+       3,
+       4
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0264",
+   "question": "What do you get when you multiply [[4, 2], [-4, 2]] on the right by [[-2, 5], [0, 2]]?",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[4, 2], [-4, 2]]",
+     "matrix_b": "[[-2, 5], [0, 2]]"
+    },
+    "result": "[[-8, 24], [8, -16]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       4,
+       2
+      ],
+      [
+       -4,
+       2
+      ]
+     ],
+     "B": [
+      [
+       -2,
+       5
+      ],
+      [
+       0,
+       2
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0265",
+   "question": "What do you get when you multiply the matrix with rows (3, 1, -4) and (5, 4, 3) on the right by [[-3, 0], [3, 4], [1, 0]]?",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[3, 1, -4], [5, 4, 3]]",
+     "matrix_b": "[[-3, 0], [3, 4], [1, 0]]"
+    },
+    "result": "[[-10, 4], [0, 16]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       3,
+       1,
+       -4
+      ],
+      [
+       5,
+       4,
+       3
+      ]
+     ],
+     "B": [
+      [
+       -3,
+       0
+      ],
+      [
+       3,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0266",
+   "question": "What do you get when you multiply [4 3; 1 0] on the right by [-4 -1; -4 1]",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[4, 3], [1, 0]]",
+     "matrix_b": "[[-4, -1], [-4, 1]]"
+    },
+    "result": "[[-28, -1], [-4, -1]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       4,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "B": [
+      [
+       -4,
+       -1
+      ],
+      [
+       -4,
+       1
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0267",
+   "question": "What do you get when you multiply [[0, 0], [5, 4], [5, 4]] on the right by [2 0 -4; -4 -4 -2]?",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[0, 0], [5, 4], [5, 4]]",
+     "matrix_b": "[[2, 0, -4], [-4, -4, -2]]"
+    },
+    "result": "[[0, 0, 0], [-6, -16, -28], [-6, -16, -28]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       0,
+       0
+      ],
+      [
+       5,
+       4
+      ],
+      [
+       5,
+       4
+      ]
+     ],
+     "B": [
+      [
+       2,
+       0,
+       -4
+      ],
+      [
+       -4,
+       -4,
+       -2
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0268",
+   "question": "What do you get when you multiply [[5, -3, 5], [4, -4, 0], [4, 4, 5]] on the right by [[1, 5, 4], [4, 2, 3], [-2, 3, 4]]?",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[5, -3, 5], [4, -4, 0], [4, 4, 5]]",
+     "matrix_b": "[[1, 5, 4], [4, 2, 3], [-2, 3, 4]]"
+    },
+    "result": "[[-17, 34, 31], [-12, 12, 4], [10, 43, 48]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       5,
+       -3,
+       5
+      ],
+      [
+       4,
+       -4,
+       0
+      ],
+      [
+       4,
+       4,
+       5
+      ]
+     ],
+     "B": [
+      [
+       1,
+       5,
+       4
+      ],
+      [
+       4,
+       2,
+       3
+      ],
+      [
+       -2,
+       3,
+       4
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0269",
+   "question": "What do you get when you multiply [[0, -4, 0], [-3, -4, 5], [-3, 4, 5]] on the right by [[3, 4, 2], [1, 1, 1], [-4, 5, 5]]",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[0, -4, 0], [-3, -4, 5], [-3, 4, 5]]",
+     "matrix_b": "[[3, 4, 2], [1, 1, 1], [-4, 5, 5]]"
+    },
+    "result": "[[-4, -4, -4], [-33, 9, 15], [-25, 17, 23]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       0,
+       -4,
+       0
+      ],
+      [
+       -3,
+       -4,
+       5
+      ],
+      [
+       -3,
+       4,
+       5
+      ]
+     ],
+     "B": [
+      [
+       3,
+       4,
+       2
+      ],
+      [
+       1,
+       1,
+       1
+      ],
+      [
+       -4,
+       5,
+       5
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0270",
+   "question": "What do you get when you multiply the matrix with rows (-2, -1) and (5, 5) on the right by [-1 2; 5 0]?",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[-2, -1], [5, 5]]",
+     "matrix_b": "[[-1, 2], [5, 0]]"
+    },
+    "result": "[[-3, -4], [20, 10]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       -2,
+       -1
+      ],
+      [
+       5,
+       5
+      ]
+     ],
+     "B": [
+      [
+       -1,
+       2
+      ],
+      [
+       5,
+       0
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0271",
+   "question": "What do you get when you multiply [3 0 1; 5 -1 -3; 2 -3 4] on the right by [-1 4 1; -3 -2 3; 5 2 -4]?",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[3, 0, 1], [5, -1, -3], [2, -3, 4]]",
+     "matrix_b": "[[-1, 4, 1], [-3, -2, 3], [5, 2, -4]]"
+    },
+    "result": "[[2, 14, -1], [-17, 16, 14], [27, 22, -23]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       3,
+       0,
+       1
+      ],
+      [
+       5,
+       -1,
+       -3
+      ],
+      [
+       2,
+       -3,
+       4
+      ]
+     ],
+     "B": [
+      [
+       -1,
+       4,
+       1
+      ],
+      [
+       -3,
+       -2,
+       3
+      ],
+      [
+       5,
+       2,
+       -4
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0272",
+   "question": "What do you get when you multiply [1 -1 4; -2 -3 4; 0 4 4] on the right by the matrix with rows (3, -1, -2) and (1, 3, 2) and (4, -1, 1)?",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[1, -1, 4], [-2, -3, 4], [0, 4, 4]]",
+     "matrix_b": "[[3, -1, -2], [1, 3, 2], [4, -1, 1]]"
+    },
+    "result": "[[18, -8, 0], [7, -11, 2], [20, 8, 12]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       1,
+       -1,
+       4
+      ],
+      [
+       -2,
+       -3,
+       4
+      ],
+      [
+       0,
+       4,
+       4
+      ]
+     ],
+     "B": [
+      [
+       3,
+       -1,
+       -2
+      ],
+      [
+       1,
+       3,
+       2
+      ],
+      [
+       4,
+       -1,
+       1
+      ]
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_mul",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0273",
+   "question": "Given A = [4 3 4; -3 3 3; -4 -1 6] and b = (8, 7, 1), what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[4, 3, 4], [-3, 3, 3], [-4, -1, 6]]",
+     "vector_b": "[8, 7, 1]"
+    },
+    "result": [
+     "11/162",
+     "152/81",
+     "85/162"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       4,
+       3,
+       4
+      ],
+      [
+       -3,
+       3,
+       3
+      ],
+      [
+       -4,
+       -1,
+       6
+      ]
+     ],
+     "b": [
+      8,
+      7,
+      1
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0274",
+   "question": "Given A = [[0, 0, -2], [4, 2, 4], [-4, -4, 4]] and b = (-3, 3, -3), what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[0, 0, -2], [4, 2, 4], [-4, -4, 4]]",
+     "vector_b": "[-3, 3, -3]"
+    },
+    "result": [
+     "-15/4",
+     "6",
+     "3/2"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       0,
+       0,
+       -2
+      ],
+      [
+       4,
+       2,
+       4
+      ],
+      [
+       -4,
+       -4,
+       4
+      ]
+     ],
+     "b": [
+      -3,
+      3,
+      -3
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0275",
+   "question": "Given A = [[6, -1], [-4, 5]] and b = [9, -1], what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[6, -1], [-4, 5]]",
+     "vector_b": "[9, -1]"
+    },
+    "result": [
+     "22/13",
+     "15/13"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       6,
+       -1
+      ],
+      [
+       -4,
+       5
+      ]
+     ],
+     "b": [
+      9,
+      -1
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0276",
+   "question": "Given A = [[3, 6, 4], [6, -2, 3], [2, 6, -1]] and b = [0, 6, 9], what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[3, 6, 4], [6, -2, 3], [2, 6, -1]]",
+     "vector_b": "[0, 6, 9]"
+    },
+    "result": [
+     "9/4",
+     "3/8",
+     "-9/4"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       3,
+       6,
+       4
+      ],
+      [
+       6,
+       -2,
+       3
+      ],
+      [
+       2,
+       6,
+       -1
+      ]
+     ],
+     "b": [
+      0,
+      6,
+      9
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0277",
+   "question": "Given A = [[-2, 4], [-3, 3]] and b = [0, 10], what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[-2, 4], [-3, 3]]",
+     "vector_b": "[0, 10]"
+    },
+    "result": [
+     "-20/3",
+     "-10/3"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       -2,
+       4
+      ],
+      [
+       -3,
+       3
+      ]
+     ],
+     "b": [
+      0,
+      10
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0278",
+   "question": "Given A = [[-3, -1, -2], [1, 0, -3], [6, 4, 2]] and b = [-5, 4, 0], what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[-3, -1, -2], [1, 0, -3], [6, 4, 2]]",
+     "vector_b": "[-5, 4, 0]"
+    },
+    "result": [
+     "7/2",
+     "-31/6",
+     "-1/6"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       -3,
+       -1,
+       -2
+      ],
+      [
+       1,
+       0,
+       -3
+      ],
+      [
+       6,
+       4,
+       2
+      ]
+     ],
+     "b": [
+      -5,
+      4,
+      0
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0279",
+   "question": "Given A = [2 -2; 5 6] and b = [8, 6], what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[2, -2], [5, 6]]",
+     "vector_b": "[8, 6]"
+    },
+    "result": [
+     "30/11",
+     "-14/11"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       2,
+       -2
+      ],
+      [
+       5,
+       6
+      ]
+     ],
+     "b": [
+      8,
+      6
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0280",
+   "question": "Given A = [[5, 5, 0], [2, -3, -1], [2, 1, 0]] and b = (7, 4, 4), what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[5, 5, 0], [2, -3, -1], [2, 1, 0]]",
+     "vector_b": "[7, 4, 4]"
+    },
+    "result": [
+     "13/5",
+     "-6/5",
+     "24/5"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       5,
+       5,
+       0
+      ],
+      [
+       2,
+       -3,
+       -1
+      ],
+      [
+       2,
+       1,
+       0
+      ]
+     ],
+     "b": [
+      7,
+      4,
+      4
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0281",
+   "question": "Given A = [[-3, -4, 0], [2, -4, 1], [3, -1, 1]] and b = [-5, -6, -8], what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[-3, -4, 0], [2, -4, 1], [3, -1, 1]]",
+     "vector_b": "[-5, -6, -8]"
+    },
+    "result": [
+     "23/5",
+     "-11/5",
+     "-24"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       -3,
+       -4,
+       0
+      ],
+      [
+       2,
+       -4,
+       1
+      ],
+      [
+       3,
+       -1,
+       1
+      ]
+     ],
+     "b": [
+      -5,
+      -6,
+      -8
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0282",
+   "question": "Given A = the matrix with rows (5, 2) and (3, -1) and b = (11, -5), what x solves A x = b?",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[5, 2], [3, -1]]",
+     "vector_b": "[11, -5]"
+    },
+    "result": [
+     "1/11",
+     "58/11"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       5,
+       2
+      ],
+      [
+       3,
+       -1
+      ]
+     ],
+     "b": [
+      11,
+      -5
+     ]
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_linsys",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0283",
+   "question": "Give me every function x(t) with x'' - 4*x' + 3*x = 0",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "x'' - 4*x' + 3*x",
+     "func": "x",
+     "variable": "t"
+    },
+    "result": "Eq(x(t), (C1 + C2*exp(2*t))*exp(t))",
+    "spec": {
+     "kind": "ode",
+     "eq": "x'' - 4*x' + 3*x",
+     "fn": "x",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0284",
+   "question": "Give me every function y(x) with y' - 6*y = 0.",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y' - 6*y"
+    },
+    "result": "Eq(y(x), C1*exp(6*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y' - 6*y",
+     "fn": "y",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0285",
+   "question": "Give me every function y(t) with y' + 4y = 0",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y' + 4*y",
+     "variable": "t"
+    },
+    "result": "Eq(y(t), C1*exp(-4*t))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y' + 4*y",
+     "fn": "y",
+     "var": "t"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0286",
+   "question": "Give me every function y(x) with y' - y = 0.",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y' - y"
+    },
+    "result": "Eq(y(x), C1*exp(x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y' - y",
+     "fn": "y",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0287",
+   "question": "Give me every function y(x) with y'' + 7*y = 0.",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y'' + 7*y"
+    },
+    "result": "Eq(y(x), C1*sin(sqrt(7)*x) + C2*cos(sqrt(7)*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y'' + 7*y",
+     "fn": "y",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0288",
+   "question": "Give me every function y(x) with y'' - 9y = 0",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y'' - 9*y"
+    },
+    "result": "Eq(y(x), C1*exp(-3*x) + C2*exp(3*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y'' - 9*y",
+     "fn": "y",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0289",
+   "question": "Give me every function f(x) with f' + 2f = 0.",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "f' + 2*f",
+     "func": "f"
+    },
+    "result": "Eq(f(x), C1*exp(-2*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "f' + 2*f",
+     "fn": "f",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0290",
+   "question": "Give me every function y(x) with y'' - 6*y' + 9*y = 0.",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y'' - 6*y' + 9*y"
+    },
+    "result": "Eq(y(x), (C1 + C2*x)*exp(3*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y'' - 6*y' + 9*y",
+     "fn": "y",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0291",
+   "question": "give me every function f(x) with f' + 3f = 0.",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "f' + 3*f",
+     "func": "f"
+    },
+    "result": "Eq(f(x), C1*exp(-3*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "f' + 3*f",
+     "fn": "f",
+     "var": "x"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_ode",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0292",
+   "question": "What does Σ_(n=1)^positive infinity (1/3)**n come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "(1/3)**n",
+     "variable": "n",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "1/2",
+    "spec": {
+     "kind": "sum",
+     "expr": "(1/3)**n",
+     "var": "n",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0293",
+   "question": "What does Σ_(n=0)^positive infinity (2/3)**n come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "(2/3)**n",
+     "variable": "n",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "3",
+    "spec": {
+     "kind": "sum",
+     "expr": "(2/3)**n",
+     "var": "n",
+     "lo": "0",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0294",
+   "question": "Total up 1/(k(k + 1)) with k going from 1 to infinity.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/(k*(k + 1))",
+     "variable": "k",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/(k*(k + 1))",
+     "var": "k",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0295",
+   "question": "What does Σ_(n=1)^positive infinity 1/n^2 come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/n**2",
+     "variable": "n",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "pi**2/6",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/n**2",
+     "var": "n",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0296",
+   "question": "Total up i^2 with i going from 1 to 50.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "i**2",
+     "variable": "i",
+     "lower": "1",
+     "upper": "50"
+    },
+    "result": "42925",
+    "spec": {
+     "kind": "sum",
+     "expr": "i**2",
+     "var": "i",
+     "lo": "1",
+     "hi": "50"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0297",
+   "question": "total up k with k going from 1 to 100.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "k",
+     "variable": "k",
+     "lower": "1",
+     "upper": "100"
+    },
+    "result": "5050",
+    "spec": {
+     "kind": "sum",
+     "expr": "k",
+     "var": "k",
+     "lo": "1",
+     "hi": "100"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_finite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0298",
+   "question": "Total up 1/i^2 with i going from 1 to ∞.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/i**2",
+     "variable": "i",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "pi**2/6",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/i**2",
+     "var": "i",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0299",
+   "question": "Total up 1/k**4 with k going from 1 to infinity.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/k**4",
+     "variable": "k",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "pi**4/90",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/k**4",
+     "var": "k",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0300",
+   "question": "What does Σ_(n=1)^∞ 1/n^2 come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/n**2",
+     "variable": "n",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "pi**2/6",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/n**2",
+     "var": "n",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0301",
+   "question": "Total up 1/k! with k going from 0 to ∞.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/factorial(k)",
+     "variable": "k",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "E",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/factorial(k)",
+     "var": "k",
+     "lo": "0",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0302",
+   "question": "What does Σ_(n=1)^infinity (1/3)**n come to?",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "(1/3)**n",
+     "variable": "n",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "1/2",
+    "spec": {
+     "kind": "sum",
+     "expr": "(1/3)**n",
+     "var": "n",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0303",
+   "question": "Total up 1/n^4 with n going from 1 to infinity.",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/n**4",
+     "variable": "n",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "pi**4/90",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/n**4",
+     "var": "n",
+     "lo": "1",
+     "hi": "oo"
+    }
+   },
+   "oracle": "agrees",
+   "recipe": "math_sum_infinite",
+   "kind": "templated-holdout"
+  },
+  {
+   "id": "msuite_0304",
+   "question": "what's d/dx of sin x times cos x",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sin(x)*cos(x)"
+    },
+    "result": "-sin(x)**2 + cos(x)**2",
+    "spec": null
+   },
+   "oracle": "tool, 2026-10-29 (was None: the tool refused these args when the suite was written)",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0305",
+   "question": "how fast is x cubed changing at any x? i want the formula",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "x**3"
+    },
+    "result": "3*x**2",
+    "spec": null
+   },
+   "oracle": "tool, 2026-10-29 (was None: the tool refused these args when the suite was written)",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0306",
+   "question": "integral of e to the minus x from zero to infinity",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(-x)",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "1",
+    "spec": null
+   },
+   "oracle": "tool, 2026-10-29 (was None: the tool refused these args when the suite was written)",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0307",
+   "question": "area under the curve y = x squared between x = 1 and x = 3",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x**2",
+     "lower": "1",
+     "upper": "3"
+    },
+    "result": "26/3",
+    "spec": null
+   },
+   "oracle": "tool, 2026-10-29 (was None: the tool refused these args when the suite was written)",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0308",
+   "question": "find the antiderivative of 6x^2 + 4x",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "6*x**2 + 4*x"
+    },
+    "result": "2*x**3 + 2*x**2",
+    "spec": null
+   },
+   "oracle": "tool, 2026-10-29 (was None: the tool refused these args when the suite was written)",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0309",
+   "question": "x^2 = 49, what is x",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 = 49",
+     "variable": "x"
+    },
+    "result": [
+     "-7",
+     "7"
+    ],
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0310",
+   "question": "roots of x^2 + 2x - 8",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 + 2*x - 8",
+     "variable": "x"
+    },
+    "result": [
+     "-4",
+     "2"
+    ],
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0311",
+   "question": "what do you get from simplifying (x^2 - 9)/(x - 3)",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "(x**2 - 9)/(x - 3)"
+    },
+    "result": "x + 3",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0312",
+   "question": "expand (a+b)^2 for me",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(a + b)**2"
+    },
+    "result": "a**2 + 2*a*b + b**2",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0313",
+   "question": "factor x^2 + 7x + 12",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 + 7*x + 12"
+    },
+    "result": "(x + 3)*(x + 4)",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0314",
+   "question": "limit of sin(3x)/x when x goes to 0",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "sin(3*x)/x",
+     "point": "0"
+    },
+    "result": "3",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0315",
+   "question": "lim x->infinity of 1/x",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "1/x",
+     "point": "oo"
+    },
+    "result": "0",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0316",
+   "question": "sum of the first 100 integers",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "k",
+     "variable": "k",
+     "lower": "1",
+     "upper": "100"
+    },
+    "result": "5050",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0317",
+   "question": "sum of 1/2^n from n = 1 to infinity",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/2**n",
+     "variable": "n",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "1",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0318",
+   "question": "taylor series for cos x up to order 4",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "cos(x)",
+     "order": 4
+    },
+    "result": "1 - x**2/2",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0319",
+   "question": "laplace transform of e^(-3t)",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "exp(-3*t)"
+    },
+    "result": "1/(s + 3)",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0320",
+   "question": "det of [[3,1],[2,5]]",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[3, 1], [2, 5]]"
+    },
+    "result": "13",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0321",
+   "question": "eigenvalues of [[2,1],[1,2]]",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[2, 1], [1, 2]]"
+    },
+    "result": [
+     "3",
+     "1"
+    ],
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0322",
+   "question": "invert [[1,2],[3,5]]",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[1, 2], [3, 5]]"
+    },
+    "result": "[[-5, 2], [3, -1]]",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0323",
+   "question": "[[1,0],[0,2]] times [[3,4],[5,6]]",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[1, 0], [0, 2]]",
+     "matrix_b": "[[3, 4], [5, 6]]"
+    },
+    "result": "[[3, 4], [10, 12]]",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0324",
+   "question": "solve for x and y: 2x + y = 5, x - y = 1",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[2, 1], [1, -1]]",
+     "vector_b": "[5, 1]"
+    },
+    "result": [
+     "2",
+     "1"
+    ],
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0325",
+   "question": "gradient of x^2 y",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x**2*y",
+     "variables": "x,y"
+    },
+    "result": [
+     "2*x*y",
+     "x**2"
+    ],
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0326",
+   "question": "div of (x, y, z)",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x, y, z"
+    },
+    "result": "3",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0327",
+   "question": "curl of (0, 0, x*y)",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "0, 0, x*y"
+    },
+    "result": [
+     "x",
+     "-y",
+     "0"
+    ],
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  },
+  {
+   "id": "msuite_0328",
+   "question": "solve y'' = -4y",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y'' + 4*y"
+    },
+    "result": "Eq(y(x), C1*sin(2*x) + C2*cos(2*x))",
+    "spec": null
+   },
+   "oracle": "unchecked",
+   "recipe": "wild",
+   "kind": "wild"
+  }
+ ],
+ "report": {
+  "made": {
+   "math_diff": 24,
+   "math_int_indef": 22,
+   "math_int_definite": 33,
+   "math_solve": 22,
+   "math_simplify": 12,
+   "math_factor": 9,
+   "math_expand": 9,
+   "math_limit": 24,
+   "math_series": 18,
+   "math_sum_finite": 12,
+   "math_laplace": 10,
+   "math_fourier": 8,
+   "math_gradient": 12,
+   "math_divergence": 9,
+   "math_curl": 9,
+   "math_det": 10,
+   "math_eig": 10,
+   "math_inv": 10,
+   "math_mul": 10,
+   "math_linsys": 10,
+   "math_ode": 9,
+   "math_sum_infinite": 12
+  },
+  "drops": {
+   "server returned no value: math_diff": 5,
+   "server returned no value: math_int_indef": 5,
+   "duplicate": 12
+  },
+  "unchecked": {},
+  "no_value_examples": {
+   "math_diff": [
+    {
+     "question": "Work out d/dx(1/(x**2 + 9)).",
+     "args": {
+      "expression": "1/(x**2 + 9)"
+     }
+    },
+    {
+     "question": "How does e^x sin(x) change with x? Give the derivative.",
+     "args": {
+      "expression": "exp(x)*sin(x)"
+     }
+    },
+    {
+     "question": "Take e to the 2 x and differentiate it 2 times.",
+     "args": {
+      "expression": "exp(2*x)",
+      "order": 2
+     }
+    },
+    {
+     "question": "Work out d/dx(1 over x).",
+     "args": {
+      "expression": "1/x"
+     }
+    }
+   ],
+   "math_int_indef": [
+    {
+     "question": "I want to integrate x times e to the x in x. What is it",
+     "args": {
+      "expression": "x*exp(x)"
+     }
+    },
+    {
+     "question": "I want to integrate cosine of 2 x in x. What is it?",
+     "args": {
+      "expression": "cos(2*x)"
+     }
+    },
+    {
+     "question": "Give me an antiderivative for square root of x.",
+     "args": {
+      "expression": "sqrt(x)"
+     }
+    },
+    {
+     "question": "I want to integrate e^(x) in x. What is it?",
+     "args": {
+      "expression": "exp(x)"
+     }
+    }
+   ]
+  }
+ },
+ "oracle_disagreements": [],
+ "amended": [
+  {
+   "date": "2026-10-29",
+   "ids": [
+    "msuite_0211",
+    "msuite_0212",
+    "msuite_0304",
+    "msuite_0305",
+    "msuite_0306",
+    "msuite_0307",
+    "msuite_0308"
+   ],
+   "why": "misc/STATIC_INTENTS_PLAN.md groups F and H"
+  }
+ ]
+}

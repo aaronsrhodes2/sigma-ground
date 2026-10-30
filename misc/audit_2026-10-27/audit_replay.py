@@ -26,7 +26,7 @@ PARTS = sys.argv[2].split(",")
 OUT.mkdir(parents=True, exist_ok=True)
 BASE = "http://127.0.0.1:17350"
 
-os.environ.update({"MENTAT_USE_LLM": "1", "OLLAMA_URL": "http://127.0.0.1:17434", "MENTAT_ROUTER_MODEL": os.environ.get("MENTAT_ROUTER_MODEL") or "mentat-router-v31-4b",
+os.environ.update({"MENTAT_USE_LLM": "1", "OLLAMA_URL": os.environ.get("OLLAMA_URL") or "http://127.0.0.1:17434", "MENTAT_ROUTER_MODEL": os.environ.get("MENTAT_ROUTER_MODEL") or "mentat-router-v31-4b",
                    "MENTAT_INSTANCE": "home", "SIGMA_DATASETS": "D:/datasets"})
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "tools"))

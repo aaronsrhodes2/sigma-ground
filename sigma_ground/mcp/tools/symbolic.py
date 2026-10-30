@@ -49,6 +49,59 @@ def _split_equation(equation: str):
     return equation, None
 
 
+def _split_system(equation: str) -> list[str]:
+    """'2*x + y = 5, x - y = 1' (or joined by ';' / 'and') -> the equations; a lone equation -> [equation].
+    Only a comma at bracket depth 0 with an '=' on both sides of it splits, so 'f(x, y) = 0' and '[[1,2],[3,4]]' stay whole."""
+    parts, depth, start = [], 0, 0
+    text = re.sub(r"\s+\band\b\s+", ", ", equation)
+    for i, ch in enumerate(text):
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth -= 1
+        elif ch in ",;" and depth == 0:
+            parts.append(text[start:i])
+            start = i + 1
+    parts.append(text[start:])
+    parts = [p.strip() for p in parts if p.strip()]
+    return parts if len(parts) > 1 and all("=" in p for p in parts) else [equation]
+
+
+def _solve_system(equations: list[str], variable, inputs: dict) -> ToolResult:
+    """Several equations at once: the solution for each unknown, in the order the unknowns are named (or appear)."""
+    import sympy as sp
+    try:
+        exprs, notes = [], []
+        for eq in equations:
+            lhs, rhs = _split_equation(eq)
+            pl, pr = parse(lhs), parse(rhs)
+            exprs.append(pl.expr - pr.expr)
+            notes += [pl.notes, pr.notes]
+        if variable:
+            names = [v.strip() for v in re.split(r"[,\s]+", str(variable)) if v.strip()]
+            vnote = ""
+        else:
+            names = sorted({str(s) for e in exprs for s in e.free_symbols})
+            vnote = f"unknowns not given: solved for {', '.join(names)}"
+        syms = [sp.Symbol(n) for n in names]
+        sol = sp.solve(exprs, syms, dict=True)
+    except (MathParseError, ValueError, NotImplementedError) as e:
+        return refusal("sympy solve error", e, inputs)
+    if not sol:
+        return ToolResult(value=[], source="sympy.solve", formula=f"solve([{', '.join(equations)}], [{', '.join(names)}])", inputs=inputs,
+                          interpreted_as=f"solve the system {'; '.join(equations)} for {', '.join(names)}", notes="no solutions")
+    first = sol[0]
+    return ToolResult(
+        value=[str(first.get(s, s)) for s in syms],
+        source="sympy.solve",
+        formula=f"solve([{', '.join(equations)}], [{', '.join(names)}])",
+        inputs={**inputs, "equations": equations, "unknowns": names},
+        interpreted_as=f"solve the system {'; '.join(equations)} for {', '.join(names)}",
+        notes=_join_notes(f"one value per unknown, in the order {', '.join(names)}" + (f"; {len(sol)} solution sets, the first shown" if len(sol) > 1 else ""),
+                          vnote, *notes),
+    )
+
+
 def solve_equation(equation: str, variable: str | None = None) -> ToolResult:
     """Solve `equation = 0` (or 'lhs = rhs') for `variable`.
 
@@ -69,6 +122,9 @@ def solve_equation(equation: str, variable: str | None = None) -> ToolResult:
         import sympy as sp
     except ImportError:
         return _no_sympy(inputs)
+    system = _split_system(equation)
+    if len(system) > 1:
+        return _solve_system(system, variable, inputs)
     try:
         lhs, rhs = _split_equation(equation)
         name, vnote = _variable_for(variable, lhs, rhs)
