@@ -315,3 +315,21 @@ Correction to C16 (2026-10-30), a new label beside the old text: C16's line "slo
 
 ## C22. Two white-dwarf tools (2026-10-30): built, no new physics
 `chandrasekhar_limit(mu_e)` and `white_dwarf(central_density_kg_m3, mu_e)` wire the existing exact-T=0 electron-EOS code (`field/dense/white_dwarf.py`) to tools. Checks that do not use the library's own routines: the Chandrasekhar mass equals the closed form with the Lane-Emden n = 3 constant integrated in the test (2.01824) and scipy's CODATA constants within 2e-5 for mu_e 1, 2 and 2.15 (1.456 solar masses at mu_e = 2); it scales as 1/mu_e^2 to 1e-9; stars at 2e7 and 1e8 kg/m^3 have R ~ M^(-1/3) with slope -0.333 within 0.04; mass rises and radius falls with central density, every star is below the limit and the densest tested (1e13 kg/m^3) reaches 98.4 % of it; a 1 solar-mass star is 4,000 to 12,000 km across. Not tested: a measured white dwarf (Sirius B's mass and radius; the published values must be read from their paper first).
+
+## C23. Layer sizes and the Himalia/Phoebe/Nereid disagreement: runs started 2026-10-30, predictions written BEFORE any result
+Both from a clean clone of 448aacf (`D:/datasets/sigma_runs/clone_448aacf`; `restated_zon`'s physics fingerprint b53a5b5e410b8da6 is the same as the sealed forecast's), retrying drivers, jobwatch and a tracked wait.
+
+**C23a. What the system-local model leaves out (C21's open question).** Sun + planet + moons at step shortest period / 300, measured zonals, scored relative to the planet, windows J2010 and J2015, +5 yr, on the r8 fixture (r7, which C14 used, has an older Neptune and Triton state). `--reduced` keeps Io, Europa, Ganymede, Callisto, Himalia (Jupiter); Mimas to Iapetus and Phoebe (Saturn); Triton, Nereid, Proteus (Neptune): it drops the small fast moons, which only coarsens the step. Arm A: that. Arm B: A plus every other planet and the Moon as unscored perturbers. Outputs `hl_A/`, `hl_B/`.
+Predictions, median of the two windows at +5 yr:
+* A reproduces C14 where the starting states are the same in r7 and r8: Himalia within 25 % of 262 km, Phoebe within 25 % of 1,527 km, Titan within 10 % of 52.9 km. If not, the reduced membership or the fixture matters and B cannot be read.
+* B: Himalia below 50 km and Phoebe below 100 km (the full-system run has 7.4 and 13.6 km). If B stays above 100 km for Himalia, the local model's omission is not the cause and the full-system run is the one in doubt.
+* Nereid: A below 1,000 km (C14 had 6,258 km on the r7 Triton and Neptune states; r8 replaced them), B below 100 km (full system 26.6 km).
+**C23b. Layer sizes of the forecast's own model.** `restated_zon` against itself with one layer removed (`restated_zon_no_eih`, `_zonals`, `_tides`, `_srp`, `_asteroids`, `_ring`, `_kbo`, `_c22`; `rolling_shootout.layer_ablation_predictors`), reduced model, hindcast starts 2000, 2005, 2010, 2015, step 0.0125 d, to +5 yr; the control is `zon_fine2/` (same code and step). Outputs `abl_<layer>/`. The ratio is median error without the layer over the control's.
+Predictions at +5 yr:
+* eih (GR): Mercury 300 to 1,000 km without it (the 43 arcsec per century advance is about 600 km of Mercury's path in 5 yr); ratio above 1,000 for Mercury, above 10 for Venus.
+* c22: Moon ratio above 1.5; every planet within 1.02.
+* tides: Moon ratio above 1.2; planets within 1.02.
+* asteroids: Mars ratio above 1.5.
+* srp and kbo: every body within 1.02 (the smallest layers).
+* zonals: Moon ratio above 3 and Earth above 1.2.
+Any prediction that fails is recorded here as failed.
