@@ -108,6 +108,11 @@ _LINDEMANN_C = 0.00139
 #                    (dimensionless; positive = expands on melting)
 # dT_dP_melt_K_GPa : Clausius-Clapeyron slope, MEASURED (K/GPa)
 #                    where available; None means use computed value.
+# mole             : the unit the J/mol values count — an element symbol or a
+#                    formula ('H2O': per molecule), 'atom' (per mean atom,
+#                    MATERIALS['A']), or None when the source states no basis
+#                    (the approximate composite values). Per-kg latent heats
+#                    (latent_heat_J_kg) exist only where it is not None.
 #
 # Notes on delta_V_fus:
 #   Most metals expand on melting (positive). The fractional change
@@ -128,6 +133,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      340000.0,  # 340 kJ/mol
         'delta_V_fus':      0.0336,    # ~3.4% volume increase
         'dT_dP_melt_K_GPa': 3.4,       # MEASURED: ~3.4 K/GPa at low P
+        'mole':             'Fe',        # per atom
     },
     'copper': {
         'T_melt_K':         1357.77,
@@ -136,6 +142,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      300400.0,  # 300.4 kJ/mol
         'delta_V_fus':      0.0424,    # ~4.2% volume increase
         'dT_dP_melt_K_GPa': 4.4,       # MEASURED
+        'mole':             'Cu',        # per atom
     },
     'aluminum': {
         'T_melt_K':         933.47,
@@ -144,6 +151,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      284000.0,  # 284 kJ/mol
         'delta_V_fus':      0.0620,    # ~6.2% volume increase
         'dT_dP_melt_K_GPa': 6.8,       # MEASURED
+        'mole':             'Al',        # per atom
     },
     'gold': {
         'T_melt_K':         1337.33,
@@ -152,6 +160,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      330000.0,  # 330 kJ/mol
         'delta_V_fus':      0.0507,    # ~5.1% volume increase
         'dT_dP_melt_K_GPa': 5.8,       # MEASURED
+        'mole':             'Au',        # per atom
     },
     'silicon': {
         # Silicon is anomalous: liquid Si is metallic and DENSER than solid Si.
@@ -165,6 +174,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      359000.0,  # 359 kJ/mol
         'delta_V_fus':      -0.093,    # MEASURED: ~-9.3% (contracts on melting)
         'dT_dP_melt_K_GPa': -45.0,     # MEASURED: anomalous negative slope
+        'mole':             'Si',        # per atom
     },
     'tungsten': {
         'T_melt_K':         3695.0,
@@ -173,6 +183,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      774000.0,  # 774 kJ/mol
         'delta_V_fus':      0.0291,    # ~2.9% volume increase
         'dT_dP_melt_K_GPa': 5.1,       # MEASURED/ESTIMATED
+        'mole':             'W',         # per atom
     },
     'nickel': {
         'T_melt_K':         1728.0,
@@ -181,6 +192,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      370400.0,  # 370.4 kJ/mol
         'delta_V_fus':      0.0359,    # ~3.6% volume increase
         'dT_dP_melt_K_GPa': 3.9,       # MEASURED
+        'mole':             'Ni',        # per atom
     },
     'titanium': {
         'T_melt_K':         1941.0,
@@ -189,6 +201,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      421000.0,  # 421 kJ/mol
         'delta_V_fus':      0.0285,    # ~2.9% volume increase
         'dT_dP_melt_K_GPa': 3.3,       # DERIVED from Clausius-Clapeyron (measured ΔH_fus, ΔV)
+        'mole':             'Ti',        # per atom
     },
 
     # ── Additional metals ──────────────────────────────────────────
@@ -200,6 +213,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      340000.0,   # ~iron
         'delta_V_fus':      0.0336,     # ~iron
         'dT_dP_melt_K_GPa': 3.4,       # ~iron
+        'mole':             'atom',      # per mean atom (MATERIALS['A'])
     },
     'lead': {
         'T_melt_K':         600.61,
@@ -208,6 +222,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      179500.0,   # 179.5 kJ/mol
         'delta_V_fus':      0.035,      # ~3.5% volume increase
         'dT_dP_melt_K_GPa': 8.0,       # ESTIMATED
+        'mole':             'Pb',        # per atom
     },
     'silver': {
         'T_melt_K':         1234.93,
@@ -216,6 +231,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      250600.0,   # 250.6 kJ/mol
         'delta_V_fus':      0.038,      # ~3.8% volume increase
         'dT_dP_melt_K_GPa': 4.6,       # ESTIMATED
+        'mole':             'Ag',        # per atom
     },
     'zinc': {
         'T_melt_K':         692.68,     # MEASURED (CRC), 419.53 C
@@ -224,6 +240,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      115300.0,   # MEASURED (CRC), 115.3 kJ/mol
         'delta_V_fus':      0.042,      # ESTIMATED, ~4.2% volume increase
         'dT_dP_melt_K_GPa': 4.0,       # ESTIMATED
+        'mole':             'Zn',        # per atom
     },
     'platinum': {
         'T_melt_K':         2041.4,
@@ -232,6 +249,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      469000.0,   # 469 kJ/mol
         'delta_V_fus':      0.042,      # ~4.2% volume increase
         'dT_dP_melt_K_GPa': 4.0,       # ESTIMATED
+        'mole':             'Pt',        # per atom
     },
     'depleted_uranium': {
         'T_melt_K':         1405.3,
@@ -240,6 +258,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      417000.0,   # 417 kJ/mol
         'delta_V_fus':      0.025,      # ~2.5% volume increase
         'dT_dP_melt_K_GPa': 3.5,       # ESTIMATED
+        'mole':             'U',         # per atom
     },
 
     # ── Polymers ─────────────────────────────────────────────────────
@@ -252,6 +271,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      50000.0,    # decomposition enthalpy
         'delta_V_fus':      0.05,       # ~5% expansion at Tg
         'dT_dP_melt_K_GPa': 20.0,      # ESTIMATED (polymers have large dT/dP)
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
     'plastic_abs': {
         'T_melt_K':         378.0,      # glass transition ~105 C
@@ -260,6 +280,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      60000.0,    # decomposition enthalpy
         'delta_V_fus':      0.04,       # ~4% expansion
         'dT_dP_melt_K_GPa': 25.0,      # ESTIMATED
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
     'kevlar': {
         'T_melt_K':         773.0,      # decomposes ~500 C (no true melting)
@@ -268,6 +289,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      80000.0,    # decomposition enthalpy
         'delta_V_fus':      0.03,       # estimated
         'dT_dP_melt_K_GPa': 15.0,      # ESTIMATED
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
 
     # ── Ceramics and Minerals ──────────────────────────────────────
@@ -278,6 +300,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      300000.0,   # approximate
         'delta_V_fus':      0.01,       # glass has very small ΔV
         'dT_dP_melt_K_GPa': 5.0,       # ESTIMATED
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
     'concrete': {
         'T_melt_K':         1773.0,     # calcium silicates decompose ~1500 C
@@ -286,6 +309,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      300000.0,   # approximate
         'delta_V_fus':      0.02,       # estimated
         'dT_dP_melt_K_GPa': 4.0,       # ESTIMATED
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
     'granite': {
         'T_melt_K':         1473.0,     # solidus ~1200 C for granite
@@ -294,6 +318,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      300000.0,   # approximate
         'delta_V_fus':      0.02,       # estimated
         'dT_dP_melt_K_GPa': 5.0,       # ESTIMATED
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
     'ceramic_alumina': {
         'T_melt_K':         2345.0,     # Al₂O₃ melting point
@@ -302,6 +327,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      500000.0,   # approximate
         'delta_V_fus':      0.02,       # estimated
         'dT_dP_melt_K_GPa': 3.0,       # ESTIMATED
+        'mole':             'atom',      # per mean atom (MATERIALS['A'])
     },
     'water_ice': {
         # Water/ice is anomalous: contracts on melting (like silicon)
@@ -311,6 +337,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      40660.0,    # 40.66 kJ/mol
         'delta_V_fus':      -0.083,     # ice contracts on melting (~-8.3%)
         'dT_dP_melt_K_GPa': -74.0,     # MEASURED: anomalous negative slope
+        'mole':             'H2O',       # per mole of H2O molecules
     },
 
     # ── Organic composites ─────────────────────────────────────────
@@ -321,6 +348,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      60000.0,    # pyrolysis enthalpy
         'delta_V_fus':      0.05,       # estimated (expansion on thermal degradation)
         'dT_dP_melt_K_GPa': 30.0,      # ESTIMATED (soft material, large dT/dP)
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
     'bone': {
         'T_melt_K':         1673.0,     # hydroxyapatite decomposes ~1400 C
@@ -329,6 +357,7 @@ PHASE_DATA = {
         'L_vap_J_mol':      300000.0,   # approximate
         'delta_V_fus':      0.02,       # estimated
         'dT_dP_melt_K_GPa': 4.0,       # ESTIMATED
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
 
     # ── Composites ─────────────────────────────────────────────────
@@ -340,11 +369,36 @@ PHASE_DATA = {
         'L_vap_J_mol':      710000.0,   # graphite sublimation enthalpy ~710 kJ/mol
         'delta_V_fus':      0.01,       # sublimation, not true melting
         'dT_dP_melt_K_GPa': 2.0,       # ESTIMATED
+        'mole':             None,        # basis not stated: approximate, not a measured molar value
     },
 }
 
 
 # ── Clausius-Clapeyron Slope ──────────────────────────────────────
+
+def basis_molar_mass_kg(material_key):
+    """kg per mole of the unit PHASE_DATA's J/mol values count (its ``mole``).
+
+    An element symbol or formula → its formula mass (periodictable); 'atom' →
+    the mean atomic mass MATERIALS['A']; None (no stated basis) → None.
+    """
+    mole = PHASE_DATA[material_key].get('mole')
+    if mole is None:
+        return None
+    if mole == 'atom':
+        return MATERIALS[material_key]['A'] * 1e-3
+    import periodictable
+    return periodictable.formula(mole).mass * 1e-3
+
+
+def latent_heat_J_kg(material_key, kind='fus'):
+    """Latent heat per kilogram, ``kind`` 'fus' or 'vap'; None when PHASE_DATA
+    states no mole basis for the material (its J/mol value has no kilogram)."""
+    M = basis_molar_mass_kg(material_key)
+    if M is None:
+        return None
+    return PHASE_DATA[material_key][f'L_{kind}_J_mol'] / M
+
 
 def clausius_clapeyron_slope(material_key):
     """Clausius-Clapeyron slope dT/dP at the melting point (K/Pa).
@@ -377,11 +431,14 @@ def clausius_clapeyron_slope(material_key):
     L_fus = data['L_fus_J_mol']           # J/mol
     delta_V_frac = data['delta_V_fus']     # dimensionless
 
-    # Molar volume of solid: V_molar = M × _AMU_KG × N_Avogadro / ρ
-    # = (A g/mol × 10⁻³ kg/g) / ρ = A × 10⁻³ / ρ  (m³/mol)
-    A = mat['A']                           # atomic mass (amu → essentially g/mol)
+    # Molar volume of solid, per mole of the SAME unit L_fus counts (its
+    # ``mole``): V_molar = M_basis / ρ (m³/mol). Without a stated basis, the
+    # mean atomic mass A (the old convention, an estimate).
+    M = basis_molar_mass_kg(material_key)
+    if M is None:
+        M = mat['A'] * 1e-3                # atomic mass (amu → essentially g/mol)
     rho = mat['density_kg_m3']
-    V_molar = (A * 1e-3) / rho            # m³/mol
+    V_molar = M / rho                      # m³/mol
 
     # Absolute volume change on melting
     delta_V = delta_V_frac * V_molar      # m³/mol

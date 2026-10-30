@@ -615,5 +615,29 @@ class TestNagatha(unittest.TestCase):
                 f"{mat}: Lindemann {T_lind:.0f} K vs measured {T_meas:.0f} K")
 
 
+class TestMoleBasis(unittest.TestCase):
+    """Every J/mol value says which mole it counts; only then has it a kilogram."""
+
+    def test_every_entry_declares_its_mole(self):
+        for key, data in PHASE_DATA.items():
+            self.assertIn('mole', data, f"{key}: no 'mole' basis declared")
+
+    def test_ice_slope_matches_measurement_on_the_h2o_basis(self):
+        """Clausius-Clapeyron with V_molar and L_fus both per H2O reproduces the
+        measured ice slope; on the old mean-atom volume it came out 3x too small."""
+        derived = clausius_clapeyron_slope('water_ice') * 1e9      # K/GPa
+        measured = PHASE_DATA['water_ice']['dT_dP_melt_K_GPa']
+        self.assertAlmostEqual(derived / measured, 1.0, delta=0.01)
+
+    def test_per_kg_only_with_a_basis(self):
+        from .phase_transition import latent_heat_J_kg
+        self.assertIsNone(latent_heat_J_kg('glass'))
+        self.assertIsNone(latent_heat_J_kg('wood_oak', 'vap'))
+        # an element: J/mol over its atomic mass
+        import periodictable
+        self.assertAlmostEqual(latent_heat_J_kg('lead'),
+                               PHASE_DATA['lead']['L_fus_J_mol'] / (periodictable.Pb.mass * 1e-3))
+
+
 if __name__ == '__main__':
     unittest.main()

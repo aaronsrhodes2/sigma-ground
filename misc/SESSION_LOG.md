@@ -4062,3 +4062,13 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   verify against the handbook. (3) The air bath (solid's own k at the surface, the flagged upper bound) cools a 1 cm hot plate to
   ambient in seconds; vacuum (radiative, exact ledger) is the honest theater for heat demos until a convection law exists.
   (4) No thermal data for liquid mercury/water: inert to heat.
+- PHASE_DATA mole basis fixed (2026-10-30, the Captain's go): every entry now declares `mole` (element symbol, 'H2O', 'atom' = mean
+  atom, or None = no stated basis for the approximate composites). New `basis_molar_mass_kg` / `latent_heat_J_kg` (None without a
+  basis). `clausius_clapeyron_slope` now takes V_molar per the SAME mole as L_fus: ice's derived slope went -24.7 -> -74.1 K/GPa
+  (measured -74.0; it was 3x off on the mean-atom volume). Metals change ~0.3% (A rounded -> periodictable mass). Still off and
+  NOT touched: iron's derived slope 31.3 K/GPa vs measured 3.4.
+  VoxelWorld: latent heat via latent_heat_J_kg, so ice melts and water freezes; "water" uses water_ice's phase and solid thermal data
+  (reported); a block starts in the phase it was written as; a cell >= half melted moves as liquid (MELTED); rigid pieces are ONE
+  material's connected cells (ice on a granite floor floats up; a mixed object comes apart in liquid). Tests: ice melts on hot copper
+  (energy incl. vented balances), ice floats up through its own water, water freezes; 3 mole-basis tests in test_phase_transition.
+  Mentat serves the slope change only after its sigma-ground pin is bumped (not done).

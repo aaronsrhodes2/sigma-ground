@@ -23,12 +23,15 @@ composing laws sigma-ground already has, never new numbers:
             through lighter liquids, and spread sideways when pushed from above.
 
 Honest limits (each one reported, none papered over):
-  - Latent heat is used only where PHASE_DATA's "J/mol" has an unambiguous mole:
-    a pure element (mole = atom). For compounds its basis varies (water_ice is per
-    H₂O, ceramic_alumina per effective atom), so they keep their phase and the
-    gap is reported. Wood, glass and granite therefore never "melt" (wood chars).
-  - A material with no thermal data (liquid mercury, liquid water) is inert to
-    heat: it neither conducts nor changes temperature.
+  - Latent heat is used only where PHASE_DATA states its mole basis
+    (``phase_transition.latent_heat_J_kg``): the elements and water. Glass,
+    granite, wood and the other composites have approximate values with no basis,
+    so they keep their phase and say so (wood would char, not melt, anyway).
+  - "water" and "water_ice" are one substance: a water block uses water_ice's
+    phase data, and the ice's thermal properties stand in for the liquid's
+    (sigma-ground has none for liquid water); the card reports it.
+  - A material with no thermal data (liquid mercury) is inert to heat: it
+    neither conducts nor changes temperature.
   - k and ρ·cp are frozen at their T_ref values (``material_grids``' flagged
     approximation); a melted cell keeps its solid's thermal properties.
   - A cell's MASS is its build density × block volume, forever: melting changes
@@ -36,7 +39,8 @@ Honest limits (each one reported, none papered over):
     PHASE_DATA) but not its block's size.
   - Movement is quasi-static settling, one cell per tick, not dynamics: no
     velocities, no toppling, no strength (a solid piece resting on anything
-    stays). Real fluid dynamics is ``dynamics.continuum`` (SPH).
+    stays). A piece is one material's connected cells, so a mixed object (a
+    wooden boat with iron nails) comes apart in a liquid. Real fluid dynamics is ``dynamics.continuum`` (SPH).
   - The air bath's exchange with the world is the RESIDUAL of the heat step
     (``to_surroundings_J``), not an independent measurement; the radiative ledger
     in vacuum is exact.
@@ -44,53 +48,57 @@ Honest limits (each one reported, none papered over):
 from __future__ import annotations
 
 SOLID, LIQUID = 0, 1
+# a cell more than half melted moves and is drawn as liquid (a mushy cell at its
+# melting point must not flip with roundoff); boiling still needs it fully melted
+MELTED = 0.5
 
 
-def _molar_mass_kg(name):
-    """kg/mol when ``name`` is a pure element (its composition's first token is an
-    element symbol), else None: PHASE_DATA's mole basis is only unambiguous there."""
-    import periodictable
-    from ..field.interface.surface import MATERIALS
-
-    comp = str(MATERIALS.get(name, {}).get("composition", "")).split(" ")[0].split("(")[0]
-    el = getattr(periodictable, comp, None) if comp.isalpha() and len(comp) <= 2 else None
-    if el is None or not hasattr(el, "mass"):
-        return None
-    return float(el.mass) / 1000.0
+# a substance written under its liquid name, and the name its phase and thermal data are under
+SAME_SUBSTANCE = {"water": "water_ice"}
 
 
 def material_card(name, density_kg_m3):
-    """Everything the tick needs about one material, and what is missing (``gaps``)."""
+    """Everything the tick needs about one material, and what is missing (``gaps``).
+
+    ``rho`` is the build density: a cell's mass forever. ``rho_solid`` and
+    ``rho_liquid`` are what it offers when settling in each phase, related by
+    PHASE_DATA's ΔV_fus (ρ_liquid = ρ_solid / (1 + ΔV_fus)).
+    """
     from ..field.interface import thermal
-    from ..field.interface.phase_transition import PHASE_DATA
+    from ..field.interface.phase_transition import PHASE_DATA, latent_heat_J_kg
     from ..field.interface.resolve import material_profile
 
-    card = {"name": name, "rho": float(density_kg_m3), "rho_liquid": None,
+    starts_liquid = material_profile(name).get("material_class") == "liquid"
+    rho = float(density_kg_m3)
+    card = {"name": name, "rho": rho, "rho_solid": rho, "rho_liquid": rho if starts_liquid else None,
             "k": 0.0, "rho_cp": 0.0, "T_melt": None, "T_boil": None,
-            "L_fus": None, "L_vap": None,                       # J/m³ of the solid block
-            "starts_liquid": material_profile(name).get("material_class") == "liquid",
-            "gaps": []}
+            "L_fus": None, "L_vap": None,                       # J/m³ of the block
+            "starts_liquid": starts_liquid, "gaps": []}
+    data_name = card["data_name"] = SAME_SUBSTANCE.get(name, name)
+    if data_name != name:
+        card["gaps"].append(f"uses {data_name}'s phase and (solid) thermal data")
     try:
-        card["k"] = float(thermal.thermal_conductivity(name))
-        card["rho_cp"] = float(thermal.heat_capacity_volumetric(name))
+        card["k"] = float(thermal.thermal_conductivity(data_name))
+        card["rho_cp"] = float(thermal.heat_capacity_volumetric(data_name))
     except KeyError:
         card["gaps"].append("no thermal data: inert to heat")
-    data = PHASE_DATA.get(name)
+    data = PHASE_DATA.get(data_name)
     if data is None:
-        if card["starts_liquid"]:
-            card["rho_liquid"] = card["rho"]
         card["gaps"].append("no phase data: keeps its phase")
         return card
-    card["rho_liquid"] = card["rho"] / (1.0 + float(data.get("delta_V_fus", 0.0)))
-    M = _molar_mass_kg(name)
-    if M is None:
-        card["gaps"].append("latent heat has no unambiguous mole basis (not a pure element): keeps its phase")
+    expand = 1.0 + float(data.get("delta_V_fus", 0.0))
+    if starts_liquid:
+        card["rho_solid"] = rho * expand
+    else:
+        card["rho_liquid"] = rho / expand
+    L_fus, L_vap = latent_heat_J_kg(data_name, "fus"), latent_heat_J_kg(data_name, "vap")
+    if L_fus is None:
+        card["gaps"].append("PHASE_DATA states no mole basis for its latent heat: keeps its phase")
     elif card["rho_cp"] <= 0:
         card["gaps"].append("no heat capacity: keeps its phase")
     else:
         card["T_melt"], card["T_boil"] = float(data["T_melt_K"]), float(data["T_boil_K"])
-        card["L_fus"] = float(data["L_fus_J_mol"]) / M * card["rho"]
-        card["L_vap"] = float(data["L_vap_J_mol"]) / M * card["rho"]
+        card["L_fus"], card["L_vap"] = L_fus * rho, L_vap * rho
     return card
 
 
@@ -122,11 +130,13 @@ class VoxelWorld:
         for k, c in enumerate(self.cards):
             if c is None:
                 continue
+            # a block starts in the phase it was written as ("ice", "water"), unless
+            # its temperature is strictly past the melting point the other way
             cells = self.label == k
-            if c["starts_liquid"]:
-                self.melt[cells] = 1.0
+            liquid = cells if c["starts_liquid"] else cells & False
             if c["T_melt"] is not None:
-                self.melt[cells & (self.T >= c["T_melt"])] = 1.0
+                liquid = (cells & (self.T > c["T_melt"])) if not c["starts_liquid"] else                     (cells & ~(self.T < c["T_melt"]))
+            self.melt[liquid] = 1.0
         # the ground: the theater's ground plane sits under the build's lowest layer
         # (theaters.plain), so nothing settles below it
         self.floor_z = int(np.argwhere(self.label > 0)[:, 2].min())
@@ -156,7 +166,7 @@ class VoxelWorld:
 
     def phase(self):
         import numpy as np
-        return np.where(self.label == 0, -1, np.where(self.melt >= 1.0, LIQUID, SOLID))
+        return np.where(self.label == 0, -1, np.where(self.melt >= MELTED, LIQUID, SOLID))
 
     # ── the tick ──
     def step(self, dt):
@@ -182,7 +192,7 @@ class VoxelWorld:
         if "radiative" in bc:
             from ..field.interface.thermal import emissivity
             import numpy as np
-            lut = np.array([0.0] + [float(emissivity(c["name"])) if c["rho_cp"] > 0 else 0.0
+            lut = np.array([0.0] + [float(emissivity(c["data_name"])) if c["rho_cp"] > 0 else 0.0
                                     for c in self.cards[1:]])
             bc["radiative"]["emissivity"] = lut[self.label]
         E0 = float((rho_cp * self.T).sum()) * self.cell_m3
@@ -249,7 +259,7 @@ class VoxelWorld:
         if k == 0:
             return 0.0
         c = self.cards[k]
-        return c["rho_liquid"] if self.melt[idx] >= 1 else None   # None: a solid, not a fluid
+        return c["rho_liquid"] if self.melt[idx] >= MELTED else None   # None: a solid, not a fluid
 
     def _settle(self):
         import numpy as np
@@ -257,14 +267,16 @@ class VoxelWorld:
 
         nz = self.label.shape[2]
         # 1) rigid solid pieces, lowest first
-        solid = (self.label > 0) & (self.melt < 1)
-        comp, n = ndi.label(solid)
-        rho = self._grid("rho")
+        rho = self._grid("rho_solid")
         moved_pieces = 0
-        # each piece's cells, taken now: a move swaps only that piece's cells with fluid
-        # cells, so the other pieces' lists stay true; pieces that end up touching merge
-        # next tick
-        pieces = [np.argwhere(comp == i + 1) for i in range(n)]
+        # a piece = face-connected solid cells of ONE material: things resting on each
+        # other are not glued (ice on a granite floor still floats up). Each piece's cells
+        # are taken now: a move swaps only that piece's cells with fluid cells, so the
+        # other lists stay true.
+        pieces = []
+        for k in range(1, len(self.materials)):
+            comp, n = ndi.label((self.label == k) & (self.melt < MELTED))
+            pieces += [np.argwhere(comp == i + 1) for i in range(n)]
         for cells in sorted(pieces, key=lambda c: c[:, 2].min()):
             density = float(rho[tuple(cells.T)].mean())
             runs = {}
@@ -299,11 +311,11 @@ class VoxelWorld:
                     break
         # 2) liquids, bottom up
         liquid_moves = 0
-        liq = np.argwhere((self.label > 0) & (self.melt >= 1))
+        liq = np.argwhere((self.label > 0) & (self.melt >= MELTED))
         liq = liq[np.lexsort((self.rng.random(len(liq)), liq[:, 2]))]
         nx, ny = self.label.shape[:2]
         for x, y, z in liq:
-            if not (self.label[x, y, z] > 0 and self.melt[x, y, z] >= 1) or z == self.floor_z:
+            if not (self.label[x, y, z] > 0 and self.melt[x, y, z] >= MELTED) or z == self.floor_z:
                 continue
             here = self.cards[self.label[x, y, z]]["rho_liquid"]
             below = self._density_at((x, y, z - 1))
@@ -311,7 +323,7 @@ class VoxelWorld:
                 self._swap((x, y, z), (x, y, z - 1))
                 liquid_moves += 1
                 continue
-            pushed = z + 1 < self.label.shape[2] and self.label[x, y, z + 1] > 0 and self.melt[x, y, z + 1] >= 1
+            pushed = z + 1 < self.label.shape[2] and self.label[x, y, z + 1] > 0 and self.melt[x, y, z + 1] >= MELTED
             sides = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
             self.rng.shuffle(sides)
             for sx, sy in sides:

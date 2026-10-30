@@ -91,8 +91,10 @@ def test_liquid_falls_and_spreads():
 def test_gaps_are_named_not_filled():
     hg = material_card("mercury", 13534.0)
     assert hg["rho_cp"] == 0 and any("no thermal data" in g for g in hg["gaps"])
-    ice = material_card("water_ice", 917.0)
-    assert ice["L_fus"] is None and any("mole basis" in g for g in ice["gaps"])
+    glass = material_card("glass", 2500.0)
+    assert glass["L_fus"] is None and any("mole basis" in g for g in glass["gaps"])
+    water = material_card("water", 998.2)
+    assert water["L_fus"] > 0 and any("water_ice" in g for g in water["gaps"])
     lead = material_card("lead", 11340.0)
     assert lead["gaps"] == [] and lead["L_fus"] > 0
 
@@ -109,3 +111,38 @@ def test_extent_sets_the_block_size():
     field, report = field_from_voxel_exec('block(0,0,0,"iron")', extent_m=12.8, grid_size=128)
     assert report["block_m"] == pytest.approx(0.1)
     assert field.voxel_size == pytest.approx(0.1)
+
+
+def test_ice_melts_on_a_hot_plate_and_energy_balances():
+    field, _ = field_from_voxel_exec('box(0,0,0,3,0,3,"copper"); box(1,1,1,2,2,2,"ice")', block_m=0.01)
+    T = np.where(field.label_grid == field.materials.index("copper"), 600.0, 263.15)
+    w = VoxelWorld(field, temperature_k=T, env="ISM")
+    E0, ice = w.energy_J(), w.materials.index("water_ice")
+    w.run(500, 0.05)                                     # the bottom layer boils on 600 K copper
+    assert not (w.phase()[w.label == ice] == SOLID).any()
+    assert w.energy_J() + w.ledger["radiated_J"] + w.ledger["vented_J"] == pytest.approx(E0, rel=1e-9)
+
+
+def test_ice_floats_up_through_its_own_water():
+    # a glass tank of water three deep with one ice block on the bottom, all at 273.15 K
+    field, _ = field_from_voxel_exec(
+        'box(0,0,0,6,0,6,"granite"); box(1,1,1,5,4,5,"glass"); box(2,1,2,4,4,4,"air");'
+        'box(2,1,2,4,3,4,"water"); block(3,1,3,"ice")', block_m=0.05)
+    w = VoxelWorld(field, temperature_k=273.15, env="ISM")
+    ice = w.materials.index("water_ice")
+    z0 = int(np.argwhere(w.label == ice)[0, 2])
+    w.run(4, 1e-3)
+    zs = np.argwhere((w.label == ice) & (w.melt < 1))[:, 2]
+    assert len(zs) == 1 and zs[0] == z0 + 2               # risen to the surface, not into the air
+
+
+def test_water_freezes_in_the_cold():
+    field, _ = field_from_voxel_exec('box(0,0,0,3,0,3,"copper"); box(1,1,1,2,1,2,"water")', block_m=0.01)
+    T = np.where(field.label_grid == field.materials.index("copper"), 200.0, 280.0)
+    w = VoxelWorld(field, temperature_k=T, env="ISM")
+    water = w.materials.index("water")
+    assert (w.phase()[w.label == water] == LIQUID).all()
+    E0 = w.energy_J()
+    w.run(200, 0.05)
+    assert (w.phase()[w.label == water] == SOLID).all()
+    assert w.energy_J() + w.ledger["radiated_J"] == pytest.approx(E0, rel=1e-9)
