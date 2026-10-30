@@ -76,6 +76,14 @@ _PRIMARY_TOOLS = [
         "returns": "magnitude + units",
     },
     {
+        "name": "evaluate_quantity",
+        "tier": "PRIMARY",
+        "domain": "units",
+        "summary": "Arithmetic on quantities with units, cancelling what cancels: '80 year * 70 / minute', '100 km / (60 km/h + 40 km/h)'.",
+        "inputs": {"expression": "str: numbers and unit names joined by + - * / ^ ( )", "to_units": "str|None: express the result in this unit"},
+        "returns": "number + units (empty when the units cancel) + the expression as read",
+    },
+    {
         "name": "solve_equation",
         "tier": "PRIMARY",
         "domain": "symbolic",

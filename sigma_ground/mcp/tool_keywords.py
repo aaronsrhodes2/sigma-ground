@@ -37,6 +37,7 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "amu to kg", "MeV to joules",
     ],
     "parse_quantity": ["parse a quantity string", "value with units"],
+    "evaluate_quantity": ["how many times", "how many fit in", "rate times time", "how long until they meet", "multiply quantities with units", "units cancel"],
     "percent_of": [
         "N percent of", "percentage of a value", "X% of Y",
         "efficiency of", "what fraction is", "how much is N percent of",
@@ -1144,6 +1145,7 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "list_constants": ["show me all the constants", "what constants do you have available", "list the physics constants I can look up", "give me a catalog of constants", "what fundamental numbers can I look up"],
     "convert_units": ["convert between units", "change this measurement to different units", "how many of these equal that", "switch this value to another unit system", "what's this measurement in other units"],
     "parse_quantity": ["break a value down into number and unit", "figure out the number and unit from a written amount", "read a measurement written as text", "split a written value from its units", "make sense of a number with units attached to it"],
+    "evaluate_quantity": ["work out a total from a rate and a time", "how many of one thing make up another", "do arithmetic on measurements with units", "how long until two things meet", "multiply and divide quantities and cancel the units"],
     "solve_equation": ["solve for x", "find the unknown in an equation", "figure out what value makes this equation true", "solve this equation for me", "work out the unknown variable"],
     "integrate_expr": ["find the area under a curve", "work out the integral of this", "add everything up over a range", "run the integral for me", "total up a changing quantity"],
     "differentiate_expr": ["take the derivative", "find the rate of change", "figure out how fast something is changing", "find the slope of this function", "differentiate this for me"],

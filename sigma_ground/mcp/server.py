@@ -199,6 +199,19 @@ def main() -> int:
         """Parse '5.6 light_year' into magnitude + units."""
         return t_units.parse_quantity(quantity_string).to_dict()
 
+    @server.tool()
+    def evaluate_quantity(expression: str, to_units: str | None = None) -> dict[str, Any]:
+        """Quantity arithmetic with units, cancelling what cancels (pint). Join numbers and units with + - * / ^ and brackets.
+
+        A count word (beats, bananas) is not a unit: leave it out. Constants are not looked up here.
+        Examples:
+            evaluate_quantity("80 year * 70 / minute")              -> 2.945e9  (70 beats per minute for 80 years)
+            evaluate_quantity("100 km / (60 km/h + 40 km/h)")       -> 1 hour   (two trains closing)
+            evaluate_quantity("8848.86 m / (18 cm)")                -> 49160    (how many 18 cm lengths)
+            evaluate_quantity("3 km/h * 2 h", "m")                  -> 6000 m
+        """
+        return t_units.evaluate_quantity(expression, to_units).to_dict()
+
     # ── symbolic math ────────────────────────────────────────────────
     @server.tool()
     def solve_equation(equation: str, variable: str | None = None) -> dict[str, Any]:
