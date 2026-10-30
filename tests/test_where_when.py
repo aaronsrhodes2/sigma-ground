@@ -80,6 +80,17 @@ class TestErrorTable(unittest.TestCase):
             self.assertIn("floor", e["note"])
             self.assertIsNone(ww.expected_error("Mars", 5.0))
 
+    def test_mercury_and_the_moon_carry_the_step_caveat_and_the_others_do_not(self):          # BUG if a row's low value at 0.025 d were quoted without saying what it is made of (C19)
+        from sigma_ground.field.interface import where_when as ww
+        row = {"1": {"median_km": 1.0, "max_km": 2.0, "n_starts": 4}, "5": {"median_km": 2.0, "max_km": 4.0, "n_starts": 4}}
+        doc = {"metadata": {"starts": [2000], "dt_days": 0.025}, "table": {n: row for n in ("Mercury", "Moon", "Venus")}}
+        with mock.patch.object(ww, "_error_table", return_value=doc):
+            m = ww.expected_error("Mercury", 3.0)
+            self.assertEqual(m["integration_step_days"], 0.025)
+            self.assertIn("integration error cancelling", m["step_caveat"])
+            self.assertIn("integration error", ww.expected_error("Moon", 3.0)["step_caveat"])
+            self.assertIsNone(ww.expected_error("Venus", 3.0)["step_caveat"])
+
 
 @unittest.skipUnless(KERNEL.exists(), "DE440s kernel not available")
 class TestKnown(unittest.TestCase):

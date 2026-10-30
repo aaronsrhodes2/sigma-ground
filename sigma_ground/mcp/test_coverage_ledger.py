@@ -147,6 +147,7 @@ EXCLUDE_SET = frozenset(
     # reduced_masses run only when a forecast table or error table is BUILT (scripts/make_forecast_table.py, make_prediction_error_table.py); kernel_state and hermite run inside body_position
     # but only on a machine that has the JPL kernel / the forecast table installed, so they stay listed so that this invariant does not depend on what data a machine holds.
     [_P + "reduced_model." + n for n in ("build_system", "propagate_dense", "kernel_state", "reduced_masses", "hermite")]
+    + [_P + "step_rule.step_adequacy"]      # the step rule (C14, C19) as a library function; not yet a Mentat tool, so it is listed here, see misc/COVERAGE_LEDGER.md
     + [_P + "where_when." + n for n in ("expected_error", "freshness")]          # reached by body_position only for a future date on a machine that has the sealed forecast table; unit-tested in tests/test_where_when.py
     # Nagatha-format / serialization export aggregators (re-bundle covered physics)
     + [_P + n for n in (

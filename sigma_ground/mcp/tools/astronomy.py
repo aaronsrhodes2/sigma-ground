@@ -358,7 +358,7 @@ def body_position(body_name: str, when: str, central_body: str = "sun") -> ToolR
     notes = f"{d['kind'].upper()}. {d['basis']}."
     if d["kind"] == "prediction" and d.get("expected_distance_from_de440"):
         e = d["expected_distance_from_de440"]
-        notes += f" Measured by hindcast, this model lands typically {e['typical_km']:.3g} km (largest seen {e['largest_seen_km']:.3g} km) from DE440 at this lead." + (f" {e['note']}." if e.get("note") else "")
+        notes += f" Measured by hindcast, this model lands typically {e['typical_km']:.3g} km (largest seen {e['largest_seen_km']:.3g} km) from DE440 at this lead." + (f" {e['note']}." if e.get("note") else "") + (f" Step: {e['integration_step_days']} d. {e['step_caveat']}" if e.get("step_caveat") else "")
     notes += " " + " ".join(d["notes"])
     return ToolResult(value=d, units="km (position), km/s (velocity)", source=d["method"], provenance_tag=tag, notes=notes.strip(), inputs={"body_name": body_name, "when": when, "central_body": central_body})
 

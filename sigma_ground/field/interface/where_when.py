@@ -140,6 +140,14 @@ def _table_state(table: dict, name: str, jd: float):
     return p, v
 
 
+# What the converged step showed about two of the table's rows (misc/CANDIDATE_LEDGER.md C19, windows J2008/J2014/J2020, +5 yr, 0.025 d -> 0.0125 d). The table is the measured error of the
+# forecast as built at 0.025 d, so it stays the right number to quote for it; these say what that number is made of.
+_STEP_CAVEATS = {
+    "Mercury": "At the finer step of 0.0125 d this model's Mercury error against DE440 is about 2.5 times larger (0.068 against 0.027 km at +5 yr; C19): the low value at 0.025 d is partly integration error cancelling a model deficit, so it is the measured error of this forecast, not a floor for the physics.",
+    "Moon": "At the finer step of 0.0125 d this model's Moon error against DE440 is 0.72 times as large (0.317 against 0.441 km at +5 yr; C19): a quarter of the Moon's error at the forecast's 0.025 d step is integration error.",
+}
+
+
 @functools.lru_cache(maxsize=1)
 def _error_table() -> dict:
     f = _FIX / "prediction_error_table.json"
@@ -177,7 +185,7 @@ def expected_error(body: str, lead_years: float) -> dict | None:
     if fr.get("stale"):
         flag = (flag + "; " if flag else "") + "the error table itself is stale (" + fr["note"] + ")"
     n = t[str(min(ks, key=lambda k: abs(k - lead_years)))]["n_starts"]
-    return {"typical_km": m, "largest_seen_km": x, "lead_years": lead_years, "hindcast_starts_at_that_lead": n,
+    return {"typical_km": m, "largest_seen_km": x, "lead_years": lead_years, "hindcast_starts_at_that_lead": n, "integration_step_days": meta.get("dt_days"), "step_caveat": _STEP_CAVEATS.get(body),
             "basis": f"median and maximum distance from DE440 of this same model started from DE440's state at past epochs {meta.get('starts')} (targets inside DE440's fitted span)", "note": flag}
 
 
