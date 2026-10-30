@@ -70,6 +70,11 @@ If every row lands: physics 132 → **148 of 150** (A+B+C+D+E = 16; B is the sco
   (mech_intro_010 was planned with an unasked `joules_to_eV` tail: 4.28e23 eV, scored right only because the scorer converts units;
   the unit-conversion tails are in misc/FOLDED_CHAINS.md "not folded"). Maths 328 unchanged. gr_008 stays (not one formula).
 
+- **B, the scorer reads a symbolic number and a list** (2026-10-30): `score._coerce_to_float` evaluates a symbolic answer that is a number
+  (`1/3`, `pi`, `-1 + E`; anything with a free symbol stays None), the replay runner keeps list values as `live_ask.py` always did, and the
+  contract adds `value_float` beside a symbolic `value` for the reader. Paired on the local engine: physics **143 -> 147, +4 -0**
+  (math_001, 002, 004, 005). Left on the suite: mech_intro_015 (trick), gr_008 (not one formula), atom_004 (group E).
+
 ## Order of work
 
 1. **A, field pick** (+7, a day). The largest gain, pure code, and it fixes the live dashboard too: the daily live rows count a dict as "not

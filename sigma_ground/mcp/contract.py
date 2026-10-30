@@ -579,7 +579,26 @@ def _finish(result: Any, converted: dict, user_units: Any = (), renamed: dict | 
     if result.get("value") is None and not result.get("error") and "value" in result:
         msg = str(result.get("notes") or result.get("source") or "the tool declined")
         result["error"] = {"code": "unknown_key" if _UNKNOWN_KEY.search(msg) else "declined", "message": msg}
+    if isinstance(result.get("value"), str) and "value_float" not in result:
+        f = _symbolic_number(result["value"])
+        if f is not None:
+            result["value_float"] = f      # "1/3", "pi", "-1 + E": the exact answer stays `value`; this is its decimal
     return result
+
+
+def _symbolic_number(text: str) -> float | None:
+    """The decimal value of a symbolic answer that is a number ("1/3" -> 0.333..., "pi" -> 3.14159...); None for anything with a free symbol."""
+    if not text or len(text) > 200 or not any(ch.isdigit() or ch.isalpha() for ch in text):
+        return None
+    try:
+        import sympy as sp
+        v = sp.sympify(text)
+        if getattr(v, "free_symbols", None) == set() and v.is_real:
+            f = float(v.evalf())
+            return f if math.isfinite(f) else None
+    except Exception:  # noqa: BLE001 — not a number, nothing to add
+        return None
+    return None
 
 
 # ── errors that happen before the tool runs, and the server hook ───────────────────────────────────

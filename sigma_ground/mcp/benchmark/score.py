@@ -63,7 +63,19 @@ def _coerce_to_float(x: Any) -> float | None:
         try:
             return float(x)
         except ValueError:
+            pass
+        # A symbolic answer that IS a number ("1/3", "pi", "sqrt(2)", "-1 + E"): the maths tools answer exactly,
+        # the physics ground truth is a float (math_002, math_005; 2026-10-30). An expression with a free
+        # symbol ("x**2") stays None.
+        try:
+            import sympy as sp
+            v = sp.sympify(x)
+            if getattr(v, "free_symbols", None) == set() and v.is_real:
+                f = float(v.evalf())
+                return f if f == f else None
+        except Exception:  # noqa: BLE001 — anything sympy cannot read is not a number
             return None
+        return None
     return None
 
 

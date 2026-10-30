@@ -4030,3 +4030,6 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   Mars surface gravity -> 3.711 m/s^2). The whole MCP test tree + guards passed before the bump (exit 0, 1 skipped). Still open: group E
   (extremum), B (value_float for the physics scorer), msuite_0285 (y(t) with no variable from the router), mech_intro_015, gr_008,
   the adversarial refusals (8/18), the unasked unit-conversion tails.
+- B built (2026-10-30): scorer reads symbolic numbers and lists; contract adds value_float beside a symbolic value. Local pair: physics
+  143 -> 147 (+4 -0: math_001/002/004/005). Suite now 147/150 physics, 328/329 maths on the local engine; open: mech_intro_015, gr_008,
+  atom_004 (E), msuite_0285.

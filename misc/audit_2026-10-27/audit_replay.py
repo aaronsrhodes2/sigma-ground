@@ -64,7 +64,7 @@ def text_of(res: dict) -> str:
 
 def record_of(res: dict, qid: str, seconds: float) -> dict:
     v = res.get("value")
-    ev = v if isinstance(v, (int, float, str)) and not isinstance(v, bool) else None
+    ev = v if isinstance(v, (int, float, str, list)) and not isinstance(v, bool) else None   # a list (roots) is an answer, as live_ask.py reads it
     return {"id": qid, "system": "mentat_ask", "answer_text": text_of(res), "extracted_value": ev,
             "extracted_units": res.get("units") or "", "elapsed_s": seconds}
 
