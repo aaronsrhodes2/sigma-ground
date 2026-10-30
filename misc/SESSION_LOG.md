@@ -4042,3 +4042,9 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   (MineBench (x,y,z) -> sigma (x,-z,y)). Every name goes through `material_profile`; an ungrounded one is refused with its block count,
   never given a default density. Air = empty; "air" carves. Demo: granite floor, glass tank, mercury pool, iron bolt, gold ring at
   5 cm blocks -> 6 labels, 284.4 kg, contact areas scanned. tests/test_voxel_exec.py (7). Next: Radiance theater render, then the tick.
+- Voxel theater step 2 (2026-10-30): `radiance/voxel_scene.py` stages a multi-material VoxelField: one Voxel leaf PER MATERIAL (the
+  construct path ships one leaf coloured by the dominant material), each with its own `_bake_material` colour and mechanics; air is
+  never a leaf. `render_voxel_field(field, png, theater=...)` stages it and renders through the Python path tracer. Demo tank (granite,
+  glass, mercury, iron, gold, copper) renders in `plain` with emergent colours. Limits seen: the Python shader is diffuse, so glass is
+  pale and opaque (transmission is shade.py's v2); mercury mirrors the dark ground; granite/oak/ice have no colour model yet (grey);
+  `void`'s studio-light spheres sit inside a 35-degree orbit. tests/test_voxel_scene.py (3). Next: the tick.
