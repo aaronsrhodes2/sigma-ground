@@ -127,6 +127,7 @@ measured_mass_u | u | measured atomic (or nuclear) mass | 4.0026 |
 rest_time_s | s | time interval measured in the rest frame | 1 |
 tau_s | s | time constant or lifetime | 1e-3 | >0
 time_s | s | time | 3600 |
+step_s | s | integration time step of an N-body run | 1080 | >0
 initial_speed_m_s | m/s | initial speed | 20 |
 initial_velocity_m_s | m/s | initial velocity | 20 |
 perp_velocity_m_s | m/s | velocity component perpendicular to the line of sight | 1e4 |
@@ -309,6 +310,7 @@ SPECS: dict[str, Spec] = _load_specs()
 # meanings for the non-numeric parameter families (a regex on the parameter name -> text)
 _TEXT_RULES: list[tuple[str, str]] = [
     (r"^(expression|scalar_field)$", 'a math expression written as in a textbook: x^2, x², 2x, sqrt(x) or √x, pi or π, e^x, |x|, sin x, (x+1)(x-1)'),
+    (r"^when$", 'a date: an ISO date or date-time in UTC such as "2031-06-15", "JD 2462000.5" (TDB), or "now"'),
     (r"^equation$", 'an equation "lhs = rhs", or an expression taken as = 0; for an ODE use y, y\', y\'\''),
     (r"^(variable|func|t_var|s_var|x_var|k_var)$", "the name of a variable or function (a letter such as x or t); optional when the expression has exactly one free symbol"),
     (r"^variables$", 'comma-separated variable names, e.g. "x,y,z"'),
@@ -324,7 +326,7 @@ _TEXT_RULES: list[tuple[str, str]] = [
     (r"^(name|key|category|contains|scope|mode|dataset|structure|structure_name|particle|qubit_type|direction|image_side)$",
      "a name from the tool's own list of known entries; an unknown one returns the list of what exists"),
     (r"(^|_)(key|key_1|key_2|material|material_1|material_2|material_a|material_b|material_n|material_p|semiconductor|mat_a|mat_b|mat_n|mat_p|metal_a|metal_b|anode|cathode|fuel|isotope|atom_a|atom_b|"
-     r"central_body|body_name|star_name|counter_material|environment)$",
+     r"central_body|body_name|other_body|star_name|counter_material|environment)$",
      "a name from the tool's own table (materials: see list_materials; bodies: list_bodies); an unknown name returns the list of known ones"),
     (r"^(question|scenario|reason|verb|object|handle|options|params|bond_angles_deg|bond_dipoles_debye|pka_list|qaoa_edges|grover_marked_item|simon_hidden_string)$",
      "see the tool's description"),

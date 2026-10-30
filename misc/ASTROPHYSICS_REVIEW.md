@@ -1,7 +1,7 @@
 # Astrophysics review of sigma-ground: what the n-body work lets us fold in (2026-10-30)
 
 Scope the Captain chose: celestial mechanics and ephemerides; gravity, GR tests, tides and figure; stars, compact objects and cosmology; radiation and thermal of bodies.
-Deliverable: this review and a ranked list. Nothing below is built yet; each item names the data that grounds it and the test that would disprove it (data-alone doctrine, CLAUDE.md).
+Deliverable: this review and a ranked list. Status 2026-10-30: items 1, 2, 4 and 5 are built (C21); the rest are not. Each item names the data that grounds it and the test that would disprove it (data-alone doctrine, CLAUDE.md).
 
 **What this review read.** The MCP tool surfaces (`mcp/tools/{astronomy,orbital,gr,relativity,cosmology,rotation,photonics,thermal_systems,misc_physics}.py`: names and what each docstring claims), `field/{gr_basics,planets,asteroids}.py`
 and `field/dense/` by listing, the n-body fixtures and ledgers (C1-C20), `misc/COVERAGE_LEDGER.md`. It did NOT re-derive each formula or re-check each tool's numbers; "serves today" below means the tool exists and says it does it.

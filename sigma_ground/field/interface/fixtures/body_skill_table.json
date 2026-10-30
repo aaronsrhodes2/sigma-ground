@@ -1,0 +1,3402 @@
+{
+ "metadata": {
+  "what": "measured skill of the N-body model against JPL DE440 by body: class, the forecast-step errors, the converged errors for moons, and the forecast's hindcast error",
+  "predictor": "restated_zon",
+  "disagreement_rule": "for a moon whose step is adequate (period over the forecast step at least 300) the converged system-local +5 yr error and the full-system one must agree within a factor 10, else the class is measurements_disagree",
+  "phase_loss_rule": "a moon loses orbital phase when its converged +1 yr error is at least 0.1 of its orbital radius (the data separate at 0.004 and 0.41)",
+  "orbital_radius_epoch_jd_tdb_near": 2461000.5,
+  "generator": "scripts/make_body_skill_table.py",
+  "sources": {
+   "v2physics_restated/rolling_shootout_r8_full_short_0.025.json": "c59a10d707da3d5b10276c134a93922e82ffb824d101af201c5654082c8f490c",
+   "v2physics_restated/rolling_shootout_r8_full_long_0.025.json": "5b83249ba684fd000685595b1c1dd0370ec9f1b11384c13e36ad3fce71e7f1ab",
+   "v2physics_restated/SYSTEM_LOCAL_MOONS.json": "a5f9350980350957f27651c71da874a94ad388beb9b4983f019867c3322f453f",
+   "prediction_error_table.json": "fb3358fcda58f496ad1958c17c9b7547210fe88c3e90d33a14d026c0176eb618"
+  },
+  "ledger": "misc/CANDIDATE_LEDGER.md C14, C16, C17, C19"
+ },
+ "bodies": {
+  "Amalthea": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 177442.10561295174,
+     "max_km": 195697.22024728454,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 360440.2033118065,
+     "max_km": 363220.3828961981,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 202152.3785335986,
+     "max_km": 297114.5763881742,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 325475.03174438886,
+     "max_km": 359170.66393907875,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 284821.1506592531,
+     "max_km": 358210.13311797736,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Jupiter",
+    "period_days": 0.5016394285909953,
+    "step_days": 0.001672131428636651,
+    "error_km": {
+     "1": 605.8049084414611,
+     "3": 1805.2162159477803,
+     "5": 3021.130117431838
+    },
+    "orbital_radius_km": 181997.07300970412,
+    "error_at_1yr_over_orbital_radius": 0.003328651930622859,
+    "steps_per_orbit_at_forecast_step": 20.06557714363981,
+    "converged_over_full_system_at_5yr": 0.014944816080557336
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 3021.130117431838,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Ariel": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 2066.108715531581,
+     "max_km": 2228.7319256538804,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 6220.6098001247565,
+     "max_km": 6717.742368737439,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 10400.80670391709,
+     "max_km": 11231.074991473297,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 21419.248508316585,
+     "max_km": 21828.85034636425,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 42400.677738946426,
+     "max_km": 43138.97668379721,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 2.520783096083115,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 29.0803593019992,
+     "3": 73.31436751519671,
+     "5": 106.4428063652752
+    },
+    "orbital_radius_km": 190940.67086727408,
+    "error_at_1yr_over_orbital_radius": 0.00015230049821189442,
+    "steps_per_orbit_at_forecast_step": 100.8313238433246,
+    "converged_over_full_system_at_5yr": 0.010234091392659702
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 106.4428063652752,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Atlas": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 226382.5817734187,
+     "max_km": 275313.1892764532,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 236967.98186867003,
+     "max_km": 275269.37007497594,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 212766.89301428216,
+     "max_km": 276123.83394607884,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 145550.552892635,
+     "max_km": 272590.15800661943,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 150240.03295114782,
+     "max_km": 238302.4540385508,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 0.6071684936673939,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 214823.0090818108,
+     "3": 106124.1413188912,
+     "5": 272121.44388670253
+    },
+    "orbital_radius_km": 138184.69304325432,
+    "error_at_1yr_over_orbital_radius": 1.55460785381321,
+    "steps_per_orbit_at_forecast_step": 24.286739746695755,
+    "converged_over_full_system_at_5yr": 1.278965162443934
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Belinda": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 94449.4273183382,
+     "max_km": 96082.08615185684,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 134902.03191063314,
+     "max_km": 137151.34013752636,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 36821.7546862037,
+     "max_km": 46412.42456456409,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 69792.2065681531,
+     "max_km": 88484.01483302272,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 123305.68254603301,
+     "max_km": 143326.25628079294,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 0.6243992614500327,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 49340.12496694866,
+     "3": 126830.48815229333,
+     "5": 149861.1024145186
+    },
+    "orbital_radius_km": 75310.69866100243,
+    "error_at_1yr_over_orbital_radius": 0.6551542588795299,
+    "steps_per_orbit_at_forecast_step": 24.975970458001306,
+    "converged_over_full_system_at_5yr": 4.069906599825028
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Callisto": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 5.909574733907205,
+     "max_km": 16.339543606635733,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 18.39938333376183,
+     "max_km": 48.555950998988344,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 31.917633273858772,
+     "max_km": 79.20917786432632,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 49.56840699636949,
+     "max_km": 124.82151230862307,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 106.14794778380467,
+     "max_km": 246.87434236333465,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Jupiter",
+    "period_days": 16.698658854713074,
+    "step_days": 0.001672131428636651,
+    "error_km": {
+     "1": 8.450008362732346,
+     "3": 24.694039408039508,
+     "5": 39.58856913955907
+    },
+    "orbital_radius_km": 1882639.5679060363,
+    "error_at_1yr_over_orbital_radius": 4.488383494526708e-06,
+    "steps_per_orbit_at_forecast_step": 667.946354188523,
+    "converged_over_full_system_at_5yr": 1.2403353594510704
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 31.917633273858772,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Charon": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 18.06466688089213,
+     "max_km": 18.137207009276825,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 54.36666501111363,
+     "max_km": 54.768886518262015,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 90.59685932528438,
+     "max_km": 91.41363185216723,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 181.1921106159846,
+     "max_km": 182.13087814213358,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 361.81079529090886,
+     "max_km": 363.846196169989,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Pluto",
+    "period_days": 6.387239357415773,
+    "step_days": 0.0125,
+    "error_km": {
+     "1": 18.283342790118226,
+     "3": 55.01644067470848,
+     "5": 91.57665036812674
+    },
+    "orbital_radius_km": 19595.78623021231,
+    "error_at_1yr_over_orbital_radius": 0.0009330242009850776,
+    "steps_per_orbit_at_forecast_step": 255.4895742966309,
+    "converged_over_full_system_at_5yr": 1.0108148455712405
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 91.57665036812674,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Deimos": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 8054.474862332593,
+     "max_km": 10170.609067522433,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 23212.012205257157,
+     "max_km": 28607.882154030016,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 35620.01336210769,
+     "max_km": 41670.64857410855,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 45295.56676564248,
+     "max_km": 46806.44772844837,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 23629.997094162267,
+     "max_km": 44230.45882288991,
+     "windows": 7
+    }
+   },
+   "class": "not_scored_at_a_converged_step",
+   "note": "scored only at 0.025 d, about 50 steps per orbit; at the converged step C14 reports about 176 km after 3 yr, not in the table"
+  },
+  "Despina": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 90947.24777032838,
+     "max_km": 93380.03529846891,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 8999.959540349908,
+     "max_km": 13728.717910656858,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 93333.41899242082,
+     "max_km": 99714.09444490373,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 95219.07354974555,
+     "max_km": 104235.36446709637,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 81182.27331465288,
+     "max_km": 105788.33676610909,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Neptune",
+    "period_days": 0.3348293743643025,
+    "step_days": 0.001116097914547675,
+    "error_km": {
+     "1": 27794.16341036083,
+     "3": 61597.594089924576,
+     "5": 50441.47514173281
+    },
+    "orbital_radius_km": 52588.085987787876,
+    "error_at_1yr_over_orbital_radius": 0.5285258607209103,
+    "steps_per_orbit_at_forecast_step": 13.3931749745721,
+    "converged_over_full_system_at_5yr": 0.5404438805121767
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Dione": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 2935.8187202584354,
+     "max_km": 2963.4853786381404,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 11984.70877070252,
+     "max_km": 12187.00010013308,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 29521.93701328926,
+     "max_km": 30079.87861688979,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 98163.47762644284,
+     "max_km": 98478.5624239925,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 156238.99977707118,
+     "max_km": 156465.46009078997,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 2.740365045276718,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 32.0068997739411,
+     "3": 97.58784239800943,
+     "5": 166.84022449481412
+    },
+    "orbital_radius_km": 377653.49687998515,
+    "error_at_1yr_over_orbital_radius": 8.475202808492094e-05,
+    "steps_per_orbit_at_forecast_step": 109.61460181106872,
+    "converged_over_full_system_at_5yr": 0.005651398294756581
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 166.84022449481412,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Earth": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 0.01067132443568307,
+     "max_km": 0.02670911060259598,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 0.029997800243101877,
+     "max_km": 0.08514266173772037,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 0.057887457566447,
+     "max_km": 0.14163190653681812,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 0.06588730974809645,
+     "max_km": 0.23131152649995965,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 0.1662557938071159,
+     "max_km": 0.466408401386602,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.10342861237543652,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.019481853623820808,
+     "max_km": 0.0267600045853134,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.039880617737178686,
+     "max_km": 0.05494767412023335,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.061748241265204645,
+     "max_km": 0.08542568215496346,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.07903553532312635,
+     "max_km": 0.1062690240572901,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.10342861237543652,
+     "max_km": 0.14231877117923783,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.1096597522479648,
+     "max_km": 0.16769902490803604,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.13355183159101985,
+     "max_km": 0.1883981643405064,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.15793878196962874,
+     "max_km": 0.23115889264981165,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.1654666965102165,
+     "max_km": 0.24691249265333218,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.19854260700809317,
+     "max_km": 0.27763212992926456,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.1259872184310183,
+     "max_km": 0.21385539997736044,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.1369657142064482,
+     "max_km": 0.22524523537529725,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.16313808107463368,
+     "max_km": 0.26298683327960093,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.15841405836559494,
+     "max_km": 0.26807229776267155,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.18211095752626094,
+     "max_km": 0.29218364633482125,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 0.07435529373664988,
+     "max_km": 0.07435529373664988,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 0.06400756422918695,
+     "max_km": 0.06400756422918695,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 0.09288936160480708,
+     "max_km": 0.09288936160480708,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 0.08141120045355384,
+     "max_km": 0.08141120045355384,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 0.08790909525092,
+     "max_km": 0.08790909525092,
+     "n_starts": 1
+    }
+   }
+  },
+  "Enceladus": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 53593.33218724042,
+     "max_km": 53921.49860076855,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 134466.47228106656,
+     "max_km": 137368.73237873294,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 145559.0809942932,
+     "max_km": 149365.59883870973,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 19975.646844757255,
+     "max_km": 22804.166793021002,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 264156.4662754435,
+     "max_km": 267251.36697901745,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 1.3745431521211355,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 85.47180379121622,
+     "3": 241.338861853659,
+     "5": 358.1689364544544
+    },
+    "orbital_radius_km": 238411.40819529703,
+    "error_at_1yr_over_orbital_radius": 0.00035850551128493465,
+    "steps_per_orbit_at_forecast_step": 54.98172608484542,
+    "converged_over_full_system_at_5yr": 0.002460643018682543
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 358.1689364544544,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Epimetheus": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 138295.1955028086,
+     "max_km": 300476.25651396235,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 251646.8564850045,
+     "max_km": 302917.9937484381,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 216823.44020634357,
+     "max_km": 296973.2954578937,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 228885.94529518016,
+     "max_km": 303000.8077105741,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 200318.02452971577,
+     "max_km": 297547.5288165765,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 0.6998591414502328,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 71875.16993290132,
+     "3": 163806.4890044689,
+     "5": 127225.89118155294
+    },
+    "orbital_radius_km": 151977.82310700792,
+    "error_at_1yr_over_orbital_radius": 0.47293196114734354,
+    "steps_per_orbit_at_forecast_step": 27.994365658009308,
+    "converged_over_full_system_at_5yr": 0.5867718502228189
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Europa": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 4825.559601219985,
+     "max_km": 5261.557066082082,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 38723.86256649308,
+     "max_km": 39464.41745210959,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 66125.6323137415,
+     "max_km": 68891.48314024048,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 129465.59544908947,
+     "max_km": 134847.8720820136,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 244918.5573080642,
+     "max_km": 253078.37732633163,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Jupiter",
+    "period_days": 3.5532562726013635,
+    "step_days": 0.001672131428636651,
+    "error_km": {
+     "1": 2.8562466660770593,
+     "3": 55.29062772331496,
+     "5": 100.30613421785787
+    },
+    "orbital_radius_km": 671309.891761117,
+    "error_at_1yr_over_orbital_radius": 4.254736450529532e-06,
+    "steps_per_orbit_at_forecast_step": 142.13025090405452,
+    "converged_over_full_system_at_5yr": 0.0015169024583680745
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 100.30613421785787,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Galatea": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 120391.64370577868,
+     "max_km": 120682.27919054926,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 89541.76561627425,
+     "max_km": 91779.25792120067,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 36848.66443746554,
+     "max_km": 42131.92764934823,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 73118.14396600495,
+     "max_km": 78574.06424652124,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 118143.72873592611,
+     "max_km": 121540.68377191541,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Neptune",
+    "period_days": 0.42716231880228894,
+    "step_days": 0.001116097914547675,
+    "error_km": {
+     "1": 118842.47607955823,
+     "3": 81077.2473863588,
+     "5": 56302.69775962089
+    },
+    "orbital_radius_km": 62005.18996153528,
+    "error_at_1yr_over_orbital_radius": 1.9166536890425103,
+    "steps_per_orbit_at_forecast_step": 17.086492752091555,
+    "converged_over_full_system_at_5yr": 1.5279440549377319
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Ganymede": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 45.75387635194201,
+     "max_km": 82.07512584926262,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 3559.784849285787,
+     "max_km": 3709.6922872833484,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 6354.534005713833,
+     "max_km": 6749.073279032481,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 12370.50591135523,
+     "max_km": 13070.070917643821,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 22817.749527908658,
+     "max_km": 24052.54388116777,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Jupiter",
+    "period_days": 7.156122420208503,
+    "step_days": 0.001672131428636651,
+    "error_km": {
+     "1": 5.002926579738229,
+     "3": 14.112499125606924,
+     "5": 23.1210966859047
+    },
+    "orbital_radius_km": 1070853.599146341,
+    "error_at_1yr_over_orbital_radius": 4.671905276058691e-06,
+    "steps_per_orbit_at_forecast_step": 286.2448968083401,
+    "converged_over_full_system_at_5yr": 0.00363851962474586
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 23.1210966859047,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Helene": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 2825.0891564484054,
+     "max_km": 2924.6022464386156,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 11594.331391775953,
+     "max_km": 12522.272488115654,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 29069.31064645356,
+     "max_km": 31373.52941003647,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 98808.22745146224,
+     "max_km": 99333.52723556549,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 156196.90702446533,
+     "max_km": 157773.6585014075,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 2.741882990025289,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 49.62641382437801,
+     "3": 115.35085171259864,
+     "5": 181.76369347429934
+    },
+    "orbital_radius_km": 377411.0488888964,
+    "error_at_1yr_over_orbital_radius": 0.00013149168253149686,
+    "steps_per_orbit_at_forecast_step": 109.67531960101155,
+    "converged_over_full_system_at_5yr": 0.006252769310044661
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 181.76369347429934,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Himalia": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 1.6630684517139214,
+     "max_km": 3.9840298855461227,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 4.92877963080192,
+     "max_km": 12.205325449395634,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 7.384964507938047,
+     "max_km": 20.23191352455711,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 8.667772151746766,
+     "max_km": 28.308599067374537,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 20.596849581266838,
+     "max_km": 66.28197404708035,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Jupiter",
+    "period_days": 250.5009772210841,
+    "step_days": 0.001672131428636651,
+    "error_km": {
+     "1": 9.440905182908718,
+     "3": 89.69290343940396,
+     "5": 262.36189756704294
+    },
+    "orbital_radius_km": 11434346.440635828,
+    "error_at_1yr_over_orbital_radius": 8.256619853109627e-07,
+    "steps_per_orbit_at_forecast_step": 10020.039088843363,
+    "converged_over_full_system_at_5yr": 35.526494038668964
+   },
+   "class": "measurements_disagree",
+   "note": "the converged system-local model (Sun, planet and its moons only) gives 262 km at +5 yr, the full-system run 7.4 km: 36 times apart. The step is adequate in both, so the step does not explain it; the system-local model leaves out the other planets, the likeliest cause, not tested here. Neither number is offered as the skill",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Hydra": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 18.384977798876076,
+     "max_km": 35.04569976802847,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 54.293404930564854,
+     "max_km": 105.3566690161879,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 90.03927186512367,
+     "max_km": 175.56021295534575,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 191.00231924898503,
+     "max_km": 345.4812935578315,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 381.74914935784125,
+     "max_km": 686.3313017221367,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Pluto",
+    "period_days": 27.496996855061713,
+    "step_days": 0.0125,
+    "error_km": {
+     "1": 12.440937535943602,
+     "3": 45.103810315549495,
+     "5": 76.35899708544645
+    },
+    "orbital_radius_km": 51472.76487794563,
+    "error_at_1yr_over_orbital_radius": 0.00024169942231477314,
+    "steps_per_orbit_at_forecast_step": 1099.8798742024685,
+    "converged_over_full_system_at_5yr": 0.8480632451118675
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 90.03927186512367,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Hyperion": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 11.120839197668024,
+     "max_km": 13.107489753065495,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 32.719244180470604,
+     "max_km": 38.856937720605345,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 56.066035889109465,
+     "max_km": 61.809613544313805,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 113.60084978101936,
+     "max_km": 122.81366930429503,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 220.2379229122126,
+     "max_km": 238.05107706139677,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 21.158282757648568,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 9.513039897951073,
+     "3": 32.30707934726749,
+     "5": 43.12623804005163
+    },
+    "orbital_radius_km": 1476090.46819243,
+    "error_at_1yr_over_orbital_radius": 6.444753965250122e-06,
+    "steps_per_orbit_at_forecast_step": 846.3313103059427,
+    "converged_over_full_system_at_5yr": 0.7692043383511028
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 56.066035889109465,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Iapetus": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 6.537425941228363,
+     "max_km": 7.498265124677181,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 18.954212392065863,
+     "max_km": 22.26482793308074,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 31.649047080652572,
+     "max_km": 37.38393119901839,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 62.07686963229928,
+     "max_km": 66.96859367249199,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 124.62881370367151,
+     "max_km": 133.67447674757665,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 79.39619924242807,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 5.388748191780394,
+     "3": 15.780833274284209,
+     "5": 27.484102412710705
+    },
+    "orbital_radius_km": 3558935.3296485436,
+    "error_at_1yr_over_orbital_radius": 1.514146139967244e-06,
+    "steps_per_orbit_at_forecast_step": 3175.8479696971226,
+    "converged_over_full_system_at_5yr": 0.868402209477961
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 31.649047080652572,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Io": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 25848.509776257284,
+     "max_km": 26344.980863642842,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 70907.0127366563,
+     "max_km": 71211.72381486361,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 117563.64594388074,
+     "max_km": 118862.77124379762,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 234257.19419614918,
+     "max_km": 235954.95861877583,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 453646.90583368595,
+     "max_km": 456695.52745923394,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Jupiter",
+    "period_days": 1.7714080672790864,
+    "step_days": 0.001672131428636651,
+    "error_km": {
+     "1": 36.568969740817366,
+     "3": 95.73714847755565,
+     "5": 158.98478567129825
+    },
+    "orbital_radius_km": 422029.04301553575,
+    "error_at_1yr_over_orbital_radius": 8.665036292175557e-05,
+    "steps_per_orbit_at_forecast_step": 70.85632269116346,
+    "converged_over_full_system_at_5yr": 0.0013523294926323568
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 158.98478567129825,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Janus": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 188438.1779525827,
+     "max_km": 298275.91379240167,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 201322.6056501346,
+     "max_km": 304039.4037382219,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 232493.66933122583,
+     "max_km": 301950.19336570025,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 221764.48861333128,
+     "max_km": 298931.29051897355,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 210613.2462192037,
+     "max_km": 301727.2118865752,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 0.6995513194106637,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 265073.00862390775,
+     "3": 227900.54642769851,
+     "5": 185726.19471785662
+    },
+    "orbital_radius_km": 151964.63836754704,
+    "error_at_1yr_over_orbital_radius": 1.7443071721908936,
+    "steps_per_orbit_at_forecast_step": 27.98205277642655,
+    "converged_over_full_system_at_5yr": 0.7988440943450328
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Juliet": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 76260.90197062363,
+     "max_km": 87720.78009553315,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 119343.24623235023,
+     "max_km": 129348.03477827384,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 62400.8385692559,
+     "max_km": 90592.88937076808,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 100938.90880224423,
+     "max_km": 124422.62975580014,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 88427.16507960073,
+     "max_km": 128258.43257391482,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 0.494000253538664,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 69934.33009615101,
+     "3": 127510.59710282995,
+     "5": 35533.38789159501
+    },
+    "orbital_radius_km": 64421.52314488731,
+    "error_at_1yr_over_orbital_radius": 1.0855739926990722,
+    "steps_per_orbit_at_forecast_step": 19.76001014154656,
+    "converged_over_full_system_at_5yr": 0.5694376663249179
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Jupiter": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 1.2270031899824037,
+     "max_km": 1.3949306068520757,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 3.45153926160767,
+     "max_km": 4.722002171071945,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 5.785040880261791,
+     "max_km": 8.689589870182848,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 10.30786715977349,
+     "max_km": 18.971192560142917,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 22.18388472673373,
+     "max_km": 29.84430944026045,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.05361078343730459,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.002322454081091773,
+     "max_km": 0.00351048109741747,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.00911461493375138,
+     "max_km": 0.013514580820213881,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.021952133855273337,
+     "max_km": 0.02826088488796387,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.036969896269603716,
+     "max_km": 0.05573738974863252,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.05361078343730459,
+     "max_km": 0.09661794905057293,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.08543674646824638,
+     "max_km": 0.15140185374211695,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.10105247517034951,
+     "max_km": 0.21563170480674357,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.10475520739216977,
+     "max_km": 0.2802319504006399,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.09581758043207733,
+     "max_km": 0.335932105604989,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.08014694747432086,
+     "max_km": 0.37496730451598975,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.22919479818313968,
+     "max_km": 0.394496027735908,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.22422450528767832,
+     "max_km": 0.39467647714606363,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.21696224447512416,
+     "max_km": 0.37814784133951845,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.21324267421264928,
+     "max_km": 0.3558805819790079,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.21892906547600438,
+     "max_km": 0.34425880684131555,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 0.3551550399528758,
+     "max_km": 0.3551550399528758,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 0.3933406054374419,
+     "max_km": 0.3933406054374419,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 0.45538245377744696,
+     "max_km": 0.45538245377744696,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 0.5326861515989327,
+     "max_km": 0.5326861515989327,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 0.6136465845389334,
+     "max_km": 0.6136465845389334,
+     "n_starts": 1
+    }
+   }
+  },
+  "Kerberos": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 14.545591738792503,
+     "max_km": 36.36271852774391,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 45.762849172029824,
+     "max_km": 111.79396546317207,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 74.89041691481981,
+     "max_km": 184.62905725649364,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 135.3613123702171,
+     "max_km": 354.83611451450673,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 273.99556680866516,
+     "max_km": 707.5118231523122,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Pluto",
+    "period_days": 24.93764490930026,
+    "step_days": 0.0125,
+    "error_km": {
+     "1": 13.637322246416542,
+     "3": 34.73941262685084,
+     "5": 72.25325281042527
+    },
+    "orbital_radius_km": 55947.71804365771,
+    "error_at_1yr_over_orbital_radius": 0.00024375117919510003,
+    "steps_per_orbit_at_forecast_step": 997.5057963720104,
+    "converged_over_full_system_at_5yr": 0.9647863610187396
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 74.89041691481981,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Larissa": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 42191.486535595715,
+     "max_km": 43947.19363441977,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 112819.05141041083,
+     "max_km": 116043.7905569156,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 146135.61605413776,
+     "max_km": 146844.41999784214,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 46122.03294661776,
+     "max_km": 60565.17003465872,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 87651.87095752274,
+     "max_km": 110372.43902575769,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Neptune",
+    "period_days": 0.5536979773651887,
+    "step_days": 0.001116097914547675,
+    "error_km": {
+     "1": 43015.27262875266,
+     "3": 110692.54859461769,
+     "5": 132688.57510602017
+    },
+    "orbital_radius_km": 73592.49348601892,
+    "error_at_1yr_over_orbital_radius": 0.584506253167311,
+    "steps_per_orbit_at_forecast_step": 22.147919094607545,
+    "converged_over_full_system_at_5yr": 0.9079824527982558
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Mars": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 0.012101968164607124,
+     "max_km": 0.03681655527998619,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 0.04308623245761801,
+     "max_km": 0.08445017724161169,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 0.06314841339816372,
+     "max_km": 0.1617028420266797,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 0.023919119572474962,
+     "max_km": 0.26303715971746405,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 0.1830197301079791,
+     "max_km": 0.649984373678987,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.10802785932655605,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.01405868818629183,
+     "max_km": 0.026734062602519423,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.04396653588391128,
+     "max_km": 0.05282244410619184,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.0581380262793368,
+     "max_km": 0.08437745107494664,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.07790278995239751,
+     "max_km": 0.09285198116673295,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.10802785932655605,
+     "max_km": 0.1612913136167872,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.11101680869120933,
+     "max_km": 0.15148602981922657,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.15434043923383445,
+     "max_km": 0.2538994781256374,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.17855766032300496,
+     "max_km": 0.2149533748892208,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.18236574906422387,
+     "max_km": 0.3287557766171567,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.2640528036910184,
+     "max_km": 0.2979840091956295,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.2025134743830574,
+     "max_km": 0.2439841728423183,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.2379569378749652,
+     "max_km": 0.3641175826421541,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.24860476084635347,
+     "max_km": 0.3038540945618223,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.27945207723414595,
+     "max_km": 0.44429751069281603,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.31041265793588535,
+     "max_km": 0.3848305172981192,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 0.1555492238931498,
+     "max_km": 0.1555492238931498,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 0.28986021652659166,
+     "max_km": 0.28986021652659166,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 0.1971831401123483,
+     "max_km": 0.1971831401123483,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 0.32361749398095735,
+     "max_km": 0.32361749398095735,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 0.25992632637615765,
+     "max_km": 0.25992632637615765,
+     "n_starts": 1
+    }
+   }
+  },
+  "Mercury": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 0.005339069223673405,
+     "max_km": 0.008627612091407909,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 0.015151678477395488,
+     "max_km": 0.029429629896791407,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 0.027057819665254827,
+     "max_km": 0.06170006954536893,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 0.0598289132725808,
+     "max_km": 0.0815909350139558,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 0.10396824168924236,
+     "max_km": 0.18481737777995247,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.02520067034991972,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.007257301226381871,
+     "max_km": 0.008455965384459313,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.014494254917847428,
+     "max_km": 0.01794519471561931,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.013272317848047084,
+     "max_km": 0.02903106319481802,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.018891613627618688,
+     "max_km": 0.034711533612299214,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.02520067034991972,
+     "max_km": 0.04015529278585408,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.027509232037797027,
+     "max_km": 0.048358854955296855,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.033170539244847766,
+     "max_km": 0.05985841780944788,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.04830388035345183,
+     "max_km": 0.05227887641204957,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.05072902619542021,
+     "max_km": 0.07234122270234408,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.05922829823311966,
+     "max_km": 0.08928332705361446,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.06291323520463125,
+     "max_km": 0.08623830303290929,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.0830568478435355,
+     "max_km": 0.09785574165007634,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.0767298042050639,
+     "max_km": 0.10231125377632978,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.08497949526316438,
+     "max_km": 0.09912009822210736,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.07329792017787662,
+     "max_km": 0.0862563429440154,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 0.09156023760985993,
+     "max_km": 0.09156023760985993,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 0.10952705829620123,
+     "max_km": 0.10952705829620123,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 0.06644270086982303,
+     "max_km": 0.06644270086982303,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 0.11727316823408433,
+     "max_km": 0.11727316823408433,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 0.14264542391302837,
+     "max_km": 0.14264542391302837,
+     "n_starts": 1
+    }
+   }
+  },
+  "Mimas": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 248940.96508232824,
+     "max_km": 259444.32413595764,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 301801.6362036291,
+     "max_km": 314719.13838224474,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 181871.45698322353,
+     "max_km": 228389.1271631778,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 310015.7103263159,
+     "max_km": 347030.8371319902,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 323398.3983715067,
+     "max_km": 375783.54406101664,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 0.9472144584337878,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 392.694504901243,
+     "3": 1180.3332069874589,
+     "5": 1962.8326784548385
+    },
+    "orbital_radius_km": 186022.5784680572,
+    "error_at_1yr_over_orbital_radius": 0.002111004525016163,
+    "steps_per_orbit_at_forecast_step": 37.88857833735151,
+    "converged_over_full_system_at_5yr": 0.01079241740849911
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 1962.8326784548385,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Miranda": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 25353.01344082279,
+     "max_km": 25575.312269277954,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 74853.46887991442,
+     "max_km": 76114.56432157532,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 121206.8250762528,
+     "max_km": 125624.38900401515,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 212906.2976341817,
+     "max_km": 217584.09347772336,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 243483.23728608518,
+     "max_km": 245044.35292562773,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 1.4140001584878563,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 32.71173276659344,
+     "3": 99.50699086741682,
+     "5": 165.31719195123287
+    },
+    "orbital_radius_km": 129879.170708689,
+    "error_at_1yr_over_orbital_radius": 0.00025186280901010565,
+    "steps_per_orbit_at_forecast_step": 56.56000633951425,
+    "converged_over_full_system_at_5yr": 0.0013639264277999993
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 165.31719195123287,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Moon": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 0.09432278076463711,
+     "max_km": 0.12319965109850908,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 0.25373096719810234,
+     "max_km": 0.3039915947829942,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 0.39902939451773073,
+     "max_km": 0.5017488534464561,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 0.6234731446876081,
+     "max_km": 0.8064138767527967,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 0.9951958104361208,
+     "max_km": 1.4091966787242822,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.37512870271046017,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.0933722417792285,
+     "max_km": 0.11612159496205379,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.18755169436378916,
+     "max_km": 0.21394590749770337,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.23863507200345158,
+     "max_km": 0.2646333078957912,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.35910077673316343,
+     "max_km": 0.4885786655785866,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.37512870271046017,
+     "max_km": 0.4665041829686476,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.5106689655783344,
+     "max_km": 0.5480715373443652,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.5159628909967675,
+     "max_km": 0.7700178593073499,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.4743466044858808,
+     "max_km": 0.6246304945750217,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.7963901829944532,
+     "max_km": 0.8738644474297402,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.6917739726991717,
+     "max_km": 0.9410814191060698,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.7674557354869036,
+     "max_km": 0.7675108183506667,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.9069939158860515,
+     "max_km": 0.9499396813508617,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.689939543145729,
+     "max_km": 0.8184638084403946,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.9947632328702711,
+     "max_km": 0.9969506167578875,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.9597945837880828,
+     "max_km": 1.0293330418980544,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 1.0698807550203233,
+     "max_km": 1.0698807550203233,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 1.1005576713014087,
+     "max_km": 1.1005576713014087,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 0.982541354815242,
+     "max_km": 0.982541354815242,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 1.0730234829327014,
+     "max_km": 1.0730234829327014,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 1.2228027877002667,
+     "max_km": 1.2228027877002667,
+     "n_starts": 1
+    }
+   }
+  },
+  "Neptune": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 0.027185211141032346,
+     "max_km": 0.04765837969615354,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 0.07587502520003758,
+     "max_km": 0.11798771353657,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 0.12500002165688595,
+     "max_km": 0.20127636210880126,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 0.27407253067147924,
+     "max_km": 0.3783796318922189,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 1.0163037377725432,
+     "max_km": 1.1593820342861523,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.06882160289674356,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.0035275479566328613,
+     "max_km": 0.004674939568568394,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.012738538344456748,
+     "max_km": 0.01892520365024549,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.027248825019247302,
+     "max_km": 0.041267070794031885,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.04584147880505829,
+     "max_km": 0.0687282718859009,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.06882160289674356,
+     "max_km": 0.0994236364010558,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.05715586711899986,
+     "max_km": 0.13443531804475822,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.08127927243218247,
+     "max_km": 0.1723975290485825,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.11367907165905423,
+     "max_km": 0.211615572769147,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.15336220209763468,
+     "max_km": 0.25150816804708603,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.2002169761260162,
+     "max_km": 0.292864053539443,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.28225150261155607,
+     "max_km": 0.33862436364549453,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.33085147833210155,
+     "max_km": 0.3912318753962443,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.3845651080024547,
+     "max_km": 0.4518450199087456,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.44300242745790286,
+     "max_km": 0.5196581514690308,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.507028569370595,
+     "max_km": 0.5946641843007037,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 0.47896064443287695,
+     "max_km": 0.47896064443287695,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 0.5466115001704317,
+     "max_km": 0.5466115001704317,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 0.6225122180737992,
+     "max_km": 0.6225122180737992,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 0.7054342831475409,
+     "max_km": 0.7054342831475409,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 0.7957036152618266,
+     "max_km": 0.7957036152618266,
+     "n_starts": 1
+    }
+   }
+  },
+  "Nereid": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 4.051705777972819,
+     "max_km": 36.600136210822704,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 13.602306451972675,
+     "max_km": 127.51317608077991,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 26.559930188933425,
+     "max_km": 254.36203977696485,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 33.05198610985917,
+     "max_km": 85.82291115682004,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 126.48958280326788,
+     "max_km": 340.6024783463666,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Neptune",
+    "period_days": 360.75755834486415,
+    "step_days": 0.001116097914547675,
+    "error_km": {
+     "1": 977.1429627930975,
+     "3": 3297.2559093067734,
+     "5": 6257.827473627993
+    },
+    "orbital_radius_km": 5509318.286728426,
+    "error_at_1yr_over_orbital_radius": 0.0001773618643792951,
+    "steps_per_orbit_at_forecast_step": 14430.302333794565,
+    "converged_over_full_system_at_5yr": 235.6115934459574
+   },
+   "class": "measurements_disagree",
+   "note": "the converged system-local model (Sun, planet and its moons only) gives 6258 km at +5 yr, the full-system run 26.6 km: 236 times apart. The step is adequate in both, so the step does not explain it; the system-local model leaves out the other planets, the likeliest cause, not tested here. Neither number is offered as the skill",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Nix": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 16.90879611270282,
+     "max_km": 39.90359633881025,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 50.52705164257269,
+     "max_km": 119.48071479901685,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 84.13583103179137,
+     "max_km": 199.2773874096534,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 163.46176276402568,
+     "max_km": 388.14440351028685,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 324.4467519931744,
+     "max_km": 775.503416945323,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Pluto",
+    "period_days": 17.653879222976354,
+    "step_days": 0.0125,
+    "error_km": {
+     "1": 25.322282419601677,
+     "3": 75.92899919929832,
+     "5": 127.21758003733714
+    },
+    "orbital_radius_km": 49368.36263605778,
+    "error_at_1yr_over_orbital_radius": 0.0005129253041320583,
+    "steps_per_orbit_at_forecast_step": 706.1551689190541,
+    "converged_over_full_system_at_5yr": 1.5120499610833702
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 84.13583103179137,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Oberon": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 280.33525750709555,
+     "max_km": 384.3015178940461,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 828.5602007146491,
+     "max_km": 1154.4738461302193,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 1409.6148985427924,
+     "max_km": 1963.934176880862,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 2760.533830332779,
+     "max_km": 3126.86651640668,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 5559.208121561824,
+     "max_km": 6226.885448601949,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 13.466216279789474,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 268.61437879592125,
+     "3": 795.920184777771,
+     "5": 1329.412205351371
+    },
+    "orbital_radius_km": 583608.2807278861,
+    "error_at_1yr_over_orbital_radius": 0.000460264851727088,
+    "steps_per_orbit_at_forecast_step": 538.6486511915789,
+    "converged_over_full_system_at_5yr": 0.9431031175434285
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 1409.6148985427924,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Pan": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 131485.2254948557,
+     "max_km": 266491.6100781595,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 208694.8966264859,
+     "max_km": 267562.9240111574,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 207103.67378533026,
+     "max_km": 257230.88318452323,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 239548.9406381346,
+     "max_km": 266585.75635950034,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 212109.4833118179,
+     "max_km": 266072.00900742057,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 0.5802671579662116,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 177574.26243946253,
+     "3": 177694.57027183444,
+     "5": 181617.50804162447
+    },
+    "orbital_radius_km": 134449.1585107266,
+    "error_at_1yr_over_orbital_radius": 1.3207539891392877,
+    "steps_per_orbit_at_forecast_step": 23.210686318648463,
+    "converged_over_full_system_at_5yr": 0.8769400596431571
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Pandora": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 113858.21326176025,
+     "max_km": 252290.62861918454,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 183202.9539689961,
+     "max_km": 282214.8308319948,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 166004.98902328982,
+     "max_km": 281937.83312758047,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 132078.2315119498,
+     "max_km": 282723.7644473507,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 179715.05744249385,
+     "max_km": 271190.2464038114,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 0.6332593986290231,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 105361.62894085373,
+     "3": 220635.68468150013,
+     "5": 169709.83833954186
+    },
+    "orbital_radius_km": 142535.04857514272,
+    "error_at_1yr_over_orbital_radius": 0.7391980428259957,
+    "steps_per_orbit_at_forecast_step": 25.330375945160924,
+    "converged_over_full_system_at_5yr": 1.0223176986309266
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Phobos": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 16084.886766632037,
+     "max_km": 18955.01286861838,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 5460.954029135504,
+     "max_km": 18725.529841516633,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 11889.378068148182,
+     "max_km": 18686.187436158318,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 14520.96991494095,
+     "max_km": 18704.053653522682,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 15768.407294888066,
+     "max_km": 18851.108591072414,
+     "windows": 7
+    }
+   },
+   "class": "not_scored_at_a_converged_step",
+   "note": "scored only at 0.025 d, which gives it about 13 steps per orbit; at the converged step C14 reports about 1,088 km after 3 yr (probably tidal), not in the table"
+  },
+  "Phoebe": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 3.73600099802183,
+     "max_km": 8.44132701470738,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 7.733599301848385,
+     "max_km": 24.444677937075713,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 13.61239671362958,
+     "max_km": 35.475096603106344,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 30.389385703643434,
+     "max_km": 84.48950743665287,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 63.756084616872414,
+     "max_km": 148.61027837858964,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 553.4845568602225,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 104.15669472082512,
+     "3": 311.5364287521756,
+     "5": 1526.7404605227184
+    },
+    "orbital_radius_km": 12898257.999206714,
+    "error_at_1yr_over_orbital_radius": 8.075252854085497e-06,
+    "steps_per_orbit_at_forecast_step": 22139.382274408898,
+    "converged_over_full_system_at_5yr": 112.15809329109918
+   },
+   "class": "measurements_disagree",
+   "note": "the converged system-local model (Sun, planet and its moons only) gives 1527 km at +5 yr, the full-system run 13.6 km: 112 times apart. The step is adequate in both, so the step does not explain it; the system-local model leaves out the other planets, the likeliest cause, not tested here. Neither number is offered as the skill",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Pluto": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 2.2049092548763234,
+     "max_km": 2.215445747341687,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 6.634334594419408,
+     "max_km": 6.695933280128704,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 11.060558763410944,
+     "max_km": 11.262541033291823,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 21.977134208819876,
+     "max_km": 22.465032621591906,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 43.8636488136228,
+     "max_km": 45.78960954198563,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.08575344701673991,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.003841580649362334,
+     "max_km": 0.008036065362495645,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.014329305209768536,
+     "max_km": 0.028374444233528865,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.030948286607773275,
+     "max_km": 0.057332839602944864,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.05511206044314748,
+     "max_km": 0.09308935971544398,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.08575344701673991,
+     "max_km": 0.13862077633842984,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.17200084776578164,
+     "max_km": 0.19302222473033848,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.22646374667917402,
+     "max_km": 0.2503168045154179,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.28392021338561857,
+     "max_km": 0.3086982386391594,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.34529355066222417,
+     "max_km": 0.3711407418932825,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.40996176942087403,
+     "max_km": 0.4411240519440667,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.438867678270327,
+     "max_km": 0.518388848107803,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.5206612695182544,
+     "max_km": 0.6039275852572124,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.6091058211017688,
+     "max_km": 0.7001508059582167,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.7050611567982609,
+     "max_km": 0.8079277577744859,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.8079708270629036,
+     "max_km": 0.9265462883812776,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 1.0527513846755856,
+     "max_km": 1.0527513846755856,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 1.183344218806198,
+     "max_km": 1.183344218806198,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 1.3168016565355793,
+     "max_km": 1.3168016565355793,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 1.4535059540960324,
+     "max_km": 1.4535059540960324,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 1.592885848616077,
+     "max_km": 1.592885848616077,
+     "n_starts": 1
+    }
+   }
+  },
+  "Portia": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 114018.59590914506,
+     "max_km": 119250.33544609524,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 18141.176442988744,
+     "max_km": 31841.898130688547,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 114409.72001061773,
+     "max_km": 127870.03479211271,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 82752.69965387684,
+     "max_km": 132205.36423593998,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 116761.47151106203,
+     "max_km": 129027.90970990232,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 0.5141214130770124,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 66259.14501982625,
+     "3": 132278.93167783963,
+     "5": 65868.53120368916
+    },
+    "orbital_radius_km": 66158.63175833602,
+    "error_at_1yr_over_orbital_radius": 1.0015192766056193,
+    "steps_per_orbit_at_forecast_step": 20.564856523080497,
+    "converged_over_full_system_at_5yr": 0.5757249576135337
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Prometheus": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 228553.042812677,
+     "max_km": 277049.33610066987,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 186352.89818571962,
+     "max_km": 265566.7208484523,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 241151.61113048115,
+     "max_km": 279075.74888385274,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 174497.76688510904,
+     "max_km": 277861.32541765436,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 204707.3277504141,
+     "max_km": 275061.9781333999,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 0.6201736627199756,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 271998.63348387065,
+     "3": 219742.18513217918,
+     "5": 129131.8238309522
+    },
+    "orbital_radius_km": 139915.95649759416,
+    "error_at_1yr_over_orbital_radius": 1.9440143947309372,
+    "steps_per_orbit_at_forecast_step": 24.806946508799026,
+    "converged_over_full_system_at_5yr": 0.5354798304087721
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Proteus": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 70721.41602563328,
+     "max_km": 70830.00321030218,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 186616.61456607527,
+     "max_km": 186797.2409875938,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 235056.97664325626,
+     "max_km": 235181.79608859465,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 20448.471070287094,
+     "max_km": 21007.638365433377,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 40864.17795445444,
+     "max_km": 42079.14840857162,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Neptune",
+    "period_days": 1.1208535088390275,
+    "step_days": 0.001116097914547675,
+    "error_km": {
+     "1": 178660.0476091545,
+     "3": 204624.31459674356,
+     "5": 71520.76198403689
+    },
+    "orbital_radius_km": 117674.0032323695,
+    "error_at_1yr_over_orbital_radius": 1.518262680809427,
+    "steps_per_orbit_at_forecast_step": 44.8341403535611,
+    "converged_over_full_system_at_5yr": 0.3042698966241843
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Puck": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 135523.0527216621,
+     "max_km": 138782.05224578708,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 69325.18203637417,
+     "max_km": 84181.90916552539,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 170045.68296507912,
+     "max_km": 172373.25608292944,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 78209.58969334874,
+     "max_km": 97123.88713402423,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 144123.94248479084,
+     "max_km": 162973.78198047113,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 0.7626443507696348,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 35619.78932789555,
+     "3": 100726.96885524175,
+     "5": 148997.206331318
+    },
+    "orbital_radius_km": 86051.6592926111,
+    "error_at_1yr_over_orbital_radius": 0.41393495047868384,
+    "steps_per_orbit_at_forecast_step": 30.50577403078539,
+    "converged_over_full_system_at_5yr": 0.8762186944899762
+   },
+   "class": "loses_orbital_phase",
+   "best_estimate_5yr_km": null,
+   "best_estimate_basis": null
+  },
+  "Rhea": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 338.4663811680049,
+     "max_km": 387.09412406553224,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 1013.1510155700589,
+     "max_km": 1158.0506126629746,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 1688.7709696450613,
+     "max_km": 1929.2109963865462,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 3374.205827503215,
+     "max_km": 3852.03738586327,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 6754.151461472375,
+     "max_km": 7715.114082087729,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 4.520362731131415,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 18.90284680364083,
+     "3": 56.425188158986856,
+     "5": 93.62294028905083
+    },
+    "orbital_radius_km": 527213.6519158765,
+    "error_at_1yr_over_orbital_radius": 3.5854243787027376e-05,
+    "steps_per_orbit_at_forecast_step": 180.8145092452566,
+    "converged_over_full_system_at_5yr": 0.05543850644751911
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 93.62294028905083,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Saturn": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 0.024345759864143227,
+     "max_km": 0.04776352968012561,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 0.07124401206204882,
+     "max_km": 0.11366703458986976,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 0.15544991737660568,
+     "max_km": 0.26277690951173904,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 0.48741122793240366,
+     "max_km": 0.6987462451367822,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 1.5768167496966337,
+     "max_km": 2.1325328542615365,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.0488432411999449,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.0027508867050153223,
+     "max_km": 0.007119412739314378,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.009836052467634276,
+     "max_km": 0.025241880584097685,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.020586779791291088,
+     "max_km": 0.050776741632766464,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.03377303625772489,
+     "max_km": 0.08304809310723903,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.0488432411999449,
+     "max_km": 0.12638238042479427,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.0825399681491204,
+     "max_km": 0.18264301756848178,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.11227836128506252,
+     "max_km": 0.24725384918765236,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.14591812806366575,
+     "max_km": 0.31745867690098806,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.1843172384287656,
+     "max_km": 0.3928708591023994,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.22639089295332387,
+     "max_km": 0.47351865340570193,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.33269086257001157,
+     "max_km": 0.5576410990882771,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.38452491682952705,
+     "max_km": 0.6413206234170208,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.4365023907094602,
+     "max_km": 0.7231125276404851,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.48657581375837256,
+     "max_km": 0.8011591872635404,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.5346352485215993,
+     "max_km": 0.8749372073558496,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 0.9431907788502902,
+     "max_km": 0.9431907788502902,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 1.0039243321094524,
+     "max_km": 1.0039243321094524,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 1.0548876522917838,
+     "max_km": 1.0548876522917838,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 1.093937485565355,
+     "max_km": 1.093937485565355,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 1.121696252431931,
+     "max_km": 1.121696252431931,
+     "n_starts": 1
+    }
+   }
+  },
+  "Styx": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 16.085745320464866,
+     "max_km": 41.962855698061105,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 46.916099546613054,
+     "max_km": 123.49872324393716,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 80.89494275709214,
+     "max_km": 203.89647604607492,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 107.26334661732773,
+     "max_km": 177.37800224964644,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 214.96953743834516,
+     "max_km": 336.05909449454566,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Pluto",
+    "period_days": 81.94584937055323,
+    "step_days": 0.0125,
+    "error_km": {
+     "1": 24.30386399221412,
+     "3": 69.89472360040294,
+     "5": 108.9062983447984
+    },
+    "orbital_radius_km": 92174.99405930167,
+    "error_at_1yr_over_orbital_radius": 0.00026367090380909595,
+    "steps_per_orbit_at_forecast_step": 3277.833974822129,
+    "converged_over_full_system_at_5yr": 1.3462683158305404
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 80.89494275709214,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Tethys": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 13906.067375874127,
+     "max_km": 14036.475674522419,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 41738.43542653733,
+     "max_km": 42425.79832223366,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 69233.89116080085,
+     "max_km": 71050.01564097872,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 138817.8334988238,
+     "max_km": 141283.55900938445,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 266259.2624917797,
+     "max_km": 272073.0969387965,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 1.8916453315070356,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 133.75636581145181,
+     "3": 402.4145300076164,
+     "5": 672.342623494593
+    },
+    "orbital_radius_km": 294975.0557359613,
+    "error_at_1yr_over_orbital_radius": 0.0004534497518026748,
+    "steps_per_orbit_at_forecast_step": 75.66581326028142,
+    "converged_over_full_system_at_5yr": 0.009711177751558516
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 672.342623494593,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Thebe": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 216514.56181464822,
+     "max_km": 261209.08670638409,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 437154.9317004526,
+     "max_km": 443930.96822676074,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 204640.48594235125,
+     "max_km": 360040.64563885797,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 402522.59559125203,
+     "max_km": 441138.32096189924,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 231907.3134806945,
+     "max_km": 437367.0095780282,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Jupiter",
+    "period_days": 0.6776327615980191,
+    "step_days": 0.001672131428636651,
+    "error_km": {
+     "1": 821.940825863946,
+     "3": 2388.4032550513875,
+     "5": 4107.115812304783
+    },
+    "orbital_radius_km": 222379.61440147468,
+    "error_at_1yr_over_orbital_radius": 0.003696115887583333,
+    "steps_per_orbit_at_forecast_step": 27.105310463920762,
+    "converged_over_full_system_at_5yr": 0.02006990842204014
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 4107.115812304783,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Titan": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 11.931242390628094,
+     "max_km": 12.848866669093184,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 36.350021417982134,
+     "max_km": 37.6212173833516,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 59.77485011308416,
+     "max_km": 61.45185693285342,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 122.4099189946478,
+     "max_km": 128.25460485032684,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 242.47473212114627,
+     "max_km": 254.06796393749462,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Saturn",
+    "period_days": 15.94745961908633,
+    "step_days": 0.0019342238598873721,
+    "error_km": {
+     "1": 10.65113548957359,
+     "3": 31.93713437876613,
+     "5": 52.850837535428255
+    },
+    "orbital_radius_km": 1221941.3069401004,
+    "error_at_1yr_over_orbital_radius": 8.716568814786543e-06,
+    "steps_per_orbit_at_forecast_step": 637.8983847634531,
+    "converged_over_full_system_at_5yr": 0.8841651202042863
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 59.77485011308416,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Titania": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 446.5955209496435,
+     "max_km": 2056.9937842729555,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 1295.1118605118056,
+     "max_km": 6102.511682003346,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 2103.175613039531,
+     "max_km": 10152.573526843295,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 3396.8774297901323,
+     "max_km": 6893.417409268279,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 6776.811215448817,
+     "max_km": 14026.71422154217,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 8.707249593881409,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 672.0643247929604,
+     "3": 2052.821221100423,
+     "5": 3430.7888420699087
+    },
+    "orbital_radius_km": 436267.4927981383,
+    "error_at_1yr_over_orbital_radius": 0.001540486824912086,
+    "steps_per_orbit_at_forecast_step": 348.28998375525634,
+    "converged_over_full_system_at_5yr": 1.6312422133459874
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 2103.175613039531,
+   "best_estimate_basis": "full-system run (the step is adequate for this moon and the two agree)"
+  },
+  "Triton": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 52.15061827196241,
+     "max_km": 87.62893316639247,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 156.65456483815797,
+     "max_km": 263.38487024025665,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 261.2891980340894,
+     "max_km": 439.40857583038456,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 527.784113915373,
+     "max_km": 876.9281105481755,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 1053.934605926274,
+     "max_km": 1749.5565355764834,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Neptune",
+    "period_days": 5.877069398388484,
+    "step_days": 0.001116097914547675,
+    "error_km": {
+     "1": 28.601559690794954,
+     "3": 86.39863053804052,
+     "5": 144.57415931250173
+    },
+    "orbital_radius_km": 354766.24353262066,
+    "error_at_1yr_over_orbital_radius": 8.06208601077488e-05,
+    "steps_per_orbit_at_forecast_step": 235.08277593553933,
+    "converged_over_full_system_at_5yr": 0.5533108922996491
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 144.57415931250173,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Umbriel": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 140.33207904083568,
+     "max_km": 195.9227684018537,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 420.48866995981564,
+     "max_km": 570.1168774072484,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 672.6600461298991,
+     "max_km": 912.5085015854559,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 1327.6589268629011,
+     "max_km": 1557.4243272828323,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 2576.015750191417,
+     "max_km": 3073.4356775156843,
+     "windows": 7
+    }
+   },
+   "converged": {
+    "relative_to": "Uranus",
+    "period_days": 4.144538831671137,
+    "step_days": 0.0016466675117955466,
+    "error_km": {
+     "1": 120.11380581982526,
+     "3": 358.8235765793987,
+     "5": 596.1461530413183
+    },
+    "orbital_radius_km": 266006.00720031915,
+    "error_at_1yr_over_orbital_radius": 0.0004515454635179425,
+    "steps_per_orbit_at_forecast_step": 165.78155326684546,
+    "converged_over_full_system_at_5yr": 0.8862517648717239
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 596.1461530413183,
+   "best_estimate_basis": "system-local model at the converged step (C14); the forecast step cannot integrate this moon"
+  },
+  "Uranus": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 0.04361326178525598,
+     "max_km": 0.10312610857086078,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 0.1254269804625957,
+     "max_km": 0.24234091291978327,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 0.2094721535133105,
+     "max_km": 0.521137422388795,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 0.5397701529216191,
+     "max_km": 0.757233550719437,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 1.1768142314658758,
+     "max_km": 1.650987236673159,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.06629144852759718,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.0035860799610455264,
+     "max_km": 0.004485407492241459,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.013358812259239555,
+     "max_km": 0.01753329476171743,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.02828412827976671,
+     "max_km": 0.037043113334538115,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.04691675806943002,
+     "max_km": 0.061226740358571306,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.06629144852759718,
+     "max_km": 0.09697461421208978,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.06756308035268249,
+     "max_km": 0.11345381879809431,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.09184865264831148,
+     "max_km": 0.1437980883908813,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.11761118343008847,
+     "max_km": 0.17496373748731844,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.1440205587584969,
+     "max_km": 0.20684725866656659,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.17201617103917224,
+     "max_km": 0.24093160501065253,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.24229792063906408,
+     "max_km": 0.28110109920329857,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.2838250725243559,
+     "max_km": 0.3307850349328084,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.33237862872531154,
+     "max_km": 0.39183289311469266,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.38851502466667526,
+     "max_km": 0.4641562598431227,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.45429952109830307,
+     "max_km": 0.5489370749775629,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 0.41634146073816397,
+     "max_km": 0.41634146073816397,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 0.4843581565902594,
+     "max_km": 0.4843581565902594,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 0.5640887545467153,
+     "max_km": 0.5640887545467153,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 0.6549549881106019,
+     "max_km": 0.6549549881106019,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 0.7583128346871064,
+     "max_km": 0.7583128346871064,
+     "n_starts": 1
+    }
+   }
+  },
+  "Venus": {
+   "forecast_step_0.025d": {
+    "1": {
+     "median_km": 0.014354551991493422,
+     "max_km": 0.016408835834623388,
+     "windows": 21
+    },
+    "3": {
+     "median_km": 0.04138454612989259,
+     "max_km": 0.04729640244619222,
+     "windows": 21
+    },
+    "5": {
+     "median_km": 0.06787109322779668,
+     "max_km": 0.07718434223712739,
+     "windows": 21
+    },
+    "10": {
+     "median_km": 0.13078969250842465,
+     "max_km": 0.13902143703839376,
+     "windows": 7
+    },
+    "20": {
+     "median_km": 0.28286409582903854,
+     "max_km": 0.30229145984848377,
+     "windows": 7
+    }
+   },
+   "class": "predictable",
+   "best_estimate_5yr_km": 0.06784764755787642,
+   "best_estimate_basis": "the forecast's own hindcast (what body_position quotes)",
+   "hindcast": {
+    "1": {
+     "median_km": 0.014513326506744001,
+     "max_km": 0.015254196790059998,
+     "n_starts": 4
+    },
+    "2": {
+     "median_km": 0.025587865304215963,
+     "max_km": 0.027132699743312668,
+     "n_starts": 4
+    },
+    "3": {
+     "median_km": 0.041955399579481634,
+     "max_km": 0.04364894657088329,
+     "n_starts": 4
+    },
+    "4": {
+     "median_km": 0.05515977542962312,
+     "max_km": 0.05826940436511538,
+     "n_starts": 4
+    },
+    "5": {
+     "median_km": 0.06784764755787642,
+     "max_km": 0.07151273469138296,
+     "n_starts": 4
+    },
+    "6": {
+     "median_km": 0.08301689873142612,
+     "max_km": 0.0879563775929759,
+     "n_starts": 3
+    },
+    "7": {
+     "median_km": 0.0940441000370715,
+     "max_km": 0.100192892061045,
+     "n_starts": 3
+    },
+    "8": {
+     "median_km": 0.10974725353567831,
+     "max_km": 0.11569576410038851,
+     "n_starts": 3
+    },
+    "9": {
+     "median_km": 0.1261562766065003,
+     "max_km": 0.13365455729849812,
+     "n_starts": 3
+    },
+    "10": {
+     "median_km": 0.13728942052435258,
+     "max_km": 0.14544678137822484,
+     "n_starts": 3
+    },
+    "11": {
+     "median_km": 0.15360279033561547,
+     "max_km": 0.15618528812888335,
+     "n_starts": 2
+    },
+    "12": {
+     "median_km": 0.16672988137227684,
+     "max_km": 0.1702180714846631,
+     "n_starts": 2
+    },
+    "13": {
+     "median_km": 0.18074520738045588,
+     "max_km": 0.18382945823916097,
+     "n_starts": 2
+    },
+    "14": {
+     "median_km": 0.20010708176621245,
+     "max_km": 0.20412821762306443,
+     "n_starts": 2
+    },
+    "15": {
+     "median_km": 0.21134439356964946,
+     "max_km": 0.21575838701671504,
+     "n_starts": 2
+    },
+    "16": {
+     "median_km": 0.22533158349272947,
+     "max_km": 0.22533158349272947,
+     "n_starts": 1
+    },
+    "17": {
+     "median_km": 0.24122673392742347,
+     "max_km": 0.24122673392742347,
+     "n_starts": 1
+    },
+    "18": {
+     "median_km": 0.25330708044819383,
+     "max_km": 0.25330708044819383,
+     "n_starts": 1
+    },
+    "19": {
+     "median_km": 0.2744684952874327,
+     "max_km": 0.2744684952874327,
+     "n_starts": 1
+    },
+    "20": {
+     "median_km": 0.28722301451108784,
+     "max_km": 0.28722301451108784,
+     "n_starts": 1
+    }
+   }
+  }
+ }
+}

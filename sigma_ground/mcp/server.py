@@ -109,6 +109,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import circuits as t_circ
     from sigma_ground.mcp.tools import atomic as t_atom
     from sigma_ground.mcp.tools import astronomy as t_astr
+    from sigma_ground.mcp.tools import celestial_tools as t_cel
     from sigma_ground.mcp.tools import orbital as t_orb
     from sigma_ground.mcp.tools import nuclear as t_nuc
     from sigma_ground.mcp.tools import simulation as t_sim
@@ -841,6 +842,18 @@ def main() -> int:
         return t_atom.first_ionization_energy(element_symbol).to_dict()
 
     @server.tool()
+    def extreme_in_group(category: str, name: str, mode: str = "highest") -> dict[str, Any]:
+        """The element of a group with the highest or lowest value of a property, e.g. the highest noble-gas first
+        ionization energy -> He, 24.587 eV. Refuses when the group's table is incomplete (an extremum over a partial list is a guess).
+
+        Args:
+            category: the element group: "noble gas", "halogen", "alkali metal", "alkaline earth metal", "chalcogen", "pnictogen".
+            name: the property: "first ionization energy", "atomic number", "atomic mass" or "density".
+            mode: "highest" (default) or "lowest".
+        """
+        return t_atom.extreme_in_group(name, category, mode).to_dict()
+
+    @server.tool()
     def hydrogen_like_energy_level(n: int,
                                      atomic_number: int = 1) -> dict[str, Any]:
         """E_n = -13.606 Z^2 / n^2 eV."""
@@ -907,6 +920,57 @@ def main() -> int:
     def list_bodies() -> dict[str, Any]:
         """List all solar-system bodies and named stars available."""
         return t_astr.list_bodies().to_dict()
+
+    # ── two-body celestial mechanics from DE440 states ─────────────
+    @server.tool()
+    def orbital_elements(body_name: str, central_body: str = "sun", when: str = "now") -> dict[str, Any]:
+        """Osculating orbital elements (semi-major axis, eccentricity, inclination, period, periapsis, apoapsis) of a planet or moon about a central body at a date, from JPL DE440, e.g. orbital_elements('mars'), orbital_elements('io', 'jupiter')."""
+        return t_cel.orbital_elements(body_name, central_body, when).to_dict()
+
+    @server.tool()
+    def hill_radius(body_name: str, central_body: str = "sun", when: str = "now") -> dict[str, Any]:
+        """Hill radius of a body about its central body, from its DE440 orbit, e.g. hill_radius('earth')."""
+        return t_cel.hill_radius(body_name, central_body, when).to_dict()
+
+    @server.tool()
+    def sphere_of_influence(body_name: str, central_body: str = "sun", when: str = "now") -> dict[str, Any]:
+        """Laplace sphere of influence of a body about its central body, from its DE440 orbit, e.g. sphere_of_influence('mars')."""
+        return t_cel.sphere_of_influence(body_name, central_body, when).to_dict()
+
+    @server.tool()
+    def roche_limit(body_name: str, central_body: str) -> dict[str, Any]:
+        """Roche limit, rigid and fluid, of a satellite (body_name) about its primary (central_body), e.g. roche_limit('moon', 'earth')."""
+        return t_cel.roche_limit(body_name, central_body).to_dict()
+
+    @server.tool()
+    def lagrange_points(body_name: str, central_body: str = "sun", when: str = "now") -> dict[str, Any]:
+        """The five Lagrange points of a body and its central body with L4/L5 stability, e.g. lagrange_points('earth'), lagrange_points('moon', 'earth')."""
+        return t_cel.lagrange_points(body_name, central_body, when).to_dict()
+
+    @server.tool()
+    def synodic_period(body_name: str, other_body: str, central_body: str = "sun", when: str = "now") -> dict[str, Any]:
+        """Mean time between alignments of two bodies about a central body, e.g. synodic_period('earth', 'mars')."""
+        return t_cel.synodic_period(body_name, other_body, central_body, when).to_dict()
+
+    @server.tool()
+    def hohmann_transfer(body_name: str, other_body: str, central_body: str = "sun", when: str = "now") -> dict[str, Any]:
+        """Hohmann transfer burns and time between two bodies' orbits about a central body (circular coplanar idealisation), e.g. hohmann_transfer('earth', 'mars')."""
+        return t_cel.hohmann_transfer(body_name, other_body, central_body, when).to_dict()
+
+    @server.tool()
+    def perihelion_advance(body_name: str, central_body: str = "sun", when: str = "now") -> dict[str, Any]:
+        """General-relativistic perihelion advance of a body, per orbit and in arcseconds per century, e.g. perihelion_advance('mercury')."""
+        return t_cel.perihelion_advance(body_name, central_body, when).to_dict()
+
+    @server.tool()
+    def step_check(central_body: str, step_s: float) -> dict[str, Any]:
+        """Steps per orbit that an N-body integration step gives each satellite of a body (each planet for the Sun), against the rule of 300, e.g. step_check('jupiter', 1080)."""
+        return t_cel.step_check(central_body, step_s).to_dict()
+
+    @server.tool()
+    def body_skill(body_name: str) -> dict[str, Any]:
+        """How well this model predicts a body against JPL DE440, and whether it can at all (predictable, loses its orbital phase, measurements disagree), e.g. body_skill('io'), body_skill('mercury')."""
+        return t_cel.body_skill(body_name).to_dict()
 
     # ── orbital mechanics (body-aware, multi-step) ─────────────────
     @server.tool()

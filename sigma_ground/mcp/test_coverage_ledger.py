@@ -127,6 +127,15 @@ def _compute_uncovered():
                 _A.small_body(name)
             except Exception:
                 pass
+        from sigma_ground.mcp.tools import celestial_tools as _CT
+        for call in (lambda: _CT.orbital_elements("mars"), lambda: _CT.orbital_elements("io", "jupiter"), lambda: _CT.hill_radius("earth"), lambda: _CT.sphere_of_influence("earth"),
+                     lambda: _CT.roche_limit("moon", "earth"), lambda: _CT.lagrange_points("earth"), lambda: _CT.synodic_period("earth", "mars"), lambda: _CT.hohmann_transfer("earth", "mars"),
+                     lambda: _CT.perihelion_advance("mercury"), lambda: _CT.step_check("jupiter", 1080.0), lambda: _CT.body_skill("io"), lambda: _CT.body_skill("mercury"),
+                     lambda: _CT.body_skill("pan"), lambda: _CT.body_skill("nereid"), lambda: _CT.body_skill("phobos")):           # the tools the harness cannot drive from a parameter name
+            try:
+                call()
+            except Exception:
+                pass
         for args in (("mars", "2015-06-15"), ("moon", "2031-06-15", "earth")):          # a known and a predicted position (they answer or say what data is missing)
             try:
                 _A.body_position(*args)
@@ -147,7 +156,6 @@ EXCLUDE_SET = frozenset(
     # reduced_masses run only when a forecast table or error table is BUILT (scripts/make_forecast_table.py, make_prediction_error_table.py); kernel_state and hermite run inside body_position
     # but only on a machine that has the JPL kernel / the forecast table installed, so they stay listed so that this invariant does not depend on what data a machine holds.
     [_P + "reduced_model." + n for n in ("build_system", "propagate_dense", "kernel_state", "reduced_masses", "hermite")]
-    + [_P + "step_rule.step_adequacy"]      # the step rule (C14, C19) as a library function; not yet a Mentat tool, so it is listed here, see misc/COVERAGE_LEDGER.md
     + [_P + "where_when." + n for n in ("expected_error", "freshness")]          # reached by body_position only for a future date on a machine that has the sealed forecast table; unit-tested in tests/test_where_when.py
     # Nagatha-format / serialization export aggregators (re-bundle covered physics)
     + [_P + n for n in (
