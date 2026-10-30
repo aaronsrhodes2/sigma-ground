@@ -4025,3 +4025,8 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   is missing; em_adv_004 ground truth corrected (factor 1000 slip). Local-engine pair: physics 139 -> 143 (+2 from D, +2 router flicker),
   maths 328. The box router problem was already fixed by the other session's def05c7 deploy (12:40); live integral correct again.
   Honest scope note given to the Captain: the audit was a purpose scorecard with sampled reads, not a read of every file.
+- DEPLOYED (SkippyTel 6fd5aaa, pin 7349e7c, live ~17 min after the push): the five fixed questions answer right on skippy-core:7350
+  (f' + 2f = 0 -> Eq(f(x), C1*exp(-2*x)); the 2x2 system -> ['2','1']; light across 1 parsec -> 3.2616 year; 1 uF plates -> 112.94 m^2;
+  Mars surface gravity -> 3.711 m/s^2). The whole MCP test tree + guards passed before the bump (exit 0, 1 skipped). Still open: group E
+  (extremum), B (value_float for the physics scorer), msuite_0285 (y(t) with no variable from the router), mech_intro_015, gr_008,
+  the adversarial refusals (8/18), the unasked unit-conversion tails.
