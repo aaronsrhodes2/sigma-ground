@@ -21,6 +21,7 @@ from sigma_ground.mcp.benchmark import router_plan as RP
 from sigma_ground.mcp.benchmark import router_recipes as RR
 from sigma_ground.mcp.benchmark import router_recipes_v3 as RR3  # noqa: F401  (registers the v3 recipes)
 from sigma_ground.mcp.benchmark import router_recipes_v31 as RR31  # noqa: F401  (registers the v3.1 recipes)
+from sigma_ground.mcp.benchmark import router_recipes_sky as RRS  # noqa: F401  (registers the sky recipes)
 
 
 def test_recipe_ids_are_unique_and_there_are_enough():
