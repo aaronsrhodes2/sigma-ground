@@ -1,6 +1,6 @@
 """Driver for scripts/system_local_moons.py: one subprocess per (system, window), retried, a log with ' done ' lines and a 'finished:' marker for jobwatch.
 
-usage: python scripts/run_system_local.py --outdir D:/datasets/sigma_runs/sysloc --systems Jupiter Saturn Uranus Neptune Pluto --windows j2010 j2015 --workers 6 [--steps-per-orbit 300] [--zonals]
+usage: python scripts/run_system_local.py --outdir D:/datasets/sigma_runs/sysloc --systems Jupiter Saturn Uranus Neptune Pluto --windows j2010 j2015 --workers 6 [--steps-per-orbit 300] [--zonals] [--reduced] [--with-planets] [--fixture PATH] [--tag NAME]
 """
 from __future__ import annotations
 
@@ -22,6 +22,9 @@ def main() -> int:
     ap.add_argument("--years", type=int, default=5)
     ap.add_argument("--steps-per-orbit", type=float, default=300.0)
     ap.add_argument("--zonals", action="store_true")
+    ap.add_argument("--reduced", action="store_true")
+    ap.add_argument("--with-planets", action="store_true")
+    ap.add_argument("--fixture", type=Path, default=None)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--retries", type=int, default=2)
     a = ap.parse_args()
@@ -35,7 +38,7 @@ def main() -> int:
         s, w = job
         out = a.outdir / f"{s}_{w}_spo{int(a.steps_per_orbit)}.json"
         cmd = [sys.executable, "-X", "utf8", str(HERE / "system_local_moons.py"), "--system", s, "--windows", w, "--years", str(a.years),
-               "--steps-per-orbit", str(a.steps_per_orbit), "--out", str(out)] + (["--zonals"] if a.zonals else [])
+               "--steps-per-orbit", str(a.steps_per_orbit), "--out", str(out)] + (["--zonals"] if a.zonals else []) + (["--reduced"] if a.reduced else [])               + (["--with-planets"] if a.with_planets else []) + (["--fixture", str(a.fixture)] if a.fixture else [])
         for k in range(a.retries + 1):
             r = subprocess.run(cmd, capture_output=True, text=True)
             if r.returncode == 0 and out.exists():

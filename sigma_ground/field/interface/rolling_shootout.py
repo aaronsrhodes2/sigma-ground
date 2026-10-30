@@ -585,6 +585,29 @@ def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
 PREDICTORS.extend(restated_predictors())
 
 
+LAYER_ABLATIONS = ("eih", "zonals", "tides", "srp", "asteroids", "ring", "kbo", "c22")
+
+
+def layer_ablation_predictors(dt_days: float = 0.025) -> list[Predictor]:
+    """`restated_zon` (the forecast's own model) with ONE layer removed each, for the layer-size table (misc/CANDIDATE_LEDGER.md C23). Each differs from restated_zon in that layer alone:
+    eih = the N-body 1PN (GR) layer, zonals = the J2/J3/J4 layers, tides = the Love-number tide, srp = solar radiation pressure, asteroids/ring/kbo = the three prescribed perturber sets, c22 = the Moon's sectoral C22."""
+    import dataclasses as _dc
+    base = [p for p in PREDICTORS if p.name == "restated_zon"][0]
+    t = base.toggles
+    drop = lambda *names: tuple(x for x in base.perturber_sets if x not in names)
+    arms = {"eih": dict(toggles=_dc.replace(t, eih_cross=False)),
+            "zonals": dict(toggles=_dc.replace(t, j2_zonal=False, j3_zonal=False, j4_zonal=False)),
+            "tides": dict(toggles=_dc.replace(t, tidal_force=False)),
+            "srp": dict(toggles=_dc.replace(t, srp=False)),
+            "asteroids": dict(perturber_sets=drop("asteroids")), "ring": dict(perturber_sets=drop("ring")), "kbo": dict(perturber_sets=drop("kbo")),
+            "c22": dict(lunar_c22=0.0)}
+    assert tuple(arms) == LAYER_ABLATIONS
+    return [_dc.replace(base, name=f"restated_zon_no_{k}", description=f"restated_zon without the {k} layer (one layer removed)", **kw) for k, kw in arms.items()]
+
+
+PREDICTORS.extend(layer_ablation_predictors())
+
+
 # ── Initial state extraction ──────────────────────────────────────────────
 
 def _load_de440() -> dict:

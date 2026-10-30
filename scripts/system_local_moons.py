@@ -7,7 +7,10 @@ because moons are scored RELATIVE to the planet. Not a replacement for the full 
 
 The step is chosen as (shortest osculating period in the system) / steps-per-orbit; a convergence pair (--steps-per-orbit 150 and 300) shows whether it was fine enough.
 
-usage: python scripts/system_local_moons.py --system Jupiter --windows j2010 j2015 --years 5 [--steps-per-orbit 150] [--zonals] [--fixture PATH] [--out FILE.json]
+Two options for testing what the local model leaves out (misc/CANDIDATE_LEDGER.md C21, C23): --reduced keeps only the moons of REDUCED_MOONS (drops the small fast ones, which sets a coarser step and a cheaper run, and
+barely touches the slow moons), --with-planets adds every other planet (and the Moon) as a perturber that is not scored.
+
+usage: python scripts/system_local_moons.py --system Jupiter --windows j2010 j2015 --years 5 [--steps-per-orbit 150] [--zonals] [--reduced] [--with-planets] [--fixture PATH] [--out FILE.json]
 """
 from __future__ import annotations
 
@@ -25,6 +28,10 @@ _ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ROOT))
 FIXTURE = _ROOT / "sigma_ground/field/interface/fixtures/de440_state_vectors_v2physics_r7.json"
 KEYS = ("x_km", "y_km", "z_km", "vx_km_s", "vy_km_s", "vz_km_s")
+REDUCED_MOONS = {"Jupiter": ("Io", "Europa", "Ganymede", "Callisto", "Himalia"),
+                 "Saturn": ("Mimas", "Enceladus", "Tethys", "Dione", "Rhea", "Titan", "Hyperion", "Iapetus", "Phoebe"),
+                 "Neptune": ("Triton", "Nereid", "Proteus")}
+OTHER_PLANETS = ("Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto")
 
 
 def system_members(snap: dict, planet: str) -> list[str]:
@@ -44,17 +51,19 @@ def periods_days(snap: dict, planet: str, moons: list[str]) -> dict[str, float]:
     return out
 
 
-def run_system(planet: str, window: str, years: int, steps_per_orbit: float, zonals: bool, fix: dict, dt_override: float | None = None) -> dict:
+def run_system(planet: str, window: str, years: int, steps_per_orbit: float, zonals: bool, fix: dict, dt_override: float | None = None, reduced: bool = False, with_planets: bool = False) -> dict:
     from sigma_ground.field.interface import rolling_shootout as rs
     base = [p for p in rs.canonical_predictors(0.0125) if p.name == "de440_stack"][0]
     snap0 = fix["snapshots"][window]
     members = system_members(snap0, planet)
+    if reduced:
+        members = [planet] + [m for m in members[1:] if m in REDUCED_MOONS[planet]]
     moons = members[1:]
     per = periods_days(snap0, planet, moons)
     dt = dt_override or min(0.0125, min(v for v in per.values() if v == v) / steps_per_orbit)
     pred = dataclasses.replace(base, dt_days=dt, zonal_overrides=rs._MEASURED_ZONALS if zonals else ())
     bodies, names, _, _ = rs._build_bodies_at_snapshot(window, fix, pred)
-    keep = {"Sun", *members}
+    keep = {"Sun", *members} | (set(OTHER_PLANETS) if with_planets else set())
     sel = [i for i, n in enumerate(names) if n in keep]
     bodies = [bodies[i] for i in sel]
     names = [names[i] for i in sel]
@@ -72,7 +81,7 @@ def run_system(planet: str, window: str, years: int, steps_per_orbit: float, zon
             truth = np.array([b[m][c] - b[planet][c] for c in KEYS[:3]])
             e.append(float(np.linalg.norm((np.asarray(pm) - np.asarray(pp)) - truth)))
         res[m] = e
-    return {"system": planet, "window": window, "dt_days": dt, "steps_per_orbit": steps_per_orbit, "zonals": zonals, "period_days": per, "err_km": res, "wall_s": time.time() - t0, "bodies": names}
+    return {"system": planet, "window": window, "dt_days": dt, "steps_per_orbit": steps_per_orbit, "zonals": zonals, "reduced": reduced, "with_planets": with_planets, "fixture": str(fix.get("_fixture_name", "")), "period_days": per, "err_km": res, "wall_s": time.time() - t0, "bodies": names}
 
 
 def main() -> int:
@@ -83,13 +92,16 @@ def main() -> int:
     ap.add_argument("--steps-per-orbit", type=float, default=150.0)
     ap.add_argument("--dt", type=float, default=None, help="override the step (days)")
     ap.add_argument("--zonals", action="store_true")
+    ap.add_argument("--reduced", action="store_true", help="keep only the moons of REDUCED_MOONS")
+    ap.add_argument("--with-planets", action="store_true", help="add the other planets (and the Moon) as unscored perturbers")
     ap.add_argument("--fixture", type=Path, default=FIXTURE)
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
     fix = json.loads(a.fixture.read_text())
+    fix["_fixture_name"] = a.fixture.name
     runs = []
     for w in a.windows:
-        r = run_system(a.system, w, a.years, a.steps_per_orbit, a.zonals, fix, a.dt)
+        r = run_system(a.system, w, a.years, a.steps_per_orbit, a.zonals, fix, a.dt, a.reduced, a.with_planets)
         runs.append(r)
         print(f"{a.system} {w} dt={r['dt_days']:.5f} d, {r['wall_s']:.0f} s", flush=True)
         for m, e in r["err_km"].items():
