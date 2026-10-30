@@ -55,7 +55,7 @@ CASCADE_MODULES = {
     "cosmology": "cosmology_classifier", "math": "math_classifier",
     "thermo": "thermo_classifier", "modern": "modern_classifier",
     "classical_intro": "classical_intro_classifier", "optics": "optics_classifier",
-    "astro": "astro_classifier", "semantic": "interpreter_demo",
+    "astro": "astro_classifier", "group_extreme": "group_extreme_classifier", "semantic": "interpreter_demo",
 }
 # Tools a classifier can reach that its source does not spell out as a string literal.
 CASCADE_ALSO = {

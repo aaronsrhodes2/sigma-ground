@@ -86,7 +86,70 @@ _FIRST_IONIZATION_EV: dict[str, tuple[float, str]] = {
     "Au": (9.226,   "NIST ASD"),
     "Hg": (10.438,  "NIST ASD"),
     "U":  (6.194,   "NIST ASD"),
+    # the remaining measured noble gases, so that a question over the whole group can be answered honestly (2026-10-30);
+    # Og has no measured first IE and is left out
+    "Kr": (13.9996, "NIST ASD"),
+    "Xe": (12.1298, "NIST ASD"),
+    "Rn": (10.7485, "NIST ASD"),
 }
+
+
+# Element groups by the IUPAC names a question uses. Og is omitted from the noble gases: it has no measured properties here.
+ELEMENT_GROUPS: dict[str, tuple[str, ...]] = {
+    "noble gas": ("He", "Ne", "Ar", "Kr", "Xe", "Rn"),
+    "halogen": ("F", "Cl", "Br", "I", "At"),
+    "alkali metal": ("Li", "Na", "K", "Rb", "Cs", "Fr"),
+    "alkaline earth metal": ("Be", "Mg", "Ca", "Sr", "Ba", "Ra"),
+    "chalcogen": ("O", "S", "Se", "Te", "Po"),
+    "pnictogen": ("N", "P", "As", "Sb", "Bi"),
+}
+_GROUP_ALIASES = {"noble gases": "noble gas", "inert gas": "noble gas", "inert gases": "noble gas", "rare gas": "noble gas", "rare gases": "noble gas",
+                  "halogens": "halogen", "alkali metals": "alkali metal", "alkali": "alkali metal", "alkaline earth metals": "alkaline earth metal",
+                  "alkaline earth": "alkaline earth metal", "alkaline earths": "alkaline earth metal", "chalcogens": "chalcogen", "pnictogens": "pnictogen"}
+
+
+def _group_property(symbol: str, prop: str):
+    """(value, units, source) of one element's property, or None when no table here has it."""
+    if prop == "first ionization energy":
+        row = _FIRST_IONIZATION_EV.get(symbol)
+        return (row[0], "eV", f"sigma-ground via {row[1]}") if row else None
+    import periodictable as _pt
+    el = _pt.elements.symbol(symbol)
+    if prop == "atomic number":
+        return float(el.number), "", "periodictable (IUPAC)"
+    if prop == "atomic mass":
+        return float(el.mass), "amu", "periodictable (IUPAC standard atomic weights)"
+    if prop == "density":
+        return (float(el.density), "g/cm^3", "periodictable") if getattr(el, "density", None) else None
+    return None
+
+
+def extreme_in_group(prop: str, group: str, which: str = "highest") -> ToolResult:
+    """The element of a group with the highest or lowest value of a property: 'highest noble gas first ionization energy' -> He, 24.587 eV.
+
+    prop: 'first ionization energy', 'atomic number', 'atomic mass' or 'density'. group: an IUPAC group name ('noble gas', 'halogen',
+    'alkali metal', 'alkaline earth metal', 'chalcogen', 'pnictogen'). which: 'highest' or 'lowest'.
+    Refuses when any member of the group is missing from the table: a maximum over an incomplete list is a guess.
+    """
+    g = _GROUP_ALIASES.get(group.strip().lower(), group.strip().lower())
+    members = ELEMENT_GROUPS.get(g)
+    inputs = {"property": prop, "group": group, "which": which}
+    if members is None:
+        return ToolResult(value=None, source="sigma-ground (element groups)", inputs=inputs,
+                          notes=f"'{group}' is not a group here. Known: {', '.join(ELEMENT_GROUPS)}.")
+    rows = {s: _group_property(s, prop) for s in members}
+    missing = [s for s, r in rows.items() if r is None]
+    if missing:
+        return ToolResult(value=None, source="sigma-ground (element groups)", inputs=inputs,
+                          notes=f"No {prop} here for {', '.join(missing)} of the {g}s: the {which} over the group cannot be stated honestly.")
+    pick = (max if which.lower() in ("highest", "largest", "greatest", "biggest", "max", "maximum", "most") else min)(rows, key=lambda s: rows[s][0])
+    value, units, source = rows[pick]
+    ordered = sorted(rows, key=lambda s: rows[s][0], reverse=pick == max(rows, key=lambda s: rows[s][0]))
+    return ToolResult(
+        value=value, units=units, source=source, provenance_tag="VERIFIED",
+        inputs={**inputs, "element": pick, "group_members": list(members)},
+        notes=f"{pick} has the {which} {prop} of the {g}s: " + ", ".join(f"{s} {rows[s][0]:g}" for s in ordered) + f" {units}".rstrip() + ".",
+    )
 
 
 def first_ionization_energy(element_symbol: str) -> ToolResult:

@@ -75,6 +75,16 @@ If every row lands: physics 132 → **148 of 150** (A+B+C+D+E = 16; B is the sco
   contract adds `value_float` beside a symbolic `value` for the reader. Paired on the local engine: physics **143 -> 147, +4 -0**
   (math_001, 002, 004, 005). Left on the suite: mech_intro_015 (trick), gr_008 (not one formula), atom_004 (group E).
 
+- **E, extremum over an element group** (2026-10-30): `atomic.extreme_in_group(property, group, which)` with IUPAC group tables; it
+  REFUSES when any member lacks the property (an extremum over a partial list is a guess), so Kr, Xe and Rn first ionisation energies
+  were added from NIST ASD to complete the noble gases (Og has no measured value and is not a member). Registered as the MCP tool
+  `extreme_in_group(category, name, mode)` with names already in the vocabulary (budget unchanged), in the manifest, and as a cascade cue
+  (`group_extreme_classifier`, 14th cascade module). Paired on the local engine: physics **147 -> 148, +1 -0** (atom_004 -> He, 24.587 eV).
+
+Left on the suites after rounds 1-5: mech_intro_015 (ground-relative speed at GEO is 0: a knowledge trap, the tool's 3075 m/s is the
+inertial speed), gr_008 (GPS altitude from 38 us/day: GR and SR terms together, not one formula), msuite_0285 (the router passes no variable
+for y(t)). From 132/150 and 317/329 to **148/150 and 328/329** on one engine, no row lost at any step.
+
 ## Order of work
 
 1. **A, field pick** (+7, a day). The largest gain, pure code, and it fixes the live dashboard too: the daily live rows count a dict as "not

@@ -110,6 +110,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import atomic as t_atom
     from sigma_ground.mcp.tools import astronomy as t_astr
     from sigma_ground.mcp.tools import celestial_tools as t_cel
+    from sigma_ground.mcp.tools import dense_tools as t_dense
     from sigma_ground.mcp.tools import orbital as t_orb
     from sigma_ground.mcp.tools import nuclear as t_nuc
     from sigma_ground.mcp.tools import simulation as t_sim
@@ -971,6 +972,17 @@ def main() -> int:
     def body_skill(body_name: str) -> dict[str, Any]:
         """How well this model predicts a body against JPL DE440, and whether it can at all (predictable, loses its orbital phase, measurements disagree), e.g. body_skill('io'), body_skill('mercury')."""
         return t_cel.body_skill(body_name).to_dict()
+
+    # ── compact stars ──────────────────────────────────────────────
+    @server.tool()
+    def chandrasekhar_limit(mu_e: float = 2.0) -> dict[str, Any]:
+        """Chandrasekhar's maximum mass of a white dwarf, e.g. chandrasekhar_limit() or chandrasekhar_limit(mu_e=2)."""
+        return t_dense.chandrasekhar_limit(mu_e).to_dict()
+
+    @server.tool()
+    def white_dwarf(central_density_kg_m3: float, mu_e: float = 2.0) -> dict[str, Any]:
+        """Mass and radius of a cold white dwarf from its central density, e.g. white_dwarf(1e9)."""
+        return t_dense.white_dwarf(central_density_kg_m3, mu_e).to_dict()
 
     # ── orbital mechanics (body-aware, multi-step) ─────────────────
     @server.tool()

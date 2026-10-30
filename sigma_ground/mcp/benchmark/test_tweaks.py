@@ -77,7 +77,7 @@ def test_environment_configures_a_run(monkeypatch):
 def test_every_cascade_call_in_the_harness_sits_behind_its_own_switch():
     src = (BENCH / "run_sigma_ground.py").read_text(encoding="utf-8")
     calls = re.findall(r"^\s+\w+ = classify_for_(\w+)\(question\)(.*)$", src, re.M)
-    assert len(calls) == 13, [c[0] for c in calls]
+    assert len(calls) == 14, [c[0] for c in calls]       # 14 since group_extreme (2026-10-30)
     for group, rest in calls:
         assert f'_tw.on("cascade.{group}")' in rest, f"classify_for_{group} runs ungated"
         assert f"cascade.{group}" in T.REGISTRY

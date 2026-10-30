@@ -1308,6 +1308,27 @@ def cascade_answer(question: str, t0: float | None = None, router: bool = False)
     from sigma_ground.mcp.benchmark.modern_classifier import (
         classify_for_modern, execute_modern_match,
     )
+    # The highest / lowest value of a property over an element group ("highest noble gas first ionization
+    # energy"): an argmax over a set, not a lookup (atom_004; STATIC_INTENTS_PLAN group E).
+    from sigma_ground.mcp.benchmark.group_extreme_classifier import (
+        classify_for_group_extreme, execute_group_extreme_match,
+    )
+    ge_match = classify_for_group_extreme(question) if _tw.on("cascade.group_extreme") else None
+    if ge_match is not None:
+        val, units, answer_text = execute_group_extreme_match(ge_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "group_extreme_classifier_hit": ge_match.tool,
+            }
+
     modern_match = classify_for_modern(question) if _tw.on("cascade.modern") else None
     if modern_match is not None:
         val, units, answer_text = execute_modern_match(modern_match)

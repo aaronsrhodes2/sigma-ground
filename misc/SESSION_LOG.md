@@ -4048,3 +4048,5 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   glass, mercury, iron, gold, copper) renders in `plain` with emergent colours. Limits seen: the Python shader is diffuse, so glass is
   pale and opaque (transmission is shade.py's v2); mercury mirrors the dark ground; granite/oak/ice have no colour model yet (grey);
   `void`'s studio-light spheres sit inside a 35-degree orbit. tests/test_voxel_scene.py (3). Next: the tick.
+- E built (2026-10-30): extreme_in_group (tool + cascade cue + manifest; Kr/Xe/Rn first IEs added from NIST ASD so the noble-gas group is
+  complete; refuses incomplete groups). Local pair: physics 147 -> 148 (+1 -0, atom_004). Suites now 148/150 and 328/329.
