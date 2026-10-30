@@ -4033,3 +4033,7 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - B built (2026-10-30): scorer reads symbolic numbers and lists; contract adds value_float beside a symbolic value. Local pair: physics
   143 -> 147 (+4 -0: math_001/002/004/005). Suite now 147/150 physics, 328/329 maths on the local engine; open: mech_intro_015, gr_008,
   atom_004 (E), msuite_0285.
+- B deployed and verified live (sigma-ground 3f374fe via SkippyTel 6ff68b2; value_float pass-through in the stage, SkippyTel 9258c21):
+  "integral of x squared from 0 to 1" -> value 1/3, value_float 0.3333 on skippy-core:7350. Lesson: tools/check_mentat_deploy.sh prints
+  "ok: ... runs origin/master (<sha>)" when in sync, so a wait loop must grep the sha, not "runs <sha>". contract.py has another session's
+  uncommitted edit in the shared checkout; left alone.
