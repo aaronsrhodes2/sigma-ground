@@ -4037,3 +4037,8 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   "integral of x squared from 0 to 1" -> value 1/3, value_float 0.3333 on skippy-core:7350. Lesson: tools/check_mentat_deploy.sh prints
   "ok: ... runs origin/master (<sha>)" when in sync, so a wait loop must grep the sha, not "runs <sha>". contract.py has another session's
   uncommitted edit in the shared checkout; left alone.
+- Voxel theater step 1 (2026-10-30): MineBench builds as matter. `deckard/voxel_exec.py` + `voxel_exec.js` run a model's voxel.exec
+  code (block/box/line, y-up) in `node --permission` and turn it into a Deckard VoxelField whose blocks are sigma-ground materials
+  (MineBench (x,y,z) -> sigma (x,-z,y)). Every name goes through `material_profile`; an ungrounded one is refused with its block count,
+  never given a default density. Air = empty; "air" carves. Demo: granite floor, glass tank, mercury pool, iron bolt, gold ring at
+  5 cm blocks -> 6 labels, 284.4 kg, contact areas scanned. tests/test_voxel_exec.py (7). Next: Radiance theater render, then the tick.
