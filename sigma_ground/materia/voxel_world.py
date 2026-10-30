@@ -335,49 +335,6 @@ class VoxelWorld:
                     break
         return {"solid_pieces_moved": moved_pieces, "liquid_moves": liquid_moves}
 
-    def resample(self, factor):
-        """Change the theater's resolution in place, same space (``deckard.voxel_resample``):
-        2 splits every block into 8, 0.5 merges every 8 into 1, n or 1/n in general.
-
-        Finer is exact: every new block copies its parent's material, temperature,
-        melt and boil, so mass and energy are unchanged. Coarser keeps, per merged
-        block, the material most of its blocks were (``coarsen_labels``) and the state
-        of THOSE blocks: temperature weighted by heat capacity, melt and boil averaged.
-        Whatever else was in the merged block is gone; the returned report says how
-        much mass and energy that was.
-        """
-        import numpy as np
-        from ..deckard.voxel_resample import blocks, coarsen_labels, pad_to, parse_factor, refine
-
-        how, n = parse_factor(factor)
-        m0, E0 = self.mass_kg(), self.energy_J()
-        lo = np.asarray(self.center) - np.asarray(self.label.shape) * self.pitch / 2
-        if how == "refine":
-            self.label, self.T, self.melt, self.boil = (refine(a, n) for a in (self.label, self.T, self.melt, self.boil))
-            self.pitch /= n
-            self.floor_z *= n
-        else:
-            coarse, fine = coarsen_labels(self.label, n, [0.0] + [c["rho"] for c in self.cards[1:]])
-            kept = fine == coarse[..., None]                 # the winning material's fine blocks
-            cap = blocks(pad_to(self._grid("rho_cp"), n, 0.0), n) * kept
-
-            def mean(a, fill, weight):
-                b = blocks(pad_to(a, n, fill), n)
-                w = weight.sum(-1)
-                plain = (b * kept).sum(-1) / np.maximum(kept.sum(-1), 1)
-                return np.where(w > 0, (b * weight).sum(-1) / np.where(w > 0, w, 1.0), plain)
-
-            T, melt, boil = mean(self.T, self.ambient_T, cap), mean(self.melt, 0.0, cap), mean(self.boil, 0.0, cap)
-            air = coarse == 0
-            T[air], melt[air], boil[air] = self.ambient_T, 0.0, 0.0
-            self.label, self.T, self.melt, self.boil = coarse, T, melt, boil
-            self.pitch *= n
-            self.floor_z //= n
-        self.cell_m3 = self.pitch ** 3
-        self.center = tuple(lo + np.asarray(self.label.shape) * self.pitch / 2)
-        return {"factor": factor, "block_m": self.pitch, "blocks": int((self.label > 0).sum()),
-                "mass_change_kg": self.mass_kg() - m0, "energy_change_J": self.energy_J() - E0}
-
     def to_field(self):
         """The world now, as a ``VoxelField`` (renderable), carrying ``temperature_k``
         and ``melt_fraction`` as per-cell scalar fields."""

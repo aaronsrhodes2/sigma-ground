@@ -4078,3 +4078,12 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   the denser; per-material mass change in the report; the world keeps the winners' heat-capacity-weighted temperature). Same space:
   the grid's low corner stays put. Demo tank at 5 cm: x2 = 3304 blocks, 297.9 kg (exact); x0.5 = 65 blocks, 356.6 kg (thin floor and
   walls doubled, bolt and ring gone). tests/test_voxel_resample.py (7).
+- Deploy-integrity bug found while verifying E live (2026-10-30): the live Mentat held 3f374fe's sigma-ground tree while /version said
+  8145ed8 (hashes of 5 files matched 3f374fe; group_extreme_classifier.py absent). Cause: SkippyTel core/cd/cd.py `vendor` took the pin from
+  the installed /opt copy of deploy.json (refreshed after the build), not the checkout's. Fixed SkippyTel 2f954c3 (checkout's pins; VENDORED_REF
+  marker; /version shows build_arg_ref on mismatch; tests). The fixed cd.py takes effect from the deploy after this one.
+- Resolution is set once, at build time (the Captain): `field_from_voxel_exec(..., resolution=n|1/n, keep=...)`; VoxelWorld.resample
+  removed (a running theater never changes resolution). Merging gained keep="mass" (default, the Captain's idea): each material gets
+  round(count / n^3) merged blocks, fullest cells first, ties spread by a 3-D ordered dither (a one-block floor -> an even checkerboard
+  with exactly its mass); keep="shape" is the old per-block vote. Demo tank at x0.5: shape 356.6 kg, mass 307.9 kg vs 297.9 (iron and
+  granite exact; the rest is rounding to whole merged blocks: mercury 13.5 -> 14, copper 1.5 -> 2, a lone gold block -> 0).

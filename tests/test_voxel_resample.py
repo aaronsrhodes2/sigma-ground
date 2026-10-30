@@ -1,4 +1,4 @@
-"""Tests for theater resolution: deckard.voxel_resample and VoxelWorld.resample."""
+"""Tests for theater resolution (set once, at build time): deckard.voxel_resample."""
 import shutil
 
 import pytest
@@ -9,7 +9,6 @@ pytestmark = pytest.mark.skipif(shutil.which("node") is None, reason="needs Node
 
 from sigma_ground.deckard.voxel_exec import field_from_voxel_exec  # noqa: E402
 from sigma_ground.deckard.voxel_resample import coarsen_labels, parse_factor, resample_field  # noqa: E402
-from sigma_ground.materia.voxel_world import VoxelWorld  # noqa: E402
 
 TANK = ('box(0,0,0,7,0,7,"granite"); box(1,1,1,6,5,6,"glass"); box(2,1,2,5,5,5,"air");'
         'box(2,1,2,5,2,5,"mercury"); block(3,3,3,"iron")')
@@ -52,39 +51,49 @@ def test_half_resolution_drops_lone_blocks_and_says_so():
     assert coarse.mass_kg == pytest.approx(rep["mass_after_kg"])
 
 
-def test_merge_takes_the_majority_and_a_tie_goes_to_the_denser():
+def test_shape_mode_takes_the_majority_and_a_tie_goes_to_the_denser():
+    d = [0.0, 2650.0, 19300.0]
     label = np.zeros((2, 2, 2), dtype=np.int32)
     label[0] = 1                                         # 4 granite
     label[1] = 2                                         # 4 gold: a tie
-    out, _ = coarsen_labels(label, 2, [0.0, 2650.0, 19300.0])
-    assert out[0, 0, 0] == 2
+    assert coarsen_labels(label, 2, d, "shape")[0][0, 0, 0] == 2
     label[1, 1, 1] = 1                                   # 5 granite, 3 gold
-    assert coarsen_labels(label, 2, [0.0, 2650.0, 19300.0])[0][0, 0, 0] == 1
+    assert coarsen_labels(label, 2, d, "shape")[0][0, 0, 0] == 1
     label[:] = 0
     label[0, 0, :] = 1                                   # 2 of 8: air wins
-    assert coarsen_labels(label, 2, [0.0, 2650.0, 19300.0])[0][0, 0, 0] == 0
+    assert coarsen_labels(label, 2, d, "shape")[0][0, 0, 0] == 0
 
 
-def test_world_refines_exactly_and_keeps_running(tank):
-    T = np.where(tank.label_grid == tank.materials.index("iron"), 500.0, 293.15)
-    w = VoxelWorld(tank, temperature_k=T, env="ISM")
-    m0, E0, floor = w.mass_kg(), w.energy_J(), w.floor_z
-    rep = w.resample(2)
-    assert rep["mass_change_kg"] == pytest.approx(0.0, abs=1e-12 * m0)
-    assert rep["energy_change_J"] == pytest.approx(0.0, abs=1e-9 * E0)
-    assert w.floor_z == 2 * floor and w.T.max() == 500.0
-    w.run(3, 0.01)
-    assert w.mass_kg() == pytest.approx(m0, rel=1e-12)
+def test_mass_mode_turns_a_thin_floor_into_an_even_checkerboard():
+    label = np.zeros((8, 8, 2), dtype=np.int32)
+    label[:, :, 0] = 1                                   # a one-block granite floor: half of every merged cell
+    coarse, _ = coarsen_labels(label, 2, [0.0, 2650.0])
+    assert coarse.sum() == 8                             # 64 blocks / 8 = 8 merged blocks: the mass, exactly
+    layer = coarse[:, :, 0]
+    assert ((np.indices(layer.shape).sum(0) % 2 == 0) == (layer == 1)).all() or            ((np.indices(layer.shape).sum(0) % 2 == 1) == (layer == 1)).all()
+    shape, _ = coarsen_labels(label, 2, [0.0, 2650.0], "shape")
+    assert shape.sum() == 16                             # the per-block vote doubles it
 
 
-def test_world_coarsens_with_heat_capacity_weighted_temperature():
-    field, _ = field_from_voxel_exec('box(0,0,0,1,1,1,"copper")', block_m=0.01)
-    T = np.full(field.label_grid.shape, 293.15)
-    cu = field.label_grid == field.materials.index("copper")
-    T[cu] = np.where(np.arange(cu.sum()) % 2, 400.0, 300.0)   # half the copper hot, half cool
-    w = VoxelWorld(field, temperature_k=T, env="ISM")
-    E0 = w.energy_J()
-    w.resample(0.5)
-    cells = w.label == w.materials.index("copper")
-    assert cells.sum() >= 1 and np.allclose(w.T[cells], 350.0)
-    assert w.energy_J() == pytest.approx(E0, rel=1e-9)        # one material, all kept: no energy lost
+def test_mass_mode_fills_the_fullest_cells_first():
+    label = np.zeros((4, 2, 2), dtype=np.int32)
+    label[0:2] = 1                                       # one merged cell full of iron
+    label[2, 0, 0] = 1                                   # and a stray block in the next
+    coarse, _ = coarsen_labels(label, 2, [0.0, 7870.0])
+    assert coarse[0, 0, 0] == 1 and coarse[1, 0, 0] == 0
+
+
+def test_mass_is_kept_to_within_half_a_merged_block_per_material(tank):
+    coarse, rep = resample_field(tank, 0.5)
+    merged_m3 = coarse.voxel_size ** 3
+    for m, b in rep["materials_before"].items():
+        rho = b["mass_kg"] / (b["blocks"] * tank.voxel_size ** 3)
+        assert abs(rep["materials_after"][m]["mass_kg"] - b["mass_kg"]) <= 0.5 * rho * merged_m3 + 1e-9
+
+
+def test_resolution_is_set_when_the_theater_is_built():
+    field, rep = field_from_voxel_exec('box(0,0,0,3,3,3,"copper")', block_m=0.1, resolution=2)
+    assert field.voxel_size == pytest.approx(0.05) and rep["block_m"] == pytest.approx(0.05)
+    assert field.mass_kg == pytest.approx(rep["resolution"]["mass_before_kg"], rel=1e-12)
+    coarse, rep = field_from_voxel_exec('box(0,0,0,3,3,3,"copper")', block_m=0.1, resolution=0.5)
+    assert coarse.voxel_size == pytest.approx(0.2) and rep["resolution"]["keep"] == "mass"

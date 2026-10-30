@@ -96,13 +96,19 @@ def _resolve(names, counts, aliases):
 
 def field_from_voxel_exec(code: str, *, block_m: float | None = None, extent_m: float | None = None,
                           grid_size: int = 256, seed: int = 1, aliases: dict | None = None,
-                          margin: int = 2, timeout_s: float = 60.0):
+                          resolution: float = 1, keep: str = "mass", margin: int = 2,
+                          timeout_s: float = 60.0):
     """Build a ``VoxelField`` from MineBench voxel.exec code whose blocks are materials.
 
     Scale: the theater is a real piece of space. ``extent_m`` is its edge in
     metres (a room, a planet, a star system), and a block is then
     ``extent_m / grid_size`` across, holding that block's volume of its
     material. Or give ``block_m`` directly. Neither: 1 m blocks (Minecraft's).
+
+    ``resolution`` is set here, once, for the life of the theater: the build is
+    written in its own blocks, and the theater cuts the same space n times finer
+    (2: every written block is 8) or coarser (0.5: every 8 are one, merged by
+    ``keep``, "mass" or "shape"; ``voxel_resample``). Nothing changes it later.
     ``aliases``: extra name → material mappings, on top of ``MINECRAFT_ALIASES``.
 
     Returns ``(field, report)``. ``report`` says, per canonical material, the
@@ -157,6 +163,11 @@ def field_from_voxel_exec(code: str, *, block_m: float | None = None, extent_m: 
                       extra_note=f"from MineBench voxel.exec, {len(cells)} blocks of {block_m} m")
     report = {"block_m": pitch, "materials": report_mats, "blocks": int(len(cells)), "placed": raw["placed"],
               "outside": raw["outside"], "ms": raw["ms"]}
+    if resolution != 1:
+        from .voxel_resample import resample_field
+        field, rs = resample_field(field, resolution, keep)
+        report["block_m"] = field.voxel_size
+        report["resolution"] = rs
     return field, report
 
 
