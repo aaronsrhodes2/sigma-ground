@@ -34,6 +34,7 @@ sys.path.insert(0, str(REPO))
 from sigma_ground.mcp import param_names as PN  # noqa: E402
 from sigma_ground.mcp.benchmark import router_dataset as D  # noqa: E402
 from sigma_ground.mcp.benchmark import router_plan as RP  # noqa: E402
+from sigma_ground.mcp.benchmark import router_recipes_fold as FOLD  # noqa: E402
 from sigma_ground.mcp.benchmark import router_quantities as QR  # noqa: E402
 
 PADDED_EXPONENT = re.compile(r"\d[eE][-+]?0\d")
@@ -211,7 +212,8 @@ def assemble(v1_dir: Path, recipes_dir, out_dir: Path, teacher=None, variants: i
     v1_counts = {"train": len(train), "val": len(val)}
 
     dirs = [recipes_dir] if isinstance(recipes_dir, Path) else list(recipes_dir)
-    seeds = [sd for d in dirs for sd in read_jsonl(d / "seeds.jsonl")]
+    # a chain the library now does in one call (misc/FOLDED_CHAINS.md) is relabelled as that call, in place, so the rewrite cache still lines up
+    seeds = [FOLD.refold(sd) for d in dirs for sd in read_jsonl(d / "seeds.jsonl")]
     kept_seeds = []
     dropped_label_inconsistent = 0
     for seed in seeds:

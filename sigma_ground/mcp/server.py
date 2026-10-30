@@ -99,6 +99,7 @@ def main() -> int:
     from sigma_ground.mcp.tools import mathx as t_mathx
     from sigma_ground.mcp.tools import gr as t_gr
     from sigma_ground.mcp.tools import kinematics as t_kin
+    from sigma_ground.mcp.tools.body_lookup import with_body
     from sigma_ground.mcp.tools import energy_conversion as t_econv
     from sigma_ground.mcp.tools import relativity as t_rel
     from sigma_ground.mcp.tools import cosmology as t_cos
@@ -336,41 +337,41 @@ def main() -> int:
 
     # ── general relativity ──────────────────────────────────────────
     @server.tool()
-    def schwarzschild_radius(mass_kg: float) -> dict[str, Any]:
-        """Schwarzschild radius r_s = 2 G M / c^2 (meters)."""
-        return t_gr.schwarzschild_radius(mass_kg).to_dict()
+    def schwarzschild_radius(mass_kg: float | None = None, body_name: str | None = None) -> dict[str, Any]:
+        """Schwarzschild radius r_s = 2 G M / c^2 (meters). Or body_name (e.g. 'sun', 'mars', 'io', 'ceres') and the tool looks the mass up (JPL GM)."""
+        return with_body(t_gr.schwarzschild_radius, body_name, mass_kg).to_dict()
 
     @server.tool()
-    def isco_radius(mass_kg: float) -> dict[str, Any]:
-        """Innermost stable circular orbit r_ISCO = 6 G M / c^2."""
-        return t_gr.isco_radius(mass_kg).to_dict()
+    def isco_radius(mass_kg: float | None = None, body_name: str | None = None) -> dict[str, Any]:
+        """Innermost stable circular orbit r_ISCO = 6 G M / c^2. Or body_name (e.g. 'sun', 'mars', 'io', 'ceres') and the tool looks the mass up (JPL GM)."""
+        return with_body(t_gr.isco_radius, body_name, mass_kg).to_dict()
 
     @server.tool()
-    def photon_sphere_radius(mass_kg: float) -> dict[str, Any]:
-        """Photon sphere r_ph = 3 G M / c^2."""
-        return t_gr.photon_sphere_radius(mass_kg).to_dict()
+    def photon_sphere_radius(mass_kg: float | None = None, body_name: str | None = None) -> dict[str, Any]:
+        """Photon sphere r_ph = 3 G M / c^2. Or body_name (e.g. 'sun', 'mars', 'io', 'ceres') and the tool looks the mass up (JPL GM)."""
+        return with_body(t_gr.photon_sphere_radius, body_name, mass_kg).to_dict()
 
     @server.tool()
-    def hawking_temperature(mass_kg: float) -> dict[str, Any]:
-        """Hawking temperature T_H = hbar c^3 / (8 pi G M k_B)."""
-        return t_gr.hawking_temperature(mass_kg).to_dict()
+    def hawking_temperature(mass_kg: float | None = None, body_name: str | None = None) -> dict[str, Any]:
+        """Hawking temperature T_H = hbar c^3 / (8 pi G M k_B). Or body_name (e.g. 'sun', 'mars', 'io', 'ceres') and the tool looks the mass up (JPL GM)."""
+        return with_body(t_gr.hawking_temperature, body_name, mass_kg).to_dict()
 
     @server.tool()
-    def hawking_evaporation_time(mass_kg: float) -> dict[str, Any]:
-        """Black-hole evaporation timescale in seconds."""
-        return t_gr.hawking_evaporation_time(mass_kg).to_dict()
+    def hawking_evaporation_time(mass_kg: float | None = None, body_name: str | None = None) -> dict[str, Any]:
+        """Black-hole evaporation timescale in seconds. Or body_name (e.g. 'sun', 'mars', 'io', 'ceres') and the tool looks the mass up (JPL GM)."""
+        return with_body(t_gr.hawking_evaporation_time, body_name, mass_kg).to_dict()
 
     @server.tool()
-    def gravitational_redshift(mass_kg: float,
-                                radius_m: float) -> dict[str, Any]:
-        """Schwarzschild gravitational redshift z = (1 - r_s/r)^(-1/2) - 1."""
-        return t_gr.gravitational_redshift(mass_kg, radius_m).to_dict()
+    def gravitational_redshift(mass_kg: float | None = None, radius_m: float | None = None,
+            body_name: str | None = None, altitude_km: float | None = None) -> dict[str, Any]:
+        """Schwarzschild gravitational redshift z = (1 - r_s/r)^(-1/2) - 1. Or body_name (e.g. 'earth', 'jupiter') for the body's JPL GM and radius: r is then radius_m from the centre if given, else the surface plus altitude_km."""
+        return with_body(t_gr.gravitational_redshift, body_name, mass_kg, radius_m=radius_m, altitude_km=altitude_km, needs_radius=True).to_dict()
 
     @server.tool()
-    def gravitational_time_dilation(mass_kg: float,
-                                      radius_m: float) -> dict[str, Any]:
-        """Clock rate at r relative to infinity: sqrt(1 - r_s/r)."""
-        return t_gr.gravitational_time_dilation(mass_kg, radius_m).to_dict()
+    def gravitational_time_dilation(mass_kg: float | None = None, radius_m: float | None = None,
+            body_name: str | None = None, altitude_km: float | None = None) -> dict[str, Any]:
+        """Clock rate at r relative to infinity: sqrt(1 - r_s/r). Or body_name (e.g. 'earth', 'jupiter') for the body's JPL GM and radius: r is then radius_m from the centre if given, else the surface plus altitude_km."""
+        return with_body(t_gr.gravitational_time_dilation, body_name, mass_kg, radius_m=radius_m, altitude_km=altitude_km, needs_radius=True).to_dict()
 
     # ── kinematics ──────────────────────────────────────────────────
     @server.tool()
@@ -444,9 +445,12 @@ def main() -> int:
         return t_kin.circular_orbit_velocity(central_mass_kg, radius_m).to_dict()
 
     @server.tool()
-    def escape_velocity(mass_kg: float, radius_m: float) -> dict[str, Any]:
-        """Classical escape velocity v_esc = sqrt(2 G M / r)."""
-        return t_kin.escape_velocity_classical(mass_kg, radius_m).to_dict()
+    def escape_velocity(mass_kg: float | None = None, radius_m: float | None = None,
+                        body_name: str | None = None, altitude_km: float | None = None) -> dict[str, Any]:
+        """Classical escape velocity v_esc = sqrt(2 G M / r). escape_velocity(body_name='mars') is the speed from Mars's surface (JPL GM and radius
+        looked up); add altitude_km for a height above it, or give mass_kg and radius_m (from the centre) for any other mass."""
+        return with_body(t_kin.escape_velocity_classical, body_name, mass_kg, radius_m=radius_m, altitude_km=altitude_km,
+                         needs_radius=True).to_dict()
 
     # ── energy conversion ───────────────────────────────────────────
     @server.tool()

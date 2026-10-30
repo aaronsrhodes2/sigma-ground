@@ -22,6 +22,7 @@ from sigma_ground.mcp.benchmark import router_recipes as RR
 from sigma_ground.mcp.benchmark import router_recipes_v3 as RR3  # noqa: F401  (registers the v3 recipes)
 from sigma_ground.mcp.benchmark import router_recipes_v31 as RR31  # noqa: F401  (registers the v3.1 recipes)
 from sigma_ground.mcp.benchmark import router_recipes_sky as RRS  # noqa: F401  (registers the sky recipes)
+from sigma_ground.mcp.benchmark import router_recipes_fold as RRF  # noqa: F401  (registers the folded-chain recipes)
 
 
 def test_recipe_ids_are_unique_and_there_are_enough():
@@ -159,3 +160,27 @@ def test_the_guard_counts_the_hard_set_as_test_data_unless_told_otherwise():
     q = spec[0]["question"]
     assert D.BenchmarkGuard.from_repo().check(q)                                    # a hard question is test data
     assert D.BenchmarkGuard.from_repo(exclude=("router_hardval.json",)).check(q) is None   # but not benchmark proper
+
+
+def test_the_folded_recipes_are_one_call_with_a_body_name():
+    assert {r.id for r in RRF.FOLD_RECIPES} >= {"fold_escape_body", "fold_schwarzschild_body"}
+    for r in RRF.FOLD_RECIPES:
+        assert len(r.steps) == 1 and "body_name" in r.steps[0][1] and "mass_kg" not in r.steps[0][1], r.id
+
+
+def test_refold_relabels_the_superseded_chains_in_place():
+    """The v3 lookup chains become the one folded call; question, group and slot stay, so the rewrite cache indexed by seed still lines up."""
+    old = {"question": "What speed does it take to break free of Mercury's gravity?", "group": "recipe:body_escape_velocity:1:0", "args_meta": [],
+           "plan": {"steps": [{"tool": "solar_system_body", "tool_args": {"body_name": "mercury"}},
+                              {"tool": "escape_velocity", "tool_args": {"mass_kg": "$1.mass_kg", "radius_m": "$1.radius_m"}}]},
+           "meta": {"recipe": "body_escape_velocity", "family": "lookup", "steps": 2, "verified": []}}
+    new = RRF.refold(old)
+    assert new["question"] == old["question"] and new["group"] == old["group"]
+    assert new["plan"] == {"tool": "escape_velocity", "tool_args": {"body_name": "mercury"}}
+    assert new["meta"]["refolded_from"] == "body_escape_velocity" and new["meta"]["steps"] == 1
+    assert 4000 < new["meta"]["verified"][0]["value"] < 4500                      # Mercury's surface escape speed, m/s, from the tool
+    assert RP.canonical(new["plan"]) is not None
+    other = {"question": "q", "plan": {"tool": "x", "tool_args": {}}, "meta": {"recipe": "sky_now"}}
+    assert RRF.refold(other) is other
+    for rid in RRF.FOLDED:
+        assert any(r.id == rid for r in RR.RECIPES), f"{rid} is no longer a recipe: drop it from FOLDED"
