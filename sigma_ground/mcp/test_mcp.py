@@ -52,12 +52,45 @@ class TestConstantsLookup:
         assert abs(r.value - 6.6743e-11) < 1e-13
         assert "sigma_ground" in r.source
         assert r.units == "m^3 / (kg s^2)"
+        # CODATA's uncertainty rides along with the curated value (finding 11).
+        assert r.uncertainty is not None and abs(r.uncertainty - 1.5e-15) < 1e-16
+        assert r.provenance_tag == "VERIFIED"
 
     def test_speed_of_light_from_codata(self):
         # 'speed_of_light' is the canonical scipy name; sigma_ground has 'C'.
         r = t_const.lookup_constant("speed_of_light")
         assert _is_finite_number(r.value)
         assert abs(r.value - 299792458.0) < 1.0
+        # Audit 2026-10-27: the scipy attribute path returned units "" and no
+        # uncertainty for c, h, k, e, m_e... The CODATA row must be used.
+        assert r.units == "m / s"
+        assert r.provenance_tag == "VERIFIED"
+        assert r.uncertainty is None and "Exact" in r.notes   # c is exact in the SI
+        assert "speed of light in vacuum" in r.source
+
+    def test_codata_attributes_carry_units_and_uncertainty(self):
+        # Every scipy attribute that aliases a CODATA row (If One Then All).
+        from scipy import constants as spc
+        for attr, key in t_const._SCIPY_ATTR_TO_CODATA.items():
+            r = t_const._lookup_scipy(attr)
+            value, units, unc = spc.physical_constants[key]
+            assert r.value == value, attr
+            assert r.units != "" or units == "", attr
+            assert r.uncertainty == (abs(unc) if unc else None), attr
+            assert r.provenance_tag == "VERIFIED", attr
+        r = t_const.lookup_constant("electron mass")
+        assert r.units == "kg" and r.uncertainty and r.uncertainty < 1e-39
+
+    def test_codata_units_rewritten_for_pint(self):
+        assert t_const._codata_units("m s^-1") == "m / s"
+        assert t_const._codata_units("m^3 kg^-1 s^-2") == "m^3 / (kg s^2)"
+        assert t_const._codata_units("J Hz^-1") == "J / Hz"
+        assert t_const._codata_units("kg") == "kg"
+        assert t_const._codata_units("") == ""
+
+    def test_conversion_factor_attribute_still_resolves(self):
+        r = t_const.lookup_constant("angstrom")
+        assert r.value == 1e-10 and "conversion factor" in r.source
 
     def test_planck_constant(self):
         r = t_const.lookup_constant("HBAR")

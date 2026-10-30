@@ -15,6 +15,7 @@ key.
 
 from __future__ import annotations
 
+import dataclasses
 import re
 
 from sigma_ground.mcp.provenance import ToolResult
@@ -42,12 +43,107 @@ def _lookup_sigma_ground(name: str) -> ToolResult | None:
     # / [SPECULATIVE-PENDING] / [REJECTED] in their inline comments.
     tag = _extract_tag_for_constant(canonical)
 
-    return ToolResult(
+    result = ToolResult(
         value=value,
         units=_guess_units(canonical),
         source="sigma_ground.field.constants",
         provenance_tag=tag,
         inputs={"name": name, "canonical": canonical},
+    )
+    # A curated fundamental constant carries CODATA's uncertainty (audit
+    # 2026-10-27, finding 11: uncertainty was null on every constant). Only
+    # when the stored value IS the CODATA value; a drifted copy is flagged.
+    key = _CURATED_TO_CODATA.get(canonical)
+    if key is not None:
+        codata = _codata_result(key, name)
+        if codata is not None:
+            if abs(value - codata.value) <= 1e-9 * abs(codata.value):
+                result = dataclasses.replace(result, uncertainty=codata.uncertainty, provenance_tag=tag or "VERIFIED",
+                                             source=result.source + f"; CODATA: {key}", notes=codata.notes or result.notes)
+            else:
+                result = dataclasses.replace(result, notes=f"Differs from CODATA ({key} = {codata.value}) by {value - codata.value:+.3e}.")
+    return result
+
+
+# curated field.constants name -> CODATA row (uncertainty source). Only exact
+# fundamental constants, never derived or σ-dependent ones.
+_CURATED_TO_CODATA: dict[str, str] = {
+    "G": "Newtonian constant of gravitation",
+    "C": "speed of light in vacuum",
+    "HBAR": "reduced Planck constant",
+    "E_CHARGE": "elementary charge",
+    "K_B": "Boltzmann constant",
+    "MU_0": "vacuum mag. permeability",
+    "EPS_0": "vacuum electric permittivity",
+    "N_AVOGADRO": "Avogadro constant",
+}
+
+
+# scipy module attribute -> its key in scipy.constants.physical_constants, the
+# CODATA table that carries units and uncertainty. The attributes themselves
+# are bare floats; looking one up by attribute used to return units "" and no
+# uncertainty (audit 2026-10-27). Several attributes share a value with other
+# CODATA rows ("electron volt" = "elementary charge"), so the map is explicit,
+# never by value. Attributes not listed (angstrom, calorie, day, ...) are unit
+# conversion factors, not CODATA constants, and keep the attribute path.
+_SCIPY_ATTR_TO_CODATA: dict[str, str] = {
+    "c": "speed of light in vacuum", "speed_of_light": "speed of light in vacuum",
+    "h": "Planck constant", "Planck": "Planck constant",
+    "hbar": "reduced Planck constant",
+    "G": "Newtonian constant of gravitation", "gravitational_constant": "Newtonian constant of gravitation",
+    "g": "standard acceleration of gravity",
+    "e": "elementary charge", "elementary_charge": "elementary charge",
+    "eV": "electron volt", "electron_volt": "electron volt",
+    "k": "Boltzmann constant", "Boltzmann": "Boltzmann constant",
+    "R": "molar gas constant", "gas_constant": "molar gas constant",
+    "N_A": "Avogadro constant", "Avogadro": "Avogadro constant",
+    "alpha": "fine-structure constant", "fine_structure": "fine-structure constant",
+    "sigma": "Stefan-Boltzmann constant", "Stefan_Boltzmann": "Stefan-Boltzmann constant",
+    "Rydberg": "Rydberg constant",
+    "Wien": "Wien wavelength displacement law constant",
+    "epsilon_0": "vacuum electric permittivity",
+    "mu_0": "vacuum mag. permeability",
+    "m_e": "electron mass", "electron_mass": "electron mass",
+    "m_p": "proton mass", "proton_mass": "proton mass",
+    "m_n": "neutron mass", "neutron_mass": "neutron mass",
+    "m_u": "atomic mass constant", "u": "atomic mass constant", "atomic_mass": "atomic mass constant",
+    "atm": "standard atmosphere", "atmosphere": "standard atmosphere",
+}
+
+# CODATA writes units as "m s^-1", "J Hz^-1", "kg"; the contract's unit
+# normaliser and pint want "m / s", "J / Hz".
+_NEG_EXP = re.compile(r"\s*([A-Za-z]+)\^-(\d+)")
+
+
+def _codata_units(unit_text: str) -> str:
+    """'m^3 kg^-1 s^-2' -> 'm^3 / (kg s^2)'; 'm s^-1' -> 'm / s'; 'kg' -> 'kg'."""
+    denom = []
+    def take(m: re.Match) -> str:
+        sym, exp = m.group(1), m.group(2)
+        denom.append(sym if exp == "1" else f"{sym}^{exp}")
+        return ""
+    numer = _NEG_EXP.sub(take, unit_text).strip()
+    if not denom:
+        return numer
+    numer = numer or "1"
+    return f"{numer} / {denom[0]}" if len(denom) == 1 else f"{numer} / ({' '.join(denom)})"
+
+
+def _codata_result(key: str, name: str) -> ToolResult | None:
+    """The CODATA row `key` as a ToolResult with value, units and uncertainty. None if scipy lacks the row."""
+    from scipy import constants as spc
+    try:
+        value, units, uncertainty = spc.physical_constants[key]
+    except KeyError:
+        return None
+    return ToolResult(
+        value=float(value),
+        units=_codata_units(units),
+        source=f"scipy.constants (CODATA: {key})",
+        uncertainty=abs(uncertainty) if uncertainty else None,
+        provenance_tag="VERIFIED",
+        inputs={"name": name, "codata_key": key},
+        notes="" if uncertainty else "Exact by definition in the SI (uncertainty 0).",
     )
 
 
@@ -58,35 +154,31 @@ def _lookup_scipy(name: str) -> ToolResult | None:
     except ImportError:
         return None
 
-    # scipy.constants exposes both module-level attributes and a `value()`
-    # function that queries the CODATA dictionary by name.
+    # The CODATA table first: it is the only scipy source with units and
+    # uncertainty. Reached by the table's own key ("speed of light in vacuum")
+    # or by the module attribute that aliases it ("speed_of_light", "c").
+    result = _codata_result(name, name)
+    if result is not None:
+        return result
     canonical_module = name.lower().replace(" ", "_")
-    if hasattr(spc, canonical_module):
-        attr = getattr(spc, canonical_module)
-        if isinstance(attr, (int, float)):
-            return ToolResult(
-                value=float(attr),
-                units="",  # scipy module attrs are dimensional but unlabelled
-                source="scipy.constants (CODATA)",
-                inputs={"name": name},
-                notes="Look up units from the CODATA reference; scipy stores "
-                       "module attrs without unit annotations.",
-            )
+    for attr in (name, canonical_module):
+        key = _SCIPY_ATTR_TO_CODATA.get(attr)
+        if key is not None:
+            return _codata_result(key, name)
 
-    # Try the CODATA dict via spc.value/unit/precision.
-    try:
-        value = spc.value(name)
-        units = spc.unit(name)
-        uncertainty = spc.precision(name) * value
-        return ToolResult(
-            value=value,
-            units=units,
-            source="scipy.constants (CODATA via value())",
-            uncertainty=abs(uncertainty) if uncertainty != 0.0 else None,
-            inputs={"name": name},
-        )
-    except (KeyError, AttributeError):
-        return None
+    # Remaining module attributes are unit conversion factors in SI
+    # (angstrom, calorie, day, ...): exact, no CODATA row.
+    if hasattr(spc, canonical_module):
+        attr_value = getattr(spc, canonical_module)
+        if isinstance(attr_value, (int, float)):
+            return ToolResult(
+                value=float(attr_value),
+                units="",
+                source="scipy.constants (SI conversion factor)",
+                inputs={"name": name},
+                notes=f"The SI value of one {name}; scipy stores conversion factors without unit annotations.",
+            )
+    return None
 
 
 _BODY_CONSTANT_PATTERNS = (r"^(gm|mass)[ _]of[ _](?:the[ _])?(?P<b>.+)$", r"^(?P<b>.+?)[ _](?P<w>gm|mass)$", r"^(?P<w>gm|mass|m)[ _](?P<b>.+)$")
@@ -287,6 +379,8 @@ _UNIT_HINTS: dict[str, str] = {
     "MU_BOHR":      "J/T",
     "E_CHARGE":     "C",
     "EPS_0":        "F/m",
+    "MU_0":         "H/m",
+    "N_AVOGADRO":   "1/mol",
 }
 
 
