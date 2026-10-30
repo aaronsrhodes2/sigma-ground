@@ -4002,3 +4002,13 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - Code audit `misc/CODE_AUDIT_2026-10-27.md`: 8-row scorecard against PROJECT_GOAL, overall 6.5/10. New defect: `_lookup_scipy` returns
   `units ""`/`uncertainty null` for c, h, k, e, m_e... (attribute branch shadows the CODATA dict branch), confirmed on the LIVE /ask.
   Live pin is 3 commits behind master (`tools/check_mentat_deploy.sh`). `tests/` did not finish in 25 min on the loaded machine.
+
+## 2026-10-29 — constants fix; static-intents plan
+
+- `lookup_constant` (ed82040): CODATA units, uncertainty and VERIFIED on every fundamental constant (the attribute branch had shadowed the
+  CODATA row; live /ask returned c with no units). Curated G/C/HBAR/E_CHARGE/K_B/MU_0/EPS_0/N_AVOGADRO carry CODATA's uncertainty. EPS_0 in
+  field/constants.py is the 2014 value (inside the 1e-9 check, not the current CODATA figure): to update.
+- `misc/STATIC_INTENTS_PLAN.md`: the Captain's "fold common call chains into static code" checked against the replay rows. No chains exist
+  (every plan is one call); 7 of 18 physics misses are a right record tool with the asked field not picked, 9 of 30 are scorer/suite defects,
+  2 are real two-step chains. Plan: field pick (+7), ODE primes (+4), gradient in R³ (+2), value_float (+4), ground truths (+5), light travel
+  time (+2), solve-for-missing (+2), extremum (+1), system cue (+1) -> physics 148/150, maths 329/329 if all land; paired replay before each.
