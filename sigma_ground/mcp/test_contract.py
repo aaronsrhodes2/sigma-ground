@@ -116,6 +116,33 @@ def test_a_missing_required_argument_is_a_structured_error_with_an_example(censu
     assert "mass_kg" in json.dumps(r["error"]["example"])
 
 
+def test_a_formula_tool_asked_backwards_is_solved_for_the_missing_parameter(census):
+    # "What plate area gives 1 uF with 1 mm separation?" arrives with the tool's OUTPUT as an argument and the area missing (em_intro_012)
+    r = _call(census, "parallel_plate_capacitance", {"capacitance_f": 1e-6, "separation_m": 1e-3})
+    assert r["error"] is None and r["units"] == "m^2" and r["value"] == pytest.approx(112.94, rel=1e-3)
+    assert r["inputs"]["solved_for"] == "area_m2" and "asked backwards" in r["notes"] and "solved for area_m2" in r["formula"]
+    # with a dielectric (em_adv_004): A = C d / (eps0 eps_r) = 1e-4 * 1e-4 / (8.854e-12 * 100) = 11.29 m^2
+    # (the suite's ground truth said 0.0113, a factor-1000 slip in its own arithmetic; corrected 2026-10-30)
+    r = _call(census, "parallel_plate_capacitance", {"capacitance_f": 1e-4, "separation_m": 1e-4, "dielectric_constant": 100.0})
+    assert r["value"] == pytest.approx(11.294, rel=1e-3)
+    # any formula tool, not a hand-written inverse: what height gives a 3 s fall
+    r = _call(census, "free_fall_time", {"time_s": 3.0})
+    assert r["units"] == "m" and r["value"] == pytest.approx(44.13, rel=1e-3) and r["inputs"]["solved_for"] == "height_m"
+
+
+def test_solving_backwards_stays_narrow(census):
+    # the unknown argument must have the dimension of the tool's result: a length is not a capacitance -> the missing_argument error stands
+    r = _call(census, "parallel_plate_capacitance", {"height_m": 2.0, "separation_m": 1e-3})
+    assert r["value"] is None and r["error"]["code"] == "missing_argument" and r["error"]["param"] == "area_m2"
+    # two unknown arguments, or two missing parameters: nothing to solve
+    r = _call(census, "parallel_plate_capacitance", {"capacitance_f": 1e-6, "height_m": 2.0, "separation_m": 1e-3})
+    assert r["error"]["code"] == "missing_argument"
+    r = _call(census, "parallel_plate_capacitance", {"capacitance_f": 1e-6})
+    assert r["error"]["code"] == "missing_argument"
+    # a plain missing argument with nothing extra is unchanged
+    assert _call(census, "schwarzschild_radius", {})["error"]["code"] == "missing_argument"
+
+
 def test_a_wrong_type_wrong_dimension_and_impossible_value_are_structured_errors(census):
     assert _call(census, "schwarzschild_radius", {"mass_kg": "abc"})["error"]["code"] == "bad_quantity"
     assert _call(census, "schwarzschild_radius", {"mass_kg": "54 km/h"})["error"]["code"] == "wrong_dimension"

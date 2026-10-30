@@ -4021,3 +4021,7 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   physics 137 -> 139 (+2 -0). Two box replays were cut by deploys (mine, then the other session's pin bump); then the box shim stopped
   serving mentat-router-v31-4b (404; `mentat-router` answers as chat; live /ask says `router qwen3-8b-stock` and answered the indefinite
   integral x^2 sin x with "-4 + pi**2"). Reported to the Captain, not touched: it belongs to the session that changed the router.
+- D built (2026-10-30): contract.solve_for_missing inverts a formula tool numerically when its output is given and one required parameter
+  is missing; em_adv_004 ground truth corrected (factor 1000 slip). Local-engine pair: physics 139 -> 143 (+2 from D, +2 router flicker),
+  maths 328. The box router problem was already fixed by the other session's def05c7 deploy (12:40); live integral correct again.
+  Honest scope note given to the Captain: the audit was a purpose scorecard with sampled reads, not a read of every file.

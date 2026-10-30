@@ -60,6 +60,16 @@ If every row lands: physics 132 → **148 of 150** (A+B+C+D+E = 16; B is the sco
   maths **320 -> 328 of 329, +8 -0** (F, H, I); physics **137 -> 139, +2 -0** (C). `audit_replay.py` now honours `OLLAMA_URL`. The box
   and the local engine differ by two physics rows (139 vs 137 before) on the same code, so a pair is only a pair on one engine.
 
+- **D, solve for the missing parameter** (2026-10-30, `mcp/contract.py solve_for_missing`): when a call has exactly one required parameter
+  missing and exactly one argument the tool has no parameter for, and that argument's unit has the dimension of the tool's result, the
+  tool is inverted numerically for the missing parameter (positive quantities, bracketed over decades, bisection) and the forward check
+  is disclosed in the notes. No inverse formula is written by hand: the tool is the function. Works for every formula tool at once
+  ("what height gives a 3 s fall" -> 44.1 m). Found on the way: the em_adv_004 ground truth was off by 1000 in its own arithmetic
+  (A = 1e-4 * 1e-4 / (8.854e-12 * 100) = 11.29 m^2, not 0.0113); corrected with the reason in its note. Paired on the local engine:
+  physics **139 -> 143, +4 -0**: em_intro_012 and em_adv_004 are D; mech_intro_010 and atom_003 flipped on router nondeterminism
+  (mech_intro_010 was planned with an unasked `joules_to_eV` tail: 4.28e23 eV, scored right only because the scorer converts units;
+  the unit-conversion tails are in misc/FOLDED_CHAINS.md "not folded"). Maths 328 unchanged. gr_008 stays (not one formula).
+
 ## Order of work
 
 1. **A, field pick** (+7, a day). The largest gain, pure code, and it fixes the live dashboard too: the daily live rows count a dict as "not

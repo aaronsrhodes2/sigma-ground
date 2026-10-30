@@ -28,6 +28,7 @@ import difflib
 import functools
 import inspect
 import json
+import math
 import re
 from dataclasses import dataclass
 from typing import Annotated, Any, Optional, Union
@@ -648,6 +649,10 @@ def install(server) -> None:
         except ToolError as e:
             cause = e.__cause__
             err = cause if isinstance(cause, ContractError) else from_validation_error(name, arguments, cause or e, schema)
+            if err.code == "missing_argument":
+                solved = await solve_for_missing(name, arguments, err.param, props, original_call)
+                if solved is not None:
+                    return [TextContent(type="text", text=json.dumps(solved, ensure_ascii=False, default=str))], {"result": solved}
             payload = error_result(name, arguments, err)
             return [TextContent(type="text", text=json.dumps(payload, ensure_ascii=False, default=str))], {"result": payload}
         extra = [k for k in arguments if props and k not in props]
@@ -659,6 +664,121 @@ def install(server) -> None:
         server._mcp_server.call_tool(validate_input=False)(call_tool)
     except Exception:  # noqa: BLE001 — SDK internals changed: the wrapped tools still work, errors are just not uniform on stdio
         pass
+
+
+def _payload_of(out) -> dict | None:
+    """The result dict inside what server.call_tool returns."""
+    if isinstance(out, tuple) and len(out) == 2 and isinstance(out[1], dict):
+        p = out[1].get("result", out[1]) if set(out[1]) == {"result"} else out[1]
+        return p if isinstance(p, dict) else None
+    return None
+
+
+_SOLVE_DECADES = range(-18, 19)
+
+
+async def solve_for_missing(tool: str, arguments: dict, missing: str | None, props: set, call) -> dict | None:
+    """A formula tool asked backwards: "what plate area gives 1 uF?" arrives as parallel_plate_capacitance(capacitance_f=1e-6,
+    separation_m=1e-3) with the required `area_m2` missing and the tool's own OUTPUT given under a name the tool has no parameter for.
+    When exactly one required parameter is missing and exactly one unknown argument is given, and that argument's unit has the
+    dimension of the tool's result, the tool is solved numerically for the missing parameter (positive quantities, bracketed over
+    decades, bisection to 1e-12 relative) and the forward call at the answer is checked and disclosed. Anything else -> None, and
+    the missing_argument error stands. No formula is written by hand here: the tool itself is the function being inverted.
+    (misc/STATIC_INTENTS_PLAN.md group D, 2026-10-30.)"""
+    if not missing or not props or missing in arguments:
+        return None
+    extra = [k for k in arguments if k not in props]
+    if len(extra) != 1:
+        return None
+    target_name = extra[0]
+    target_spec, missing_spec = SPECS.get(target_name), SPECS.get(missing)
+    if target_spec is None or target_spec.unit is None or missing_spec is None:
+        return None
+    try:
+        target = float(to_si(arguments[target_name], target_name, target_spec)[0]) if isinstance(arguments[target_name], str) else float(arguments[target_name])
+    except (TypeError, ValueError, ContractError):
+        return None
+    known = {k: v for k, v in arguments.items() if k != target_name}
+
+    async def forward(p: float) -> dict | None:
+        try:
+            got = _payload_of(await call(tool, {**known, missing: p}))
+        except Exception:  # noqa: BLE001 — a trial value the tool refuses is just not a bracket point
+            return None
+        return got if got and isinstance(got.get("value"), (int, float)) and not isinstance(got.get("value"), bool) else None
+
+    # the unknown argument must be the tool's result: same dimension as the forward value's units
+    probe = None
+    for k in (0, -3, 3, -6, 6):
+        probe = await forward(10.0 ** k)
+        if probe is not None:
+            break
+    if probe is None:
+        return None
+    try:
+        reg = _registry()
+        if reg(target_spec.unit).dimensionality != reg(str(probe.get("units") or "dimensionless")).dimensionality:
+            return None
+    except Exception:  # noqa: BLE001 — a unit pint cannot read: do not guess
+        return None
+
+    # bracket: the first adjacent pair of decades where value - target changes sign
+    prev = None
+    lo = hi = None
+    for k in _SOLVE_DECADES:
+        p = 10.0 ** k
+        got = await forward(p)
+        if got is None:
+            prev = None
+            continue
+        g = float(got["value"]) - target
+        if g == 0.0:
+            lo = hi = p
+            break
+        if prev is not None and (prev[1] < 0) != (g < 0):
+            lo, hi = prev[0], p
+            break
+        prev = (p, g)
+    if lo is None:
+        return None
+    if lo != hi:
+        glo = float((await forward(lo))["value"]) - target
+        for _ in range(200):
+            mid = math.sqrt(lo * hi)
+            got = await forward(mid)
+            if got is None:
+                return None
+            gm = float(got["value"]) - target
+            if (gm < 0) == (glo < 0):
+                lo, glo = mid, gm
+            else:
+                hi = mid
+            if hi / lo - 1.0 < 1e-12:
+                break
+        p = math.sqrt(lo * hi)
+    else:
+        p = lo
+    check = await forward(p)
+    if check is None:
+        return None
+    rel = abs(float(check["value"]) - target) / abs(target) if target else abs(float(check["value"]))
+    if rel > 1e-6:
+        return None
+    units = missing_spec.unit or ""
+    return {
+        "value": p, "units": units,
+        "source": f"{check.get('source')}; solved numerically for {missing}",
+        "uncertainty": None, "provenance_tag": check.get("provenance_tag"),
+        "formula": f"{check.get('formula') or tool}, solved for {missing}",
+        "inputs": {**known, target_name: target, "solved_for": missing},
+        "interpreted_as": f"{tool} solved for {missing} given {target_name} = {target:g}",
+        "notes": " ".join(x for x in (
+            f"The tool was asked backwards: {missing} ({meaning_of(missing) or missing}) is the unknown and {target_name} = {target:g} "
+            f"{target_spec.unit} is the given result. Solved numerically; check: {tool}({missing} = {p:.6g} {units}) returns "
+            f"{float(check['value']):.6g} {check.get('units') or ''} (relative difference {rel:.1e}).",
+            str(check.get("notes") or "")) if x),
+        "assumed": check.get("assumed"), "error": None, "display": None, "converted": None,
+    }
 
 
 def _disclose_ignored(out, extra: list, props: set):

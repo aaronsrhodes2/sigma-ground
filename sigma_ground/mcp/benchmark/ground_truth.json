@@ -637,11 +637,11 @@
     "notes": "C = eps_0 A / d = 8.854e-12 / 1e-6 = 8.854 microfarad"
   },
   "em_adv_004": {
-    "expected_value": 0.0113,
+    "expected_value": 11.29,
     "expected_units": "m^2",
     "tolerance_rel": 0.02,
     "ground_truth_source": "Griffiths 5e Ch.2",
-    "notes": "A = C d / (eps_0 eps_r) = 1e-4 * 1e-4 / (8.854e-12 * 100)"
+    "notes": "A = C d / (eps_0 eps_r) = 1e-4 * 1e-4 / (8.854e-12 * 100) = 11.29 m^2 (corrected 2026-10-30: the earlier 0.0113 was a factor-1000 slip in this note's own arithmetic; the tool's forward check at 11.29 m^2 returns 1.0000e-4 F)"
   },
   "em_adv_005": {
     "expected_value": 299.79,
