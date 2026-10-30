@@ -291,8 +291,25 @@ def solve_ode(equation: str, func: str = "y",
     Example: "y'' + y" (= 0) -> general solution C1*sin(x)+C2*cos(x).
     """
     inputs = {"equation": equation, "func": func, "variable": variable}
+    read = ""
     try:
         import sympy as sp
+        # "y(t)" as the function names the variable too
+        m = re.match(r"^\s*([A-Za-z_]\w*)\s*\(\s*([A-Za-z_]\w*)\s*\)\s*$", func or "")
+        if m:
+            func, variable = m.group(1), m.group(2)
+        # The function the primes name wins over the default: "f' + 2*f" is about f, not y. Before this the
+        # equation reached the parser with the primes in place and Python read f' as an f-string (2026-10-29,
+        # 3 of the 12 maths-suite misses). A function that shares the variable's name (x'' + x, variable x)
+        # is a function of t.
+        primed = [p for p in re.findall(r"([A-Za-z_]\w*)'", equation) if p not in ("Derivative",)]
+        if primed and func not in primed:
+            func = primed[0]
+            read = f"read the unknown function as {func}"
+        if func == variable:
+            variable = "t" if func != "t" else "x"
+            read = _join_notes(read, f"{func} is the function, so the variable is {variable}")
+        inputs.update({"func": func, "variable": variable})
         x = sp.Symbol(variable)
         y = sp.Function(func)
         s = equation
@@ -311,7 +328,7 @@ def solve_ode(equation: str, func: str = "y",
             eq, notes = sp.Eq(pl.expr, 0), pl.notes
         sol = sp.dsolve(eq, y(x))
         return _ok(str(sol), "sympy.dsolve", f"dsolve({equation})", inputs,
-                   _join_notes(notes, "C1, C2, ... are the arbitrary constants of integration; for a given initial condition, solve for them"),
+                   _join_notes(read, notes, "C1, C2, ... are the arbitrary constants of integration; for a given initial condition, solve for them"),
                    f"solve {sp.sstr(eq)}")
     except Exception as e:
         return refusal("sympy error", e, {"equation": equation})

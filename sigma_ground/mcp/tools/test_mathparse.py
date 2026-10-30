@@ -268,6 +268,21 @@ def test_ode_and_transforms_still_work():
     assert SY.simplify_expr("sin(x)^2 + cos(x)^2").value == "1"
 
 
+def test_ode_function_is_the_one_the_primes_name():
+    # The router writes the equation as asked ("f' + 2f = 0" -> "f' + 2*f") and leaves func at its default y; before,
+    # the primes reached Python's tokenizer ("unterminated f-string literal"). msuite_0283/0289/0291, 2026-10-29.
+    r = MX.solve_ode("f' + 2*f")
+    assert r.value == "Eq(f(x), C1*exp(-2*x))" and "read the unknown function as f" in r.notes
+    assert MX.solve_ode("f' + 3*f").value == "Eq(f(x), C1*exp(-3*x))"
+    # a function called x is a function of t, not of itself
+    r = MX.solve_ode("x'' - 4*x' + 3*x")
+    assert r.value == "Eq(x(t), (C1 + C2*exp(2*t))*exp(t))" and r.inputs["variable"] == "t"
+    # "y(t)" as the function names the variable
+    assert MX.solve_ode("y' + 4*y", "y(t)").value == "Eq(y(t), C1*exp(-4*t))"
+    # the old spelling is unchanged
+    assert MX.solve_ode("y'' + y", "y", "x").value == "Eq(y(x), C1*sin(x) + C2*cos(x))"
+
+
 def test_vector_calculus_infers_the_fields_own_variables():
     assert MX.gradient("log(x^2 + y^2)").value == ["2*x/(x**2 + y**2)", "2*y/(x**2 + y**2)"]        # two variables, not the old default x,y,z
     assert "variables not given: used x,y" in MX.gradient("x*y").notes

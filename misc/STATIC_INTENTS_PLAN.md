@@ -39,6 +39,13 @@ If every row lands: physics 132 → **148 of 150** (A+B+C+D+E = 16; B is the sco
   live stage was discarding it. Paired replay, 150 physics, deployed code path: **132 -> 139, +7 -0**, exactly the seven rows of group A.
   Live confirmation: the next daily live rows after the deploy.
 
+- **F, gradient dimension** (2026-10-29): NOT a tool change. The kernel infers the field's own variables since 489ec0c (2026-10-14, a
+  deliberate decision, with a test saying "not the old default x,y,z"; Wolfram returns two components for a two-variable function too). The
+  suite's two expected 3-vectors were generated with `variables='x,y,z'` before that change. msuite_0211/0212 move to group H (ground truth).
+- **G, primes** (2026-10-29, sigma-ground): `solve_ode` reads the function the primes name (`f' + 2*f` is about f), a function named like the
+  variable is a function of t (`x'' - 4*x' + 3*x` -> x(t)), and `func="y(t)"` names the variable. Paired replay: pending (the first after-run
+  was cut by the field-pick deploy landing mid-run).
+
 ## Order of work
 
 1. **A, field pick** (+7, a day). The largest gain, pure code, and it fixes the live dashboard too: the daily live rows count a dict as "not
