@@ -797,6 +797,8 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "perihelion_advance": ["perihelion precession of Mercury", "general relativity precession per century", "Mercury's perihelion advance in arcseconds"],
     "step_check": ["is my time step small enough for Io", "steps per orbit of the Galilean moons", "what integration step resolves Jupiter's moons", "N-body time step for a moon system"],
     "body_skill": ["how well can sigma-ground predict Io", "can you predict the position of Pan", "accuracy of the N-body forecast for Mercury", "which moons can not be predicted"],
+    "chandrasekhar_limit": ["Chandrasekhar limit", "maximum mass of a white dwarf", "mass limit for electron degeneracy", "1.4 solar masses limit"],
+    "white_dwarf": ["radius of a white dwarf", "white dwarf mass and radius", "how big is a white dwarf", "degenerate electron star structure"],
     "small_body": [
         "asteroid orbit", "comet orbit", "orbital elements of a comet", "non-gravitational parameters A1 A2 A3",
         "perihelion and aphelion of an asteroid", "orbital period of a comet", "Kuiper belt object orbit",
@@ -1069,6 +1071,8 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "perihelion_advance": ["how much does mercury's perihelion precess due to relativity"],
     "step_check": ["is a 30 minute step small enough for io", "what time step does jupiter's moon system need"],
     "body_skill": ["how accurately can you predict io", "can you predict where pan is", "how good is the forecast for the moon"],
+    "chandrasekhar_limit": ["what is the chandrasekhar limit", "what is the maximum mass of a white dwarf"],
+    "white_dwarf": ["how big is a white dwarf with a central density of 1e9", "what is the radius of a white dwarf"],
     "small_body": ["how long is a year on halley's comet", "when does the comet come back", "how far does ceres get from the sun", "orbit of eris",
                    "how eccentric is halley", "closest approach to the sun of a comet"],
     "asteroid_analysis": ["jump off an asteroid", "gravity on an asteroid",

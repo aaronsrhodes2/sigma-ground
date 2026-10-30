@@ -127,6 +127,12 @@ def _compute_uncovered():
                 _A.small_body(name)
             except Exception:
                 pass
+        from sigma_ground.mcp.tools import dense_tools as _DT
+        for call in (lambda: _DT.chandrasekhar_limit(2.0), lambda: _DT.white_dwarf(1e9), lambda: _DT.white_dwarf(1e5), lambda: _DT.white_dwarf(1e15), lambda: _DT.white_dwarf(1e9, 2.0)):
+            try:
+                call()
+            except Exception:
+                pass
         from sigma_ground.mcp.tools import celestial_tools as _CT
         for call in (lambda: _CT.orbital_elements("mars"), lambda: _CT.orbital_elements("io", "jupiter"), lambda: _CT.hill_radius("earth"), lambda: _CT.sphere_of_influence("earth"),
                      lambda: _CT.roche_limit("moon", "earth"), lambda: _CT.lagrange_points("earth"), lambda: _CT.synodic_period("earth", "mars"), lambda: _CT.hohmann_transfer("earth", "mars"),

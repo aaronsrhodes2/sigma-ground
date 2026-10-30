@@ -127,6 +127,8 @@ measured_mass_u | u | measured atomic (or nuclear) mass | 4.0026 |
 rest_time_s | s | time interval measured in the rest frame | 1 |
 tau_s | s | time constant or lifetime | 1e-3 | >0
 time_s | s | time | 3600 |
+mu_e | - | mean molecular weight per electron (2 for helium, carbon and oxygen; 1 for hydrogen) | 2 | >0
+central_density_kg_m3 | kg/m^3 | central mass density of the star | 1e9 | >0
 step_s | s | integration time step of an N-body run | 1080 | >0
 initial_speed_m_s | m/s | initial speed | 20 |
 initial_velocity_m_s | m/s | initial velocity | 20 |
