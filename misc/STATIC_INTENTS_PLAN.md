@@ -32,6 +32,13 @@ maths rows (`math329_live_final_rows.json`).
 If every row lands: physics 132 → **148 of 150** (A+B+C+D+E = 16; B is the scorer seeing what is already right); maths 317 → **329 of 329**
 (F+G+I = 7 by code, H = 5 by ground truth). None of it needs the router retrained, and none of it adds a second call per question.
 
+## Done
+
+- **A, field pick** (2026-10-29): sigma-ground c70cea6 (`pick_field`, `extracted_field`/`extracted_by` on the harness record, tests) +
+  SkippyTel ad71d88 (the router stage presents a cued field, pin bumped). The harness had been picking the field for scoring all along; the
+  live stage was discarding it. Paired replay, 150 physics, deployed code path: **132 -> 139, +7 -0**, exactly the seven rows of group A.
+  Live confirmation: the next daily live rows after the deploy.
+
 ## Order of work
 
 1. **A, field pick** (+7, a day). The largest gain, pure code, and it fixes the live dashboard too: the daily live rows count a dict as "not

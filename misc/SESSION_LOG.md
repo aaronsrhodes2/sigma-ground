@@ -4012,3 +4012,6 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   (every plan is one call); 7 of 18 physics misses are a right record tool with the asked field not picked, 9 of 30 are scorer/suite defects,
   2 are real two-step chains. Plan: field pick (+7), ODE primes (+4), gradient in R³ (+2), value_float (+4), ground truths (+5), light travel
   time (+2), solve-for-missing (+2), extremum (+1), system cue (+1) -> physics 148/150, maths 329/329 if all land; paired replay before each.
+- Field pick built (group A): sigma-ground c70cea6 + SkippyTel ad71d88 (stage change + pin bump to c70cea6, pushed = deploying). The harness
+  already picked the field (3.711 for Mars' surface gravity); SkippyTel's router stage copied the record instead. Paired replay 150 physics:
+  132 -> 139, +7 -0 (mech_adv_005, astro_002, astro_011, atom_001/002/006/008). Live not yet confirmed (box CI + quiet gate).
