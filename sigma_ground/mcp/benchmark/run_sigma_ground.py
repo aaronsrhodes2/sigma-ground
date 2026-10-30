@@ -439,23 +439,27 @@ _FIELD_TO_UNITS: dict[str, str] = {
 }
 
 
-def _pick_dict_scalar(d: dict, question: str = "") -> tuple[float | None, str]:
-    """Pick the most-likely scalar field from a dict-valued tool result.
+def pick_field(d: dict, question: str = "") -> tuple[float | None, str, str | None, str]:
+    """The one field of a record-valued tool result the question asked for.
 
-    Uses question keywords to bias the choice. Returns (value, units)
-    where `units` is the canonical SI unit derived from the field name,
-    so the unit-aware scorer can convert if the question expects
-    different units. Returns (None, "") if no numeric field found.
+    Returns (value, units, field, how). `how` says how sure the pick is:
+      "cue"     a phrase in the question named the field ("surface gravity of
+                Mars" -> surface_g_ms2): safe to present as THE answer;
+      "default" no cue; the field is a priority-list guess (the harness's
+                historical behaviour, kept for scoring continuity);
+      "first"   the first numeric field, a last resort;
+      "none"    no numeric field (value None).
+    A caller that answers a person (the live /ask) should use only "cue" and
+    otherwise keep the whole record: a guessed field is a silently wrong
+    answer, which the goal forbids.
     """
     q_low = (question or "").lower()
-    # Try keyword-guided picks first
     for keywords, fields in _FIELD_PRIORITY_BY_QUESTION_KEYWORD:
         if any(kw in q_low for kw in keywords):
             for f in fields:
                 v = d.get(f)
-                if isinstance(v, (int, float)):
-                    return float(v), _FIELD_TO_UNITS.get(f, f)
-    # Default priority list
+                if isinstance(v, (int, float)) and not isinstance(v, bool):
+                    return float(v), _FIELD_TO_UNITS.get(f, f), f, "cue"
     default_priority = [
         "atomic_number", "atomic_mass_amu",
         "surface_temp_k", "mass_kg", "radius_m",
@@ -465,13 +469,18 @@ def _pick_dict_scalar(d: dict, question: str = "") -> tuple[float | None, str]:
     ]
     for f in default_priority:
         v = d.get(f)
-        if isinstance(v, (int, float)):
-            return float(v), _FIELD_TO_UNITS.get(f, f)
-    # Fallback: first numeric field
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            return float(v), _FIELD_TO_UNITS.get(f, f), f, "default"
     for k, v in d.items():
-        if isinstance(v, (int, float)):
-            return float(v), _FIELD_TO_UNITS.get(k, k)
-    return None, ""
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            return float(v), _FIELD_TO_UNITS.get(k, k), k, "first"
+    return None, "", None, "none"
+
+
+def _pick_dict_scalar(d: dict, question: str = "") -> tuple[float | None, str]:
+    """(value, units) of the field `pick_field` chooses; (None, "") when there is none."""
+    value, units, _field, _how = pick_field(d, question)
+    return value, units
 
 
 def _extract_value_from_tool_calls(tool_calls: list[dict],
@@ -853,13 +862,19 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
         chain.append(step)
         values.append(got[0])
         try:
-            raws.append(json.loads(tool_text).get("value"))
+            raw_value = json.loads(tool_text).get("value")
         except (ValueError, AttributeError):
-            raws.append(None)
+            raw_value = None
+        raws.append(raw_value)
+        if isinstance(raw_value, dict):
+            # a record tool (solar_system_body, element_atomic_data): name the field the
+            # question asked for, so a caller can present that field and cite the record
+            _v, _u, step["field"], step["field_by"] = pick_field(raw_value, question)
     reason = "router plan" if len(chain) == 1 else f"router plan, {len(chain)} steps"
     return {**record(_chain_answer_text(chain, reason)),
             "tool_calls": calls, "extracted_value": chain[-1]["value"][0],
             "extracted_units": chain[-1]["value"][1],
+            "extracted_field": chain[-1].get("field"), "extracted_by": chain[-1].get("field_by"),
             "finalized_from_tool": chain[-1]["name"], "finalize_reason": reason,
             "chain_length": len(chain)}
 
