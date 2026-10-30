@@ -4087,3 +4087,5 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   round(count / n^3) merged blocks, fullest cells first, ties spread by a 3-D ordered dither (a one-block floor -> an even checkerboard
   with exactly its mass); keep="shape" is the old per-block vote. Demo tank at x0.5: shape 356.6 kg, mass 307.9 kg vs 297.9 (iron and
   granite exact; the rest is rounding to whole merged blocks: mercury 13.5 -> 14, copper 1.5 -> 2, a lone gold block -> 0).
+- E LIVE (image rebuilt 16:28 PDT from the fixed deployer): "highest noble gas first ionization energy" -> 24.587 eV via the cascade;
+  the container carries VENDORED_REF = 8145ed8 and 238 tools. Suites: 148/150 physics, 328/329 maths (local engine, paired every step).
