@@ -160,3 +160,26 @@ def test_no_desk_is_inside_any_theaters_grid():
             for bx, by, bz in [(x + dx, y + dy, z + dz) for dx in range(-2, 3) for dy in (-1, 0) for dz in range(-4, 1)]:
                 inside = xs[0] <= bx <= xs[1] and ys[0] <= by <= ys[1] and zs[0] <= bz <= zs[1]
                 assert not inside, f"{name}'s grid covers a desk block at {(bx, by, bz)}"
+
+
+def test_a_broken_desk_is_rebuilt():
+    class World:
+        def __init__(self):
+            self.ok = set()
+            for name in theater.STAGES:
+                self.ok.update(theater.desk_checks(name))
+            self.rebuilt = 0
+
+        def command(self, c):
+            if c.startswith("execute if block"):
+                return "Test passed" if c in self.ok else "Test failed"
+            if "stone_button" in c and c.startswith("setblock"):
+                self.rebuilt += 1
+            return ""
+
+        def commands(self, cmds):
+            return [self.command(c) for c in cmds]
+    w = World()
+    assert theater.repair_desks(w) == []                       # all there: nothing touched
+    w.ok.discard(theater.desk_checks("melt")[3])               # he breaks the melt desk's Run button
+    assert theater.repair_desks(w) == ["melt"] and w.rebuilt == 3

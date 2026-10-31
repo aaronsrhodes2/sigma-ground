@@ -4174,3 +4174,4 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   labels on a dark backing); spawn on the sink desk, respawn_radius 0. Found and fixed: the old ground panels were inside each
   theater's grid margin, so a run's first draw erased them; a test now keeps every desk outside every grid. Checked by powering
   the desk command blocks: Run sink fires every time and the gold lands; Run melt fires; both desks survive their runs.
+- SkippyCraft desks repair themselves (the Captain broke his buttons by accident; one left-click breaks a block in creative): when idle the service checks each desk's command blocks, buttons and platform every 3 s and rebuilds a desk with a missing piece. Checked live: a broken Run button and a broken Stop command block came back within 6 s.

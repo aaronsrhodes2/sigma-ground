@@ -289,6 +289,22 @@ def desk_commands(name):
     return cmds
 
 
+def desk_checks(name):
+    """``execute if block`` tests that pass only while the desk's buttons and command blocks are all there."""
+    x, y, z = STAGES[name]["desk"]
+    return [f"execute if block {bx} {y} {z} {DESK_LOOK['board']}" for bx in (x - 2, x, x + 2)] +            [f"execute if block {bx} {y} {z - 1} minecraft:stone_button" for bx in (x - 2, x, x + 2)] +            [f"execute if block {x} {y - 1} {z - 2} {DESK_LOOK['fill']}"]
+
+
+def repair_desks(rcon):
+    """Rebuild any desk with a missing piece (in creative one left-click breaks a block). Returns the desks rebuilt."""
+    fixed = []
+    for name in STAGES:
+        if not all("passed" in r for r in rcon.commands(desk_checks(name))):
+            rcon.commands(desk_commands(name))
+            fixed.append(name)
+    return fixed
+
+
 def read_request(rcon):
     out = rcon.command("scoreboard players get #request skippycraft")
     if " has " not in out:
@@ -322,12 +338,17 @@ def serve(player="aaronsrhodes"):
     by_number = {st["request"]: name for name, st in STAGES.items()}
     tell = lambda text: rcon.command("tellraw @a " + json.dumps({"text": text, "color": "green"}))
     print("serving: panels built, pack at", f"http://{PACK_HOST}:{PACK_PORT}/skippycraft.zip", flush=True)
-    pending = 0
+    pending, last_check = 0, 0.0
     while True:
         req = pending or read_request(rcon)
         pending = 0
         name = by_number.get(req)
         if name is None:
+            if time.monotonic() - last_check > 3.0:              # idle: put back anything he broke
+                last_check = time.monotonic()
+                for fixed in repair_desks(rcon):
+                    print("repaired the", fixed, "desk", flush=True)
+                    tell(f"Put the {fixed} desk back together.")
             time.sleep(0.3)
             continue
         st = STAGES[name]
