@@ -284,6 +284,10 @@ EXCLUDE_SET = frozenset(
         "asteroid_window_paths", "barycentric_state_at_epoch", "planet_table",
         "ring_window_paths", "rk4_segment", "to_prescribed_sources",
     )]
+    # SkippyCraft's physics (2026-10-30/31): a rectangular tank's sloshing frequency and the single-slit pattern are real, cited physics written for the voxel simulations
+    # (materia/voxel_fluid.py, voxel_slits.py). A TRACKED wiring gap, not a non-capability: each needs a tool wrapper with the contract's units and a parameter-name review
+    # (tank_length, depth and surface_tension are not yet in the vocabulary, which is at its budget of 295).
+    + [_P + "fluid_surface.sloshing_angular_frequency", _P + "quantum.single_slit_intensity"]
     # Dense-matter module (2026-10-11): real, validated physics (white dwarfs,
     # polytropes, TOV stability) that is a TRACKED wiring gap, not a non-capability:
     # CONTENDER_PLAN W4 wires white_dwarf_mass_radius / white_dwarf_structure /
