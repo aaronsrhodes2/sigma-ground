@@ -27,8 +27,10 @@ fi
 
 # 1. score what has come back, and record it
 if python -X utf8 -m sigma_ground.mcp.benchmark.distill_score --export "$TRICKLE" >>"$LOG" 2>&1; then
+  # fold the days into permanent tests: a new tool combination Mentat answered right, or the regression test of a recorded fix (tools/distill_fold.py)
+  python -X utf8 tools/distill_fold.py >>"$LOG" 2>&1 && log "pinned rows rebuilt" || log "folding the days into pinned tests failed (see above)"
   if [ -z "$DRY" ]; then
-    git add sigma_ground/mcp/benchmark/results/distill/*.json misc/DISTILLATION_LEDGER.md 2>>"$LOG"
+    git add sigma_ground/mcp/benchmark/results/distill/*.json sigma_ground/mcp/benchmark/distill_pinned.json misc/DISTILLATION_LEDGER.md 2>>"$LOG"
     if ! git diff --cached --quiet; then
       git -c user.name="distill daily" -c user.email="distill@skippy-pc" commit -q -m "Distillation: the day files and ledger as scored on $(date +%Y-%m-%d)" >>"$LOG" 2>&1 \
         && git push -q origin master >>"$LOG" 2>&1 && log "scored and pushed" || log "commit/push failed (see above)"

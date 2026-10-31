@@ -1,0 +1,495 @@
+{
+ "what": "Rows of the improvement-distillation days kept for good (tools/distill_fold.py): a new tool combination Mentat answered right, or the regression test of a recorded fix.",
+ "rules": "see the docstring of tools/distill_fold.py",
+ "pinned": [
+  {
+   "id": "distill-2026-10-30-020",
+   "day": "2026-10-30",
+   "reason": "new_combination",
+   "question": "What is 90.7 percent of the kinetic energy of a 6.6 tonnes object moving at 575 m/s?",
+   "domain": "physics",
+   "signature": [
+    "kinetic_energy",
+    "percent_of"
+   ],
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 90.7,
+     "value": 1091062500.0
+    },
+    "plan": [
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 6600.0,
+       "velocity_m_s": 575.0
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 90.7,
+       "value": "$1"
+      }
+     }
+    ],
+    "result": 989593687.5,
+    "units": "",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-023",
+   "day": "2026-10-30",
+   "reason": "new_combination",
+   "question": "Escape energy for a 1.36 tonnes lander on a 1.64e25 kg planet whose radius is 1.69e8 m?",
+   "domain": "physics",
+   "signature": [
+    "escape_velocity",
+    "kinetic_energy"
+   ],
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 1360.0,
+     "velocity_m_s": 3599.1208657000057
+    },
+    "plan": [
+     {
+      "tool": "escape_velocity",
+      "args": {
+       "mass_kg": 1.64e+25,
+       "radius_m": 169000000.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 1360.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "result": 8808496284.023668,
+    "units": "J",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-025",
+   "day": "2026-10-30",
+   "reason": "new_combination",
+   "question": "Photon energy at the Wien peak for 3.5e3 K?",
+   "domain": "physics",
+   "signature": [
+    "blackbody_peak_wavelength",
+    "photon_energy_from_wavelength"
+   ],
+   "expected": {
+    "tool": "photon_energy_from_wavelength",
+    "args": {
+     "wavelength_m": 8.279348442857143e-07
+    },
+    "plan": [
+     {
+      "tool": "blackbody_peak_wavelength",
+      "args": {
+       "temperature_k": 3500.0
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "result": 2.3992779983134604e-19,
+    "units": "J",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-026",
+   "day": "2026-10-30",
+   "reason": "new_combination",
+   "question": "Mean thermal energy per molecule at 58.9 K, expressed in eV?",
+   "domain": "physics",
+   "signature": [
+    "joules_to_eV",
+    "thermal_energy_per_molecule"
+   ],
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 1.2198033915000001e-21
+    },
+    "plan": [
+     {
+      "tool": "thermal_energy_per_molecule",
+      "args": {
+       "temperature_k": 58.9
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "result": 0.007613413937105265,
+    "units": "eV",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-027",
+   "day": "2026-10-30",
+   "reason": "new_combination",
+   "question": "What is 18.9 percent of the rest energy of 5.29 g of matter?",
+   "domain": "physics",
+   "signature": [
+    "mass_to_energy",
+    "percent_of"
+   ],
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 18.9,
+     "value": 475441489551776.56
+    },
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 0.00529
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 18.9,
+       "value": "$1"
+      }
+     }
+    ],
+    "result": 89858441525285.75,
+    "units": "",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-028",
+   "day": "2026-10-30",
+   "reason": "new_combination",
+   "question": "Thermal de Broglie wavelength for molecules of 5.75e-28 kg at 1.58e3 K?",
+   "domain": "physics",
+   "signature": [
+    "de_broglie_wavelength",
+    "maxwell_boltzmann_most_probable_speed"
+   ],
+   "expected": {
+    "tool": "de_broglie_wavelength",
+    "args": {
+     "mass_kg": 5.75e-28,
+     "velocity_m_s": 8710.66396910182
+    },
+    "plan": [
+     {
+      "tool": "maxwell_boltzmann_most_probable_speed",
+      "args": {
+       "temperature_k": 1580.0,
+       "molecular_mass_kg": 5.75e-28
+      }
+     },
+     {
+      "tool": "de_broglie_wavelength",
+      "args": {
+       "mass_kg": 5.75e-28,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "result": 1.3229301801429796e-10,
+    "units": "m",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-031",
+   "day": "2026-10-30",
+   "reason": "new_combination",
+   "question": "Photon energy for the hydrogen transition 6 → 3?",
+   "domain": "physics",
+   "signature": [
+    "photon_energy_from_wavelength",
+    "rydberg_hydrogen_wavelength"
+   ],
+   "expected": {
+    "tool": "photon_energy_from_wavelength",
+    "args": {
+     "wavelength_m": 1.093520460698865e-06
+    },
+    "plan": [
+     {
+      "tool": "rydberg_hydrogen_wavelength",
+      "args": {
+       "n_initial": 6,
+       "n_final": 3
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "result": 1.8165602998066125e-19,
+    "units": "J",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-037",
+   "day": "2026-10-30",
+   "reason": "new_combination",
+   "question": "What is the evaporation time of a 42.3 solar masses black hole?",
+   "domain": "astronomy",
+   "signature": [
+    "hawking_evaporation_time"
+   ],
+   "expected": {
+    "tool": "hawking_evaporation_time",
+    "args": {
+     "mass_kg": 8.41097375305e+31
+    },
+    "plan": [
+     {
+      "tool": "hawking_evaporation_time",
+      "args": {
+       "mass_kg": 8.41097375305e+31
+      }
+     }
+    ],
+    "result": 5.0050813615463504e+79,
+    "units": "s",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-31-011",
+   "day": "2026-10-31",
+   "reason": "fixed_miss",
+   "question": "curl of (2*u*w, 0, u^2)",
+   "domain": "math",
+   "signature": [
+    "curl"
+   ],
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "2*u*w, 0, u**2",
+     "variables": "u,v,w"
+    },
+    "result": [
+     "0",
+     "0",
+     "0"
+    ],
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-31-020",
+   "day": "2026-10-31",
+   "reason": "new_combination",
+   "question": "Momentum of a 59.4 kg moon going round a 9.16e28 kg planet at 1.74e7 m from the centre?",
+   "domain": "physics",
+   "signature": [
+    "circular_orbit_velocity",
+    "momentum"
+   ],
+   "expected": {
+    "tool": "momentum",
+    "args": {
+     "mass_kg": 59.4,
+     "velocity_m_s": 592756.0216053695
+    },
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 9.16e+28,
+       "radius_m": 17400000.0
+      }
+     },
+     {
+      "tool": "momentum",
+      "args": {
+       "mass_kg": 59.4,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "result": 35209707.683358945,
+    "units": "kg m/s",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-31-021",
+   "day": "2026-10-31",
+   "reason": "new_combination",
+   "question": "Focal length 0.253 m, object distance 1.13 m: what magnification does the lens give?",
+   "domain": "physics",
+   "signature": [
+    "lens_magnification",
+    "thin_lens_image_distance"
+   ],
+   "expected": {
+    "tool": "lens_magnification",
+    "args": {
+     "object_distance_m": 1.13,
+     "image_distance_m": 0.3259863169897378
+    },
+    "plan": [
+     {
+      "tool": "thin_lens_image_distance",
+      "args": {
+       "object_distance_m": 1.13,
+       "focal_length_m": 0.253
+      }
+     },
+     {
+      "tool": "lens_magnification",
+      "args": {
+       "object_distance_m": 1.13,
+       "image_distance_m": "$1"
+      }
+     }
+    ],
+    "result": -0.28848346636259986,
+    "units": "dimensionless",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-31-022",
+   "day": "2026-10-31",
+   "reason": "new_combination",
+   "question": "Kinetic energy in eV of a 5.58e-26 kg particle travelling at 2.68e6 m/s?",
+   "domain": "physics",
+   "signature": [
+    "joules_to_eV",
+    "kinetic_energy"
+   ],
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 2.0038896e-13
+    },
+    "plan": [
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 5.58e-26,
+       "velocity_m_s": 2680000.0
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "result": 1250729.5122617548,
+    "units": "eV",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-31-025",
+   "day": "2026-10-31",
+   "reason": "new_combination",
+   "question": "How many electronvolts does the photon carry when hydrogen drops from n = 4 to n = 1?",
+   "domain": "physics",
+   "signature": [
+    "joules_to_eV",
+    "photon_energy_from_wavelength",
+    "rydberg_hydrogen_wavelength"
+   ],
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 2.043630337282439e-18
+    },
+    "plan": [
+     {
+      "tool": "rydberg_hydrogen_wavelength",
+      "args": {
+       "n_initial": 4,
+       "n_final": 1
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$2"
+      }
+     }
+    ],
+    "result": 12.755337294991653,
+    "units": "eV",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-31-031",
+   "day": "2026-10-31",
+   "reason": "new_combination",
+   "question": "A 17.7 tonnes moon moves in a circle of radius 1.18e12 m about a 0.118 solar masses planet. Kinetic energy?",
+   "domain": "physics",
+   "signature": [
+    "circular_orbit_velocity",
+    "kinetic_energy"
+   ],
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 17700.0,
+     "velocity_m_s": 3642.9718637369506
+    },
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 2.34632364742e+29,
+       "radius_m": 1180000000000.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 17700.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "result": 117450509399.81477,
+    "units": "J",
+    "oracle": "tool"
+   }
+  }
+ ],
+ "open_misses": []
+}

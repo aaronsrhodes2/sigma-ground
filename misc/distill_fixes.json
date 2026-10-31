@@ -8,5 +8,10 @@
   "status": "set wording",
   "commit": "f0a0e56",
   "what": "the oracle solved in t and the question never said so; the set now names y(t)"
+ },
+ "wrong_value|curl": {
+  "status": "fixed",
+  "commit": "2cdb61d",
+  "what": "a field in u and w was taken in x, u, w (curl of (2*u*w, 0, u^2) returned [2u, 2u, -2w]); now u, v, w, and ambiguous coordinates are asked for. In sigma-ground; live after the next Mentat pin bump"
  }
 }

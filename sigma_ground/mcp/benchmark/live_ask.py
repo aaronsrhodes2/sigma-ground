@@ -8,6 +8,7 @@ What it writes into `results/` (the daily job scores and shows them; `score.py` 
   live_mentat_run.json               the 150 narrative physics questions, one harness record each
   adversarial_live_mentat_run.json   the adversarial set
   live_mentat_math.json              the 329 held-out maths questions, scored here with eval_math_suite.same_answer ({"summary", "rows"})
+  live_mentat_pinned.json            the distillation rows kept for good (tools/distill_fold.py), scored with distill_score.agrees ({"summary", "rows"})
   live_mentat_meta.json              what was measured: the service's commit, its container start time before and after, counts, wall time
   live_history.jsonl                 one line per run (date, commit, counts), so the dashboard can say "below yesterday"
 
@@ -136,11 +137,14 @@ def hit_outage(rec: dict) -> bool:
 
 
 def load_corpora() -> dict[str, list[dict]]:
-    """{"physics": [...], "adversarial": [...], "math": [...]}: question dicts with at least "id" and "question"."""
+    """{"physics": [...], "adversarial": [...], "math": [...], "pinned": [...]}: question dicts with at least "id" and "question"."""
     out = {"physics": json.loads((HERE / "questions.json").read_text(encoding="utf-8")),
            "adversarial": json.loads((HERE / "adversarial_questions.json").read_text(encoding="utf-8"))}
     math_path = REPO / "local-cache" / "router_math_suite.json"
     out["math"] = json.loads(math_path.read_text(encoding="utf-8"))["items"] if math_path.exists() else []
+    pinned_path = HERE / "distill_pinned.json"                    # rows of the distillation days kept for good (tools/distill_fold.py)
+    out["pinned"] = [{"id": p["id"], "question": p["question"], "expected": p["expected"], "kind": p["reason"]}
+                     for p in json.loads(pinned_path.read_text(encoding="utf-8"))["pinned"]] if pinned_path.exists() else []
     return out
 
 
@@ -191,6 +195,25 @@ def score_math(rows: list[dict], items: list[dict]) -> dict:
                         "by_route": _by_route(out, "answer_ok")}, "rows": out}
 
 
+def score_pinned(rows: list[dict], items: list[dict]) -> dict:
+    """The pinned distillation rows scored exactly as the day's scorer scores them (distill_score.agrees: OUR oracle, a physics number within 1e-3 after unit conversion)."""
+    sys.path.insert(0, str(REPO / "tools"))
+    import eval_math_suite as E  # noqa: E402
+    from sigma_ground.mcp.benchmark import distill_score as DS
+    by_id = {q["id"]: q for q in items}
+    out = []
+    for r in rows:
+        it = by_id[r["id"]]
+        res = {"value": r.get("extracted_value"), "units": r.get("extracted_units")} if r.get("extracted_value") is not None else None
+        try:
+            ok = bool(DS.agrees(it["expected"], res, E.same_answer))
+        except Exception:  # noqa: BLE001
+            ok = False
+        out.append({**r, "answer_ok": ok, "tool_expected": it["expected"].get("tool"), "kind": it.get("kind")})
+    n_ok = sum(r["answer_ok"] for r in out)
+    return {"summary": {"n": len(out), "answer_ok": n_ok, "answer": f"{n_ok}/{len(out)}", "by_route": _by_route(out, "answer_ok")}, "rows": out}
+
+
 def _by_route(rows: list[dict], ok_key: str) -> dict:
     agg: dict[str, list[int]] = {}
     for r in rows:
@@ -200,7 +223,7 @@ def _by_route(rows: list[dict], ok_key: str) -> dict:
     return {k: f"{a}/{b}" for k, (a, b) in agg.items()}
 
 
-def run_all(base: str, results_dir: Path, suites=("physics", "adversarial", "math"), workers: int = 1, timeout: float = 180,
+def run_all(base: str, results_dir: Path, suites=("physics", "adversarial", "math", "pinned"), workers: int = 1, timeout: float = 180,
             retry_cut: bool = True) -> dict:
     """Ask the chosen corpora, write the run files and the meta file (the history line is the daily job's, after scoring). Returns the meta dict."""
     corpora = load_corpora()
@@ -227,9 +250,9 @@ def run_all(base: str, results_dir: Path, suites=("physics", "adversarial", "mat
                 recs, before, after, suite_cut = recs2, before2, after2, False
             retried.append(name)
         cut = cut or suite_cut
-        if name == "math":
-            scored = score_math(recs, items)
-            (results_dir / "live_mentat_math.json").write_text(json.dumps(scored, indent=1, default=str), encoding="utf-8")
+        if name in ("math", "pinned"):
+            scored = (score_math if name == "math" else score_pinned)(recs, items)
+            (results_dir / ("live_mentat_math.json" if name == "math" else "live_mentat_pinned.json")).write_text(json.dumps(scored, indent=1, default=str), encoding="utf-8")
             meta["suites"][name] = {"n": len(recs), "ok": scored["summary"]["answer_ok"], "cut": suite_cut, "by_route": scored["summary"]["by_route"]}
         else:
             prefix = "adversarial_" if name == "adversarial" else ""

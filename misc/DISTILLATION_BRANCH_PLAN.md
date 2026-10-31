@@ -61,3 +61,7 @@ of the kind Wolfram|Alpha's free tier accepts; we put them to Wolfram and to Men
 
 Honest limits: a question Wolfram's free tier cannot parse teaches nothing about Mentat (it is still asked, once; the no-result rate is
 itself a result). An oracle we do not have is not invented: physics questions outside the tool's own forward check stay `unverified`.
+
+## Folding the days into tests (2026-10-31, the Captain)
+`tools/distill_fold.py` (run by `distill_daily.sh` after scoring) keeps two kinds of row for good in `sigma_ground/mcp/benchmark/distill_pinned.json`: a row whose TOOL COMBINATION (the sorted tool names in its plan) none of the standing suites teaches and that Mentat answered right, and the row of a miss whose cause is recorded as fixed in `misc/distill_fixes.json` (the regression test of the fix). Open misses are listed in the file, not asserted. Two guards read it: `tests/test_distill_pinned.py` runs every pinned plan through the tools in process (the oracle's answer; for a physics row the tool against its past self), and the live suite `pinned` (`benchmark/live_ask.py`, a dashboard row in `daily_job.py`) asks the deployed Mentat the question itself. First fold, 2026-10-31: 14 rows (13 new combinations from the 10-30 and 10-31 sets, and the `curl` fix); live, 13 of 14 until the curl fix is deployed with the next Mentat pin bump.
+

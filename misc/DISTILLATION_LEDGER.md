@@ -14,7 +14,7 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | cause | expected tool | rows | examples | status |
 |---|---|---|---|---|
 | wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | set wording f0a0e56 |
-| wrong_value | curl | 1 | `curl of (2*u*w, 0, u^2)` (got ['2*u', '2*u', '-2*w via curl) | open |
+| wrong_value | curl | 1 | `curl of (2*u*w, 0, u^2)` (got ['2*u', '2*u', '-2*w via curl) | fixed 2cdb61d |
 
 ## Unverified (10): wild questions with no oracle, for a person to read
 

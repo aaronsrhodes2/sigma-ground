@@ -670,6 +670,9 @@ def main() -> int:
         math_path = results_dir / "live_mentat_math.json"
         if math_path.exists():
             live_counts["math"] = json.loads(math_path.read_text(encoding="utf-8"))["summary"]["answer_ok"]
+        pinned_path = results_dir / "live_mentat_pinned.json"
+        if pinned_path.exists():
+            live_counts["pinned"] = json.loads(pinned_path.read_text(encoding="utf-8"))["summary"]["answer_ok"]
         live_ask.append_history(results_dir, live_meta, live_counts)
 
     # Step 6: Print target-progress dashboard (from PROJECT_GOAL.md).
@@ -798,6 +801,12 @@ def _print_live_rows(results_dir: Path, sg_scored, _scored, _row) -> None:
         n_ok, n = math["summary"]["answer_ok"], math["summary"]["n"]
         _row("LIVE math (329)", bool(prev is None or meta.get("cut") or n_ok >= (prev.get("math") or 0)),
              f"{n_ok}/{n}" + (f" prev {prev.get('math')}" if prev else "") + cut)
+    pinned_path = results_dir / "live_mentat_pinned.json"
+    pinned = json.loads(pinned_path.read_text(encoding="utf-8")) if pinned_path.exists() else None
+    if pinned and pinned["summary"]["n"]:
+        n_ok, n = pinned["summary"]["answer_ok"], pinned["summary"]["n"]
+        _row(f"LIVE pinned distillation rows ({n})", bool(prev is None or meta.get("cut") or prev.get("pinned") is None or n_ok >= min(prev.get("pinned") or 0, n)),
+             f"{n_ok}/{n}" + (f" prev {prev.get('pinned')}" if prev and prev.get("pinned") is not None else "") + cut)
     if adv_scored:
         rows = [r for r in adv_scored["rows"] if r.get("domain") in ("adversarial_false_premise", "adversarial_nonsense")]
         ok = sum(1 for r in rows if r.get("correct"))
