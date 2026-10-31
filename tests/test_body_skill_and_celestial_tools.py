@@ -43,14 +43,17 @@ class TestTable(unittest.TestCase):
         self.assertAlmostEqual(t["Enceladus"]["converged"]["error_km"]["5"], 358, delta=1)                       # C14 "Enceladus 358"
         self.assertEqual(len(t), 55)
 
-    def test_the_three_outer_moons_whose_two_measurements_disagree_are_flagged_not_averaged(self):
+    def test_the_three_outer_moons_that_disagreed_agree_once_the_other_planets_are_in_the_local_model(self):
         t = _table()
         for n in ("Nereid", "Himalia", "Phoebe"):
-            self.assertEqual(t[n]["class"], "measurements_disagree", n)
-            self.assertIsNone(t[n]["best_estimate_5yr_km"])
-            self.assertGreater(t[n]["converged"]["converged_over_full_system_at_5yr"], 10)
+            self.assertEqual(t[n]["class"], "predictable", n)                                                      # C23a: with the planets added the local model matches the full-system run
+            self.assertIn("other planets", t[n]["converged"]["measured_with"])
+            self.assertLess(t[n]["converged"]["converged_over_full_system_at_5yr"], 2)
+            self.assertLess(t[n]["best_estimate_5yr_km"], 30)                                                      # 7.4, 13.6, 26.6 km, the full-system values
+        self.assertAlmostEqual(t["Himalia"]["converged"]["error_km"]["5"], 11.6, delta=0.1)                        # C23a arm B, median of J2010 and J2015
         for n in ("Titan", "Callisto", "Hyperion", "Iapetus", "Titania", "Oberon", "Charon"):
-            self.assertEqual(t[n]["class"], "predictable", n)                                                      # the others agree within a factor of 2
+            self.assertEqual(t[n]["class"], "predictable", n)
+            self.assertNotIn("measured_with", t[n].get("converged", {}), n)                                        # only the moons that disagreed were re-measured
 
     def test_no_body_with_no_position_claim_carries_a_best_estimate(self):
         for n, b in _table().items():
@@ -75,7 +78,15 @@ class TestTools(unittest.TestCase):
         self.assertEqual(pan["value"]["class"], "loses_orbital_phase")
         self.assertIn("give no position", pan["value"]["summary"])
         nereid = T.body_skill("nereid").to_dict()
-        self.assertIn("Neither number is offered as the skill", nereid["value"]["summary"])
+        self.assertEqual(nereid["value"]["class"], "predictable")                                                  # C23a: it used to be flagged; with the planets in the local model it agrees
+        self.assertIn("26.6 km", nereid["value"]["summary"])
+        from unittest import mock
+        from sigma_ground.field.interface import skill
+        forced = json.loads(json.dumps(skill._table()))
+        forced["bodies"]["Nereid"]["class"], forced["bodies"]["Nereid"]["best_estimate_5yr_km"] = "measurements_disagree", None
+        forced["bodies"]["Nereid"]["note"] = "the two measurements are 40 times apart. Neither number is offered as the skill"
+        with mock.patch.object(skill, "_table", return_value=forced):                                              # the class still exists for a disagreement that survives; its wording is pinned here
+            self.assertIn("Neither number is offered as the skill", T.body_skill("nereid").to_dict()["value"]["summary"])
         mercury = T.body_skill("mercury").to_dict()
         self.assertIn("integration error cancelling", mercury["value"]["summary"])                                # the C19 caveat travels with the number
         io = T.body_skill("io").to_dict()

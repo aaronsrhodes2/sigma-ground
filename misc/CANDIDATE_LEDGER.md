@@ -324,6 +324,13 @@ Predictions, median of the two windows at +5 yr:
 * A reproduces C14 where the starting states are the same in r7 and r8: Himalia within 25 % of 262 km, Phoebe within 25 % of 1,527 km, Titan within 10 % of 52.9 km. If not, the reduced membership or the fixture matters and B cannot be read.
 * B: Himalia below 50 km and Phoebe below 100 km (the full-system run has 7.4 and 13.6 km). If B stays above 100 km for Himalia, the local model's omission is not the cause and the full-system run is the one in doubt.
 * Nereid: A below 1,000 km (C14 had 6,258 km on the r7 Triton and Neptune states; r8 replaced them), B below 100 km (full system 26.6 km).
+**C23a result (2026-10-31, runs `hl_A/`, `hl_B/`, 6 jobs each, no failures; medians of J2010 and J2015 at +5 yr, km).** All seven predictions held.
+* A reproduces C14: Himalia 263.2 (C14 262), Phoebe 1,526.8 (1,527), Titan 52.8 (52.9). The reduced membership and the r8 fixture do not matter for these, so B can be read.
+* B: Himalia 11.6 (< 50), Phoebe 16.8 (< 100). The full-system run has 7.4 and 13.6. The cause of the C14 disagreement is settled: the system-local model left out the other planets (Jupiter's moon Himalia: 263 to 11.6 km; Phoebe: 1,527 to 16.8 km).
+* Nereid: A 57.9 (< 1,000), B 37.8 (< 100); the full system has 26.6. C14's 6,258 km came from the r7 Triton and Neptune states, which r8 replaced.
+* Not predicted, recorded: planets change the other moons by under 2 % (Io 547.2 to 547.8, Titan 52.8 to 53.3); Io (547 against C14's 159) and Europa (324 against 100) are worse in the reduced set because the step is coarser, so those two are not read from this run.
+* Consequence: `body_skill` re-measures a moon with the planets when its two measurements disagree by more than 10 times (`scripts/make_body_skill_table.py`, source `SYSTEM_LOCAL_WITH_PLANETS.json`); Himalia, Phoebe and Nereid are now `predictable` (7.4, 13.6, 26.6 km). The `measurements_disagree` class stays defined for a disagreement that survives, and no body is in it now.
+
 **C23b. Layer sizes of the forecast's own model.** `restated_zon` against itself with one layer removed (`restated_zon_no_eih`, `_zonals`, `_tides`, `_srp`, `_asteroids`, `_ring`, `_kbo`, `_c22`; `rolling_shootout.layer_ablation_predictors`), reduced model, hindcast starts 2000, 2005, 2010, 2015, step 0.0125 d, to +5 yr; the control is `zon_fine2/` (same code and step). Outputs `abl_<layer>/`. The ratio is median error without the layer over the control's.
 Predictions at +5 yr:
 * eih (GR): Mercury 300 to 1,000 km without it (the 43 arcsec per century advance is about 600 km of Mercury's path in 5 yr); ratio above 1,000 for Mercury, above 10 for Venus.

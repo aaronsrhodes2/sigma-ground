@@ -4,6 +4,8 @@ Sources (all measured against JPL DE440, sha256 recorded):
   * v2physics_restated/rolling_shootout_r8_full_short_0.025.json and _long_: the full-system shoot-out of predictor restated_zon at step 0.025 d, 55 bodies. Median heliocentric position error over the
     windows: 14 five-year (J2007-J2020) and 7 twenty-year (J2000-J2006); leads 1, 3, 5 use all 21 windows, 10 and 20 the 7 long ones (C16).
   * v2physics_restated/SYSTEM_LOCAL_MOONS.json: the 43 moons in system-local models at step = shortest period / 300 (C14), position error relative to the planet at +1, +3, +5 yr.
+  * v2physics_restated/SYSTEM_LOCAL_WITH_PLANETS.json: the same models with the other planets and the Moon added (C23a). C14's system-local model left them out, and for the three outer moons whose two measurements
+    disagreed (Himalia, Phoebe, Nereid) that omission was the cause: with the planets added they agree with the full-system run.
   * prediction_error_table.json: the forecast's own hindcast error (4 starts) for the 10 planets and the Moon, which is the number body_position quotes.
 
 Class rule, from the data: a moon LOSES ORBITAL PHASE when its converged +1 yr error is at least a tenth of its orbital radius. The 43 moons separate with a gap of two orders of magnitude (the largest ratio among the
@@ -41,6 +43,10 @@ def sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
+def step_limited_for(m: dict) -> bool:
+    return m["period_d"] / FORECAST_STEP_D < STEPS_PER_ORBIT_TARGET
+
+
 def shootout_medians() -> dict[str, dict[str, dict]]:
     short = json.loads((RES / "rolling_shootout_r8_full_short_0.025.json").read_text(encoding="utf-8"))
     long_ = json.loads((RES / "rolling_shootout_r8_full_long_0.025.json").read_text(encoding="utf-8"))
@@ -56,20 +62,32 @@ def shootout_medians() -> dict[str, dict[str, dict]]:
     return out
 
 
+def with_planets() -> dict[str, dict]:
+    doc = json.loads((RES / "SYSTEM_LOCAL_WITH_PLANETS.json").read_text(encoding="utf-8"))
+    return {e["moon"]: e for e in doc["entries"] if e["arm"] == "B"}
+
+
 def build() -> dict:
     from sigma_ground.field.interface import celestial as C
     shoot = shootout_medians()
     local = {m["moon"]: m for m in json.loads((RES / "SYSTEM_LOCAL_MOONS.json").read_text(encoding="utf-8"))}
+    planets = with_planets()
     hind = json.loads((FIX / "prediction_error_table.json").read_text(encoding="utf-8"))
     bodies: dict[str, dict] = {}
     for name, leads in shoot.items():
         b: dict = {"forecast_step_0.025d": leads}
         if name in local:
             m = local[name]
+            remeasured = None
+            if name in planets and not step_limited_for(m) and not (1 / DISAGREE_FACTOR <= m["e5"] / leads["5"]["median_km"] <= DISAGREE_FACTOR):
+                remeasured = planets[name]                        # C14's model left the other planets out and the two measurements disagree: use the measurement that includes them
+                m = {**m, "e1": remeasured["e1"], "e3": remeasured["e3"], "e5": remeasured["e5"], "dt_d": remeasured["dt_d"]}
             a = C.elements(name, m["system"], JD_REF)["a_km"]
             ratio = m["e1"] / a
             b["converged"] = {"relative_to": m["system"], "period_days": m["period_d"], "step_days": m["dt_d"], "error_km": {"1": m["e1"], "3": m["e3"], "5": m["e5"]}, "orbital_radius_km": a,
                               "error_at_1yr_over_orbital_radius": ratio}
+            if remeasured:
+                b["converged"]["measured_with"] = "the system-local model plus the other planets and the Moon (C23a arm B); C14's model without them disagreed with the full-system run by more than a factor of 10"
             full5 = leads["5"]["median_km"]
             step_limited = m["period_d"] / FORECAST_STEP_D < STEPS_PER_ORBIT_TARGET
             b["converged"]["steps_per_orbit_at_forecast_step"] = m["period_d"] / FORECAST_STEP_D
@@ -78,8 +96,8 @@ def build() -> dict:
                 b["class"] = "loses_orbital_phase"
             elif not step_limited and not (1 / DISAGREE_FACTOR <= m["e5"] / full5 <= DISAGREE_FACTOR):
                 b["class"] = "measurements_disagree"
-                b["note"] = (f"the converged system-local model (Sun, planet and its moons only) gives {m['e5']:.0f} km at +5 yr, the full-system run {full5:.1f} km: {m['e5'] / full5:.0f} times apart. The step is adequate in both, so the "
-                             "step does not explain it; the system-local model leaves out the other planets, the likeliest cause, not tested here. Neither number is offered as the skill")
+                b["note"] = (f"the converged system-local model gives {m['e5']:.0f} km at +5 yr, the full-system run {full5:.1f} km: {m['e5'] / full5:.0f} times apart, with the other planets already in the local model. The step is adequate "
+                             "in both. Neither number is offered as the skill")
             else:
                 b["class"] = "predictable"
             no_claim = b["class"] in ("measurements_disagree", "loses_orbital_phase")          # a body with no position claim has no best estimate; its errors stay in the table as data
@@ -103,8 +121,9 @@ def build() -> dict:
         "orbital_radius_epoch_jd_tdb_near": JD_REF, "generator": "scripts/make_body_skill_table.py",
         "sources": {p: sha(f) for p, f in (("v2physics_restated/rolling_shootout_r8_full_short_0.025.json", RES / "rolling_shootout_r8_full_short_0.025.json"),
                                             ("v2physics_restated/rolling_shootout_r8_full_long_0.025.json", RES / "rolling_shootout_r8_full_long_0.025.json"),
-                                            ("v2physics_restated/SYSTEM_LOCAL_MOONS.json", RES / "SYSTEM_LOCAL_MOONS.json"), ("prediction_error_table.json", FIX / "prediction_error_table.json"))},
-        "ledger": "misc/CANDIDATE_LEDGER.md C14, C16, C17, C19"}, "bodies": bodies}
+                                            ("v2physics_restated/SYSTEM_LOCAL_MOONS.json", RES / "SYSTEM_LOCAL_MOONS.json"),
+                                            ("v2physics_restated/SYSTEM_LOCAL_WITH_PLANETS.json", RES / "SYSTEM_LOCAL_WITH_PLANETS.json"), ("prediction_error_table.json", FIX / "prediction_error_table.json"))},
+        "ledger": "misc/CANDIDATE_LEDGER.md C14, C16, C17, C19, C23a"}, "bodies": bodies}
 
 
 def main() -> int:
