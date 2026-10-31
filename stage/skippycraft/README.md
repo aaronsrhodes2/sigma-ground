@@ -63,3 +63,21 @@ scoreboard, and the service (polling over RCON) runs that theater in front of yo
 spawn is beside the sink panel. The service also serves the resource pack (http://100.122.71.14:42566/skippycraft.zip, the
 server's `RESOURCE_PACK`), so it arrives when he joins: accept it once, no F3+T. The service runs on skippy-pc for now (it must be
 running for the buttons and the pack); Phase 5 makes it a kept-up service.
+
+## Water with momentum: the wave machine (`slosh`)
+
+The third desk (z = 88, "Go to slosh" from the melt desk) runs a glass tank 0.8 m long with an aluminium paddle at one end and
+water 15 cm deep, at 4x (1.25 cm blocks, 129,024 water particles). The water is `dynamics.fluid.flip.Flip`: particles that carry
+momentum through a staggered grid, made incompressible by a pressure solve each step, with air as empty cells (a real free
+surface: waves, splashes). Density and viscosity from `block()`, gravity standard. The paddle is a moving wall
+(`materia.voxel_fluid.FluidVoxelWorld`) driven at the tank's own first sloshing period (`fluid_surface.sloshing_angular_frequency`,
+1.24 s), so each push adds to the last. **Slower** / **Faster** change the period by 10% (the chat says how far from resonance).
+The boss bar shows the water's momentum, kinetic energy and the work the paddle has done.
+
+Blocks go through the SkippyCraft plugin (`plugin/`, built in Docker by `bash stage/skippycraft/plugin/build.sh`, no JDK on the
+PC): the service sends each tick's changed blocks as one binary frame to 127.0.0.1:42576 and the plugin sets them on the server
+thread without block physics. RCON stays for commands (and is the fallback when the plugin is absent).
+
+Speed (skippy-pc, numba installed): a 0.04 s frame takes ~0.15 s to compute, so it plays at about a quarter of real speed.
+Tests: `tests/test_flip.py` (still water stays still and the floor carries exactly its weight; a falling blob gains exactly
+M·g·t; mass exact; the paddle does work).

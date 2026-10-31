@@ -4175,3 +4175,15 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   theater's grid margin, so a run's first draw erased them; a test now keeps every desk outside every grid. Checked by powering
   the desk command blocks: Run sink fires every time and the gold lands; Run melt fires; both desks survive their runs.
 - SkippyCraft desks repair themselves (the Captain broke his buttons by accident; one left-click breaks a block in creative): when idle the service checks each desk's command blocks, buttons and platform every 3 s and rebuilds a desk with a missing piece. Checked live: a broken Run button and a broken Stop command block came back within 6 s.
+- SkippyCraft water with momentum (the Captain: "air block collisions and a wave machine causing the water to slosh"; "rework it if
+  we need to"): new `dynamics/fluid/flip.py`, a FLIP liquid (particles carry momentum through a MAC grid, exact incompressible
+  pressure projection, air = empty cells so the free surface is emergent; measured viscosity; pressure in Pa, wall forces and
+  paddle work ledgered), with numba kernels (`_flip_numba.py`: transfers, extrapolation, MIC(0)-PCG) and a NumPy/SciPy fallback.
+  The weakly-compressible SPH was not reworked: it needs either water's real sound speed (impossibly small steps) or a fake one.
+  `fluid_surface.sloshing_angular_frequency` (finite depth, Lamb). `materia/voxel_fluid.FluidVoxelWorld`: liquid cells become
+  particles, a paddle material is a driven piston at the tank's first sloshing mode. Checks: still water stays still and the floor
+  carries M·g to 1e-7; a falling blob gains exactly M·g·t; both solver paths agree. Speed 1.55 s → 0.15 s per 0.04 s frame
+  (129k particles). SkippyCraft plugin (`stage/skippycraft/plugin`, compiled in Docker against the server's own Paper API jars):
+  a block writer on 127.0.0.1:42576, one binary frame per tick. Slosh desk at z = 88 with Slower/Faster. Live: the surface read
+  back from Minecraft tilts 10-11 cells deep at the paddle, 13-14 at the far wall, then the other way.
+  Flagged, not fixed: water's derived thermal conductivity 21.7 W/(m K) (real ~0.6; no measured value for liquid water in block()).

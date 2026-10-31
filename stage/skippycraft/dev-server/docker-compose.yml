@@ -37,6 +37,7 @@ services:
       - "127.0.0.1:42565:25565"
       - "100.122.71.14:42565:25565"   # skippy-pc on the tailnet
       - "127.0.0.1:42575:25575"       # RCON for the theater service: this PC only (password in data/server.properties)
+      - "127.0.0.1:42576:25576"       # the SkippyCraft plugin's block writer (plugin/build.sh): this PC only
     volumes:
       - ./data:/data
     restart: "no"

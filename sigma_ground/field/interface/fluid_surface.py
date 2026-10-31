@@ -143,3 +143,18 @@ def capillary_gravity_min_phase_speed(surface_tension: float, density: float,
     lambda_min = 2.0 * math.pi / k_min
     c_min = math.sqrt(2.0) * (g * surface_tension / density) ** 0.25
     return c_min, lambda_min
+
+
+def sloshing_angular_frequency(tank_length: float, depth: float, mode: int = 1,
+                               surface_tension: float = 0.0, density: float = 1.0,
+                               g: float = STANDARD_GRAVITY) -> float:
+    """Natural frequency of the n-th standing (sloshing) wave across a rectangular tank (rad/s).
+
+    Linear wave theory in water of finite depth h, with the walls as antinodes, so k = nπ/L:
+      ω² = (g·k + σ·k³/ρ) · tanh(k·h)
+    (Lamb §227 and §267). Deep water (kh ≫ 1) gives back the deep-water relation above; shallow water gives
+    ω = k·√(g·h). Mode 1 is the tank's fundamental: the surface rocks, high at one wall while low at the other.
+    """
+    k = mode * math.pi / tank_length
+    capillary = surface_tension * k ** 3 / density if surface_tension else 0.0
+    return math.sqrt((g * k + capillary) * math.tanh(k * depth))

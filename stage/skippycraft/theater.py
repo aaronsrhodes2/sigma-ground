@@ -17,7 +17,8 @@ A button sits on a command block that records the request in the scoreboard (``#
 the service polls it over RCON.
 
 RCON is 127.0.0.1:42575 (dev-server/docker-compose.yml); its password is read from dev-server/data/server.properties.
-Phase 1 drives the server with commands; no plugin is needed yet.
+Blocks go through the SkippyCraft plugin's block writer (plugin/, 127.0.0.1:42576) when it answers: one binary frame per
+tick, tens of thousands of blocks; without it, through RCON fills (about 600 commands a second).
 """
 from __future__ import annotations
 
@@ -42,7 +43,12 @@ RESOLUTION = 4
 SCENES = {
     "sink": (TANK.replace('block(4,4,4,"gold")', 'block(4,5,4,"gold")'), 0.05, "STP", None, 40, 0.05),
     "melt": ('box(0,0,0,9,0,9,"tungsten"); box(4,1,4,5,3,5,"lead")', 0.01, "ISM", "plate_1500", 160, 0.05),
+    # the wave machine: a glass tank, an aluminium paddle near one end, water 15 cm deep; the paddle is driven at the
+    # tank's own first sloshing period (fluid_surface.sloshing_angular_frequency) unless he changes it at the desk
+    "slosh": ('box(0,0,0,17,6,7,"glass"); box(1,1,1,16,6,6,"air"); box(2,1,1,2,6,6,"aluminum"); '
+              'box(3,1,1,16,3,6,"water")', 0.05, "STP", "flip", 750, 0.04),
 }
+PADDLE = {"material": "aluminum", "axis": 0, "amplitude_m": 0.015, "period_s": None}
 BOSSBAR = "skippycraft:theater"
 
 # where each scene stands, its control desk, its request number, and its pace. A desk (the Captain: buttons must be easy to
@@ -52,10 +58,15 @@ BOSSBAR = "skippycraft:theater"
 STAGES = {
     "sink": {"origin": (0, -60, 24), "desk": (16, -46, 14), "pitch": 25, "other": "melt", "request": 1, "rate": 4.0,
              "tell": "Sink: a gold block drops into the mercury and sinks; the iron floats (gold is denser than mercury, iron is not)."},
-    "melt": {"origin": (56, -60, 24), "desk": (75, -46, 14), "pitch": 35, "other": "sink", "request": 2, "rate": 6.0,
+    "melt": {"origin": (56, -60, 24), "desk": (75, -46, 14), "pitch": 35, "other": "slosh", "request": 2, "rate": 6.0,
              "tell": "Melt: a lead column on a 1500 K tungsten plate, in vacuum. It slumps when it melts; the boss bar keeps the books."},
+    "slosh": {"origin": (0, -60, 100), "desk": (36, -46, 88), "pitch": 25, "other": "sink", "request": 3, "rate": 25.0,
+              "extra": (("Slower", 4), ("Faster", 5)),
+              "tell": "Slosh: the paddle pushes the water at the tank's own sloshing period, so each push adds to the last. "
+                      "Every particle carries momentum; the boss bar shows the water's momentum and the paddle's work."},
 }
 STOP = 9
+SLOWER, FASTER = 4, 5
 DESK_LOOK = {"fill": "minecraft:sea_lantern", "board": "minecraft:command_block"}
 PACK_DIR = HERE / "dev-server" / "pack"
 PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet address: the server's RESOURCE_PACK points here
@@ -108,6 +119,42 @@ class Rcon:
         self.sock.close()
 
 
+class Blocks:
+    """The SkippyCraft plugin's block writer: one binary frame of runs along +x per call (plugin/SkippyCraftPlugin.java)."""
+
+    def __init__(self, host="127.0.0.1", port=42576, timeout=30.0):
+        self.sock = socket.create_connection((host, port), timeout=timeout)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+
+    def send(self, palette, runs):
+        """``palette``: block names; ``runs``: (x, y, z, length, palette index). Returns (blocks set, server ms)."""
+        out = [struct.pack(">ii", 0x534B4346, len(palette))]
+        for name in palette:
+            b = name.encode("utf-8")
+            out.append(struct.pack(">H", len(b)) + b)
+        out.append(struct.pack(">i", len(runs)))
+        out.append(b"".join(struct.pack(">iiihh", *r) for r in runs))
+        self.sock.sendall(b"".join(out))
+        buf = b""
+        while len(buf) < 8:
+            chunk = self.sock.recv(8 - len(buf))
+            if not chunk:
+                raise ConnectionError("block writer closed")
+            buf += chunk
+        return struct.unpack(">ii", buf)
+
+    def close(self):
+        self.sock.close()
+
+
+def block_writer():
+    """The plugin's block writer, or None when it isn't there (then blocks go over RCON)."""
+    try:
+        return Blocks()
+    except OSError:
+        return None
+
+
 def server_password(dev_server=HERE / "dev-server"):
     for line in (dev_server / "data" / "server.properties").read_text(encoding="utf-8").splitlines():
         if line.startswith("rcon.password="):
@@ -116,14 +163,22 @@ def server_password(dev_server=HERE / "dev-server"):
 
 
 # ── scenes and their shared looks ──────────────────────────────────────────────────────────────────────────────────────────
+def scene_field(name):
+    from sigma_ground.deckard.voxel_exec import field_from_voxel_exec
+    code, block_m = SCENES[name][:2]
+    return field_from_voxel_exec(code, block_m=block_m, resolution=RESOLUTION)[0]
+
+
 def build(name):
     """``(field, world)`` for a scene."""
     import numpy as np
-    from sigma_ground.deckard.voxel_exec import field_from_voxel_exec
+    from sigma_ground.materia.voxel_fluid import FluidVoxelWorld
     from sigma_ground.materia.voxel_world import VoxelWorld
 
-    code, block_m, env, temp, _, _ = SCENES[name]
-    field, _ = field_from_voxel_exec(code, block_m=block_m, resolution=RESOLUTION)
+    _, _, env, temp, _, _ = SCENES[name]
+    field = scene_field(name)
+    if temp == "flip":
+        return field, FluidVoxelWorld(field, paddle=dict(PADDLE))
     T = None
     if temp == "plate_1500":
         T = np.where(field.label_grid == field.materials.index("tungsten"), 1500.0, 293.15)
@@ -132,7 +187,7 @@ def build(name):
 
 def shared_looks():
     """One carrier per (material, block size) across every scene, so all theaters share one resource pack."""
-    fields = [build(n)[0] for n in SCENES]
+    fields = [scene_field(n) for n in SCENES]
     looks, appearances = {}, {}
     for f in fields:
         lk, ap = export_mc.derive_looks(f)
@@ -148,9 +203,9 @@ def shared_looks():
 class Theater:
     """A ``VoxelWorld`` shown in Minecraft with its low corner at ``origin``. ``send(commands)`` delivers commands."""
 
-    def __init__(self, world, looks, origin, send):
+    def __init__(self, world, looks, origin, send, blocks=None):
         import numpy as np
-        self.world, self.send = world, send
+        self.world, self.send, self.blocks = world, send, blocks
         self.origin = tuple(int(v) for v in origin)
         occ = np.argwhere(world.label > 0)
         self.i0, self.k0, self.jhi = int(occ[:, 0].min()), int(occ[:, 2].min()), int(occ[:, 1].max())
@@ -170,6 +225,12 @@ class Theater:
         import numpy as np
         label = self.world.label
         changed = label != self.shown
+        if self.blocks is not None:
+            self._draw_frame(label, changed)
+            n = int(changed.sum())
+            self.shown = label.copy()
+            self.changed_total += n
+            return n
         cmds = []
         for j, k in zip(*np.nonzero(changed.any(axis=0))):          # rows along x that have a change
             row, todo = label[:, j, k], changed[:, j, k]
@@ -190,8 +251,32 @@ class Theater:
         self.changed_total += n
         return n
 
+    def _draw_frame(self, label, changed):
+        """Every changed cell, as runs along x, in one frame to the plugin."""
+        import numpy as np
+        runs = []
+        for j, k in zip(*np.nonzero(changed.any(axis=0))):
+            row, todo = label[:, j, k], changed[:, j, k]
+            i = 0
+            while i < len(row):
+                if not todo[i]:
+                    i += 1
+                    continue
+                end = i
+                while end + 1 < len(row) and todo[end + 1] and row[end + 1] == row[i] and end - i < 30000:
+                    end += 1
+                x, y, z = self.mc(i, j, k)
+                runs.append((x, y, z, end - i + 1, int(row[i])))
+                i = end + 1
+        if runs:
+            self.blocks.send(["minecraft:" + b for b in self.block], runs)
+
     def readout(self, changed):
         w = self.world
+        if hasattr(w, "readout"):
+            text = f"{w.readout()} | changed {changed}"
+            self.send([f"bossbar set {BOSSBAR} name {json.dumps(text)}"])
+            return text
         text = (f"t {w.t:.2f} s | {w.mass_kg():.4g} kg | E {w.energy_J():.6g} J | radiated "
                 f"{w.ledger['radiated_J']:.4g} J | vented {w.ledger['vented_kg']:.3g} kg | changed {changed}")
         self.send([f"bossbar set {BOSSBAR} name {json.dumps(text)}"])
@@ -278,10 +363,12 @@ def desk_commands(name):
     st = STAGES[name]
     x, y, z = st["desk"]
     sx, sy, sz, yaw, pitch = stand(st["other"])
-    cmds = [f"fill {x - 2} {y - 1} {z - 4} {x + 2} {y - 1} {z - 1} {DESK_LOOK['fill']}"]
-    buttons = ((x - 2, f"Run {name}", f"scoreboard players set #request skippycraft {st['request']}"),
+    buttons = [(x - 2, f"Run {name}", f"scoreboard players set #request skippycraft {st['request']}"),
                (x, "Stop", f"scoreboard players set #request skippycraft {STOP}"),
-               (x + 2, f"Go to {st['other']}", f"tp @p {sx} {sy} {sz} {yaw} {pitch}"))
+               (x + 2, f"Go to {st['other']}", f"tp @p {sx} {sy} {sz} {yaw} {pitch}")]
+    for n, (text, request) in enumerate(st.get("extra", ())):          # more buttons to the right
+        buttons.append((x + 4 + 2 * n, text, f"scoreboard players set #request skippycraft {request}"))
+    cmds = [f"fill {x - 2} {y - 1} {z - 4} {buttons[-1][0]} {y - 1} {z - 1} {DESK_LOOK['fill']}"]
     for n, (bx, text, command) in enumerate(buttons):
         cmds += [f"setblock {bx} {y} {z} {DESK_LOOK['board']}{{Command:{json.dumps(command)}}}",
                  f"setblock {bx} {y} {z - 1} minecraft:stone_button[face=wall,facing=north]"]
@@ -292,7 +379,8 @@ def desk_commands(name):
 def desk_checks(name):
     """``execute if block`` tests that pass only while the desk's buttons and command blocks are all there."""
     x, y, z = STAGES[name]["desk"]
-    return [f"execute if block {bx} {y} {z} {DESK_LOOK['board']}" for bx in (x - 2, x, x + 2)] +            [f"execute if block {bx} {y} {z - 1} minecraft:stone_button" for bx in (x - 2, x, x + 2)] +            [f"execute if block {x} {y - 1} {z - 2} {DESK_LOOK['fill']}"]
+    xs = [x - 2, x, x + 2] + [x + 4 + 2 * n for n in range(len(STAGES[name].get("extra", ())))]
+    return [f"execute if block {bx} {y} {z} {DESK_LOOK['board']}" for bx in xs] +            [f"execute if block {bx} {y} {z - 1} minecraft:stone_button" for bx in xs] +            [f"execute if block {x} {y - 1} {z - 2} {DESK_LOOK['fill']}"]
 
 
 def repair_desks(rcon):
@@ -321,7 +409,9 @@ def serve(player="aaronsrhodes"):
     serve_pack()
     rcon = Rcon()
     send = rcon.commands
-    send(["forceload add -16 0 111 79", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
+    blocks = block_writer()
+    print("block writer:", "plugin" if blocks else "none (RCON fills)", flush=True)
+    send(["forceload add -16 0 111 159", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
           "scoreboard players set #request skippycraft 0"])
     # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
     spots = [st[k] for st in STAGES.values() for k in ("origin", "desk")]
@@ -353,7 +443,7 @@ def serve(player="aaronsrhodes"):
             continue
         st = STAGES[name]
         _, world = build(name)
-        th = Theater(world, looks, st["origin"], send)
+        th = Theater(world, looks, st["origin"], send, blocks)
         rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
         tell(f"Building {name} at {RESOLUTION}x resolution (a few seconds)...")
         th.open()
@@ -363,6 +453,12 @@ def serve(player="aaronsrhodes"):
         for _ in range(ticks):
             t0 = time.monotonic()
             nxt = read_request(rcon)
+            if nxt in (SLOWER, FASTER) and getattr(world, "paddle", None):
+                period = world.paddle["period_s"] * (1.1 if nxt == SLOWER else 1 / 1.1)
+                world.set_period(period)
+                tune = period / world.paddle["resonant_s"]
+                tell(f"Paddle period {period:.2f} s ({tune:.2f} x the tank's sloshing period).")
+                nxt = 0
             if nxt:
                 pending = 0 if nxt == STOP else nxt
                 tell(f"Stopped {name}.")
@@ -396,7 +492,7 @@ def main(argv=None):
         return
     _, world = build(a.scene)
     rcon = Rcon()
-    th = Theater(world, looks, a.at, rcon.commands)
+    th = Theater(world, looks, a.at, rcon.commands, block_writer())
     th.open()
     _, _, _, _, ticks, dt = SCENES[a.scene]
     th.run(a.ticks or ticks, dt, a.rate, on_tick=print)

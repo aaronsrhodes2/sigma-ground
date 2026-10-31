@@ -1,0 +1,5 @@
+name: SkippyCraft
+version: 1.0.0
+main: local.skippy.craft.SkippyCraftPlugin
+api-version: '1.21'
+description: SkippyCraft's block writer (stage/skippycraft/theater.py sends each tick's blocks here)
