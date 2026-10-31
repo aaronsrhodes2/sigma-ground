@@ -62,6 +62,20 @@ def classify_for_puzzle(question: str) -> PuzzleMatch | None:
                 in_hours = "h" in mv[0][1].lower() and "/s" not in mv[0][1].lower()
                 return PuzzleMatch("closing_time", {"distance_m": d_m, "velocity1_m_s": v1, "velocity2_m_s": v2}, r.notes,
                                    float(r.value) / 3600.0 if in_hours else float(r.value), "h" if in_hours else "s")
+    # a landmark measured in some object: "how many bananas tall is Mount Everest? one banana is 18 centimeters long"
+    m = re.search(r"\bhow\s+many\s+([A-Za-z]+?)s?\s+(?:tall|high|long|deep)\s+is\s+(?:the\s+)?([A-Z][\w.]*(?:\s+(?:of\s+)?[A-Z][\w.]*)*)", q, re.IGNORECASE)
+    if m:
+        unit_len = re.search(rf"\b(?:one|a|each|1)\s+{re.escape(m.group(1))}\s+(?:is|measures|=)\s+(?:about\s+)?{_NUM}\s*(cm|centimet(?:er|re)s?|mm|millimet(?:er|re)s?|m|met(?:er|re)s?|in|inch(?:es)?|ft|feet|foot)\b",
+                             q, re.IGNORECASE)
+        if unit_len:
+            from sigma_ground.mcp.tools.landmarks import landmark_height
+            r = landmark_height(m.group(2))
+            if r.value is not None:
+                u = unit_len.group(2).lower()
+                factor = 0.01 if u.startswith("c") else 0.001 if u.startswith("mm") or u.startswith("milli") else 0.0254 if u.startswith("in") else 0.3048 if u.startswith("f") else 1.0
+                piece = _num(unit_len.group(1)) * factor
+                return PuzzleMatch("landmark_height", {"name": m.group(2)}, f"{r.notes} {r.value} m / {piece} m per {m.group(1)}",
+                                   float(r.value) / piece, m.group(1) + "s")
     # a rate times a duration: "how many heartbeats ... 80 years and 70 beats per minute"
     if re.search(r"\bhow\s+many\b", q, re.IGNORECASE):
         mr = re.search(rf"{_NUM}\s+(?:beats|times|events|breaths|steps)\s+per\s+(second|minute|hour|day|year)\b", q, re.IGNORECASE)

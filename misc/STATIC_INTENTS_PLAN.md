@@ -94,6 +94,14 @@ for y(t)). From 132/150 and 317/329 to **148/150 and 328/329** on one engine, no
   material, terraforming energy, interstellar fuel: knowledge or estimation, not one computation) and adv_units_001 (Everest in bananas:
   no landmark table here).
 
+- **The last rows** (2026-10-30, "be aggressive"): msuite_0285 by `param_aliases.enrich_from_question` (the question's `y(t)` fills the
+  router's missing `func`, behind the `question_enrich` tweak); mech_intro_015 by an astro cue (geostationary = zero speed relative to the
+  ground; the new_tools orbital-speed cue steps aside for that phrasing); gr_008 by a real tool, `orbital_clock_drift(altitude_km)` (GR gain
+  minus SR loss, GPS +38.5 us/day, cancellation at 3190 km; Ashby 2003) inverted by a cue for a stated drift (38 us/day -> 19,660 km);
+  adv_units_001 by `landmark_height` (14 landmarks with sources) and a "how many X tall is Y" cue. Paired on the local engine: maths
+  **329/329**, physics **150/150**, adversarial **15/18**. Left: adv_open_001/002/003, knowledge or estimation questions the scorer judges
+  by keywords; not one computation, so not made static.
+
 ## Order of work
 
 1. **A, field pick** (+7, a day). The largest gain, pure code, and it fixes the live dashboard too: the daily live rows count a dict as "not

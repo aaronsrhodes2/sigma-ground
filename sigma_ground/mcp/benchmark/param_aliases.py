@@ -18,6 +18,8 @@ Algorithm per kwarg:
 
 from __future__ import annotations
 
+import re
+
 
 # Common Qwen-isms that map cleanly to canonical sigma-ground param names.
 # Each entry is alias -> canonical. The runner only applies a rename if
@@ -228,6 +230,27 @@ async def resolve_body_name_chain(session, kwargs: dict,
         if body_data.get("radius_m") is not None:
             new_kwargs["radius_m"] = body_data["radius_m"]
     return new_kwargs, chain
+
+
+_FUNC_OF_VAR = re.compile(r"\b([A-Za-z])\(([A-Za-z])\)")
+
+
+def enrich_from_question(tool: str, kwargs: dict, question: str) -> tuple[dict, list[str]]:
+    """Arguments the question states plainly but the router left out, filled from the question text; (kwargs, what was added).
+
+    solve_ode: "every function y(t) with y' + 4y = 0" names the unknown function AND its variable; the router writes only the
+    equation and the tool solves in x (msuite_0285, 2026-10-30). When the question writes f(v) for the function the equation
+    uses, func becomes "f(v)" (mathx.solve_ode reads the variable from it). Nothing is guessed: both letters come from the question.
+    """
+    added: list[str] = []
+    if tool == "solve_ode" and "func" not in kwargs and isinstance(kwargs.get("equation"), str):
+        primed = set(re.findall(r"([A-Za-z])'", kwargs["equation"]))
+        for f, v in _FUNC_OF_VAR.findall(question or ""):
+            if f in primed and f != v:
+                kwargs = {**kwargs, "func": f"{f}({v})"}
+                added.append(f"func={f}({v}) from the question")
+                break
+    return kwargs, added
 
 
 def normalize_kwargs(kwargs: dict, real_params: set[str]) -> tuple[dict, list[str]]:

@@ -64,10 +64,15 @@ def classify_for_new_tools(question: str) -> NewToolMatch | None:
                                       f"{planet} heliocentric orbit at {a} AU")
 
     # ── orbital_velocity: satellite/ISS/geostationary at altitude ──
+    # Not the speed RELATIVE TO THE GROUND of a geostationary satellite: that is 0 by definition, and the astro classifier
+    # says so (mech_intro_015, 2026-10-30); the inertial speed this cue computes was the trap.
+    ground_relative = re.search(r"\brelative\s+to\s+(?:the\s+)?(?:ground|surface|earth'?s?\s+surface|point\s+below|spot\s+below)|"
+                                r"\bground\s+(?:i'?m|i\s+am|it\s+is|you\s+are)\s+(?:orbiting\s+)?(?:over|above)\b", q, re.IGNORECASE)
     is_orbit_q = (re.search(r"\b(satellite|ISS|space\s+station|geostationary|"
                               r"geosynchronous|orbit)", q, re.IGNORECASE)
                     and re.search(r"\bhow\s+fast|orbital\s+(?:velocity|speed)|"
-                                  r"\bmoving\b", q, re.IGNORECASE))
+                                  r"\bmoving\b", q, re.IGNORECASE)
+                    and not (ground_relative and re.search(r"\bgeostationary|\bgeosynchronous", q, re.IGNORECASE)))
     if is_orbit_q:
         # Moon at an explicit orbital radius (from center)
         if re.search(r"\bmoon\b", q, re.IGNORECASE):

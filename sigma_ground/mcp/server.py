@@ -923,6 +923,29 @@ def main() -> int:
         """
         return t_puz.closing_time(distance_m, velocity1_m_s, velocity2_m_s).to_dict()
 
+    from sigma_ground.mcp.tools import landmarks as t_land
+    from sigma_ground.mcp.tools import clocks as t_clk
+
+    @server.tool()
+    def landmark_height(name: str) -> dict[str, Any]:
+        """Height of a well-known landmark or mountain in metres, with its source (e.g. "Mount Everest" -> 8848.86 m, "Burj Khalifa" -> 828 m).
+
+        Args:
+            name: the landmark: Mount Everest, K2, Kilimanjaro, Denali, Mont Blanc, Mauna Kea, Burj Khalifa, Eiffel Tower,
+                  Empire State Building, Statue of Liberty, Big Ben, Great Pyramid of Giza, Mariana Trench (its depth).
+        """
+        return t_land.landmark_height(name).to_dict()
+
+    @server.tool()
+    def orbital_clock_drift(altitude_km: float) -> dict[str, Any]:
+        """Net relativistic rate of a clock in circular Earth orbit against a ground clock, in microseconds per day: gravitational
+        gain minus velocity loss (e.g. GPS at 20200 km -> +38.5 us/day; they cancel near 3190 km).
+
+        Args:
+            altitude_km: height of the circular orbit above Earth's surface, in km.
+        """
+        return t_clk.orbital_clock_drift(altitude_km).to_dict()
+
     # ── astronomy ──────────────────────────────────────────────────
     @server.tool()
     def solar_system_body(body_name: str) -> dict[str, Any]:

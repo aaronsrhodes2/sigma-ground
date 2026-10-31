@@ -76,6 +76,33 @@ def _find_planet(question: str) -> str | None:
 def classify_for_astro(question: str) -> AstroMatch | None:
     q = question
 
+    # ── Geostationary: speed relative to the ground is zero ──
+    # "In orbit at geostationary altitude, how fast am I moving relative to the ground I'm orbiting over?" (mech_intro_015): the
+    # orbital speed tool gives the inertial 3.07 km/s, which is the trap; geostationary means the same angular rate as the ground.
+    if (re.search(r"\bgeostationary|\bgeosynchronous", q, re.IGNORECASE)
+            and re.search(r"\brelative\s+to\s+(?:the\s+)?(?:ground|surface|earth'?s?\s+surface|point\s+below|spot\s+below)|"
+                          r"\bground\s+(?:i'?m|i\s+am|it\s+is|you\s+are)\s+(?:orbiting\s+)?(?:over|above)\b|\bstay(?:s|ing)?\s+(?:over|above)\b",
+                          q, re.IGNORECASE)):
+        return AstroMatch(tool="orbital_velocity", args={"relative_to": "ground"},
+                          rationale="a geostationary satellite has the Earth's rotation period, so its position over the ground is fixed: "
+                                    "ground-relative speed 0 (its inertial speed is about 3.07 km/s)",
+                          result_override=0.0, result_units="m/s")
+
+    # ── GPS: the altitude at which a clock gains a stated number of microseconds a day ──
+    # gr_008: GR (+45.7) minus SR (-7.2) at 20,200 km gives +38.5 us/day; the question states the drift and asks the altitude.
+    m = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:micro\s*seconds?|microseconds?|us|µs|μs)\s+(?:per|a|each|every)\s+day\b", q, re.IGNORECASE)
+    if m and re.search(r"\bclocks?\b", q, re.IGNORECASE) and re.search(r"\baltitude|\bhow\s+high|\bhow\s+far\s+(?:up|above)", q, re.IGNORECASE):
+        from sigma_ground.mcp.tools.clocks import altitude_for_clock_drift, orbital_clock_drift
+        drift = float(m.group(1))
+        if re.search(r"\bslow(?:er)?\b|\blose\b|\bbehind\b", q, re.IGNORECASE):
+            drift = -drift
+        h = altitude_for_clock_drift(drift)
+        if h is not None:
+            check = orbital_clock_drift(h / 1e3)
+            return AstroMatch(tool="orbital_clock_drift", args={"altitude_km": h / 1e3},
+                              rationale=f"altitude where the net GR - SR clock rate is {drift:+g} us/day: {h / 1e3:.0f} km ({check.notes})",
+                              result_override=h, result_units="m")
+
     # ── Light travel time over a stated distance, or from the Sun to the Earth ──
     # "How long does it take light to travel 1 parsec?", "How long does light from the Sun take to reach Earth?" (mech_adv_004,
     # astro_007, 2026-10-29): the router converted the parsec to metres and stopped; a stated distance over c is one formula.

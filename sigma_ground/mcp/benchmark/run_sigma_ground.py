@@ -823,6 +823,10 @@ async def _route_once(session, http, ollama_url: str, model: str, question: str,
             real = real_params_by_tool[name]
             if _tw.on("param_aliases"):
                 args, renames = normalize_kwargs(args, real)
+            if _tw.on("question_enrich"):
+                from sigma_ground.mcp.benchmark.param_aliases import enrich_from_question
+                args, added = enrich_from_question(name, args, question)
+                renames = [*renames, *added]
             if _tw.on("body_name_chain"):
                 args, chain_log = await resolve_body_name_chain(session, args, real)
             # pydantic drops a parameter the tool does not have and runs on the default

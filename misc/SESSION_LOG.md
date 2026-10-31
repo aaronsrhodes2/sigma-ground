@@ -4131,3 +4131,5 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   mercury, iron floats; verify: 0 mismatched cells), `melt` (12 lead blocks melt off a 1500 K tungsten plate in vacuum and lie in
   one layer; 0 mismatches), and a re-run in place clears the last run (0 mismatches). Plan deviation: RCON instead of a Java plugin
   (no Java build tools here; nothing in Phase 1 needs one). The Captain has not watched a run live yet.
+- The last rows (2026-10-30): question_enrich (y(t) -> func), GEO zero-speed cue (+ new_tools guard), orbital_clock_drift tool + GPS cue,
+  landmark_height + bananas cue. Local engine, paired: maths 329/329, physics 150/150, adversarial 15/18. Left: 3 open-ended knowledge rows.

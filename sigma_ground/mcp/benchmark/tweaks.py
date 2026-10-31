@@ -102,6 +102,10 @@ _add(Tweak("hidden_tools", "surface",
            covers=HIDDEN))
 _add(Tweak("param_aliases", "args",
            "param_aliases.PARAM_ALIASES: renames a made-up parameter (gravity_ms2) to the real one"))
+_add(Tweak("question_enrich", "args",
+           "param_aliases.enrich_from_question: an argument the question states plainly and the router left out "
+           "(solve_ode's func from 'every function y(t) with ...'), taken from the question text, never guessed",
+           covers=("solve_ode",)))
 _add(Tweak("body_name_chain", "args",
            "param_aliases.resolve_body_name_chain: body_name='sun' becomes solar_system_body -> mass_kg",
            covers=("solar_system_body", "named_star")))
