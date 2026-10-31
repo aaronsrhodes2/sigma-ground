@@ -119,7 +119,8 @@ def test_ice_melts_on_a_hot_plate_and_energy_balances():
     T = np.where(field.label_grid == field.materials.index("copper"), 600.0, 263.15)
     w = VoxelWorld(field, temperature_k=T, env="ISM")
     E0, ice = w.energy_J(), w.materials.index("water_ice")
-    w.run(500, 0.05)                                     # the bottom layer boils on 600 K copper
+    # ~306 s with measured ice (2.2 W/m/K, NIST water 0.6): until 2026-10-31 the card said 21.7 and it melted in 25 s
+    w.run(700, 0.5)
     assert not (w.phase()[w.label == ice] == SOLID).any()
     assert w.energy_J() + w.ledger["radiated_J"] + w.ledger["vented_J"] == pytest.approx(E0, rel=1e-9)
 
@@ -144,6 +145,6 @@ def test_water_freezes_in_the_cold():
     water = w.materials.index("water")
     assert (w.phase()[w.label == water] == LIQUID).all()
     E0 = w.energy_J()
-    w.run(200, 0.05)
+    w.run(250, 1.0)                                      # ~195 s with measured water and ice conductivity (was 10 s)
     assert (w.phase()[w.label == water] == SOLID).all()
     assert w.energy_J() + w.ledger["radiated_J"] == pytest.approx(E0, rel=1e-9)

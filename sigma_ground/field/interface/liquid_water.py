@@ -247,36 +247,80 @@ def ice_density():
 
 # ── Heat Capacity ──────────────────────────────────────────────
 
+_NIST = None
+
+
+def nist_water(T_K, key):
+    """Liquid water at 1 atm from the NIST WebBook table (``fixtures/nist_water_1atm.json``: IAPWS-95 and the IAPWS
+    viscosity and conductivity formulations), linear between its 5 K steps, 275-370 K. Outside that range the nearest end
+    (water at 1 atm is ice below 273 K and boils at 373 K), said by ``nist_water_in_range``.
+
+    ``key``: "density_kg_m3", "cp_J_g_K", "viscosity_Pa_s" or "thermal_conductivity_W_m_K".
+    """
+    import json
+    from bisect import bisect_left
+    from pathlib import Path
+    global _NIST
+    if _NIST is None:
+        _NIST = json.loads((Path(__file__).parent / "fixtures" / "nist_water_1atm.json").read_text(encoding="utf-8"))
+    Ts, ys = _NIST["T_K"], _NIST[key]
+    T = min(max(float(T_K), Ts[0]), Ts[-1])
+    i = min(max(bisect_left(Ts, T), 1), len(Ts) - 1)
+    f = (T - Ts[i - 1]) / (Ts[i] - Ts[i - 1])
+    return ys[i - 1] + f * (ys[i] - ys[i - 1])
+
+
+def nist_water_in_range(T_K):
+    return 275.0 <= float(T_K) <= 370.0
+
+
+_ICE = None
+ICE_SOURCE = "Engineering ToolBox ice Ih table at 1 atm"
+
+
+def ice_table(T_K, key):
+    """Ice Ih at 1 atm, measured (``fixtures/ice_1atm.json``, 173-273 K, linear between rows; the nearest end outside).
+    ``key``: "density_kg_m3", "thermal_conductivity_W_m_K" or "cp_J_g_K"."""
+    import json
+    from bisect import bisect_left
+    from pathlib import Path
+    global _ICE
+    if _ICE is None:
+        _ICE = json.loads((Path(__file__).parent / "fixtures" / "ice_1atm.json").read_text(encoding="utf-8"))
+    Ts, ys = _ICE["T_K"], _ICE[key]
+    T = min(max(float(T_K), Ts[0]), Ts[-1])
+    i = min(max(bisect_left(Ts, T), 1), len(Ts) - 1)
+    f = (T - Ts[i - 1]) / (Ts[i] - Ts[i - 1])
+    return ys[i - 1] + f * (ys[i] - ys[i - 1])
+
+
+NIST_WATER_SOURCE = "NIST WebBook SRD 69 (IAPWS-95) liquid water at 1 atm"
+
+
 def water_heat_capacity(T_K):
-    """Isobaric heat capacity of liquid water (J/(mol·K)).
+    """Isobaric heat capacity of liquid water (J/(mol·K)), MEASURED: NIST WebBook (IAPWS-95) at 1 atm (``nist_water``).
 
-    C_p = C_molecular + n_HB × E_HB × N_A × |df_ice/dT|
-
-    The first term (C_molecular ~ 9R/2 for a nonlinear triatomic):
-      - 3R/2 translation + 3R/2 rotation + ~3R/2 partial vibration ≈ 37 J/(mol·K)
-
-    The second term is the H-bond breaking contribution:
-      - As T increases, ice-like clusters collapse → H-bonds break → absorbs heat
-      - This is why water's C_p is so high compared to other liquids
-
-    FIRST_PRINCIPLES: energy conservation (heat goes into breaking H-bonds).
+    Water's C_p (~75.3 J/(mol·K) at 25 °C, about twice a normal liquid's) comes from hydrogen bonds breaking as it warms.
+    Until 2026-10-31 this was a two-state H-bond model, C_mol + Δn·E_HB·N_A·|df_ice/dT|, uncalibrated: 136 at 275 K falling
+    to 49 at 350 K against a measured, nearly flat ~76 (replaced per Golden Rule 6/8, as the surface tension was).
 
     Args:
-        T_K: temperature in Kelvin
+        T_K: temperature in Kelvin (275-370 K; the nearest end outside)
 
     Returns:
         C_p in J/(mol·K).
     """
-    # Molecular contribution (translation + rotation + partial vibration)
-    C_mol = 4.5 * _R  # ~ 37.4 J/(mol·K), typical for polyatomic
+    return nist_water(T_K, "cp_J_g_K") * _M_WATER * 1e3     # J/(g K) x g/mol
 
-    # H-bond breaking contribution
-    # As ice-like fraction decreases, Δn_HB hydrogen bonds break per molecule.
-    # Energy absorbed per unit temperature: Δn × E_HB × N_A × |df/dT|
-    df_dT = ice_like_fraction_derivative(T_K)
-    C_hb = _DELTA_N_HB * _E_HB_J * _N_A * abs(df_dT)
 
-    return C_mol + C_hb
+def water_specific_heat_j_kg_K(T_K):
+    """Isobaric specific heat of liquid water, J/(kg·K) (NIST WebBook, IAPWS-95)."""
+    return nist_water(T_K, "cp_J_g_K") * 1e3
+
+
+def water_thermal_conductivity(T_K):
+    """Thermal conductivity of liquid water, W/(m·K) (NIST WebBook, IAPWS 2011)."""
+    return nist_water(T_K, "thermal_conductivity_W_m_K")
 
 
 # ── Surface Tension ────────────────────────────────────────────

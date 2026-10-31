@@ -461,7 +461,11 @@ def electronic_thermal_conductivity(material_key, T=300.0):
     if T <= 0:
         return 0.0
 
-    rho_elec = _RESISTIVITY_OHM_M.get(material_key)
+    # the resistivity AT T (electronics.resistivity: Bloch-Gruneisen, calibrated to the measured 300 K value). Until
+    # 2026-10-31 this used the 300 K resistivity at every T, so kappa grew in proportion to T (copper 2185 W/m/K at
+    # 1500 K, measured ~330). Iron's magnetic scattering is not in the Bloch-Gruneisen form: its kappa runs ~2x high hot.
+    from .electronics import METAL_TRANSPORT, resistivity
+    rho_elec = resistivity(material_key, T) if material_key in METAL_TRANSPORT else _RESISTIVITY_OHM_M.get(material_key)
     if rho_elec is None or rho_elec > 1.0:
         # No data or semiconductor/insulator — no free electron contribution
         return 0.0

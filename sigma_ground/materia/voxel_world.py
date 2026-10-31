@@ -32,8 +32,12 @@ Honest limits (each one reported, none papered over):
     (sigma-ground has none for liquid water); the card reports it.
   - A material with no thermal data (liquid mercury) is inert to heat: it
     neither conducts nor changes temperature.
-  - k and ρ·cp are room-temperature values (``block``), frozen for the run; a
-    melted cell keeps its solid's thermal properties.
+  - LIVE CARDS (2026-10-31): every cell's conductivity, heat capacity, emissivity
+    and solid/liquid density are ``block(material, T)`` at THAT cell's temperature,
+    every tick (tabulated over T once per material, ``live_table``, interpolated).
+    Sensible heat is the enthalpy H(T) = rho_build x integral cp dT, so a heat
+    capacity that changes with T still conserves energy. A melted cell keeps its
+    solid's thermal laws, evaluated at the melting point (``block``'s gap says so).
   - A cell's MASS is its build density × block volume, forever: melting changes
     which liquid it sinks through (liquid density = ρ_solid / (1 + ΔV_fus), from
     PHASE_DATA) but not its block's size.
@@ -51,6 +55,55 @@ SOLID, LIQUID = 0, 1
 # a cell more than half melted moves and is drawn as liquid (a mushy cell at its
 # melting point must not flip with roundoff); boiling still needs it fully melted
 MELTED = 0.5
+
+
+LIVE_T_K = None      # the temperature grid of the live tables (built on first use: 100 K to 4000 K, 25 K steps)
+_LIVE = {}
+
+
+def live_table(name):
+    """``{"T", "k", "cp", "emissivity", "rho_solid", "rho_liquid"}`` arrays over ``LIVE_T_K``: ``block(name, T)`` at each
+    temperature (a property ``block`` lacks at some T keeps its nearest known value; all missing: None). Cached per name."""
+    import numpy as np
+    from ..field.interface.block import block
+    global LIVE_T_K
+    if LIVE_T_K is None:
+        LIVE_T_K = np.arange(100.0, 4000.0 + 1e-9, 25.0)
+    if name in _LIVE:
+        return _LIVE[name]
+    keys = {"k": "thermal_conductivity", "cp": "specific_heat", "emissivity": "emissivity",
+            "rho_solid": "density_solid", "rho_liquid": "density_liquid"}
+    cols = {k: [] for k in keys}
+    for T in LIVE_T_K:
+        p = block(name, float(T))["properties"]
+        for k, prop in keys.items():
+            v = p.get(prop, {}).get("value")
+            cols[k].append(float(v) if isinstance(v, (int, float)) else np.nan)
+    out = {"T": LIVE_T_K}
+    for k, v in cols.items():
+        a = np.array(v)
+        ok = ~np.isnan(a)
+        out[k] = None if not ok.any() else np.interp(LIVE_T_K, LIVE_T_K[ok], a[ok])
+    _LIVE[name] = out
+    return out
+
+
+def _h_of(lv, T):
+    """Enthalpy per m^3 at T from a live table; past either end it goes on at that end's rho*cp."""
+    import numpy as np
+    T = np.asarray(T, dtype=float)
+    Ts, H, c = lv["T"], lv["H"], lv["rho_cp"]
+    return np.where(T > Ts[-1], H[-1] + c[-1] * (T - Ts[-1]),
+                    np.where(T < Ts[0], H[0] + c[0] * (T - Ts[0]), np.interp(T, Ts, H)))
+
+
+def _t_of(lv, H):
+    """Inverse of ``_h_of``."""
+    import numpy as np
+    H = np.asarray(H, dtype=float)
+    Ts, Hs, c = lv["T"], lv["H"], lv["rho_cp"]
+    return np.where(H > Hs[-1], Ts[-1] + (H - Hs[-1]) / c[-1],
+                    np.where(H < Hs[0], Ts[0] + (H - Hs[0]) / c[0], np.interp(H, Hs, Ts)))
 
 
 def material_card(name, density_kg_m3):
@@ -77,6 +130,14 @@ def material_card(name, density_kg_m3):
     if card["rho_cp"] <= 0:
         card["k"] = 0.0
         card["gaps"].append("inert to heat")
+        card["live"] = None
+    else:
+        import numpy as np
+        live = dict(live_table(name))
+        cp = live["cp"]
+        live["rho_cp"] = rho * cp                                    # a cell's mass is fixed: rho_build x cp(T)
+        live["H"] = np.concatenate([[0.0], np.cumsum(0.5 * (live["rho_cp"][1:] + live["rho_cp"][:-1]) * np.diff(live["T"]))])
+        card["live"] = live
     if "latent_heat_fusion" in p and "latent_heat_vaporization" in p and card["rho_cp"] > 0:
         card["T_melt"], card["T_boil"] = float(p["melting_point"]), float(p["boiling_point"])
         card["L_fus"], card["L_vap"] = p["latent_heat_fusion"] * rho, p["latent_heat_vaporization"] * rho
@@ -134,6 +195,49 @@ class VoxelWorld:
         lut = np.array([0.0] + [float(c[key] or 0.0) for c in self.cards[1:]])
         return lut[self.label]
 
+    def _live(self, key, T=None):
+        """Per-cell ``key`` at each cell's own temperature (the live card); a material with no live table: its card value."""
+        import numpy as np
+        T = self.T if T is None else T
+        out = np.zeros(self.label.shape)
+        for k, c in enumerate(self.cards):
+            if c is None:
+                continue
+            m = self.label == k
+            if not m.any():
+                continue
+            lv = c.get("live")
+            if lv is not None and lv.get(key) is not None:
+                out[m] = np.interp(T[m], lv["T"], lv[key])
+            else:
+                out[m] = float(c.get(key) or 0.0)
+        return out
+
+    def _H(self, T=None):
+        """Sensible enthalpy per m^3 of each cell at T (0 where inert)."""
+        import numpy as np
+        T = self.T if T is None else T
+        out = np.zeros(self.label.shape)
+        for k, c in enumerate(self.cards):
+            if c is None or c.get("live") is None:
+                continue
+            m = self.label == k
+            if m.any():
+                out[m] = _h_of(c["live"], T[m])
+        return out
+
+    def _T_from_H(self, H):
+        """Inverse of ``_H`` per cell (H is monotonic: cp > 0)."""
+        import numpy as np
+        T = self.T.copy()
+        for k, c in enumerate(self.cards):
+            if c is None or c.get("live") is None:
+                continue
+            m = self.label == k
+            if m.any():
+                T[m] = _t_of(c["live"], H[m])
+        return T
+
     def gaps(self):
         """{material: [what sigma-ground cannot supply for it]}"""
         return {c["name"]: list(c["gaps"]) for c in self.cards[1:] if c["gaps"]}
@@ -142,9 +246,8 @@ class VoxelWorld:
         return float(self._grid("rho").sum()) * self.cell_m3
 
     def energy_J(self):
-        """Sensible heat of every conducting cell + latent heat held by melt/boil."""
-        rho_cp = self._grid("rho_cp")
-        return float(((rho_cp * self.T) + self.melt * self._grid("L_fus") + self.boil * self._grid("L_vap")).sum()
+        """Sensible heat (the enthalpy H(T) of every conducting cell, from 100 K) + latent heat held by melt/boil."""
+        return float((self._H() + self.melt * self._grid("L_fus") + self.boil * self._grid("L_vap")).sum()
                      * self.cell_m3)
 
     def phase(self):
@@ -168,15 +271,19 @@ class VoxelWorld:
         from ..dynamics.fields.heat import diffuse_fvm
         from .thermal_field import boundary_from_env
 
-        k, rho_cp = self._grid("k"), self._grid("rho_cp")
+        # the live card: k, rho*cp and emissivity at each cell's temperature now (held for this step)
+        k, rho_cp = self._live("k"), self._live("rho_cp")
         if not (rho_cp > 0).any():
             return {"heat_substeps": 0}
         bc = boundary_from_env(self.env, self.label > 0, emissivity_grid=None)
         if "radiative" in bc:
-            bc["radiative"]["emissivity"] = self._grid("emissivity") * (rho_cp > 0)
-        E0 = float((rho_cp * self.T).sum()) * self.cell_m3
-        self.T, info = diffuse_fvm(self.T, k, rho_cp, self.pitch, total_time=dt, **bc)
-        E1 = float((rho_cp * self.T).sum()) * self.cell_m3
+            bc["radiative"]["emissivity"] = self._live("emissivity") * (rho_cp > 0)
+        H0 = self._H()
+        E0 = float(H0.sum()) * self.cell_m3
+        T1, info = diffuse_fvm(self.T, k, rho_cp, self.pitch, total_time=dt, **bc)
+        # the step moved rho_cp(T0) x (T1 - T0) of energy into each cell; the new temperature is where the enthalpy says
+        self.T = self._T_from_H(H0 + rho_cp * (T1 - self.T))
+        E1 = float(self._H().sum()) * self.cell_m3
         self.ledger["radiated_J"] += info["radiated_J"]
         self.ledger["to_surroundings_J"] += E0 - E1 - info["radiated_J"]
         return {"heat_substeps": info["substeps"]}
@@ -189,19 +296,22 @@ class VoxelWorld:
         for k, c in enumerate(self.cards):
             if c is None or c["T_melt"] is None:
                 continue
-            cells, cap, Tm, Tb = self.label == k, c["rho_cp"], c["T_melt"], c["T_boil"]
+            cells, Tm, Tb = self.label == k, c["T_melt"], c["T_boil"]
+            lv = c["live"]
+            H_of = lambda T: _h_of(lv, T)                                        # noqa: E731
+            T_of = lambda H: _t_of(lv, H)                                        # noqa: E731
             # melting / freezing through T_melt
             for heating in (True, False):
                 m = cells & ((self.T > Tm) & (self.melt < 1) & (self.boil == 0) if heating
                              else (self.T < Tm) & (self.melt > 0))
                 if not m.any():
                     continue
-                E = np.abs(self.T[m] - Tm) * cap                      # J/m³ past the line
+                E = np.abs(H_of(self.T[m]) - H_of(Tm))                # J/m³ past the line (live enthalpy)
                 room = (1 - self.melt[m]) * c["L_fus"] if heating else self.melt[m] * c["L_fus"]
                 done = E >= room
                 sign = 1.0 if heating else -1.0
                 self.melt[m] = np.where(done, 1.0 if heating else 0.0, self.melt[m] + sign * E / c["L_fus"])
-                self.T[m] = np.where(done, Tm + sign * (E - room) / cap, Tm)
+                self.T[m] = np.where(done, T_of(H_of(Tm) + sign * (E - room)), Tm)
                 if heating:
                     melted += int(done.sum())
                 else:
@@ -211,17 +321,17 @@ class VoxelWorld:
                 m = cells & (self.melt >= 1) & ((self.T > Tb) if heating else (self.T < Tb) & (self.boil > 0))
                 if not m.any():
                     continue
-                E = np.abs(self.T[m] - Tb) * cap
+                E = np.abs(H_of(self.T[m]) - H_of(Tb))
                 room = (1 - self.boil[m]) * c["L_vap"] if heating else self.boil[m] * c["L_vap"]
                 done = E >= room
                 sign = 1.0 if heating else -1.0
                 self.boil[m] = np.where(done, 1.0 if heating else 0.0, self.boil[m] + sign * E / c["L_vap"])
-                self.T[m] = np.where(done, Tb + sign * (E - room) / cap, Tb)
+                self.T[m] = np.where(done, T_of(H_of(Tb) + sign * (E - room)), Tb)
             gone = cells & (self.boil >= 1)
             if gone.any():
                 n = int(gone.sum())
                 self.ledger["vented_kg"] += n * c["rho"] * V
-                self.ledger["vented_J"] += float((cap * self.T[gone] + c["L_fus"] + c["L_vap"]).sum()) * V
+                self.ledger["vented_J"] += float((H_of(self.T[gone]) + c["L_fus"] + c["L_vap"]).sum()) * V
                 self.label[gone] = 0
                 self.T[gone], self.melt[gone], self.boil[gone] = self.ambient_T, 0.0, 0.0
                 vented += n
@@ -238,7 +348,13 @@ class VoxelWorld:
         if k == 0:
             return 0.0
         c = self.cards[k]
-        return c["rho_liquid"] if self.melt[idx] >= MELTED else None   # None: a solid, not a fluid
+        if self.melt[idx] < MELTED:
+            return None                                                # a solid, not a fluid
+        lv = c.get("live")
+        if lv is not None and lv.get("rho_liquid") is not None:
+            import numpy as np
+            return float(np.interp(self.T[idx], lv["T"], lv["rho_liquid"]))
+        return c["rho_liquid"]
 
     def _settle(self):
         import numpy as np
@@ -246,7 +362,7 @@ class VoxelWorld:
 
         nz = self.label.shape[2]
         # 1) rigid solid pieces, lowest first
-        rho = self._grid("rho_solid")
+        rho = self._live("rho_solid")
         moved_pieces = 0
         # a piece = face-connected solid cells of ONE material: things resting on each
         # other are not glued (ice on a granite floor still floats up). Each piece's cells
@@ -296,7 +412,7 @@ class VoxelWorld:
         for x, y, z in liq:
             if not (self.label[x, y, z] > 0 and self.melt[x, y, z] >= MELTED) or z == self.floor_z:
                 continue
-            here = self.cards[self.label[x, y, z]]["rho_liquid"]
+            here = self._density_at((x, y, z))
             below = self._density_at((x, y, z - 1))
             if below is not None and below < here:
                 self._swap((x, y, z), (x, y, z - 1))

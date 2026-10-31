@@ -592,3 +592,24 @@ Not modelled, by design of the build order: (1) no crust (neutron-star radii fro
 (2) white dwarfs have no Coulomb (Salpeter) correction; (3) one nuclear parametrization only (SLy4), no experiment-based meta-model; (4) no hyperons,
 no quark matter, zero temperature; (5) the GW170817 pressure window at 2 rho_nuc does not discriminate (a free neutron gas passes it), so the 2 solar-mass
 floor is the working gate; (6) NICER radius scores wait for the crust. The plan's SEMF fix (A19) was already made by commits 3ace229 and 47ada40.
+
+## PHYSICS_GAP: temperature-dependent material cards, what is still approximate (2026-10-31)
+
+`field.interface.block(material, T)` now returns the card AT T (the live cards of `materia/voxel_world.py`): the measured
+value at 293.15 K times the law's own change (`block._at_temperature`). Fixed on the way: metal conductivity used the
+300 K resistivity at every T (copper 2185 W/m/K at 1500 K; now Wiedemann-Franz with `electronics.resistivity(T)`);
+liquid water's heat capacity was an uncalibrated two-state model (now NIST WebBook / IAPWS-95, `fixtures/nist_water_1atm.json`);
+ice took the derived phonon values (21.7 W/m/K; now measured, `fixtures/ice_1atm.json`). Still approximate:
+
+- **Iron (and steel) conductivity hot:** Bloch-Gruneisen has no magnetic scattering, so iron's resistivity at 1000 K is
+  ~2.5x low and its conductivity ~1.6x high (50 W/m/K at 1500 K against ~31 measured).
+- **Rock and ceramic conductivity hot:** the Umklapp 1/T phonon law falls too fast for rocks (granite 0.96 W/m/K at 900 K
+  against ~1.6 measured): no minimum (glass-like) conductivity, no radiative transfer through the stone.
+- **Heat capacity:** Debye (lattice only) scaling of the measured value: no electronic, anharmonic or magnetic terms (iron's
+  Curie peak near 1043 K is missing; iron hot runs ~20% low).
+- **Melts:** a melted solid keeps its solid's laws evaluated at the melting point; no liquid-metal conductivity, heat
+  capacity or density law (the melt's density is the solid's at T_melt / (1 + dV_fus)). Liquid-metal viscosity: see the
+  Eyring entry (`fluid.eyring_viscosity`, 10^3-10^6 too viscous); the FLIP solver must not use it.
+- **Wood:** oak's specific heat is derived (3558 J/kg/K; measured wood is ~1700-2400); no measured value in the profile.
+- **Water above 370 K / below 275 K (liquid):** NIST's nearest end; steam is not modelled (boiled cells vent).
+- Sentinels: `sigma_ground/field/interface/test_live_laws.py`, `tests/test_live_cards.py`.

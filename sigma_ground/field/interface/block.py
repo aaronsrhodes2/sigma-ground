@@ -106,11 +106,6 @@ def block(material: str, temperature_k: float = 293.15, *, mass_kg: float | None
                 continue
         else:
             gaps.append("no emissivity")
-    if "density" in props and "specific_heat" in props:
-        props["heat_capacity_volumetric"] = _fact(
-            props["density"]["value"] * props["specific_heat"]["value"], "density x specific_heat",
-            min(props["density"]["confidence"] or 1, props["specific_heat"]["confidence"] or 1))
-
     # 3. phase data
     written_liquid = prof.get("material_class") == "liquid"
     data = PHASE_DATA.get(data_name)
@@ -130,11 +125,6 @@ def block(material: str, temperature_k: float = 293.15, *, mass_kg: float | None
                 gaps.append(f"no {name.replace('_', ' ')}: PHASE_DATA states no mole basis")
             else:
                 props[name] = _fact(L, f"{src} / molar mass of its mole ({data.get('mole')})")
-        if "density" in props:
-            rho = props["density"]["value"]
-            solid, liquid = (rho * (1 + dV), rho) if written_liquid else (rho, rho / (1 + dV))
-            props["density_solid"] = _fact(solid, "density and volume change on melting")
-            props["density_liquid"] = _fact(liquid, "density and volume change on melting")
         T = float(temperature_k)
         if T > Tb:
             phase = "gas"
@@ -144,6 +134,19 @@ def block(material: str, temperature_k: float = 293.15, *, mass_kg: float | None
             phase = "solid"
     if phase in ("liquid", "gas") and not written_liquid and "thermal_conductivity" in props:
         gaps.append(f"thermal values are the solid's: none for the {phase}")
+
+    # 4. at the block's own temperature (the live card)
+    _at_temperature(props, gaps, canonical, data_name, float(temperature_k), phase, written_liquid,
+                    props.get("melting_point", {}).get("value"))
+    if data is not None and "density" in props and "density_solid" not in props:
+        rho = props["density"]["value"]
+        solid, liquid = (rho * (1 + dV), rho) if written_liquid else (rho, rho / (1 + dV))
+        props["density_solid"] = _fact(solid, "density and volume change on melting")
+        props["density_liquid"] = _fact(liquid, "density and volume change on melting")
+    if "density" in props and "specific_heat" in props:
+        props["heat_capacity_volumetric"] = _fact(
+            props["density"]["value"] * props["specific_heat"]["value"], "density x specific_heat",
+            min(props["density"]["confidence"] or 1, props["specific_heat"]["confidence"] or 1))
 
     for name, p in props.items():
         p["units"] = UNITS.get(name)
@@ -165,6 +168,91 @@ def block(material: str, temperature_k: float = 293.15, *, mass_kg: float | None
             "written_as": "liquid" if written_liquid else "solid", "temperature_k": float(temperature_k),
             "phase": phase, "properties": props,
             "amount": amount, "gaps": gaps}
+
+
+T_REF_K = 293.15     # the measured tables' temperature (CRC, TPSX: room temperature); block()'s default
+
+
+def _at_temperature(props, gaps, canonical, data_name, T, phase, written_liquid, T_melt):
+    """Carry ``props`` (measured near ``T_REF_K``) to the block's temperature, in place.
+
+    Liquid water: NIST's measured values at T (``liquid_water.nist_water``: IAPWS-95). Anything else: the measured value
+    times the law's own change, value(T) = value(T_REF) x law(T) / law(T_REF):
+      thermal conductivity  ``thermal.thermal_conductivity`` (Wiedemann-Franz with rho(T) for metals, Umklapp phonons)
+      specific heat         ``thermal.specific_heat_j_kg_K`` (Debye)
+      density               thermal expansion, rho(T) = rho(T_REF) / (1 + integral of alpha(T) dT)^3
+                            (``thermal_expansion.expansion_coefficient_at_T``: measured alpha, Debye C_v scaling)
+    A melted block keeps its solid's laws, evaluated at the melting point (the gap above says so). No law: the room-
+    temperature value stays and a gap says so.
+    """
+    from . import liquid_water, thermal, thermal_expansion
+
+    if data_name == "water_ice":                     # each phase its own measured density, at T (nearest end past 273 K)
+        props["density_solid"] = _fact(liquid_water.ice_table(min(T, 273.15), "density_kg_m3"),
+                                       f"{liquid_water.ICE_SOURCE} at {min(T, 273.15):g} K", 0.8)
+        props["density_liquid"] = _fact(liquid_water.nist_water(max(T, 275.0), "density_kg_m3"),
+                                        f"{liquid_water.NIST_WATER_SOURCE} at {max(T, 275.0):g} K", 0.95)
+    if data_name == "water_ice" and phase == "solid":
+        for name, key in (("density", "density_kg_m3"), ("specific_heat", "cp_J_g_K"),
+                          ("thermal_conductivity", "thermal_conductivity_W_m_K")):
+            v = liquid_water.ice_table(T, key) * (1e3 if key == "cp_J_g_K" else 1.0)
+            props[name] = _fact(v, f"{liquid_water.ICE_SOURCE} at {T:g} K", 0.8)
+        gaps[:] = [g for g in gaps if g not in ("no thermal conductivity", "no specific heat")]
+        return
+    if data_name == "water_ice" and phase == "liquid":
+        for name, key, conf in (("density", "density_kg_m3", 0.95), ("specific_heat", "cp_J_g_K", 0.95),
+                                ("thermal_conductivity", "thermal_conductivity_W_m_K", 0.95),
+                                ("viscosity", "viscosity_Pa_s", 0.95)):
+            v = liquid_water.nist_water(T, key) * (1e3 if key == "cp_J_g_K" else 1.0)
+            props[name] = _fact(v, f"{liquid_water.NIST_WATER_SOURCE} at {T:g} K", conf)
+        gaps[:] = [g for g in gaps if g not in ("no thermal conductivity", "no specific heat")]
+        if not liquid_water.nist_water_in_range(T):
+            gaps.append("liquid water outside NIST's 275-370 K table: its nearest end")
+        return
+    if abs(T - T_REF_K) < 1e-9:
+        return
+    T_law = min(T, T_melt) if (phase in ("liquid", "gas") and not written_liquid and T_melt) else T
+    keys = list(dict.fromkeys((canonical, data_name)))
+
+    def law_ratio(fn):
+        for key in keys:
+            try:
+                a, b = float(fn(key, T_law)), float(fn(key, T_REF_K))
+            except (KeyError, ValueError, ZeroDivisionError):
+                continue
+            if b > 0 and a > 0:
+                return a / b, f"{fn.__module__.rsplit('.', 1)[-1]}.{fn.__name__}({key!r})"
+        return None, None
+
+    for name, fn in (("thermal_conductivity", thermal.thermal_conductivity),
+                     ("specific_heat", thermal.specific_heat_j_kg_K)):
+        if name not in props:
+            continue
+        ratio, how = law_ratio(fn)
+        if ratio is None:
+            gaps.append(f"{name.replace('_', ' ')} at room temperature: no law for its change with temperature")
+            continue
+        p = props[name]
+        props[name] = _fact(p["value"] * ratio, f"{p['source']}, x {how} at {T_law:g} K / at {T_REF_K:g} K",
+                            p["confidence"])
+    if "density" in props and not written_liquid:
+        for key in keys:
+            try:
+                n, strain = 16, 0.0
+                for i in range(n):                             # trapezoid on alpha(T) from T_REF to T_law
+                    t0 = T_REF_K + (T_law - T_REF_K) * i / n
+                    t1 = T_REF_K + (T_law - T_REF_K) * (i + 1) / n
+                    strain += 0.5 * (thermal_expansion.expansion_coefficient_at_T(key, t0)
+                                     + thermal_expansion.expansion_coefficient_at_T(key, t1)) * (t1 - t0)
+            except KeyError:
+                continue
+            p = props["density"]
+            props["density"] = _fact(p["value"] / (1.0 + strain) ** 3,
+                                     f"{p['source']}, expanded to {T_law:g} K (thermal_expansion.expansion_coefficient_at_T"
+                                     f"({key!r}): measured alpha, Debye scaling)", p["confidence"])
+            break
+        else:
+            gaps.append("density at room temperature: no thermal expansion data")
 
 
 # material → (Cauchy key, absorption key) in optics: which measured optical model a clear material is
