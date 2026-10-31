@@ -4142,3 +4142,13 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   removed), command blocks enabled. Checked by powering the command blocks with a redstone block: Run sink ran and the gold ended at
   the bottom of the mercury; Run melt then Stop stopped it (the next run started at once). Still open: heat is invisible (no glow),
   so a melt shows only as a slump.
+
+## 2026-10-30 (evening) — improvement-distillation branch, built and started
+
+- Plan `misc/DISTILLATION_BRANCH_PLAN.md` (compare-only against Wolfram; our own data improves Mentat), approved as proposed.
+- `tools/distill_day.py`: a day's NEW set (maths from router_math's held-out generators re-rendered tersely, oracle = its sympy check;
+  physics/chemistry/astronomy from router_recipes, oracle = the tool itself; wild questions from Core's chat model, no oracle), novelty
+  against the trickle's 497 + the suite, written to results/distill/<suite>.set.json, `--enqueue` to the trickle.
+- `benchmark/distill_score.py`: verdicts from OUR oracle, causes from Mentat's own record (no_route/bad_args/tool_error/wrong_tool/
+  wrong_value/unverified), Wolfram as wa_status + wa_agrees_with_us only (its text never copied); day files + misc/DISTILLATION_LEDGER.md.
+- Day one queued: distill-2026-10-30, 40 questions (math 20, physics 12, chemistry 5, astronomy 3; 35 with an oracle, 5 wild).
