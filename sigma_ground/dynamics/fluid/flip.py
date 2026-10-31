@@ -82,6 +82,36 @@ class Flip:
         """Total linear momentum of the liquid, kg·m/s."""
         return self.particle_mass * self.vel.sum(0)
 
+    def force_on(self, mask):
+        """The liquid's pressure force (N) on the solid cells in ``mask``, from the last step's pressure: pressure x face
+        area on every face between one of them and a liquid cell, pushing into the solid. The pressure is carried from the
+        liquid cell's centre to the face itself (linearly, from the next liquid cell out), since the half cell between them
+        matters: on a cube under still water this is exactly Archimedes' rho g V."""
+        F = np.zeros(3)
+        liquid = getattr(self, "_liquid", None)
+        if liquid is None:
+            return F
+        P, M = self.pressure, np.asarray(mask, bool)
+
+        def shift(a, step, ax, fill):                                 # value of the neighbour at index + step
+            out = np.full_like(a, fill)
+            src = [slice(None)] * 3
+            dst = [slice(None)] * 3
+            if step > 0:
+                src[ax], dst[ax] = slice(1, None), slice(None, -1)
+            else:
+                src[ax], dst[ax] = slice(None, -1), slice(1, None)
+            out[tuple(dst)] = a[tuple(src)]
+            return out
+
+        for c in range(3):
+            up_l, dn_l = shift(liquid, 1, c, False), shift(liquid, -1, c, False)
+            p_low = np.where(up_l, 1.5 * P - 0.5 * shift(P, 1, c, 0.0), P)     # at the cell's face toward -c
+            p_high = np.where(dn_l, 1.5 * P - 0.5 * shift(P, -1, c, 0.0), P)   # at its face toward +c
+            body_above, body_below = shift(M, 1, c, False), shift(M, -1, c, False)
+            F[c] += self.h * self.h * float((p_high * (liquid & body_above)).sum() - (p_low * (liquid & body_below)).sum())
+        return F
+
     def mass_kg(self):
         return self.particle_mass * len(self.pos)
 
@@ -233,6 +263,7 @@ class Flip:
             return grid
         div = sum(np.diff(grid[c], axis=c) for c in range(3)) / h
         self.pressure = self._poisson(liquid, -(rho * h * h / dt) * div, self._last_p)
+        self._liquid = liquid
         self._last_p = self.pressure.copy()
         # subtract the pressure gradient on every face with liquid on a side and no wall
         out = []

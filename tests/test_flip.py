@@ -94,3 +94,35 @@ def test_wave_machine_puts_momentum_and_work_into_the_water():
     assert (lab == water).sum() == (field.label_grid == water).sum()       # drawn volume = the water's volume
     assert (lab == w.materials.index("aluminum")).sum() == (field.label_grid == field.materials.index("aluminum")).sum()
     assert any("surface tension" in g for g in w.gaps())
+
+
+def test_archimedes_on_a_cube_under_still_water(path):
+    n, h = (20, 20, 24), 0.0125
+    solid = np.zeros(n, bool)
+    solid[8:12, 8:12, 6:10] = True
+    liquid = np.zeros(n, bool)
+    liquid[:, :, :16] = True
+    f = Flip(n, h, density=RHO, viscosity=MU, gravity=STANDARD_GRAVITY, solid=solid, liquid=liquid & ~solid)
+    for _ in range(5):
+        f.step(0.02)
+    F = f.force_on(solid)
+    assert F[2] == pytest.approx(RHO * STANDARD_GRAVITY * 64 * h ** 3, rel=1e-4)
+    assert abs(F[0]) < 1e-5 and abs(F[1]) < 1e-5
+
+
+def test_gold_sinks_and_oak_floats():
+    from sigma_ground.deckard.voxel_exec import field_from_voxel_exec
+    from sigma_ground.materia.voxel_fluid import FluidVoxelWorld
+
+    code = ('box(0,0,0,7,6,3,"glass"); box(1,1,1,6,6,2,"air"); box(1,1,1,6,3,2,"water"); block(2,5,1,"gold");'
+            'block(5,5,2,"wood_oak")')
+    field, _ = field_from_voxel_exec(code, block_m=0.05, resolution=2)
+    w = FluidVoxelWorld(field, bodies=["gold", "wood_oak"])
+    gold, oak = w.bodies
+    water = np.argwhere(field.label_grid == field.materials.index("water"))[:, 2]
+    floor, surface = water.min(), water.max() + 1
+    for _ in range(40):
+        w.step(0.04)
+    assert gold["cell"][2] == floor                                   # sunk, resting on the glass
+    assert floor + (surface - floor) // 2 < oak["cell"][2] <= surface    # afloat: bottom in the water,
+    assert oak["cell"][2] + 2 > surface                                    # top out of it (2 cells tall)

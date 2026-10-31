@@ -84,3 +84,11 @@ second, position-only solve keeps the particles evenly spread (FLIP bunches them
 a time), without touching any velocity.
 Tests: `tests/test_flip.py` (still water stays still and the floor carries exactly its weight; a falling blob gains exactly
 M·g·t; mass exact; the paddle does work).
+
+**Solids that splash** (2026-10-31): a gold block and an oak block hang over the slosh tank and drop in when it runs. They are
+rigid bodies (`FluidVoxelWorld(bodies=...)`): mass from `block()` density, gravity, and the water's pressure on every wetted
+face (`Flip.force_on`, carried to the face itself, so a cube under still water feels exactly ρgV). The water sees each body
+as a wall moving at its velocity, which is the splash. Gold sinks to the floor; oak floats and rides the waves; no density
+rule decides either. Faces touching a wall take the pressure of the liquid beside them (the film the grid can't hold), or a
+body driven to the floor would be sucked there forever. Known limits (in `gaps()`): no rotation, no friction (the gold slides
+along the floor with the slosh), and a floater rides about half a cell high.

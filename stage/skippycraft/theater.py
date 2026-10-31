@@ -46,9 +46,10 @@ SCENES = {
     # the wave machine: a glass tank, an aluminium paddle near one end, water 15 cm deep; the paddle is driven at the
     # tank's own first sloshing period (fluid_surface.sloshing_angular_frequency) unless he changes it at the desk
     "slosh": ('box(0,0,0,17,6,7,"glass"); box(1,1,1,16,6,6,"air"); box(2,1,1,2,6,6,"aluminum"); '
-              'box(3,1,1,16,3,6,"water")', 0.05, "STP", "flip", 750, 0.04),
+              'box(3,1,1,16,3,6,"water"); block(8,5,3,"gold"); block(12,5,4,"wood_oak")', 0.05, "STP", "flip", 750, 0.04),
 }
 PADDLE = {"material": "aluminum", "axis": 0, "amplitude_m": 0.015, "period_s": None}
+BODIES = ("gold", "wood_oak")          # free bodies in the slosh tank: they fall in when it runs (gold sinks, oak floats)
 BOSSBAR = "skippycraft:theater"
 
 # where each scene stands, its control desk, its request number, and its pace. A desk (the Captain: buttons must be easy to
@@ -63,7 +64,7 @@ STAGES = {
     "slosh": {"origin": (0, -60, 100), "desk": (36, -46, 88), "pitch": 25, "other": "sink", "request": 3, "rate": 25.0,
               "extra": (("Slower", 4), ("Faster", 5)),
               "tell": "Slosh: the paddle pushes the water at the tank's own sloshing period, so each push adds to the last. "
-                      "Every particle carries momentum; the boss bar shows the water's momentum and the paddle's work."},
+                      "A gold block and an oak block drop in: the water's own pressure sinks one and floats the other."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
@@ -178,7 +179,7 @@ def build(name):
     _, _, env, temp, _, _ = SCENES[name]
     field = scene_field(name)
     if temp == "flip":
-        return field, FluidVoxelWorld(field, paddle=dict(PADDLE))
+        return field, FluidVoxelWorld(field, paddle=dict(PADDLE), bodies=BODIES)
     T = None
     if temp == "plate_1500":
         T = np.where(field.label_grid == field.materials.index("tungsten"), 1500.0, 293.15)
@@ -450,7 +451,7 @@ def serve(player="aaronsrhodes"):
         tell(st["tell"])
         _, _, _, _, ticks, dt = SCENES[name]
         print("run", name, flush=True)
-        for _ in range(ticks):
+        for tick in range(ticks):
             t0 = time.monotonic()
             nxt = read_request(rcon)
             if nxt in (SLOWER, FASTER) and getattr(world, "paddle", None):
@@ -464,7 +465,10 @@ def serve(player="aaronsrhodes"):
                 tell(f"Stopped {name}.")
                 break
             world.step(dt)
-            th.readout(th.draw())
+            text = th.readout(th.draw())
+            if tick % 25 == 0:                                        # the service's log: what it last drew, and where
+                where = " ".join(f"{b['material']}@{th.mc(*b['cell'])}" for b in getattr(world, "bodies", ()))
+                print(f"{name} tick {tick}: {text} {where}", flush=True)
             time.sleep(max(0.0, 1.0 / st["rate"] - (time.monotonic() - t0)))
         else:
             tell(f"{name} done: the world ran {world.t:.2f} simulated seconds.")

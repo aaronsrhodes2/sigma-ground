@@ -4192,3 +4192,11 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   −h²∇²q = h²(fill − 1), interior under-full cells included; momentum untouched) and the drawing now places exactly the water's
   volume of blocks, ranked by neighbourhood-averaged fill (the mass-keeping rule). Read back from Minecraft: columns 10→15 cells
   along the tank, then flat, then 15→10: the first sloshing mode, one body, no holes. Cost 0.32 s per 0.04 s frame (1/8 real speed).
+- SkippyCraft solids that splash (the Captain's pick): rigid bodies in `FluidVoxelWorld` (mass from block(), gravity, the
+  liquid's pressure via new `Flip.force_on`), the liquid seeing each body as a moving wall. Found and fixed on the way:
+  (1) face pressure taken at the cell centre gave buoyancy 25% high (1.53 N vs ρgV 1.22 N): now carried to the face, exact to
+  1e-6; (2) an oak block driven to the floor stuck there (no liquid under it = perfect suction): contact faces take the
+  surrounding liquid's pressure; (3) the explicit coupling's pressure spikes threw the oak 10 cm out of the water: a step's
+  pressure may now bring a body to the liquid's speed but not past it, and no faster than buoyancy. Live: gold on the glass
+  floor (sliding a block with the slosh: no friction), oak afloat 0.23-0.33 m over a 0.30 m water line. Gaps named: no
+  rotation, no friction, floaters ride ~half a cell high (free-surface pressure at the air cell's centre).
