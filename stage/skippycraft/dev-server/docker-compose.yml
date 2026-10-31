@@ -1,0 +1,36 @@
+# SkippyCraft dev server (Phase 0, misc/SKIPPYCRAFT_PLAN.md): Paper in Docker on skippy-pc, for the Captain alone.
+#
+#   cd stage/skippycraft/dev-server
+#   SKIPPYCRAFT_EULA=TRUE MC_PLAYER=<his Minecraft name> docker compose up -d     # EULA: the Captain's own acceptance
+#   docker compose logs -f skippycraft                                            # "Done (...)! For help" = ready
+#
+# itzg/minecraft-server brings Java 21 and downloads Paper itself (TYPE=PAPER). One player: online mode, a whitelist of his name,
+# creative, peaceful, a flat world. Port 42565 (not Minecraft's default), bound to skippy-pc's tailnet address and localhost only.
+# The world lives in ./data (gitignored); theaters go in as a data pack: export_mc.py --out data/world/datapacks.
+services:
+  skippycraft:
+    image: itzg/minecraft-server:java21
+    container_name: skippycraft
+    environment:
+      EULA: "${SKIPPYCRAFT_EULA:-FALSE}"
+      TYPE: PAPER
+      VERSION: "${MC_VERSION:-LATEST}"
+      MEMORY: 3G
+      ONLINE_MODE: "TRUE"
+      ENABLE_WHITELIST: "TRUE"
+      WHITELIST: "${MC_PLAYER:?set MC_PLAYER to the Captain's Minecraft name}"
+      OPS: "${MC_PLAYER}"
+      MODE: creative
+      DIFFICULTY: peaceful
+      SPAWN_MONSTERS: "FALSE"
+      SPAWN_ANIMALS: "FALSE"
+      SPAWN_NPCS: "FALSE"
+      LEVEL_TYPE: minecraft:flat
+      GENERATE_STRUCTURES: "FALSE"
+      MOTD: SkippyCraft
+    ports:
+      - "127.0.0.1:42565:25565"
+      - "100.122.71.14:42565:25565"   # skippy-pc on the tailnet
+    volumes:
+      - ./data:/data
+    restart: "no"
