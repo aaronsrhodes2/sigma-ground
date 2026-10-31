@@ -4112,3 +4112,16 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   a generated resource pack (format 97 = Minecraft 26.3) repaints one carrier per material (concrete if opaque, stained glass if
   see-through, alpha = opacity) + LabPBR _s maps. The tank rebuilt with derived looks (mercury now an opaque bright metal, not faint
   glass); granite has no colour model (neutral grey, reported). The Captain enables the pack once in Options > Resource Packs.
+- Mentat word-problem stage (2026-10-30; SkippyTel c607e46 evaluate_quantity, 54dc66b plain decline, 4156dab word stage): when only the
+  generic clarify blurb is left in /ask, a stock Qwen3-8B (structured output, temperature 0) reads the question's own numbers into ONE
+  expression with units; `evaluate_quantity` (pint) computes. Every number in the expression must be licensed by the question (digits,
+  number words, scale words, 100 for a percent, free 0.5/1/2/3); a unit conversion is a unit, never a number. Up to 3 attempts, each
+  naming the problem. Held-out stage-alone (qwen3:8b): v2 13/20 compute, 10/10 decline; v3 (fresh, run once) 14/20, 10/10, every miss
+  a refusal; but 2 of 30 compute rows came back as a confident wrong number (5/kg * 7 kg = 35; a shrink multiplied, not divided). A
+  second-model checker made it worse and was removed. Live after deploy: adversarial 9 -> 11/18 (trains, heartbeats), physics 148/150
+  and maths 328/329 unchanged (the stage touched none of them). Lesson: `\b` written through a bash heredoc or a Python string became a
+  backspace and silently killed a retry rule; write such files with the Write tool and test the regex.
+- The nanosecond-dollars cascade cue is fixed by another session (sigma-ground 5b0c4da, pinned in SkippyTel ec8ea06) but NOT yet
+  measured live: the box's CI holds off while the bridge says the workshop is busy (core/quiet.py, up to 4 h), and the commits after the
+  pin are Room-box ones, so the Mentat-only exception does not apply. A waiter (local-cache/word_stage/wait_ref.sh) measures the
+  adversarial suite the moment /version shows 5b0c4da.
