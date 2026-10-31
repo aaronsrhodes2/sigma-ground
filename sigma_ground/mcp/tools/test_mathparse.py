@@ -322,3 +322,42 @@ def test_padding_keeps_the_axis_order():
     got = MX.curl("x*z^2, 0, x^2 - z").value
     assert [sp.simplify(sp.sympify(g) - sp.sympify(w)) for g, w in zip(got, ["0", "2*x*z - 2*x", "0"])] == [0, 0, 0]
     assert "used x,y,z" in MX.curl("x*z^2, 0, x^2 - z").notes
+
+
+def _sympy_curl(F, coords):
+    """Curl computed here, from the definition, with sympy's own vector module (independent of the tool's formula)."""
+    from sympy.vector import CoordSys3D, curl as vcurl
+    C = CoordSys3D("C")
+    sub = dict(zip([sp.Symbol(c) for c in coords], [C.x, C.y, C.z]))
+    field = sum((sp.sympify(f).subs(sub) * b for f, b in zip(F, (C.i, C.j, C.k))), start=0 * C.i)
+    out = vcurl(field)
+    back = {C.x: sp.Symbol(coords[0]), C.y: sp.Symbol(coords[1]), C.z: sp.Symbol(coords[2])}
+    return [sp.simplify(out.dot(b).subs(back)) for b in (C.i, C.j, C.k)]
+
+
+def test_a_field_in_u_and_w_is_in_u_v_w_not_in_x_u_w():
+    # 2026-10-31, the distillation day: curl of (2*u*w, 0, u^2) came back [2u, 2u, -2w] because the coordinates were taken as x, u, w
+    want = _sympy_curl(["2*u*w", "0", "u**2"], ["u", "v", "w"])
+    assert want == [0, 0, 0]
+    for text in ("2*u*w, 0, u^2", "(2*u*w, 0, u^2)", "[2*u*w, 0, u^2]"):
+        r = MX.curl(text)
+        assert r.value == ["0", "0", "0"], text
+        assert r.inputs["variables"] == "u,v,w" and "used u,v,w" in r.notes
+    r = MX.curl("(u, w, 1)")
+    got = [sp.sympify(g) for g in r.value]
+    assert got == _sympy_curl(["u", "w", "1"], ["u", "v", "w"]) == [-1, 0, 0]
+    assert MX.divergence("(u, v, w)").value == "3"
+
+
+def test_a_field_whose_letters_do_not_fix_the_coordinates_asks_rather_than_guesses():
+    for text in ("t, 0, 0", "x, u, 0", "u, 0, 0"):
+        r = MX.curl(text)
+        assert r.value is None and "give variables explicitly" in r.notes, text
+    assert MX.curl("t, 0, 0", "r,s,t").value == ["0", "1", "0"] == [str(c) for c in _sympy_curl(["t", "0", "0"], ["r", "s", "t"])]      # stated, it is answered
+
+
+def test_a_tuple_is_read_without_its_brackets_but_a_product_with_one_is_not():
+    assert MX.divergence("(x, y, z)").value == "3" and MX.divergence("[x, y, z]").value == "3"
+    assert MX._unwrap("(x+1)*(y, z)") == "(x+1)*(y, z)"
+    assert MX._unwrap("(x)") == "(x)"
+    assert MX._split_top("(x, y), z") == ["(x, y)", "z"]

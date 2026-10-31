@@ -27,8 +27,25 @@ def _names(variables: str):
     return [v.strip() for v in variables.split(",") if v.strip()]
 
 
+def _unwrap(text: str) -> str:
+    """'(2*u*w, 0, u^2)' -> '2*u*w, 0, u^2': one pair of brackets that encloses the whole field and has a top-level comma inside is a vector written as a tuple."""
+    t = text.strip()
+    if len(t) > 2 and t[0] in "([" and t[-1] == {"(": ")", "[": "]"}[t[0]]:
+        depth = 0
+        for i, ch in enumerate(t):
+            depth += ch in "(["
+            depth -= ch in ")]"
+            if depth == 0 and i < len(t) - 1:
+                return t                                           # the first bracket closes before the end: '(x+1)*(y, z)' is not one tuple
+        inner = t[1:-1]
+        if len(_split_top(inner)) > 1:
+            return inner
+    return t
+
+
 def _split_top(text: str):
-    """Split on commas that are not inside brackets: 'x*y, atan2(y,x), z' -> three components."""
+    """Split on commas that are not inside brackets: 'x*y, atan2(y,x), z' -> three components. A field written as a tuple, '(x, y, z)', is read without its outer brackets."""
+    text = _unwrap(text)
     parts, depth, cur = [], 0, []
     for ch in text:
         if ch in "([":
@@ -339,6 +356,19 @@ def solve_ode(equation: str, func: str = "y",
 _AXES = ("x", "y", "z", "t", "u", "v", "w", "r", "s")
 
 
+def _pad(free: list[str], n: int) -> list[str]:
+    """The coordinates of a field that uses fewer variables than it has components. A field in some of x, y, z is padded from x, y, z. Any other field is padded only when the
+    letters it uses fix the triple (u and w with 3 components can only be u, v, w); otherwise the coordinates are a guess and the caller is asked, never given one."""
+    if set(free) <= set(_AXES[:3]):
+        return free + [a for a in _AXES[:3] if a not in free][: n - len(free)]
+    letters = sorted(ord(v) for v in free if len(v) == 1 and v.isalpha())
+    if len(letters) == len(free) and letters[-1] - letters[0] + 1 == n:
+        return [chr(c) for c in range(letters[0], letters[0] + n)]
+    block = ",".join(free)
+    raise MathParseError(f"the field uses {block} but has {n} components, and these do not fix which {n} coordinates it is in",
+                         f'give variables explicitly, e.g. variables="{block},..."' if len(free) < n else 'give variables explicitly')
+
+
 def _field_variables(variables, texts, n=None):
     """(names, disclosure): the caller's variables, or the free symbols of the field in the order x, y, z, ... .
     For a field with n components the list is padded with the next unused axis names to length n (curl of '-y, x, 0' is in x, y, z);
@@ -351,7 +381,8 @@ def _field_variables(variables, texts, n=None):
         if len(free) > n:
             raise MathParseError(f"the field has {len(free)} variables ({', '.join(free)}) but {n} components",
                                  f'give variables explicitly, e.g. variables="{",".join(free[:n])}"')
-        free += [a for a in _AXES if a not in free][: n - len(free)]
+        if len(free) < n:
+            free = _pad(free, n)
         free.sort(key=lambda v: (_AXES.index(v) if v in _AXES else len(_AXES), v))      # x, z padded with y is x, y, z, not x, z, y
     elif not free:
         free = [_AXES[0]]
