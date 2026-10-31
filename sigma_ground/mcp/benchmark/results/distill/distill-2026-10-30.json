@@ -2,20 +2,20 @@
  "summary": {
   "n": 40,
   "judged": 35,
-  "mentat_right": 33,
+  "mentat_right": 34,
   "mentat_misses": {
-   "wrong_value": 2
+   "wrong_value": 1
   },
   "unverified": 5,
   "unasked": 0,
   "wolfram": {
-   "answered": 1,
-   "no_result": 0,
-   "unasked": 39,
-   "agrees_with_us": 0,
-   "disagrees_with_us": 1
+   "answered": 29,
+   "no_result": 11,
+   "unasked": 0,
+   "agrees_with_us": 16,
+   "disagrees_with_us": 6
   },
-  "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+  "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
   "by_domain": {
    "astronomy": {
     "n": 3,
@@ -31,7 +31,7 @@
    },
    "physics": {
     "n": 12,
-    "right": 11
+    "right": 12
    }
   }
  },
@@ -50,7 +50,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": false,
    "cause": "wrong_value",
    "wa_status": "answered",
@@ -78,11 +78,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-002",
@@ -98,11 +98,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-003",
@@ -118,11 +118,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-004",
@@ -146,11 +146,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": false
   },
   {
    "id": "distill-2026-10-30-005",
@@ -166,11 +166,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": false
   },
   {
    "id": "distill-2026-10-30-006",
@@ -186,10 +186,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -206,11 +206,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-008",
@@ -226,11 +226,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-009",
@@ -246,11 +246,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-010",
@@ -266,11 +266,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-011",
@@ -286,11 +286,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-012",
@@ -306,11 +306,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-013",
@@ -334,11 +334,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-014",
@@ -354,11 +354,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-015",
@@ -374,11 +374,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-016",
@@ -394,11 +394,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-017",
@@ -414,11 +414,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-018",
@@ -434,11 +434,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-019",
@@ -454,11 +454,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-30-020",
@@ -474,10 +474,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -494,11 +494,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": false
   },
   {
    "id": "distill-2026-10-30-022",
@@ -514,11 +514,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": false
   },
   {
    "id": "distill-2026-10-30-023",
@@ -534,10 +534,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -554,10 +554,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -568,16 +568,16 @@
    "expected_tool": "photon_energy_from_wavelength",
    "oracle": "tool",
    "expected": 2.3992779983134604e-19,
-   "mentat_value": 8.279348442857143e-07,
-   "mentat_units": "m",
+   "mentat_value": 2.3992779983134604e-19,
+   "mentat_units": "J",
    "mentat_tool": null,
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
-   "agrees": false,
-   "cause": "wrong_value",
-   "wa_status": "unasked",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "agrees": true,
+   "cause": null,
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -594,10 +594,10 @@
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -614,10 +614,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -634,10 +634,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -654,10 +654,10 @@
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -674,11 +674,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": false
   },
   {
    "id": "distill-2026-10-30-031",
@@ -694,10 +694,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -714,10 +714,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -734,10 +734,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -760,10 +760,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -780,10 +780,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -800,10 +800,10 @@
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -820,10 +820,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -840,10 +840,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -860,13 +860,13 @@
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "8145ed80333f5c64b92660f178a5990940b8b5a1",
+   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   }
  ],
  "suite": "distill-2026-10-30",
- "scored_at": "2026-10-31T02:38Z"
+ "scored_at": "2026-10-31T13:35Z"
 }
