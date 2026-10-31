@@ -1,0 +1,70 @@
+{
+ "pre_registration": "misc/CANDIDATE_LEDGER.md C24 (commit 5751049)",
+ "n_obs_2021_plus": 4195,
+ "n_obs_1990_2020": 5844,
+ "J_all": {
+  "n": 4195,
+  "rms_total_arcsec": 0.3461002925525207,
+  "median_total_arcsec": 0.1283345486679567,
+  "mean_dra_cosdec": 0.003011536165140057,
+  "mean_ddec": 0.0470028687490891,
+  "sem_dra": 0.004145186110901405,
+  "sem_ddec": 0.003293878939558287
+ },
+ "outliers_dropped": 0,
+ "J": {
+  "n": 4195,
+  "rms_total_arcsec": 0.3461002925525207,
+  "median_total_arcsec": 0.1283345486679567,
+  "mean_dra_cosdec": 0.003011536165140057,
+  "mean_ddec": 0.0470028687490891,
+  "sem_dra": 0.004145186110901405,
+  "sem_ddec": 0.003293878939558287
+ },
+ "E1": {
+  "n": 4195,
+  "rms_total_arcsec": 0.34616053766498744,
+  "median_total_arcsec": 0.12819297946043645,
+  "mean_dra_cosdec": 0.003796960132726011,
+  "mean_ddec": 0.04720886249825462,
+  "sem_dra": 0.0041453009989635805,
+  "sem_ddec": 0.0032943478347885976
+ },
+ "E1_minus_J": {
+  "mean_dra": 0.000785423967585953,
+  "mean_ddec": 0.00020599374916552157,
+  "mean_offset_arcsec": 0.0008119878284517127,
+  "rms_difference_arcsec": 0.0011965011983328464
+ },
+ "E2_fit": {
+  "used": 5830,
+  "of": 5844,
+  "rms_arcsec_on_fit_data": 0.5334739923422827,
+  "state_change_vs_jpl_km": [
+   -0.025510549545288086,
+   14.960230439901352,
+   5.407262966036797
+  ],
+  "state_change_vs_jpl_kmday": [
+   -0.003962530056014657,
+   -0.16199273557867855,
+   0.45126062631607056
+  ]
+ },
+ "E2": {
+  "n": 4195,
+  "rms_total_arcsec": 0.35045253773771157,
+  "median_total_arcsec": 0.1384528078647051,
+  "mean_dra_cosdec": 0.022952671766761423,
+  "mean_ddec": 0.001275012392742304,
+  "sem_dra": 0.004196743266483801,
+  "sem_ddec": 0.0033978400438455683
+ },
+ "E2_minus_J": {
+  "mean_dra": 0.019941135601621363,
+  "mean_ddec": -0.0457278563563468,
+  "mean_offset_arcsec": 0.0498867290572246,
+  "rms_difference_arcsec": 0.08243031632144493
+ },
+ "E2_over_J_rms": 1.0125750982557473
+}

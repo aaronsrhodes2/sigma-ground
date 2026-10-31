@@ -351,3 +351,18 @@ The question: do the sky positions our engine predicts for Eros match what teles
 * P2: arm E2's RMS residual on the 2021-and-later observations is at most 1.5 times arm J's, and the mean offset of E2 minus J is below 0.15 arcsec.
 * What the run cannot show: with about 0.5 arcsec scatter and several thousand observations, a systematic offset below roughly 0.01 arcsec (about 3 km at 0.3 au) is invisible, so a pass means "the engine is not the bottleneck", not "the engine is exact".
 Any prediction that fails is recorded here as failed.
+
+### C24 result (2026-10-30): all three predictions PASSED; the test is limited by the telescopes, not by the model
+`scripts/eros_sky_residuals.py`, data `misc/EROS_SKY_RESIDUALS.json`. 4,195 optical observations from 2021-01-01 on (5,844 from 1990-2020 for the fit); 0 outliers dropped by the 5 arcsec rule.
+| arm | RMS residual (arcsec) | mean offset from arm J | RMS difference from arm J |
+|---|---|---|---|
+| J: JPL's Eros through the pipeline | 0.3461 | - | - |
+| E1: our engine from JPL's 2020 state | 0.3462 | 0.0008 | 0.0012 |
+| E2: our engine from a fit to 1990-2020 data only | 0.3505 | 0.0499 | 0.0824 |
+* P0 passed: 0.346 lies in 0.3-1.2 (near the low edge; the median is 0.128).
+* P1 passed with a factor of 25 to 40 to spare: mean offset 0.0008 (limit 0.02), RMS difference 0.0012 (limit 0.05). The engine adds about 0.3 km at 0.3 au to JPL's Eros over 6 years.
+* P2 passed: E2/J RMS 1.013 (limit 1.5), mean offset 0.050 (limit 0.15). The independent fit (6 elements, 5,830 of 5,844 observations used, 0.5335 arcsec on its own data against 0.5399 from JPL's state; it moved JPL's 2020 position by at most 15 km and speed by 5 mm/s) predicted 4,195 later observations as well as JPL's solution does, to within 1.3 % in RMS.
+* Not predicted, noted: the means differ by component. J has a Dec bias of +0.047 arcsec (SEM 0.003); E2 has +0.023 in RA cos Dec (SEM 0.004) and about 0 in Dec. Both are far below the 0.35 arcsec scatter. This test cannot say which is nearer the truth: star-catalogue zonal errors of this size are common in astrometry, and the fit absorbs whatever bias the 1990-2020 data carry.
+* Bugs found and fixed on the way, none touching the pre-registered rules: (1) DE440's perturber list contains Eros, so the engine was pulled toward its own copy 131 km away (E1 came out 417,000 arcsec off) until its mass was zeroed, as `asteroid_ladder.py` does; (2) the fit's Jacobian had the wrong sign, so each step moved away from the minimum. Both were found before any 2021-and-later E2 number was read.
+* What this does and does not show: the engine, started from JPL's state, is not the bottleneck at 0.001 arcsec; an independent fit to old data reaches JPL's level on new data. It does not show our engine is exact to 0.3 km: the telescopes cannot see below about 0.01 arcsec (3 km at 0.3 au). Eros's own non-gravitational force (Yarkovsky) was not modelled and did not show.
+* Data: MPC `get-obs`, 6 bodies, 4.5 MB (`D:/datasets/mpc/`); the bulk files are NumObs.txt.gz 9.11 GB, UnnObs.txt.gz 456 MB, CmtObs.txt.gz 25 MB (sizes from HEAD requests, June-September 2026 vintages), open without an account, with a 20 s crawl delay on the site; not downloaded.
