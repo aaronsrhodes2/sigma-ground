@@ -94,6 +94,21 @@ def step_check(central_body: str, step_s: float) -> ToolResult:
                       provenance_tag="DERIVED", notes=msg + " " + _OSCULATING, inputs=inputs)
 
 
+def layer_effect(body_name: str) -> ToolResult:
+    """How much each physics layer of the forecast model matters for a body: general relativity, the planets' gravity-field terms, tides, radiation pressure, the asteroids, the asteroid ring, the Kuiper belt and the Moon's C22, each removed alone.
+
+    The size of a layer is the factor by which the error against JPL DE440 grows when that layer is taken out, measured for the Moon and the planets to Pluto at +1 to +5 years (misc/CANDIDATE_LEDGER.md C23b).
+    """
+    from sigma_ground.field.interface import layer_effect as LE
+    inputs = {"body_name": body_name}
+    src = "sigma-ground layer_effect_table: the forecast's own model with one layer removed, measured against JPL DE440 by scripts/make_layer_effect_table.py"
+    try:
+        d = LE.layer_effect(body_name)
+    except LE.LayerEffectError as e:
+        return ToolResult(value=None, source=src, notes=str(e), inputs=inputs)
+    return ToolResult(value=d, units="ratio of errors (without the layer over with every layer), km", source=src, provenance_tag="DERIVED", notes=d["summary"], inputs=inputs)
+
+
 def body_skill(body_name: str) -> ToolResult:
     """How well can this model predict a body, and can it at all? The class (predictable, loses orbital phase within a year, measurements disagree, not scored), the measured error against JPL DE440 at +1, +3, +5, +10 and +20 years, and the converged error for fast moons.
 

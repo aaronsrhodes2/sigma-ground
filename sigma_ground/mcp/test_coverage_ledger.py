@@ -137,7 +137,7 @@ def _compute_uncovered():
         for call in (lambda: _CT.orbital_elements("mars"), lambda: _CT.orbital_elements("io", "jupiter"), lambda: _CT.hill_radius("earth"), lambda: _CT.sphere_of_influence("earth"),
                      lambda: _CT.roche_limit("moon", "earth"), lambda: _CT.lagrange_points("earth"), lambda: _CT.synodic_period("earth", "mars"), lambda: _CT.hohmann_transfer("earth", "mars"),
                      lambda: _CT.perihelion_advance("mercury"), lambda: _CT.step_check("jupiter", 1080.0), lambda: _CT.body_skill("io"), lambda: _CT.body_skill("mercury"),
-                     lambda: _CT.body_skill("pan"), lambda: _CT.body_skill("nereid"), lambda: _CT.body_skill("phobos")):           # the tools the harness cannot drive from a parameter name
+                     lambda: _CT.body_skill("pan"), lambda: _CT.body_skill("nereid"), lambda: _CT.body_skill("phobos"), lambda: _CT.layer_effect("mercury"), lambda: _CT.layer_effect("moon"), lambda: _CT.layer_effect("ceres")):           # the tools the harness cannot drive from a parameter name
             try:
                 call()
             except Exception:

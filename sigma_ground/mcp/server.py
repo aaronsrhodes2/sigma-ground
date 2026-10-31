@@ -1032,6 +1032,11 @@ def main() -> int:
         return t_cel.step_check(central_body, step_s).to_dict()
 
     @server.tool()
+    def layer_effect(body_name: str) -> dict[str, Any]:
+        """How much each physics layer (relativity, gravity-field terms, tides, radiation pressure, asteroids, asteroid ring, Kuiper belt, the Moon's C22) matters for a body's predicted position, e.g. layer_effect('mercury')."""
+        return t_cel.layer_effect(body_name).to_dict()
+
+    @server.tool()
     def body_skill(body_name: str) -> dict[str, Any]:
         """How well this model predicts a body against JPL DE440, and whether it can at all (predictable, loses its orbital phase, measurements disagree), e.g. body_skill('io'), body_skill('mercury')."""
         return t_cel.body_skill(body_name).to_dict()

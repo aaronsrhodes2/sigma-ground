@@ -300,3 +300,7 @@ The new `body_constants` tool is exercised explicitly (earth, ceres, io) in `tes
 
 ## 2026-10-30: two white-dwarf tools wire the tracked gap (`chandrasekhar_limit`, `white_dwarf`)
 `field.dense.white_dwarf.{chandrasekhar_mass, white_dwarf_structure}` are now reached by tools (`mcp/tools/dense_tools.py`), checked in `tests/test_dense_tools.py` against a Lane-Emden n = 3 constant integrated in the test with scipy and CODATA constants from scipy, the non-relativistic R ~ M^(-1/3) law and the approach to the limit from below. `white_dwarf_mass_radius` (a list wrapper), `polytrope_structure` and the TOV maximum mass stay listed as the remaining part of the 2026-10-13 gap.
+
+## 2026-10-31: the layer ablations are a tool (`layer_effect`)
+`field/interface/layer_effect.py` reads `fixtures/layer_effect_table.json` (built by `scripts/make_layer_effect_table.py` from the eight C23b ablation runs) and `layer_effect(body_name)` in `mcp/tools/celestial_tools.py` returns, for the Moon or a planet to Pluto, the error ratio of each of eight layers at +1 to +5 yr, ranked, with a plain sentence. It takes only `body_name`, so it adds no parameter name (the budget stays at 295). It is exercised explicitly in `test_coverage_ledger.py` (mercury, moon, ceres). Checked in `tests/test_layer_effect.py` against the closed-form apsidal advance for Mercury, the raw run files, the required ordering of relativity with distance and the C23b ledger numbers. The table carries the model fingerprint it was measured with; the answer says when the model has changed since.
+
