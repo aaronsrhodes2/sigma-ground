@@ -109,13 +109,23 @@ def test_every_scene_material_has_its_own_carrier(looks):
     assert looks[("lead", 0.01 / n)] != looks[("granite", 0.05 / n)]
 
 
-def test_panel_puts_a_button_on_a_command_block_that_records_the_request():
-    cmds = theater.panel_commands("sink")
-    x, y, z = theater.STAGES["sink"]["run"]
-    assert f'setblock {x} {y} {z} minecraft:command_block{{Command:"scoreboard players set #request skippycraft 1"}}' in cmds
-    assert f"setblock {x} {y + 1} {z} minecraft:stone_button[face=floor]" in cmds
+def test_desk_has_run_stop_and_go_buttons_on_command_blocks_with_labels():
+    cmds = theater.desk_commands("sink")
+    x, y, z = theater.STAGES["sink"]["desk"]
+    assert f'setblock {x - 2} {y} {z} minecraft:command_block{{Command:"scoreboard players set #request skippycraft 1"}}' in cmds
+    assert f"setblock {x - 2} {y} {z - 1} minecraft:stone_button[face=wall,facing=north]" in cmds
     assert any(f"#request skippycraft {theater.STOP}" in c for c in cmds)
-    assert any(c.startswith("summon minecraft:text_display") and '"Run sink"' in c for c in cmds)
+    sx, sy, sz, yaw, pitch = theater.stand("melt")
+    assert any(f"tp @p {sx} {sy} {sz} {yaw} {pitch}" in c for c in cmds)       # Go to melt lands on the melt desk
+    assert sum(c.startswith("summon minecraft:text_display") for c in cmds) == 3
+    assert any(c.startswith("fill") and "sea_lantern" in c for c in cmds)          # the platform he stands on
+
+
+def test_he_stands_on_the_platform_behind_the_buttons():
+    for name in theater.STAGES:
+        x, y, z = theater.STAGES[name]["desk"]
+        sx, sy, sz, _, _ = theater.stand(name)
+        assert sy == y and z - 4 <= sz <= z - 1 and abs(sx - (x + 0.5)) < 1
 
 
 def test_read_request_takes_the_value_and_clears_it():
@@ -133,3 +143,20 @@ def test_read_request_takes_the_value_and_clears_it():
     r = FakeRcon()
     assert theater.read_request(r) == 2 and r.value == 0
     assert theater.read_request(r) == 0
+
+
+def test_no_desk_is_inside_any_theaters_grid():
+    # a theater's first draw sets every cell of its grid from the ground up: a desk inside one would be erased by a run
+    looks = theater.shared_looks()[0]
+    for name, st in theater.STAGES.items():
+        _, world = theater.build(name)
+        th = theater.Theater(world, looks, st["origin"], lambda c: None)
+        nx, ny, nz = world.label.shape
+        xs = sorted(th.mc(i, 0, 0)[0] for i in (0, nx - 1))
+        ys = sorted(th.mc(0, 0, k)[1] for k in (th.k0, nz - 1))
+        zs = sorted(th.mc(0, j, 0)[2] for j in (0, ny - 1))
+        for other in theater.STAGES.values():
+            x, y, z = other["desk"]
+            for bx, by, bz in [(x + dx, y + dy, z + dz) for dx in range(-2, 3) for dy in (-1, 0) for dz in range(-4, 1)]:
+                inside = xs[0] <= bx <= xs[1] and ys[0] <= by <= ys[1] and zs[0] <= bz <= zs[1]
+                assert not inside, f"{name}'s grid covers a desk block at {(bx, by, bz)}"

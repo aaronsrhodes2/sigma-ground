@@ -55,9 +55,10 @@ ground below is never touched. `--verify` asks Minecraft about every cell afterw
 python stage/skippycraft/theater.py serve
 ```
 
-The service builds a small panel on the ground in front of each theater: **Run sink** at (20, -60, 20) and **Run melt** at
-(74, -60, 20), each with a **Stop** beside it. Theaters are built at 4x resolution (`theater.RESOLUTION`; every written block
-is 4x4x4 blocks), fixed for each run: the tank is 32 blocks wide, the gold a 4x4x4 cube. Right-click a button: it sits on a command block that records the request in the
+The service builds a control desk at each theater's viewing spot: a glowing platform to stand on and, in front of it at eye
+level, three buttons with big labels: **Run**, **Stop**, and **Go to** the other theater's desk (a teleport). He spawns on the
+sink desk. Desks sit outside every theater's grid (a run's first draw clears its whole grid). Theaters are built at 4x
+resolution (`theater.RESOLUTION`; every written block is 4x4x4 blocks), fixed for each run: the tank is 32 blocks wide, the gold a 4x4x4 cube. Right-click a button: it sits on a command block that records the request in the
 scoreboard, and the service (polling over RCON) runs that theater in front of you, with the boss bar as the readout. The world
 spawn is beside the sink panel. The service also serves the resource pack (http://100.122.71.14:42566/skippycraft.zip, the
 server's `RESOURCE_PACK`), so it arrives when he joins: accept it once, no F3+T. The service runs on skippy-pc for now (it must be

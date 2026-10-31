@@ -45,15 +45,18 @@ SCENES = {
 }
 BOSSBAR = "skippycraft:theater"
 
-# where each scene stands, its panel (run and stop buttons on the ground in front of it), its request number, and its pace
+# where each scene stands, its control desk, its request number, and its pace. A desk (the Captain: buttons must be easy to
+# find at this scale) floats at the theater's viewing spot: a glowing platform to stand on, and in front of it at eye level a
+# board of three buttons with big labels: Run, Stop, and Go to the other theater's desk. ``desk`` is the board's middle block;
+# he stands 2.5 blocks behind it, facing +z, looking down at ``pitch`` degrees.
 STAGES = {
-    "sink": {"origin": (0, -60, 24), "run": (20, -60, 20), "stop": (23, -60, 20), "request": 1, "rate": 4.0,
+    "sink": {"origin": (0, -60, 24), "desk": (16, -46, 14), "pitch": 25, "other": "melt", "request": 1, "rate": 4.0,
              "tell": "Sink: a gold block drops into the mercury and sinks; the iron floats (gold is denser than mercury, iron is not)."},
-    "melt": {"origin": (56, -60, 24), "run": (74, -60, 20), "stop": (77, -60, 20), "request": 2, "rate": 6.0,
+    "melt": {"origin": (56, -60, 24), "desk": (75, -46, 14), "pitch": 35, "other": "sink", "request": 2, "rate": 6.0,
              "tell": "Melt: a lead column on a 1500 K tungsten plate, in vacuum. It slumps when it melts; the boss bar keeps the books."},
 }
 STOP = 9
-SPAWN = (21, -60, 15)
+DESK_LOOK = {"fill": "minecraft:sea_lantern", "board": "minecraft:command_block"}
 PACK_DIR = HERE / "dev-server" / "pack"
 PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet address: the server's RESOURCE_PACK points here
 
@@ -255,16 +258,34 @@ def serve_pack():
     return httpd
 
 
-def panel_commands(name):
-    """A run button and a stop button, each on a command block, with a floating label."""
-    st, cmds = STAGES[name], []
-    for key, number, label in (("run", st["request"], f"Run {name}"), ("stop", STOP, "Stop")):
-        x, y, z = st[key]
-        cmds += [f'setblock {x} {y} {z} minecraft:command_block{{Command:"scoreboard players set #request skippycraft {number}"}}',
-                 f"setblock {x} {y + 1} {z} minecraft:stone_button[face=floor]",
-                 f"kill @e[type=text_display,tag=skippycraft_{name}_{key}]",
-                 f'summon minecraft:text_display {x + 0.5} {y + 1.7} {z + 0.5} {{text:{json.dumps(label)},billboard:"center",'
-                 f'Tags:["skippycraft_label","skippycraft_{name}_{key}"]}}']
+def stand(name):
+    """Where he stands at a desk, and how he looks: ``(x, y, z, yaw, pitch)``."""
+    x, y, z = STAGES[name]["desk"]
+    return x + 0.5, y, z - 2.0, 0, STAGES[name]["pitch"]
+
+
+def label(tag, x, y, z, text):
+    """A big bold green label on a dark backing, always facing him."""
+    comp = f'{{text:{json.dumps(text)},color:"green",bold:true}}'
+    return [f"kill @e[type=text_display,tag={tag}]",
+            f'summon minecraft:text_display {x} {y} {z} {{text:{comp},billboard:"center",background:-1442840576,'
+            f"transformation:{{left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f],translation:[0f,0f,0f],"
+            f'scale:[1.4f,1.4f,1.4f]}},Tags:["skippycraft_label","{tag}"]}}']
+
+
+def desk_commands(name):
+    """The desk: a glowing platform, a board of command blocks with buttons on its near face, a big label over each."""
+    st = STAGES[name]
+    x, y, z = st["desk"]
+    sx, sy, sz, yaw, pitch = stand(st["other"])
+    cmds = [f"fill {x - 2} {y - 1} {z - 4} {x + 2} {y - 1} {z - 1} {DESK_LOOK['fill']}"]
+    buttons = ((x - 2, f"Run {name}", f"scoreboard players set #request skippycraft {st['request']}"),
+               (x, "Stop", f"scoreboard players set #request skippycraft {STOP}"),
+               (x + 2, f"Go to {st['other']}", f"tp @p {sx} {sy} {sz} {yaw} {pitch}"))
+    for n, (bx, text, command) in enumerate(buttons):
+        cmds += [f"setblock {bx} {y} {z} {DESK_LOOK['board']}{{Command:{json.dumps(command)}}}",
+                 f"setblock {bx} {y} {z - 1} minecraft:stone_button[face=wall,facing=north]"]
+        cmds += label(f"skippycraft_{name}_{n}", bx + 0.5, y + 1.3, z - 0.6, text)
     return cmds
 
 
@@ -285,9 +306,9 @@ def serve(player="aaronsrhodes"):
     rcon = Rcon()
     send = rcon.commands
     send(["forceload add -16 0 111 79", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
-          "scoreboard players set #request skippycraft 0", f"setworldspawn {SPAWN[0]} {SPAWN[1]} {SPAWN[2]}"])
+          "scoreboard players set #request skippycraft 0"])
     # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
-    spots = [st[k] for st in STAGES.values() for k in ("origin", "run", "stop")]
+    spots = [st[k] for st in STAGES.values() for k in ("origin", "desk")]
     for _ in range(100):
         if all("passed" in rcon.command(f"execute if loaded {x} {y} {z}") for x, y, z in spots):
             break
@@ -295,7 +316,9 @@ def serve(player="aaronsrhodes"):
     else:
         raise RuntimeError("theater chunks never loaded")
     for name in STAGES:
-        send(panel_commands(name))
+        send(desk_commands(name))
+    sx, sy, sz, _, _ = stand("sink")
+    send([f"setworldspawn {int(sx)} {sy} {int(sz)}", "gamerule respawn_radius 0"])
     by_number = {st["request"]: name for name, st in STAGES.items()}
     tell = lambda text: rcon.command("tellraw @a " + json.dumps({"text": text, "color": "green"}))
     print("serving: panels built, pack at", f"http://{PACK_HOST}:{PACK_PORT}/skippycraft.zip", flush=True)

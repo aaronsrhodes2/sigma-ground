@@ -4169,3 +4169,8 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   First draw: sink 3648 commands in 6.0 s, melt 1856 in 2.1 s; a tick ~60 ms. The service now waits for forceloaded chunks before
   building panels (the melt panel was silently missing). Live: Run sink -> gold cube on the tank floor; Run melt -> all 768 lead
   blocks accounted for, slumped from 12 high to a mound 7 high (still flowing at the run's end: one cell per tick).
+- SkippyCraft control desks (the Captain: "hard to find those buttons at that scale"): each theater has a floating desk at its
+  viewing spot (sea-lantern platform; Run / Stop / Go-to-the-other-desk buttons at eye level on command blocks; big bold green
+  labels on a dark backing); spawn on the sink desk, respawn_radius 0. Found and fixed: the old ground panels were inside each
+  theater's grid margin, so a run's first draw erased them; a test now keeps every desk outside every grid. Checked by powering
+  the desk command blocks: Run sink fires every time and the gold lands; Run melt fires; both desks survive their runs.
