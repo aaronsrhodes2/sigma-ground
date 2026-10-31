@@ -11,7 +11,9 @@ Ports the Garry's Mod holodeck (`stage/gmod/holodeck/`, `stage/gmod/AVATAR.md`) 
 A Minecraft server where each **theater** is a region of real space run by sigma-ground. You fly into it (creative or spectator
 flight), watch the physics run, and change it from inside by talking to a floating, block-built Skippy.
 
-**Success:** on the cloud server, the Captain flies into a theater, says *"Skippy, build a glass tank of mercury and drop a gold ring
+**Two avatars, no more** (the Captain, 2026-10-30): the Captain's own, and Skippy's virtual one. It is not a multiplayer game.
+
+**Success:** on the home server, from his own Minecraft client over the tailnet, the Captain flies into a theater, says *"Skippy, build a glass tank of mercury and drop a gold ring
 and an iron bolt in it"*, watches the ring sink and the bolt float, says *"heat the floor to 1500 kelvin"* and watches what melts,
 and every number on the in-game readout traces to sigma-ground with its source. Skippy hovers beside him the whole time, made of
 blocks, and answers in his voice.
@@ -24,12 +26,15 @@ blocks, and answers in his voice.
 - No new physics in this project. SkippyCraft shows and drives what `VoxelWorld` already does; physics gaps are sigma-ground work.
 - No survival gameplay, no mods on the player's side: a stock Minecraft Java client is all a player needs.
 - Not a Bedrock-first project (see Risks: Bedrock cannot show display entities).
+- **Not multiplayer.** One player (the Captain) and one virtual avatar (Skippy). No other players, so no shared-server safety
+  rules, ownership, caps or rationing; the server allows only his account (whitelist) and listens only on the tailnet.
 
 ## 3. Why Minecraft
 
 - The theater is already blocks. MineBench showed the local models build well in block code; the voxel theater made those blocks
   matter. Minecraft shows blocks natively, at any count a theater needs, to many players at once.
 - Flight and walking through walls are built in (creative / spectator), so "enter as a floating avatar" costs nothing.
+- Skippy is not a player: he is display entities driven by the plugin, so he needs no account or client.
 - **Block display entities** (Java 1.19.4+) draw blocks off the grid: any position, rotation, scale (smaller than a block too),
   smoothly interpolated. That is how Skippy floats, and how a theater finer than 1 m can still look right.
 - Paper (the server) is free and has a large, stable plugin API. Players need a Minecraft Java licence.
@@ -37,19 +42,20 @@ blocks, and answers in his voice.
 ## 4. Architecture
 
 ```
- Minecraft Java client (player)                      skippy-core (home)
-          │ game protocol                                ▲  Skippy Core chat (Funnel + SKIPPY_CORE_API_KEY,
-          ▼                                              │  the portal's route) for "Skippy, ..." and block code
- ┌──────────────── games VM (GCP) ───────────────────┐   │  Mentat (Funnel :8443) for block_properties, physics answers
- │ Paper server + SkippyCraft plugin (Java)          │   │
- │   draws blocks, turns off vanilla physics in a    │   │
- │   theater, relays chat/commands, draws Skippy     │   │
- │        │ localhost HTTP + WebSocket (block diffs)  │   │
- │        ▼                                           │   │
- │ theater service (Python, sigma-ground)  ──────────┼───┘
- │   one VoxelWorld per theater, the tick loop,      │
- │   the holodeck planner, the Skippy bridge         │
- └───────────────────────────────────────────────────┘
+ the Captain's Minecraft Java client (any of his machines)
+          │ game protocol, over the tailnet only
+          ▼
+ ┌──────────────── home (skippy-core recommended) ───────────┐
+ │ Paper server + SkippyCraft plugin (Java)                   │
+ │   draws blocks, turns off vanilla physics in a theater,    │
+ │   relays his chat/commands, draws Skippy                   │
+ │        │ localhost HTTP + WebSocket (block diffs)           │
+ │        ▼                                                    │
+ │ theater service (Python, sigma-ground)                      │
+ │   one VoxelWorld per theater, the tick loop,                │
+ │   the holodeck planner, the Skippy bridge  ──► Skippy Core, │
+ │                                               Mentat (local)│
+ └─────────────────────────────────────────────────────────────┘
 ```
 
 - **Plugin (thin):** places/clears blocks from diffs; maps each material to a Minecraft block for LOOK only (lead → iron-grey
@@ -58,10 +64,12 @@ blocks, and answers in his voice.
   shows the readout (a boss bar / sidebar: time, energy ledger, mass, what changed).
 - **Theater service (all the physics):** owns each `VoxelWorld`; ticks it on a clock; sends only changed blocks; serves
   `block_properties` for "what is that?"; turns "Skippy, ..." into actions (the holodeck planner, the local model through Skippy
-  Core). Runs on the VM's CPU (numpy); it never needs the home PC, so a theater keeps running when home is down.
-- **Brains at home:** Skippy Core (for words → actions and for MineBench-style build code) and Mentat are reached over their
-  existing Funnels with the existing keys. This is the bridge the GMod cloud server never got (`stage/gmod/CLOUD_SERVER.md`:
-  "a bridge container on the VM is the missing piece"). If home is down, Skippy says so and the parser alone handles commands.
+  Core). numpy on the CPU.
+- **Brains next door:** Skippy Core (words → actions, MineBench-style build code) and Mentat run on skippy-core, so the service
+  reaches them locally: no Funnel, no keys over the internet. (The GMod cloud server never got this bridge:
+  `stage/gmod/CLOUD_SERVER.md`, "a bridge container on the VM is the missing piece". At home it is not missing.)
+- **Why home, not the games VM:** one player who is always on the tailnet; the models are local; no cloud cost or public game
+  port. skippy-core runs it as a deployer-managed service like Mentat; skippy-pc would also do (it has the Minecraft client).
 
 ## 5. Scale, resolution and limits
 
@@ -82,8 +90,8 @@ blocks, and answers in his voice.
 | `parse.lua` (words → request, typo-tolerant, never asks) | **port** to Python in the service (the rules, not the Lua) |
 | `plan.lua`, `layout.lua` (rows, circles, U/L, facing, around/beside/on, against a wall) | **port**: layout is engine-independent; poses snap to the block grid |
 | `catalog.lua` (127 Half-Life 2 / CS:S models) | **replaced**: things are built as block code by the local model (MineBench), sized from SkippyVerse cards (real sizes, honesty clause) |
-| `skippy_bridge.py` (agent turns a wish into a request, checked before the game sees it) | **port** as-is in spirit; now reachable from the cloud through Skippy Core's Funnel |
-| Safety on a shared server (owners, caps, cooldowns, rationed bridge) | **port** the rules; Paper permissions replace CPPI |
+| `skippy_bridge.py` (agent turns a wish into a request, checked before the game sees it) | **port** as-is in spirit; Skippy Core is local to the service |
+| Safety on a shared server (owners, caps, cooldowns, rationed bridge) | **not needed**: one player |
 | Avatar (`AVATAR.md`: call/dismiss words, hover behind the right shoulder, follow, snap past 8 m, voice from where he floats) | **port** the behaviour; the body becomes display blocks (section 7) |
 | Replays of frozen trajectory bundles | **not needed**: theaters run live |
 
@@ -92,8 +100,8 @@ blocks, and answers in his voice.
 - **Body:** the same look the GMod avatar settled on (a beer can, `#00FF88` label band, amber-braided dark bicorn), built in blocks
   by the voxel pipeline from `portal/static/skippy/skippy.glb` (Deckard voxelize, a few hundred cells), shown as block display
   entities, so he floats off the grid at any scale.
-- **Behaviour:** `AVATAR.md` verbatim where it applies: "Skippy, come here" / "go away"; hovers behind the caller's right shoulder
-  with a small bob; follows; snaps when far; faces whoever is talking. The room box's idle float and talking loop (SkippyTel
+- **Behaviour:** `AVATAR.md` where it applies: "Skippy, come here" / "go away"; hovers behind the Captain's right shoulder
+  with a small bob; follows; snaps when far; faces him while speaking. The room box's idle float and talking loop (SkippyTel
   `a8bcc4d`) set the motion.
 - **Voice:** text in chat always. Spoken audio needs a client-side mod or a resource pack trick; a Phase 5 question, not a promise.
 
@@ -105,13 +113,13 @@ Said to Skippy, or as `/theater …`:
 - **Change state:** heat / cool a region to N kelvin, drop an object at a point, remove, undo, reset to the start.
 - **Time:** pause, play, step, speed (simulated seconds per real second).
 - **Ask:** "what is that?" (the block you look at → `block_properties`: material, phase, temperature, sources); "why did it melt?".
-- **Theater:** new theater with a size, a resolution and a type (plain / room / void / deep space); list; join; leave.
+- **Theater:** new theater with a size, a resolution and a type (plain / room / void / deep space); list; go to one.
 
 ## 9. Repo layout
 
 - `sigma-ground/stage/skippycraft/` — the theater service (Python), its tests, and `plugin/` (Java, Gradle, Paper API).
-- SkippyTel `infra/gcp-games/` — a `skippycraft` compose profile (Paper + the service), backup TARGETS for theater saves, the ops
-  doors. SkippyTel `portal/` — a SkippyCraft card in Game Servers, like every other game.
+- SkippyTel `core/` — a `skippycraft` service on skippy-core (Paper + the service, `core/compose.*.yml`, kept up by the deployer
+  and the doctor like Mentat), tailnet only. No games VM, no Game Servers card (it is not a shared game).
 
 ## 10. Phases, done criteria, estimates
 
@@ -122,7 +130,7 @@ Said to Skippy, or as `/theater …`:
 | **2 Commands** | `/theater` new/heat/drop/pause/speed/undo/reset; "what is that?" via `block_properties` | every command in section 8 works from inside, without words | 2 days |
 | **3 Talking to Skippy** | port parse/plan/layout; the bridge to Skippy Core; block-code builds via MineBench-style prompts and `voxel_exec` | "Skippy, build ..." and "Skippy, heat the floor ..." work in plain words; failures say why | 3 to 4 days |
 | **4 Skippy's body** | voxelize `skippy.glb`; display-entity avatar; AVATAR.md behaviour | he comes when called, hovers, follows, faces the speaker, leaves when sent away | 2 days |
-| **5 Cloud** | `skippycraft` profile on the games VM, backups, ops doors, the Game Servers card; safety caps; voice question settled | the success criterion (section 1) passes on the cloud server with a second player present | 2 to 3 days |
+| **5 At home for good** | the `skippycraft` service on skippy-core (deployer, doctor, tailnet only, whitelist of one); theater saves backed up; voice question settled | the success criterion (section 1) passes from the Captain's client over the tailnet | 1 to 2 days |
 
 Phases 0 and 1 answer the big question (does it look and feel right?) before any of the talking is built.
 
@@ -137,10 +145,11 @@ Phases 0 and 1 answer the big question (does it look and feel right?) before any
 
 - **Bedrock players (iPad, phone):** Geyser can bridge Bedrock clients to a Java server, but Bedrock has no display entities, so
   Skippy's floating body (and sub-block detail) would not show there. To verify before promising mobile play.
+- **Away from the tailnet:** his devices are on it already; nothing to open to the internet.
 - **Diff volume:** a big melt can change thousands of blocks a tick. Batch per chunk, cap the rate, and measure in Phase 1.
-- **Where the service runs:** recommended on the games VM (it keeps running when home is down; one place for ops and backups). The
-  alternative, skippy-core at home, is closer to the models but needs a public game port through Tailscale; not recommended.
-- **Licences:** Paper is free; every player needs Minecraft Java Edition. Mojang's EULA allows a free server; no paid perks.
+- **Where it runs:** skippy-core, tailnet only (one player, local models). If skippy-core's memory is tight while Qwen is resident,
+  skippy-pc is the fallback (measure in Phase 0: Paper needs ~2-4 GB).
+- **Licences:** Paper is free; the Captain needs Minecraft Java Edition. The EULA must be accepted by him, not by an agent.
 - **Spoken voice in game** needs more than a stock client (section 7).
 - **Plugin language:** Java (Paper's native) vs Kotlin. Recommendation: Java, small and boring.
 - **Inherited physics flags** still open in sigma-ground: air cooling is an upper bound (heat demos honest only in vacuum theaters);
@@ -149,7 +158,7 @@ Phases 0 and 1 answer the big question (does it look and feel right?) before any
 ## 13. First command of Phase 0
 
 ```bash
-# a local Paper server to develop against (games VM later)
+# a local Paper server to develop against (skippy-core later)
 mkdir -p /d/Aaron/development/sigma-ground/stage/skippycraft/dev-server && cd "$_"
 curl -sL -o paper.jar "<the current Paper 1.21 build from https://papermc.io/downloads>"
 java -Xmx4G -jar paper.jar --nogui   # first run writes eula.txt; the Captain accepts the EULA by setting eula=true
