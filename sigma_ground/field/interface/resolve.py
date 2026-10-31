@@ -89,7 +89,8 @@ _ALIAS = {
     # solids in the physics tables
     "ice": "water_ice", "water ice": "water_ice", "oak": "wood_oak", "wood": "wood_oak",
     "carbon fiber": "carbon_fiber", "carbon fibre": "carbon_fiber", "cfrp": "carbon_fiber",
-    "alumina": "ceramic_alumina",
+    "alumina": "ceramic_alumina", "aluminium oxide": "ceramic_alumina", "aluminum oxide": "ceramic_alumina",
+    "al2o3": "ceramic_alumina", "alumina ceramic": "ceramic_alumina",
     # generic category names (e.g. the ones ShapeNetSem/Deckard emit) → a
     # representative member so they resolve to a CITED density rather than an
     # estimate. "wood"→oak above; the rest here.

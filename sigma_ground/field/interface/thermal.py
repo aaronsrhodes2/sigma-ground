@@ -602,9 +602,9 @@ def thermal_emission_power(material_key, T=300.0, sigma=0.0):
     P = ε × σ_SB × T⁴
 
     FIRST_PRINCIPLES: Stefan-Boltzmann law (exact from Planck's law).
-    ε from ``emissivity`` (Kirchhoff via the texture module's Rayleigh
-    criterion) — one emissivity for both the emission law and any radiative
-    boundary condition built on it.
+    ε from ``emissivity`` (``emissivity_fact``: Hagen-Rubens for metals,
+    measured for non-metals; KeyError where there is no basis) — one emissivity
+    for both the emission law and any radiative boundary condition built on it.
 
     Args:
         material_key: key into MATERIALS dict

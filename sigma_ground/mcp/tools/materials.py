@@ -257,6 +257,72 @@ def block_properties(material: str, temperature_k: float = 293.15,
                       notes="gaps: " + "; ".join(b["gaps"]) if b["gaps"] else "")
 
 
+def emissivity(material: str, temperature_k: float = 300.0, wavelength_m: float | None = None) -> ToolResult:
+    """How well a material's surface radiates heat, 0 (a mirror) to 1 (a blackbody).
+
+    No wavelength: the TOTAL hemispherical emissivity, the one in P = εσT⁴ (``thermal.emissivity_fact``: Hagen-Rubens
+    from the measured resistivity for a metal, so it rises with temperature; the measured table for a non-metal).
+    With ``wavelength_m``: the spectral emissivity there (Kirchhoff ε = 1 − R from measured n+ik), which is what
+    sets the colour of a glowing metal. A material with no basis says so (value None), never a default.
+
+    Examples: ('alumina') -> 0.80; ('iron', 1500) -> ~0.11; ('tungsten', 2000, wavelength_m=550e-9) -> spectral.
+    """
+    from sigma_ground.field.interface import thermal, thermal_emission as te
+    from sigma_ground.field.interface.block import block
+    T = float(temperature_k)
+    inputs = {"material": material, "temperature_k": T, "wavelength_m": wavelength_m}
+    try:
+        canon = block(material, T)["canonical"]
+    except KeyError:
+        canon = material
+    keys = list(dict.fromkeys((canon, material)))
+    if wavelength_m is not None:
+        for k in keys:
+            if k in te.MEASURED_NK:
+                v = te.emissivity(k, float(wavelength_m))
+                return ToolResult(value=v, units="dimensionless",
+                                  source="sigma-ground thermal_emission.emissivity (Kirchhoff 1 - R, measured n+ik)",
+                                  notes=f"spectral emissivity of {k} at {wavelength_m * 1e9:g} nm (polished surface)",
+                                  inputs=inputs)
+        notes = f"no measured n+ik for {material}: its total emissivity is given as a grey-body value. "
+    else:
+        notes = ""
+    for k in keys:
+        try:
+            v, src, conf = thermal.emissivity_fact(k, T)
+        except KeyError:
+            continue
+        return ToolResult(value=v, units="dimensionless", source="sigma-ground " + src,
+                          notes=notes + f"total hemispherical emissivity of {k} at {T:g} K (confidence {conf})",
+                          inputs=inputs)
+    return ToolResult(value=None, units="dimensionless", source="sigma-ground thermal.emissivity_fact",
+                      notes=f"no emissivity basis for {material!r} in sigma-ground (no measured value, not a metal)",
+                      inputs=inputs)
+
+
+def thermal_glow(material: str, temperature_k: float) -> ToolResult:
+    """The light and heat a hot block of a material gives off by its own temperature: whether it glows visibly,
+    its colour (rgb, normalised), its spectral radiance at 650/550/450 nm, and the total power it radiates per
+    square metre (εσT⁴). The chain: emissivity -> Planck's law -> colour (``field.interface.block.glow``).
+
+    Examples: ('iron', 1300) -> a dull red glow; ('tungsten', 3000) -> yellow-white.
+    """
+    from sigma_ground.field.interface import thermal
+    from sigma_ground.field.interface.block import block, glow
+    T = float(temperature_k)
+    g = glow(material, T)
+    canon = block(material, T)["canonical"]
+    out = dict(g)
+    try:
+        out["radiated_W_m2"] = thermal.thermal_emission_power(canon, T)
+        out["sources"]["radiated_W_m2"] = "thermal.thermal_emission_power (Stefan-Boltzmann x total emissivity)"
+    except KeyError:
+        out["radiated_W_m2"] = None
+        out["gaps"].append("no total emissivity: radiated power unknown")
+    return ToolResult(value=out, units="", source="sigma-ground field.interface.block.glow (Planck x Kirchhoff)",
+                      notes="; ".join(out["gaps"]), inputs={"material": material, "temperature_k": T})
+
+
 def list_materials() -> ToolResult:
     """List every material in the lookup tables.
 

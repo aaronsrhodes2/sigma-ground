@@ -751,6 +751,18 @@ def main() -> int:
         return t_mat.block_properties(material, temperature_k, mass_kg, volume_m3).to_dict()
 
     @server.tool()
+    def emissivity(material: str, temperature_k: float = 300.0, wavelength_m: float | None = None) -> dict[str, Any]:
+        """Emissivity of a material's surface, 0 (mirror) to 1 (blackbody): total (for P = eps sigma T^4) at a
+        temperature, or spectral at wavelength_m (what colours a glowing metal); each with its source."""
+        return t_mat.emissivity(material, temperature_k, wavelength_m).to_dict()
+
+    @server.tool()
+    def thermal_glow(material: str, temperature_k: float) -> dict[str, Any]:
+        """What a hot block of a material looks like from its own heat: visible glow or not, its colour (rgb),
+        spectral radiance at 650/550/450 nm, and total radiated power per m^2 (Planck x emissivity)."""
+        return t_mat.thermal_glow(material, temperature_k).to_dict()
+
+    @server.tool()
     def boiling_point(material: str) -> dict[str, Any]:
         """Boiling point at 1 atm in K."""
         return t_mat.boiling_point(material).to_dict()
