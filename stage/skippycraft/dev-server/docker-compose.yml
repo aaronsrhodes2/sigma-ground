@@ -18,8 +18,8 @@ services:
       MEMORY: 3G
       ONLINE_MODE: "TRUE"
       ENABLE_WHITELIST: "TRUE"
-      WHITELIST: "${MC_PLAYER:-}"            # empty = nobody can join yet (whitelist is on)
-      OPS: "${MC_PLAYER:-}"
+      WHITELIST: "${MC_PLAYER:-aaronsrhodes}"  # the Captain's Java profile; nobody else
+      OPS: "${MC_PLAYER:-aaronsrhodes}"
       MODE: creative
       DIFFICULTY: peaceful
       SPAWN_MONSTERS: "FALSE"
