@@ -40,4 +40,4 @@ services:
       - "127.0.0.1:42576:25576"       # the SkippyCraft plugin's block writer (plugin/build.sh): this PC only
     volumes:
       - ./data:/data
-    restart: "no"
+    restart: unless-stopped        # back by itself after Docker or the PC restarts (the Captain, 2026-10-31: he found it down); a stop by hand stays stopped
