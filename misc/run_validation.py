@@ -272,6 +272,11 @@ def _map_weapon(test_weapon):
     # ── Laser ─────────────────────────────────────────────────────────────
     if wtype in ('laser_cw', 'laser_high_energy'):
         bdia = test_weapon.get('beam_diameter_m', 0.0003)
+        if 'beam_diameter_m' in test_weapon and 'max_range_m' in test_weapon:
+            # a reported beam diameter is the transmitter's APERTURE, not the spot on target: the beam is focused there,
+            # at best to the diffraction limit (Airy disc diameter 2.44 lambda R / D) at the stated range
+            lam = test_weapon.get('wavelength_nm', 1070.0) * 1e-9
+            bdia = 2.44 * lam * test_weapon['max_range_m'] / test_weapon['beam_diameter_m']
         return ({
             'type': 'laser',
             'power_w':          test_weapon.get('power_w', 1000.0),

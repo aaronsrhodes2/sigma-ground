@@ -27,7 +27,7 @@ WEAPON_GROUPS = [
     ('DIRECTED ENERGY', ['laser_designator', 'hel_100kw', 'hel_megawatt']),
     ('SCI-FI / EXOTIC', ['railgun_hypersonic', 'railgun_relativistic', 'plasma_cannon',
                          'plasma_torch_industrial', 'proton_cannon', 'neutron_bomb',
-                         'gamma_laser', 'tidal_disruptor', 'sigma_spike_weapon',
+                         'gamma_laser', 'tidal_disruptor',
                          'city_buster', 'phaser_stun', 'photon_torpedo']),
 ]
 
@@ -41,7 +41,7 @@ WEAPON_TYPES = [
     ('plasma',       'PLASMA',       (255, 130, 50),  'Superheated ionized gas'),
     ('explosive',    'EXPLOSIVE',    (255, 60, 60),   'Blast wave + thermal'),
     ('particle',     'PARTICLE',     (130, 255, 130), 'Relativistic beam'),
-    ('gravitational','EXOTIC',       (180, 100, 255), 'Tidal/sigma-field disruption'),
+    ('gravitational','EXOTIC',       (180, 100, 255), 'Tidal disruption'),
 ]
 
 PROJ_MATERIALS = [
@@ -140,8 +140,7 @@ class WeaponPanel:
                          'duration_s': self.pt_dur.value, 'particle': self.pt_mat.value,
                          'beam_radius_m': 0.005})
         elif wtype == 'gravitational':
-            base.update({'tidal_gradient_ms2': self.g_tidal.value,
-                         'sigma_spike': self.g_sigma.value})
+            base.update({'tidal_gradient_ms2': self.g_tidal.value})
         return base
 
     # ── Widget builders ───────────────────────────────────────────────────────
@@ -213,13 +212,9 @@ class WeaponPanel:
         self.pt_mat     = Dropdown((x, by+3*52+18, w, 24), PARTICLE_TYPES, selected=0,
                                    label='Particle type')
 
-        from sigma_ground.field.constants import SIGMA_CONV
         self.g_tidal = Slider(sr(0), 0, 1e13, 9.8, 'Tidal gradient', log=False,
             format_fn=lambda v: f'{v:.3g} m/s2/m',
             ticks=[(9.8,'Earth'),(1e6,'w.dwarf'),(1e12,'n.star')])
-        self.g_sigma = Slider(sr(1), 0, SIGMA_CONV*0.99, 0, 'Sigma-field spike', log=False,
-            format_fn=lambda v: f'{v:.3f}',
-            ticks=[(0,'zero'),(SIGMA_CONV*0.5,'half'),(SIGMA_CONV*0.95,'crit')])
 
     def _active_sliders(self):
         return {
@@ -228,7 +223,7 @@ class WeaponPanel:
             'plasma':       [self.p_temp, self.p_pres, self.p_dur, self.p_rad],
             'explosive':    [self.e_yield, self.e_standoff],
             'particle':     [self.pt_energy, self.pt_current, self.pt_dur],
-            'gravitational':[self.g_tidal, self.g_sigma],
+            'gravitational':[self.g_tidal],
         }.get(self._active_type(), [])
 
     def _active_dropdown(self):

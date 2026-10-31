@@ -118,7 +118,7 @@ def solve(weapon: dict, armor_layers: list,
         else:
             break
 
-    total = sum(1 for s in states if s.material != 'gap')
+    total = sum(1 for L in armor_layers if not L.get('gap', False))   # the whole stack, not just the layers reached
     if layers_penetrated >= total:
         verdict = 'ARMOR BREACHED'
     elif layers_penetrated == 0:

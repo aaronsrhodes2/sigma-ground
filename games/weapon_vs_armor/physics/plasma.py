@@ -11,7 +11,7 @@ Bond failure check: local sigma rises as material heats toward melting.
 """
 import math
 from ..materials import get_material, MELTING_POINTS_K
-from sigma_ground.field.constants import K_B, SIGMA_CONV
+from sigma_ground.field.constants import K_B
 
 EV_TO_J = 1.602176634e-19
 

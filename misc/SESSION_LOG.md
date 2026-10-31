@@ -4219,3 +4219,16 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   Flagged, not fixed: (1) the game itself no longer starts: physics/plasma.py and gravitational.py import SIGMA_CONV,
   moved to ssbm-theory; (2) its flint arrowhead preset uses material 'stone_proxy', gone from surface.MATERIALS;
   (3) its 100 kW laser leaves ~1e9 K (no ablation cap); (4) block('rubber') melting point 200 K (a glass transition?).
+- Weapon vs. Armor fixed (the Captain: "Yes, fix the game"): it would not load because physics/plasma.py and gravitational.py
+  imported SIGMA_CONV (moved to ssbm-theory). plasma.py never used it (import dropped); the sigma-field disruptor (speculative,
+  SSBM) is removed from the physics, presets and weapon panel; the tidal disruptor stays. Flint arrowhead: 'stone_proxy' ->
+  granite (its own comment's choice). Laser rebuilt as an energy balance from block(): heating depth = max(1/alpha,
+  diffusion length); past melting it burns through, depth = absorbed energy / (spot area x H), H = melt enthalpy for a
+  continuous beam (vaporisation for pulses under 1 ms), crater wall at the front temperature (was ~1e9 K, whole layers
+  gone); absorptivity from measured n+ik (Kirchhoff 1 - R; steel uses iron's: 0.46, aluminium 0.10 at 1064 nm). Validation
+  harness: a reported beam diameter is the aperture; the spot is the diffraction limit 2.44 lambda R / D at the stated range
+  (Iron Beam 5.8 cm at 10 km). Solver verdict now counts the whole stack ("layer 2 of 5", was "2 of 2"). Validation 41/43
+  (95%), the same two pre-existing calibration misses; all 25 x 16 presets solve; the game starts (headless check).
+  Flagged, not fixed (sigma-ground data): block('rubber') melting point 200 K from PHASE_DATA (a glass transition);
+  block() emissivity 0.01 for steel_mild, ceramic_alumina, carbon_fiber, depleted_uranium (alumina and carbon fibre are
+  near-black in the IR).

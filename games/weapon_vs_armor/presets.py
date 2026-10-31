@@ -167,7 +167,7 @@ WEAPON_PRESETS = {
             'mass_kg': 0.0025,
             'velocity_ms': 55.0,
             'radius_m': 0.003,
-            'material': 'stone_proxy',  # closest: granite
+            'material': 'granite',     # flint: granite is sigma-ground's closest stone
         },
         '_mat_override': 'granite',
     },
@@ -263,11 +263,7 @@ WEAPON_PRESETS = {
     },
     'tidal_disruptor': {
         'name': 'Tidal Disruptor (white-dwarf gradient)',
-        'weapon': {'type':'gravitational','tidal_gradient_ms2':1e7,'sigma_spike':0.0},
-    },
-    'sigma_spike_weapon': {
-        'name': 'Sigma-Field Disruptor (sigma-combat exclusive)',
-        'weapon': {'type':'gravitational','tidal_gradient_ms2':0,'sigma_spike':1.6},
+        'weapon': {'type':'gravitational','tidal_gradient_ms2':1e7},
     },
     'city_buster': {
         'name': 'Thermonuclear (1 Mt)',
