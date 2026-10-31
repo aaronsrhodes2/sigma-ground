@@ -539,6 +539,14 @@ def serve(player="aaronsrhodes"):
         send(desk_commands(name))
     sx, sy, sz, _, _ = stand("sink")
     send([f"setworldspawn {int(sx)} {sy} {int(sz)}", "gamerule respawn_radius 0"])
+    def reconnect():
+        while True:
+            try:
+                r = Rcon()
+                return r, r.commands, block_writer()
+            except OSError:
+                time.sleep(2.0)
+
     by_number = {st["request"]: name for name, st in STAGES.items()}
     kept = {}
     import shooting_range
@@ -547,70 +555,76 @@ def serve(player="aaronsrhodes"):
     print("serving: panels built, pack at", f"http://{PACK_HOST}:{PACK_PORT}/skippycraft.zip", flush=True)
     pending, last_check = 0, 0.0
     while True:
-        req = pending or read_request(rcon)
-        pending = 0
-        if req in SCREEN_BUTTONS:                                     # pressed between runs: change the setup, then run
-            tell(kept.setdefault("slit", build("slit")[1]).press(SCREEN_BUTTONS[req]))
-            req = STAGES["slit"]["request"]
-        if req in RANGE_BUTTONS:                                      # a new weapon or armour: show the fresh target
-            tell(range_press(aim, RANGE_BUTTONS[req]))
-            req, preview = STAGES["range"]["request"], True
-        name = by_number.get(req)
-        if name is None:
-            if time.monotonic() - last_check > 3.0:              # idle: put back anything he broke
-                last_check = time.monotonic()
-                for fixed in repair_desks(rcon):
-                    print("repaired the", fixed, "desk", flush=True)
-                    tell(f"Put the {fixed} desk back together.")
-            time.sleep(0.3)
-            continue
-        st = STAGES[name]
-        if name == "slit":                                            # the screen keeps its setup between runs
-            world = kept.setdefault("slit", build("slit")[1])
-            world.reset()
-        elif name == "range":
-            import shooting_range
-            world = shooting_range.RangeWorld(aim["weapon"], aim["armor"], armed=not preview)
-        else:
-            _, world = build(name)
-        th = Theater(world, looks, st["origin"], send, blocks, glows)
-        rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
-        tell(f"Building {name} at {RESOLUTION}x resolution (a few seconds)...")
-        th.open()
-        tell(st["tell"])
-        _, _, _, _, ticks, dt = SCENES[name]
-        if preview:                                                   # just show the fresh target
-            ticks, preview = 0, False
-        print("run", name, flush=True)
-        for tick in range(ticks):
-            t0 = time.monotonic()
-            nxt = read_request(rcon)
-            if nxt in RANGE_BUTTONS:                                  # change the setup mid-run: start over with it
-                tell(range_press(aim, RANGE_BUTTONS[nxt]))
-                pending, preview = STAGES["range"]["request"], True
-                break
-            if nxt in SCREEN_BUTTONS and hasattr(world, "press"):
-                tell(world.press(SCREEN_BUTTONS[nxt]))
-                nxt = 0
-            if nxt in (SLOWER, FASTER) and getattr(world, "paddle", None):
-                period = world.paddle["period_s"] * (1.1 if nxt == SLOWER else 1 / 1.1)
-                world.set_period(period)
-                tune = period / world.paddle["resonant_s"]
-                tell(f"Paddle period {period:.2f} s ({tune:.2f} x the tank's sloshing period).")
-                nxt = 0
-            if nxt:
-                pending = 0 if nxt == STOP else nxt
-                tell(f"Stopped {name}.")
-                break
-            world.step(dt)
-            text = th.readout(th.draw())
-            if tick % 25 == 0:                                        # the service's log: what it last drew, and where
-                where = " ".join(f"{b['material']}@{th.mc(*b['cell'])}" for b in getattr(world, "bodies", ()))
-                print(f"{name} tick {tick}: {text} {where}", flush=True)
-            time.sleep(max(0.0, 1.0 / st["rate"] - (time.monotonic() - t0)))
-        else:
-            tell(f"{name} done: the world ran {world.t:.2f} simulated seconds.")
+        try:
+            req = pending or read_request(rcon)
+            pending = 0
+            if req in SCREEN_BUTTONS:                                     # pressed between runs: change the setup, then run
+                tell(kept.setdefault("slit", build("slit")[1]).press(SCREEN_BUTTONS[req]))
+                req = STAGES["slit"]["request"]
+            if req in RANGE_BUTTONS:                                      # a new weapon or armour: show the fresh target
+                tell(range_press(aim, RANGE_BUTTONS[req]))
+                req, preview = STAGES["range"]["request"], True
+            name = by_number.get(req)
+            if name is None:
+                if time.monotonic() - last_check > 3.0:              # idle: put back anything he broke
+                    last_check = time.monotonic()
+                    for fixed in repair_desks(rcon):
+                        print("repaired the", fixed, "desk", flush=True)
+                        tell(f"Put the {fixed} desk back together.")
+                time.sleep(0.3)
+                continue
+            st = STAGES[name]
+            if name == "slit":                                            # the screen keeps its setup between runs
+                world = kept.setdefault("slit", build("slit")[1])
+                world.reset()
+            elif name == "range":
+                import shooting_range
+                world = shooting_range.RangeWorld(aim["weapon"], aim["armor"], armed=not preview)
+            else:
+                _, world = build(name)
+            th = Theater(world, looks, st["origin"], send, blocks, glows)
+            rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
+            tell(f"Building {name} at {RESOLUTION}x resolution (a few seconds)...")
+            th.open()
+            tell(st["tell"])
+            _, _, _, _, ticks, dt = SCENES[name]
+            if preview:                                                   # just show the fresh target
+                ticks, preview = 0, False
+            print("run", name, flush=True)
+            for tick in range(ticks):
+                t0 = time.monotonic()
+                nxt = read_request(rcon)
+                if nxt in RANGE_BUTTONS:                                  # change the setup mid-run: start over with it
+                    tell(range_press(aim, RANGE_BUTTONS[nxt]))
+                    pending, preview = STAGES["range"]["request"], True
+                    break
+                if nxt in SCREEN_BUTTONS and hasattr(world, "press"):
+                    tell(world.press(SCREEN_BUTTONS[nxt]))
+                    nxt = 0
+                if nxt in (SLOWER, FASTER) and getattr(world, "paddle", None):
+                    period = world.paddle["period_s"] * (1.1 if nxt == SLOWER else 1 / 1.1)
+                    world.set_period(period)
+                    tune = period / world.paddle["resonant_s"]
+                    tell(f"Paddle period {period:.2f} s ({tune:.2f} x the tank's sloshing period).")
+                    nxt = 0
+                if nxt:
+                    pending = 0 if nxt == STOP else nxt
+                    tell(f"Stopped {name}.")
+                    break
+                world.step(dt)
+                text = th.readout(th.draw())
+                if tick % 25 == 0:                                        # the service's log: what it last drew, and where
+                    where = " ".join(f"{b['material']}@{th.mc(*b['cell'])}" for b in getattr(world, "bodies", ()))
+                    print(f"{name} tick {tick}: {text} {where}", flush=True)
+                time.sleep(max(0.0, 1.0 / st["rate"] - (time.monotonic() - t0)))
+            else:
+                tell(f"{name} done: the world ran {world.t:.2f} simulated seconds.")
 
+        except (TimeoutError, ConnectionError, OSError) as e:
+            # the server can stall for many seconds (a world autosave to a slow disk): reconnect and carry on
+            print("lost the server:", repr(e), "- reconnecting", flush=True)
+            rcon, send, blocks = reconnect()
+            pending = 0
 
 def main(argv=None):
     import argparse

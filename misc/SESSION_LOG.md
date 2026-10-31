@@ -4247,3 +4247,4 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   819 tests in the 31 affected files pass. Still flagged: VoxelWorld's material cards are built at room temperature
   (frozen for the run), so a hot metal radiates with its 293 K emissivity (tungsten 0.023 vs 0.113 at 1500 K).
 - Unrelated, pre-existing: tests/test_trajectory_thermo.py::test_front_door_two_turn_thermal_render fails on the commit before the data fix too (front door routes the question to 'clarify', not 'simulate').
+- SkippyCraft service crash: the server thread stalled 15 s in a world autosave (world on a Windows bind mount, slow in Docker), RCON timed out and the service died. serve() now reconnects on timeout or a dropped connection and carries on; checked by pausing the container until the timeout hit: it reconnected and the next Run fired.
