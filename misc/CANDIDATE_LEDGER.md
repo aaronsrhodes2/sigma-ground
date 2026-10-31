@@ -333,3 +333,21 @@ Predictions at +5 yr:
 * srp and kbo: every body within 1.02 (the smallest layers).
 * zonals: Moon ratio above 3 and Earth above 1.2.
 Any prediction that fails is recorded here as failed.
+
+## C24. Eros against raw sky positions, 2021 onwards: predictions written BEFORE any residual was computed (2026-10-30)
+Data: the Minor Planet Center's observations of 433 Eros (`D:/datasets/mpc/obs80_433.txt`, 1.73 MB, fetched 2026-10-30 through the public get-obs API, one request per 20 s). Observatory coordinates: the MPC's `ObsCodes.html` (149 KB). Nothing in either file has been compared with a model yet.
+The question: do the sky positions our engine predicts for Eros match what telescopes measured, and by how much? This is the first test of the engine against raw measurement rather than against JPL's fit.
+
+**Fixed before looking (so they cannot be tuned afterwards).**
+* Observations used: optical, note-2 column `C` or `B` (CCD, CMOS), dated 2021-01-01 UTC or later, from stations whose parallax constants are in ObsCodes (no spacecraft, roving or radar lines). Pipeline: UTC to TT with the leap-second table, Earth's barycentric position from DE440s, the station's geocentric offset rotated by sidereal time (UT1 taken as UTC), light-time iteration, astrometric RA/Dec in J2000 (the MPC catalogue-reduced positions carry no stellar aberration), no gravitational deflection.
+* Outlier rule: an observation is dropped if arm J's total residual exceeds 5 arcsec; the same set is used for every arm.
+* Arm J: JPL's own Eros positions (Horizons vectors at 1 h steps, interpolated), through the same pipeline. It is the control: it measures the pipeline and the telescopes' scatter.
+* Arm E1: our engine (Sun + nine planet systems from DE440s, the Sun's 1PN term, DE440's other asteroids as prescribed sources: rung R4 of `scripts/asteroid_ladder.py`) propagated from JPL's Eros state at 2020-01-01. Not out of sample in its starting state (JPL's current solution used post-2020 data); out of sample in the dynamics.
+* Arm E2: our engine from a six-element least-squares fit to optical observations dated 1990-01-01 to 2020-12-31 ONLY (equal weights of 1 arcsec, 3-sigma clipping at 3 arcsec, starting guess JPL's state). Fully out of sample.
+
+**Predictions** (total residual = sqrt(dRA cosDec^2 + dDec^2); "difference" = arm minus arm J on the same observation):
+* P0, validity: arm J's RMS residual lies between 0.3 and 1.2 arcsec. If it does not, the pipeline is wrong, no physics may be read from the run, and the pipeline is fixed first.
+* P1: the mean offset of E1 minus J is below 0.02 arcsec and the RMS of the per-observation difference is below 0.05 arcsec (about 11 km at 0.3 au). Basis: the asteroid ladder (C9) gives a median 2.6 km at +5 yr, about 0.01 arcsec at 0.3 au; the allowance is 4 times that because Eros is a near-Earth asteroid with close approaches.
+* P2: arm E2's RMS residual on the 2021-and-later observations is at most 1.5 times arm J's, and the mean offset of E2 minus J is below 0.15 arcsec.
+* What the run cannot show: with about 0.5 arcsec scatter and several thousand observations, a systematic offset below roughly 0.01 arcsec (about 3 km at 0.3 au) is invisible, so a pass means "the engine is not the bottleneck", not "the engine is exact".
+Any prediction that fails is recorded here as failed.
