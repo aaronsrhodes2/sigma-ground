@@ -4248,3 +4248,8 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   (frozen for the run), so a hot metal radiates with its 293 K emissivity (tungsten 0.023 vs 0.113 at 1500 K).
 - Unrelated, pre-existing: tests/test_trajectory_thermo.py::test_front_door_two_turn_thermal_render fails on the commit before the data fix too (front door routes the question to 'clarify', not 'simulate').
 - SkippyCraft service crash: the server thread stalled 15 s in a world autosave (world on a Windows bind mount, slow in Docker), RCON timed out and the service died. serve() now reconnects on timeout or a dropped connection and carries on; checked by pausing the container until the timeout hit: it reconnected and the next Run fired.
+- Measured live (2026-10-31): the box deployed pin 7c9ef60 (contains 5b0c4da) once the quiet gate opened; adversarial 11 -> 15/18
+  (9 at the start of the word-stage work). Puzzles 3/3, units 3/3: ns-dollars now 4.35e26 USD (puzzle_classifier convert_units; was 4.35e17 s
+  from the age-of-universe cue), bananas 49160 (Everest 8848.86 m / 0.18 m), heartbeats 2.945e9; false premise, impossible, nonsense 3/3.
+  Left: the 3 open-ended knowledge rows (adv_open_001..003). Physics and maths not re-run for this pin. The waiter matched one exact ref and
+  timed out after the box moved past it: match "contains the fix" (git merge-base --is-ancestor), not equality.
