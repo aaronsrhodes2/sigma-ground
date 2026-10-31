@@ -615,3 +615,43 @@ def crystal_field_report(Z: int, oxidation_state: int, coord_key: str) -> dict:
             'Beer-Lambert RGB: FIRST_PRINCIPLES.'
         ),
     }
+
+
+# ── Measured gem absorption (Beer-Lambert), per centimetre at the red, green and blue sample wavelengths ─────────────────
+# Moved from radiance/materials/physics_materials.py (2026-10-31) so field.interface.block.appearance can draw a gem by the
+# light that gets through a block of it. A gem's colour depends on its thickness: ruby is pink at 1 mm, pink-red at 1 cm and
+# deep red at 10 cm (crystal_field_rgb's Tanabe-Sugano colour is the thin limit).
+MINERAL_ALPHA_PER_CM = {
+    # Ruby (Cr3+ in Al2O3 corundum), 0.5 wt% Cr2O3, gem quality. Waychunas (1988) Am. Mineralogist 73:916-934, Fig. 3:
+    # green peak ~3 cm-1 (nu1 band 18200 cm-1), red ~0.1 cm-1 (why rubies transmit red), blue ~1.2 cm-1 (nu2 band 25200 cm-1).
+    'ruby': (0.10, 3.0, 1.2),
+    # Emerald (Cr3+ in beryl), Colombian gem quality. Smith (1963) Am. Mineralogist 48:186-192; Deer, Howie, Zussman (1992)
+    # Rock-forming minerals 1B: nu1 ~16400 cm-1 (red), nu2 ~23100 cm-1 (blue); green transmitted.
+    'emerald': (1.5, 0.10, 0.8),
+    # Alexandrite (Cr3+ in chrysoberyl). Schmetzer & Gubelin (1980) Neues Jb. Miner. Mh. 1980:200-212.
+    'alexandrite': (0.5, 2.0, 1.0),
+    # Cobalt blue (Co2+ in CoAl2O4 spinel). Lever (1984) Inorganic Electronic Spectroscopy, Table 6.2.
+    'cobalt_blue': (3.0, 2.5, 0.3),
+    # Malachite (Cu2+). Gaines et al. (1997) Dana's New Mineralogy: strong red absorption, green transmitted.
+    'malachite': (2.5, 0.3, 1.8),
+    # Azurite (Cu2+). Gaines et al. (1997): absorbs red and green.
+    'azurite': (3.0, 2.0, 0.2),
+    # Peridot (Fe2+ in olivine). Burns (1993) Mineralogical Applications of Crystal Field Theory, Table 4.5.
+    'peridot': (1.5, 0.1, 1.2),
+    # Ti-sapphire (Ti3+ in Al2O3). Moulton (1986) J. Opt. Soc. Am. B 3:125-133.
+    'ti_sapphire': (0.2, 1.5, 0.1),
+    # Diamond type IIa. Berman (1965); Davies (1994) Properties and Growth of Diamond: < 0.002 cm-1 in the visible.
+    'diamond': (0.001, 0.001, 0.002),
+}
+# Gems light passes through (drawn by transmission); malachite, azurite and cobalt blue are opaque aggregates and pigments,
+# whose colour is what their surface scatters back (crystal_field_rgb).
+TRANSPARENT_GEMS = ('ruby', 'emerald', 'alexandrite', 'peridot', 'ti_sapphire', 'diamond')
+
+
+def gem_transmission_rgb(mineral_name: str, thickness_m: float) -> tuple:
+    """Fraction of red, green and blue light through ``thickness_m`` of a gem: exp(-alpha x) with the measured alpha
+    (``MINERAL_ALPHA_PER_CM``). The surface reflection (~7% for n ~ 1.7) is not included."""
+    import math
+    x_cm = float(thickness_m) * 100.0
+    return tuple(math.exp(-a * x_cm) for a in MINERAL_ALPHA_PER_CM[mineral_name])
+

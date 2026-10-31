@@ -134,6 +134,52 @@ Said to Skippy, or as `/theater …`:
 
 Phases 0 and 1 answer the big question (does it look and feel right?) before any of the talking is built.
 
+## 10b. The Playground: an empirical physics playground (the Captain, 2026-10-31)
+
+**Goal.** Radiance's goal (matter becomes pixels from the engine's own numbers, never a faked frame) carried into a world you stand
+in: one theater where time flows and *every* force sigma-ground knows acts at once, and you watch it play out. Not exhibits that each
+run one law (sink, melt, slosh, slit, range), but one world where a hot gold bar melts, the melt flows with momentum, sinks a
+wooden block it does not burn yet, cools, freezes where it stops and glows the colour its temperature says the whole time.
+
+**The rule: every value is derived from the block's live state.** A cell is (material, temperature, phase fraction, velocity).
+Every property any solver or the renderer uses is sigma-ground's answer for THAT state, never a room-temperature card frozen for
+the run: thermal conductivity, heat capacity, density (solid and liquid, thermal expansion), total and spectral emissivity,
+colour and transparency (`appearance` at its thickness and temperature), glow (Planck x Kirchhoff), viscosity of a melt, strength
+and stiffness, drag and lift in air (from the speed: Reynolds number, then the drag law). For speed a material's properties are
+tabulated over temperature once, each entry from sigma-ground; interpolated per cell per tick. A property sigma-ground lacks for a
+state is a named gap on the readout, drawn honestly (flagged), never a borrowed number.
+
+**What acts, one clock, operator split each tick:**
+
+| Part | From | State it reads and writes |
+|---|---|---|
+| Gravity, buoyancy, drag in air | `VoxelFluid` bodies, `atmosphere` | velocity, live density |
+| Liquids (water, mercury, any melt) | FLIP (`dynamics.fluid.flip`), variable density per particle | velocity, temperature carried with the particle |
+| Rigid bodies with momentum | `voxel_fluid` body coupling, extended to body-body contact and friction | pose, velocity, angular velocity |
+| Heat: conduction, carried by moving matter, radiation, latent heat | `diffuse_fvm`, `VoxelWorld._phase`, T-dependent emissivity | temperature, melt fraction |
+| Phase: melt to particles, freeze to cells, boil and vent | `VoxelWorld` enthalpy method, FLIP | phase, mass ledger |
+| Impacts (the range's weapons) | `weapon_vs_armor` per-layer solve, energy to heat | velocity, temperature, holes |
+| Light | `block.appearance` + `block.glow` at the cell's temperature; LabPBR (smoothness, F0, emission) | what you see |
+
+**The empirical part: the ledger is on screen.** Total energy (kinetic, potential, thermal, latent, radiated, vented), momentum and
+mass, each summed from the cells every tick; conservation drift shown, not hidden. "What is that?" on any block gives its live
+card with sources.
+
+**Phases:**
+
+| Phase | Work | Done when |
+|---|---|---|
+| P1 Live cards | properties tabulated over T per material from sigma-ground; `VoxelWorld` and `FluidVoxelWorld` read them per cell per tick | tungsten at 1500 K radiates with emissivity 0.113 (it uses 0.023 today); a test pins every card value to a direct sigma-ground call |
+| P2 One world | heat + phase + FLIP + bodies in one `PlaygroundWorld`; melt becomes FLIP particles, cooling particles freeze back into cells | molten lead off a hot plate flows, a gold block sinks in it with momentum, the melt freezes where it stops; the energy ledger closes |
+| P3 Contact and strength | body-body contact with friction, toppling, fracture past strength at the cell's temperature | a stack topples; a heated beam sags and breaks where hot |
+| P4 Impacts in the world | the range's solve as an event in the playground: momentum and heat into the cells hit | a round into the block wall heats, glows and pushes it as the solve says |
+| P5 Looks complete | measured reflectance for rocks, wood, concrete, rubber, plastics (cited spectra); glow into LabPBR emission | no material in the playground draws without a sourced colour, or it is flagged |
+| P6 From inside | place any material, heat, drop, shoot, push; pause, step, slow motion (section 8) | the Captain does all of it in game without the console |
+
+**Known gaps going in:** no gas phase (boiled matter vents from the world); no chemistry (wood chars, nothing burns: reactions need
+product rules); no electromagnetism in the world (no magnets or currents) yet; FLIP is costly, so the playground is ~64 x 64 x 48
+cells at first; air drag is per body, not a simulated air flow.
+
 ## 11. Validation (Platinum: test against reality, dry-run first)
 
 - The service's tests run without Minecraft (a fake plugin records diffs). Physics is already tested in sigma-ground; SkippyCraft

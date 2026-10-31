@@ -370,6 +370,9 @@ def metal_rgb(material_key):
     For free-electron metals (Al): nearly flat → silver/white.
     For metals with d-band transitions (Cu, Au): dip in blue/green → warm color.
     """
+    if material_key not in MEASURED_NK and VALENCE_ELECTRONS.get(material_key, 1) == 0:
+        # no free electrons: the Drude model gives eps = 1, R = 0, a black "metal" (silicon did). Not a metal: raise.
+        raise ValueError(f"{material_key!r} has no free electrons: not a metal (semiconductor_optics colours it)")
     r = metal_reflectance(material_key, LAMBDA_R)
     g = metal_reflectance(material_key, LAMBDA_G)
     b = metal_reflectance(material_key, LAMBDA_B)

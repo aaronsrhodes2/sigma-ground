@@ -186,7 +186,13 @@ def appearance(material: str, thickness_m: float, temperature_k: float = 293.15)
         (``optics.dielectric_transmission_rgb``): colour = what gets through, opacity = 1 − mean
         transmittance, F0 = the Fresnel reflectance at 550 nm. So transparency depends on block size: a 5 cm
         block of water is nearly clear, a metre of it is blue;
+      - a GEM light passes through (``crystal_field.TRANSPARENT_GEMS``): measured Beer-Lambert absorption through
+        ``thickness_m`` (``crystal_field.gem_transmission_rgb``), so a ruby block is pink-red at 1 cm, deep red at 10 cm;
+      - a SEMICONDUCTOR opaque to all visible light (absorption edge past 700 nm: silicon, germanium, GaAs):
+        ``semiconductor_optics.semiconductor_rgb`` (band gap, measured n+ik, Fresnel);
+      - an ORGANIC surface with a measured spectrum (wool, cotton, leather): ``optics.organic_rgb``;
       - anything else: the profile's colour if it has one, opaque; else gaps.
+    (The colour models Radiance's material library used, moved here 2026-10-31 so every consumer gets them.)
 
     ``smoothness`` is 1 − √α from ``texture.microfacet_roughness`` (Beckmann α of a clean, equilibrium
     surface: an upper bound on how mirror-like a real, worked surface is).
@@ -213,6 +219,20 @@ def appearance(material: str, thickness_m: float, temperature_k: float = 293.15)
             src = f"optics: Cauchy n ({key}) + Beer-Lambert ({absorb}) through {thickness_m:g} m"
             out["sources"].update(color_rgb=src, transmittance_rgb=src, opacity=src,
                                   reflectance_f0=f"optics.dielectric_surface_reflectance(n({key}, 550 nm))")
+        elif (deriv := _derived_colour(canon, float(thickness_m), temperature_k)) is not None:
+            rgb, opacity, f0, src = deriv
+            out.update(color_rgb=rgb, opacity=opacity)
+            out["sources"]["color_rgb"] = src
+            if opacity < 1.0:
+                out["transmittance_rgb"] = rgb
+                out["sources"]["transmittance_rgb"] = out["sources"]["opacity"] = src
+            else:
+                out["sources"]["opacity"] = "opaque: " + src.split(" (")[0]
+            if f0 is not None:
+                out["reflectance_f0"] = f0
+                out["sources"]["reflectance_f0"] = src
+            else:
+                out["gaps"].append("no reflectance")
         else:
             col = props.get("color")
             if col is not None:
@@ -237,6 +257,30 @@ def appearance(material: str, thickness_m: float, temperature_k: float = 293.15)
     else:
         out["gaps"].append("no surface roughness")
     return out
+
+
+# an organic surface with a measured spectrum in optics.ORGANIC_SPECTRA, by the name block() resolves
+ORGANIC_SURFACE = {"wool": "wool_natural", "cotton": "cotton_white", "leather": "leather_brown"}
+
+
+def _derived_colour(canon: str, thickness_m: float, temperature_k: float):
+    """``(rgb, opacity, F0 or None, source)`` from the gem, semiconductor and organic colour models, or None."""
+    from . import crystal_field, optics, semiconductor_optics
+    if canon in crystal_field.TRANSPARENT_GEMS:
+        t = tuple(float(v) for v in crystal_field.gem_transmission_rgb(canon, thickness_m))
+        return t, 1.0 - sum(t) / 3, None, \
+            f"crystal_field.gem_transmission_rgb (measured Beer-Lambert absorption) through {thickness_m:g} m"
+    # Not here: opaque crystal-field minerals (malachite, turquoise). crystal_field.mineral_rgb is a thin section's colour
+    # (malachite pale cyan, turquoise near white); a scattering stone's body colour needs Kubelka-Munk, which sigma-ground lacks.
+    # Semiconductors only when the absorption edge is past the visible (Si, Ge, GaAs): then the surface reflectance IS the
+    # look. A wide-gap one (TiO2, ZnO, GaN, CdS) is see-through or a white powder; its mirror reflectance would draw it grey.
+    if canon in semiconductor_optics.VARSHNI_PARAMS and semiconductor_optics.band_edge_nm(canon, temperature_k) > 700.0:
+        c = tuple(float(v) for v in semiconductor_optics.semiconductor_rgb(canon, T=temperature_k))
+        return c, 1.0, max(c), "semiconductor_optics.semiconductor_rgb (Varshni band gap, measured n+ik, Fresnel)"
+    if canon in ORGANIC_SURFACE:
+        return tuple(float(v) for v in optics.organic_rgb(ORGANIC_SURFACE[canon])), 1.0, None, \
+            f"optics.organic_rgb ({ORGANIC_SURFACE[canon]}: measured spectrophotometry)"
+    return None
 
 
 GLOW_SAMPLES_M = (650e-9, 550e-9, 450e-9)       # thermal_emission's red, green, blue sample wavelengths

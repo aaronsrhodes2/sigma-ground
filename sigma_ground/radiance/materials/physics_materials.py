@@ -181,53 +181,9 @@ _METAL_ALPHA_RGB = {
 # These are the PHYSICAL Beer-Lambert alpha for volumetric rendering.
 # The crystal_field_rgb function computes COLOR via Beer-Lambert (for surface),
 # but these alpha values are needed for the volumetric fill compositor.
-_MINERAL_ALPHA_RGB = {
-    # Ruby (Cr³⁺ in Al₂O₃ corundum), 0.5 wt% Cr₂O₃, gem-quality.
-    #   Source: Waychunas (1988) Am. Mineralogist 73:916–934, Fig. 3.
-    #   Measured absorption coefficients: green peak ~3 cm⁻¹ (ν₁ band 18200 cm⁻¹)
-    #   Red: ~0.1 cm⁻¹ (transparent — this is why rubies transmit red).
-    #   Blue: ~1.2 cm⁻¹ (ν₂ band 25200 cm⁻¹, ~403nm).
-    'ruby': (0.10 * 2.54, 3.0 * 2.54, 1.2 * 2.54),
-
-    # Emerald (Cr³⁺ in Be₃Al₂Si₆O₁₈ beryl), Colombian gem-quality.
-    #   Source: Smith (1963) Am. Mineralogist 48:186–192;
-    #           Deer, Howie, Zussman (1992) "Rock-forming minerals" Vol. 1B.
-    #   Cr³⁺ in trigonal field: ν₁ at ~16400 cm⁻¹ (~610nm, red),
-    #   ν₂ at ~23100 cm⁻¹ (~433nm, blue). Green transmitted.
-    'emerald': (1.5 * 2.54, 0.10 * 2.54, 0.8 * 2.54),
-
-    # Alexandrite (Cr³⁺ in BeAl₂O₄ chrysoberyl) — color-change gem.
-    #   Source: Schmetzer & Gübelin (1980) Neues Jb. Miner. Mh. 1980:200–212.
-    'alexandrite': (0.5 * 2.54, 2.0 * 2.54, 1.0 * 2.54),
-
-    # Cobalt blue (Co²⁺ in CoAl₂O₄ spinel).
-    #   Source: Lever (1984) "Inorganic Electronic Spectroscopy" Table 6.2.
-    #   Absorbs red (~635nm) and green (~566nm). Blue transmitted.
-    'cobalt_blue': (3.0 * 2.54, 2.5 * 2.54, 0.3 * 2.54),
-
-    # Malachite (Cu²⁺ in Cu₂CO₃(OH)₂).
-    #   Source: Gaines et al. (1997) "Dana's New Mineralogy".
-    #   Strong red absorption; green transmitted.
-    'malachite': (2.5 * 2.54, 0.3 * 2.54, 1.8 * 2.54),
-
-    # Azurite (Cu²⁺ in Cu₃(CO₃)₂(OH)₂) — deep blue.
-    #   Source: Gaines et al. (1997). Absorbs red and green.
-    'azurite': (3.0 * 2.54, 2.0 * 2.54, 0.2 * 2.54),
-
-    # Peridot (Fe²⁺ in (Mg,Fe)₂SiO₄ olivine).
-    #   Source: Burns (1993) "Mineralogical Applications of Crystal Field Theory"
-    #   Table 4.5. Fe²⁺ absorbs red and blue; green transmitted.
-    'peridot': (1.5 * 2.54, 0.1 * 2.54, 1.2 * 2.54),
-
-    # Ti-sapphire (Ti³⁺ in Al₂O₃) — blue/pink.
-    #   Source: Moulton (1986) J. Opt. Soc. Am. B 3:125–133. d¹ single band.
-    'ti_sapphire': (0.2 * 2.54, 1.5 * 2.54, 0.1 * 2.54),
-
-    # Diamond Type IIa — nearly colorless.
-    #   Source: Berman (1965); Davies (1994) "Properties and Growth of Diamond".
-    #   < 0.002 cm⁻¹ in visible range for pure IIa.
-    'diamond': (0.001 * 2.54, 0.001 * 2.54, 0.002 * 2.54),
-}
+# Per-inch Beer-Lambert alpha: crystal_field.MINERAL_ALPHA_PER_CM (measured, cm-1, with its sources) x 2.54
+from sigma_ground.field.interface.crystal_field import MINERAL_ALPHA_PER_CM as _ALPHA_PER_CM
+_MINERAL_ALPHA_RGB = {k: tuple(a * 2.54 for a in v) for k, v in _ALPHA_PER_CM.items()}
 
 
 # ── Metal materials from Drude + Fresnel ──────────────────────────────────
