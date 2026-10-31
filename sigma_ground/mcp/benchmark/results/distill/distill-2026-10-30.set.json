@@ -2,49 +2,18 @@
  "suite": "distill-2026-10-30",
  "generator": {
   "date": "2026-10-30",
-  "seed": 3385032511,
-  "rota": {
-   "math": 20,
-   "physics": 12,
-   "chemistry": 5,
-   "astronomy": 3
-  },
-  "known_before": 537,
-  "wild": [
-   {
-    "model": "chat",
-    "url": "http://127.0.0.1:17434",
-    "prompt_sha256": "184cc1d8ff132321",
-    "seed": 3385032511,
-    "domain": "chemistry",
-    "kept": 3
-   },
-   {
-    "model": "chat",
-    "url": "http://127.0.0.1:17434",
-    "prompt_sha256": "184cc1d8ff132321",
-    "seed": 3385032511,
-    "domain": "astronomy",
-    "kept": 2
-   }
-  ],
+  "note": "rebuilt 2026-10-30 from the trickle's export: the day was made twice (the first run queued this set; a second run the same evening re-made a different set under the same ids, which the trickle ignored, and overwrote this file). distill_day.py now refuses to re-make a day it has already written.",
   "made": {
    "math": 20,
    "physics": 12,
    "chemistry": 5,
    "astronomy": 3
-  },
-  "oracles": {
-   "agrees": 20,
-   "unchecked": 0,
-   "tool": 15,
-   "none": 5
   }
  },
  "items": [
   {
-   "question": "solve y'' + y = 0 for y(t)",
-   "question_long": "Give me every function y(t) with y'' + y = 0.",
+   "id": "distill-2026-10-30-000",
+   "question": "solve y'' + y = 0",
    "domain": "math",
    "kind": "spec",
    "expected": {
@@ -61,276 +30,29 @@
      "var": "t"
     },
     "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-000"
+   }
   },
   {
-   "question": "sum of i for i from 1 to 10",
-   "question_long": "What does Σ_(i=1)^10 i come to",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "summation",
-    "args": {
-     "expression": "i",
-     "variable": "i",
-     "lower": "1",
-     "upper": "10"
-    },
-    "result": "55",
-    "spec": {
-     "kind": "sum",
-     "expr": "i",
-     "var": "i",
-     "lo": "1",
-     "hi": "10"
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-001"
-  },
-  {
-   "question": "inverse of [[-3, -3], [1, -4]]",
-   "question_long": "What is A^-1 for A = [[-3, -3], [1, -4]]?",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "matrix_inverse",
-    "args": {
-     "matrix": "[[-3, -3], [1, -4]]"
-    },
-    "result": "[[-4/15, 1/5], [-1/15, -1/5]]",
-    "spec": {
-     "kind": "inv",
-     "M": [
-      [
-       -3,
-       -3
-      ],
-      [
-       1,
-       -4
-      ]
-     ]
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-002"
-  },
-  {
-   "question": "[[1, 5], [-4, -1]] * [[1, -1], [-3, -4]]",
-   "question_long": "What do you get when you multiply [[1, 5], [-4, -1]] on the right by [1 -1; -3 -4]",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "matrix_multiply",
-    "args": {
-     "matrix_a": "[[1, 5], [-4, -1]]",
-     "matrix_b": "[[1, -1], [-3, -4]]"
-    },
-    "result": "[[-14, -21], [-1, 8]]",
-    "spec": {
-     "kind": "mul",
-     "A": [
-      [
-       1,
-       5
-      ],
-      [
-       -4,
-       -1
-      ]
-     ],
-     "B": [
-      [
-       1,
-       -1
-      ],
-      [
-       -3,
-       -4
-      ]
-     ]
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-003"
-  },
-  {
-   "question": "solve [[5, -2, -3], [4, -2, 4], [0, 1, 2]] x = [-8, -1, 8]",
-   "question_long": "Given A = the matrix with rows (5, -2, -3) and (4, -2, 4) and (0, 1, 2) and b = (-8, -1, 8), what x solves A x = b?",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "solve_linear_system",
-    "args": {
-     "matrix_a": "[[5, -2, -3], [4, -2, 4], [0, 1, 2]]",
-     "vector_b": "[-8, -1, 8]"
-    },
-    "result": [
-     "49/36",
-     "101/18",
-     "43/36"
-    ],
-    "spec": {
-     "kind": "lin",
-     "A": [
-      [
-       5,
-       -2,
-       -3
-      ],
-      [
-       4,
-       -2,
-       4
-      ],
-      [
-       0,
-       1,
-       2
-      ]
-     ],
-     "b": [
-      -8,
-      -1,
-      8
-     ]
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-004"
-  },
-  {
-   "question": "gradient of x^2 + y^2 + z^2",
-   "question_long": "give ∇f for f = x**2 + y**2 + z**2.",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "gradient",
-    "args": {
-     "scalar_field": "x**2 + y**2 + z**2"
-    },
-    "result": [
-     "2*x",
-     "2*y",
-     "2*z"
-    ],
-    "spec": {
-     "kind": "grad",
-     "expr": "x**2 + y**2 + z**2",
-     "vars": "x,y,z"
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-005"
-  },
-  {
-   "question": "divergence of (w + u, w*u, u^2)",
-   "question_long": "How much does the field (w + u, w*u, u**2) spread out at a point? Give the divergence in the variables u, v, w?",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "divergence",
-    "args": {
-     "vector_field": "w + u, w*u, u**2",
-     "variables": "u,v,w"
-    },
-    "result": "1",
-    "spec": {
-     "kind": "div",
-     "comps": [
-      "w + u",
-      "w*u",
-      "u**2"
-     ],
-     "names": [
-      "u",
-      "v",
-      "w"
-     ]
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-006"
-  },
-  {
-   "question": "eigenvalues of [[9, 4], [0, 5]]",
-   "question_long": "Which numbers λ satisfy det(A - λI) = 0 for A = [[9, 4], [0, 5]]",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "matrix_eigenvalues",
-    "args": {
-     "matrix": "[[9, 4], [0, 5]]"
-    },
-    "result": [
-     "5",
-     "9"
-    ],
-    "spec": {
-     "kind": "eig",
-     "M": [
-      [
-       9,
-       4
-      ],
-      [
-       0,
-       5
-      ]
-     ]
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-007"
-  },
-  {
-   "question": "series expansion of atan(x) at x = 0 to order 6",
-   "question_long": "Approximate atan(x) near x = 0 with a polynomial of order 6.",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "series_expansion",
-    "args": {
-     "expression": "atan(x)",
-     "variable": "x",
-     "point": "0",
-     "order": 6
-    },
-    "result": "x**5/5 - x**3/3 + x",
-    "spec": {
-     "kind": "series",
-     "expr": "atan(x)",
-     "var": "x",
-     "point": "0",
-     "order": 6
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-008"
-  },
-  {
-   "question": "curl of (y^2, x*y^2, y^2)",
-   "question_long": "How much does the field (y^2, x*y^2, y^2) rotate? Give the curl.",
+   "id": "distill-2026-10-30-001",
+   "question": "curl of (y^2, 5*x, 2*z)",
    "domain": "math",
    "kind": "spec",
    "expected": {
     "tool": "curl",
     "args": {
-     "vector_field": "y**2, x*y**2, y**2"
+     "vector_field": "y**2, 5*x, 2*z"
     },
     "result": [
-     "2*y",
      "0",
-     "y*(y - 2)"
+     "0",
+     "5 - 2*y"
     ],
     "spec": {
      "kind": "curl",
      "comps": [
       "y**2",
-      "x*y**2",
-      "y**2"
+      "5*x",
+      "2*z"
      ],
      "names": [
       "x",
@@ -339,582 +61,603 @@
      ]
     },
     "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-009"
+   }
   },
   {
-   "question": "determinant of [[-2, -5], [-3, 6]]",
-   "question_long": "What is |A| for A = [[-2, -5], [-3, 6]]?",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "matrix_determinant",
-    "args": {
-     "matrix": "[[-2, -5], [-3, 6]]"
-    },
-    "result": "-27",
-    "spec": {
-     "kind": "det",
-     "M": [
-      [
-       -2,
-       -5
-      ],
-      [
-       -3,
-       6
-      ]
-     ]
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-010"
-  },
-  {
-   "question": "integrate sin(3*x) from pi to 2*pi",
-   "question_long": "Over the interval [π, 2 pi], what is the integral of sin(3*x)?",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "integrate_expr",
-    "args": {
-     "expression": "sin(3*x)",
-     "variable": "x",
-     "lower": "pi",
-     "upper": "2*pi"
-    },
-    "result": "-2/3",
-    "spec": {
-     "kind": "int_def",
-     "expr": "sin(3*x)",
-     "var": "x",
-     "lo": "pi",
-     "hi": "2*pi"
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-011"
-  },
-  {
-   "question": "divergence of (0, 0, 4*x*y)",
-   "question_long": "How much does the field (0, 0, 4*x*y) spread out at a point? Give the divergence.",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "divergence",
-    "args": {
-     "vector_field": "0, 0, 4*x*y"
-    },
-    "result": "0",
-    "spec": {
-     "kind": "div",
-     "comps": [
-      "0",
-      "0",
-      "4*x*y"
-     ],
-     "names": [
-      "x",
-      "y",
-      "z"
-     ]
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-012"
-  },
-  {
-   "question": "solve x^2 - 2*x + 10 = 0 for x",
-   "question_long": "Find every x that satisfies x squared minus 2 x plus 10 = 0",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "solve_equation",
-    "args": {
-     "equation": "x**2 - 2*x + 10",
-     "variable": "x"
-    },
-    "result": [
-     "1 - 3*I",
-     "1 + 3*I"
-    ],
-    "spec": {
-     "kind": "solve",
-     "eq": "x**2 - 2*x + 10",
-     "var": "x"
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-013"
-  },
-  {
-   "question": "derivative of log(y)/y with respect to y",
-   "question_long": "How does natural log of y over y change with y? Give the derivative",
-   "domain": "math",
-   "kind": "spec",
-   "expected": {
-    "tool": "differentiate_expr",
-    "args": {
-     "expression": "log(y)/y",
-     "variable": "y"
-    },
-    "result": "-log(y)/y**2 + y**(-2)",
-    "spec": {
-     "kind": "diff",
-     "expr": "log(y)/y",
-     "var": "y",
-     "order": 1
-    },
-    "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-014"
-  },
-  {
-   "question": "[[3, 5, -1], [1, 2, 5], [4, 5, -3]] * [[1, -4, -2], [4, -2, 3], [-3, 4, 4]]",
-   "question_long": "What do you get when you multiply [3 5 -1; 1 2 5; 4 5 -3] on the right by [[1, -4, -2], [4, -2, 3], [-3, 4, 4]]?",
+   "id": "distill-2026-10-30-002",
+   "question": "[[2, 3], [-4, -1]] * [[4, 4], [-2, -3]]",
    "domain": "math",
    "kind": "spec",
    "expected": {
     "tool": "matrix_multiply",
     "args": {
-     "matrix_a": "[[3, 5, -1], [1, 2, 5], [4, 5, -3]]",
-     "matrix_b": "[[1, -4, -2], [4, -2, 3], [-3, 4, 4]]"
+     "matrix_a": "[[2, 3], [-4, -1]]",
+     "matrix_b": "[[4, 4], [-2, -3]]"
     },
-    "result": "[[26, -26, 5], [-6, 12, 24], [33, -38, -5]]",
+    "result": "[[2, -1], [-14, -13]]",
     "spec": {
      "kind": "mul",
      "A": [
       [
-       3,
-       5,
-       -1
-      ],
-      [
-       1,
        2,
-       5
+       3
       ],
       [
-       4,
-       5,
-       -3
+       -4,
+       -1
       ]
      ],
      "B": [
       [
-       1,
-       -4,
-       -2
-      ],
-      [
-       4,
-       -2,
-       3
-      ],
-      [
-       -3,
        4,
        4
+      ],
+      [
+       -2,
+       -3
       ]
      ]
     },
     "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-015"
+   }
   },
   {
-   "question": "Laplace transform of 1",
-   "question_long": "What does 1 become under the Laplace transform?",
+   "id": "distill-2026-10-30-003",
+   "question": "factor x^2 - 16",
    "domain": "math",
    "kind": "spec",
    "expected": {
-    "tool": "laplace_transform",
+    "tool": "factor_expression",
     "args": {
-     "expression": "1"
+     "expression": "x**2 - 16"
     },
-    "result": "1/s",
+    "result": "(x - 4)*(x + 4)",
     "spec": {
-     "kind": "laplace",
-     "expr": "1",
-     "var": "t",
-     "svar": "s"
+     "kind": "factor",
+     "expr": "x**2 - 16",
+     "var": "x"
     },
     "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-016"
+   }
   },
   {
-   "question": "solve [[0, 3], [6, 4]] x = [-1, 8]",
-   "question_long": "Given A = [0 3; 6 4] and b = (-1, 8), what x solves A x = b?",
+   "id": "distill-2026-10-30-004",
+   "question": "solve [[0, 3, -1], [4, -3, 5], [-4, 4, 3]] x = [-2, -1, -8]",
    "domain": "math",
    "kind": "spec",
    "expected": {
     "tool": "solve_linear_system",
     "args": {
-     "matrix_a": "[[0, 3], [6, 4]]",
-     "vector_b": "[-1, 8]"
+     "matrix_a": "[[0, 3, -1], [4, -3, 5], [-4, 4, 3]]",
+     "vector_b": "[-2, -1, -8]"
     },
     "result": [
-     "14/9",
-     "-1/3"
+     "1/4",
+     "-1",
+     "-1"
     ],
     "spec": {
      "kind": "lin",
      "A": [
       [
        0,
-       3
+       3,
+       -1
       ],
       [
-       6,
-       4
+       4,
+       -3,
+       5
+      ],
+      [
+       -4,
+       4,
+       3
       ]
      ],
      "b": [
+      -2,
       -1,
-      8
+      -8
      ]
     },
     "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-017"
+   }
   },
   {
-   "question": "expand (x + 1)^2",
-   "question_long": "Multiply out the brackets in (x + 1)^2.",
+   "id": "distill-2026-10-30-005",
+   "question": "series expansion of exp(x) at x = 0 to order 5",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "exp(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 5
+    },
+    "result": "x**4/24 + x**3/6 + x**2/2 + x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "exp(x)",
+     "var": "x",
+     "point": "0",
+     "order": 5
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-006",
+   "question": "inverse of [[3, 3], [2, 1]]",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[3, 3], [2, 1]]"
+    },
+    "result": "[[-1/3, 1], [2/3, -1]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       3,
+       3
+      ],
+      [
+       2,
+       1
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-007",
+   "question": "expand (y - 5)^4",
    "domain": "math",
    "kind": "spec",
    "expected": {
     "tool": "expand_expression",
     "args": {
-     "expression": "(x + 1)**2"
+     "expression": "(y - 5)**4"
     },
-    "result": "x**2 + 2*x + 1",
+    "result": "y**4 - 20*y**3 + 150*y**2 - 500*y + 625",
     "spec": {
      "kind": "expand",
-     "expr": "(x + 1)**2",
-     "var": "x"
+     "expr": "(y - 5)**4",
+     "var": "y"
     },
     "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-018"
+   }
   },
   {
-   "question": "solve y'' + 3*y = 0",
-   "question_long": "Give me every function y(x) with y'' + 3*y = 0",
+   "id": "distill-2026-10-30-008",
+   "question": "derivative of exp(-x^2)",
    "domain": "math",
    "kind": "spec",
    "expected": {
-    "tool": "solve_ode",
+    "tool": "differentiate_expr",
     "args": {
-     "equation": "y'' + 3*y"
+     "expression": "exp(-x**2)",
+     "variable": "x"
     },
-    "result": "Eq(y(x), C1*sin(sqrt(3)*x) + C2*cos(sqrt(3)*x))",
+    "result": "-2*x*exp(-x**2)",
     "spec": {
-     "kind": "ode",
-     "eq": "y'' + 3*y",
-     "fn": "y",
+     "kind": "diff",
+     "expr": "exp(-x**2)",
+     "var": "x",
+     "order": 1
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-009",
+   "question": "expand (x + 2)*(x^2 - x + 1)",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 2)*(x**2 - x + 1)"
+    },
+    "result": "x**3 + x**2 - x + 2",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 2)*(x**2 - x + 1)",
      "var": "x"
     },
     "oracle": "agrees"
-   },
-   "id": "distill-2026-10-30-019"
+   }
   },
   {
-   "question": "Momentum on impact of a 75.9 kg ball dropped from 388 m?",
-   "domain": "physics",
+   "id": "distill-2026-10-30-010",
+   "question": "simplify (x^3 - x)/(x*(x + 1))",
+   "domain": "math",
    "kind": "spec",
    "expected": {
-    "tool": "momentum",
+    "tool": "simplify_expr",
     "args": {
-     "mass_kg": 75.9,
-     "velocity_m_s": 87.23508697766054
+     "expression": "(x**3 - x)/(x*(x + 1))"
     },
-    "result": 6621.143101604436,
-    "units": "kg m/s",
-    "plan": [
-     {
-      "tool": "free_fall_velocity",
-      "args": {
-       "height_m": 388.0
-      }
-     },
-     {
-      "tool": "momentum",
-      "args": {
-       "mass_kg": 75.9,
-       "velocity_m_s": "$1"
-      }
-     }
-    ],
-    "recipe": "drop_impact_momentum",
-    "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-020"
+    "result": "x - 1",
+    "spec": {
+     "kind": "simplify",
+     "expr": "(x**3 - x)/(x*(x + 1))",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   }
   },
   {
-   "question": "Express the mass-energy of 3.98e-26 kg in eV.",
-   "domain": "physics",
+   "id": "distill-2026-10-30-011",
+   "question": "factor x^2 - 8*x + 16",
+   "domain": "math",
    "kind": "spec",
    "expected": {
-    "tool": "joules_to_eV",
+    "tool": "factor_expression",
     "args": {
-     "energy_joules": 3.5770456113725344e-09
+     "expression": "x**2 - 8*x + 16"
     },
-    "result": 22326162643.14172,
-    "units": "eV",
-    "plan": [
-     {
-      "tool": "mass_to_energy",
-      "args": {
-       "mass_kg": 3.98e-26
-      }
-     },
-     {
-      "tool": "joules_to_eV",
-      "args": {
-       "energy_joules": "$1"
-      }
-     }
-    ],
-    "recipe": "mass_to_ev",
-    "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-021"
+    "result": "(x - 4)**2",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 8*x + 16",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   }
   },
   {
-   "question": "Mean thermal energy per molecule at 105 K, expressed in eV?",
-   "domain": "physics",
+   "id": "distill-2026-10-30-012",
+   "question": "expand (x - 2)^3",
+   "domain": "math",
    "kind": "spec",
    "expected": {
-    "tool": "joules_to_eV",
+    "tool": "expand_expression",
     "args": {
-     "energy_joules": 2.1745221750000003e-21
+     "expression": "(x - 2)**3"
     },
-    "result": 0.013572299887878657,
-    "units": "eV",
-    "plan": [
-     {
-      "tool": "thermal_energy_per_molecule",
-      "args": {
-       "temperature_k": 105.0
-      }
-     },
-     {
-      "tool": "joules_to_eV",
-      "args": {
-       "energy_joules": "$1"
-      }
-     }
-    ],
-    "recipe": "thermal_energy_ev",
-    "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-022"
+    "result": "x**3 - 6*x**2 + 12*x - 8",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x - 2)**3",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   }
   },
   {
-   "question": "The full mass-energy of 1.42 kg, in tons of TNT?",
-   "domain": "physics",
+   "id": "distill-2026-10-30-013",
+   "question": "gradient of x^2*y + z",
+   "domain": "math",
    "kind": "spec",
    "expected": {
-    "tool": "joules_to_TNT",
+    "tool": "gradient",
     "args": {
-     "energy_joules": 1.276232353806281e+17
+     "scalar_field": "x**2*y + z"
     },
-    "result": 30502685.320417807,
-    "units": "ton_TNT",
-    "plan": [
-     {
-      "tool": "mass_to_energy",
-      "args": {
-       "mass_kg": 1.42
-      }
-     },
-     {
-      "tool": "joules_to_TNT",
-      "args": {
-       "energy_joules": "$1"
-      }
-     }
+    "result": [
+     "2*x*y",
+     "x**2",
+     "1"
     ],
-    "recipe": "mass_to_tnt",
-    "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-023"
+    "spec": {
+     "kind": "grad",
+     "expr": "x**2*y + z",
+     "vars": "x,y,z"
+    },
+    "oracle": "agrees"
+   }
   },
   {
-   "question": "How many joules of electricity does a plant make from 8.56 g of uranium-235 if its efficiency is 90.1 percent?",
+   "id": "distill-2026-10-30-014",
+   "question": "factor x^2 - 8*x + 15",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 8*x + 15"
+    },
+    "result": "(x - 5)*(x - 3)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 8*x + 15",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-015",
+   "question": "simplify cos(x)^2 - sin(x)^2",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "cos(x)**2 - sin(x)**2"
+    },
+    "result": "cos(2*x)",
+    "spec": {
+     "kind": "simplify",
+     "expr": "cos(x)**2 - sin(x)**2",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-016",
+   "question": "factor x^2 - 1",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 1"
+    },
+    "result": "(x - 1)*(x + 1)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 1",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-017",
+   "question": "determinant of [[-2, 6, 6], [-4, 3, 0], [2, 1, 5]]",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[-2, 6, 6], [-4, 3, 0], [2, 1, 5]]"
+    },
+    "result": "30",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       -2,
+       6,
+       6
+      ],
+      [
+       -4,
+       3,
+       0
+      ],
+      [
+       2,
+       1,
+       5
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-018",
+   "question": "simplify 1*x + 5*x - x",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "1*x + 5*x - x"
+    },
+    "result": "5*x",
+    "spec": {
+     "kind": "simplify",
+     "expr": "1*x + 5*x - x",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-019",
+   "question": "sum of 1/factorial(n) for n from 0 to infinity",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/factorial(n)",
+     "variable": "n",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "E",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/factorial(n)",
+     "var": "n",
+     "lo": "0",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-020",
+   "question": "What is 90.7 percent of the kinetic energy of a 6.6 tonnes object moving at 575 m/s?",
    "domain": "physics",
    "kind": "spec",
    "expected": {
     "tool": "percent_of",
     "args": {
-     "percent": 90.1,
-     "value": 702774624634.4054
+     "percent": 90.7,
+     "value": 1091062500.0
     },
-    "result": 633199936795.5992,
+    "result": 989593687.5,
     "units": "",
     "plan": [
      {
-      "tool": "fission_energy_release",
+      "tool": "kinetic_energy",
       "args": {
-       "mass_kg": 0.00856,
-       "isotope": "U235"
+       "mass_kg": 6600.0,
+       "velocity_m_s": 575.0
       }
      },
      {
       "tool": "percent_of",
       "args": {
-       "percent": 90.1,
+       "percent": 90.7,
        "value": "$1"
       }
      }
     ],
-    "recipe": "fission_electricity",
+    "recipe": "kinetic_energy_percent",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-024"
+   }
   },
   {
-   "question": "What is 80.8 percent of the rest energy of 0.726 g of matter?",
+   "id": "distill-2026-10-30-021",
+   "question": "What is 61.4 percent of 16.5 tonnes?",
    "domain": "physics",
    "kind": "spec",
    "expected": {
     "tool": "percent_of",
     "args": {
-     "percent": 80.8,
-     "value": 65249625976292.96
+     "percent": 61.4,
+     "value": 16500.0
     },
-    "result": 52721697788844.71,
+    "result": 10131.0,
     "units": "",
     "plan": [
      {
-      "tool": "mass_to_energy",
-      "args": {
-       "mass_kg": 0.000726
-      }
-     },
-     {
       "tool": "percent_of",
       "args": {
-       "percent": 80.8,
-       "value": "$1"
+       "percent": 61.4,
+       "value": 16500.0
       }
      }
     ],
-    "recipe": "mass_energy_percent",
+    "recipe": "percent_of_mass",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-025"
+   }
   },
   {
-   "question": "Convert 0.602 eV to joules.",
+   "id": "distill-2026-10-30-022",
+   "question": "Convert 918 km/h to metres per second.",
    "domain": "physics",
    "kind": "spec",
    "expected": {
     "tool": "convert_units",
     "args": {
-     "value": 0.602,
-     "from_units": "eV",
-     "to_units": "J"
+     "value": 918.0,
+     "from_units": "km/h",
+     "to_units": "m/s"
     },
-    "result": 9.645103336679999e-20,
-    "units": "joule",
+    "result": 255.0,
+    "units": "meter / second",
     "plan": [
      {
       "tool": "convert_units",
       "args": {
-       "value": 0.602,
-       "from_units": "eV",
-       "to_units": "J"
+       "value": 918.0,
+       "from_units": "km/h",
+       "to_units": "m/s"
       }
      }
     ],
-    "recipe": "convert_ev_j",
+    "recipe": "convert_kmh_ms",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-026"
+   }
   },
   {
-   "question": "Momentum of a 58.7 kg moon going round a 0.836 solar masses planet at 411 million km from the centre?",
+   "id": "distill-2026-10-30-023",
+   "question": "Escape energy for a 1.36 tonnes lander on a 1.64e25 kg planet whose radius is 1.69e8 m?",
    "domain": "physics",
    "kind": "spec",
    "expected": {
-    "tool": "momentum",
+    "tool": "kinetic_energy",
     "args": {
-     "mass_kg": 58.7,
-     "velocity_m_s": 16430.01821038494
+     "mass_kg": 1360.0,
+     "velocity_m_s": 3599.1208657000057
     },
-    "result": 964442.068949596,
-    "units": "kg m/s",
+    "result": 8808496284.023668,
+    "units": "J",
     "plan": [
      {
-      "tool": "circular_orbit_velocity",
+      "tool": "escape_velocity",
       "args": {
-       "central_mass_kg": 1.6623106519e+30,
-       "radius_m": 411000000000.0
+       "mass_kg": 1.64e+25,
+       "radius_m": 169000000.0
       }
      },
      {
-      "tool": "momentum",
+      "tool": "kinetic_energy",
       "args": {
-       "mass_kg": 58.7,
+       "mass_kg": 1360.0,
        "velocity_m_s": "$1"
       }
      }
     ],
-    "recipe": "orbit_momentum",
+    "recipe": "escape_energy",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-027"
+   }
   },
   {
-   "question": "A bomb fissions 0.339 kg of uranium-235. Give its yield as tons of TNT.",
+   "id": "distill-2026-10-30-024",
+   "question": "What is 81.4 percent of the kinetic energy of a 5.54 tonnes object moving at 11.6 km/s?",
    "domain": "physics",
    "kind": "spec",
    "expected": {
-    "tool": "joules_to_TNT",
+    "tool": "percent_of",
     "args": {
-     "energy_joules": 27831845531666.293
+     "percent": 81.4,
+     "value": 372731200000.0
     },
-    "result": 6651.970729365748,
-    "units": "ton_TNT",
+    "result": 303403196800.0,
+    "units": "",
     "plan": [
      {
-      "tool": "fission_energy_release",
+      "tool": "kinetic_energy",
       "args": {
-       "mass_kg": 0.339,
-       "isotope": "U235"
+       "mass_kg": 5540.0,
+       "velocity_m_s": 11600.0
       }
      },
      {
-      "tool": "joules_to_TNT",
+      "tool": "percent_of",
       "args": {
-       "energy_joules": "$1"
+       "percent": 81.4,
+       "value": "$1"
       }
      }
     ],
-    "recipe": "fission_tnt",
+    "recipe": "kinetic_energy_percent",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-028"
+   }
   },
   {
-   "question": "Photon energy at the Wien peak for 2.69e3 K?",
+   "id": "distill-2026-10-30-025",
+   "question": "Photon energy at the Wien peak for 3.5e3 K?",
    "domain": "physics",
    "kind": "spec",
    "expected": {
     "tool": "photon_energy_from_wavelength",
     "args": {
-     "wavelength_m": 1.0772386449814126e-06
+     "wavelength_m": 8.279348442857143e-07
     },
-    "result": 1.844016518703774e-19,
+    "result": 2.3992779983134604e-19,
     "units": "J",
     "plan": [
      {
       "tool": "blackbody_peak_wavelength",
       "args": {
-       "temperature_k": 2690.0
+       "temperature_k": 3500.0
       }
      },
      {
@@ -926,106 +669,202 @@
     ],
     "recipe": "blackbody_peak_photon",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-029"
+   }
   },
   {
-   "question": "What mass disappears in a 0.768-kiloton nuclear explosion?",
+   "id": "distill-2026-10-30-026",
+   "question": "Mean thermal energy per molecule at 58.9 K, expressed in eV?",
    "domain": "physics",
    "kind": "spec",
    "expected": {
-    "tool": "energy_to_mass",
+    "tool": "joules_to_eV",
     "args": {
-     "energy_j": 3213312000000.0
+     "energy_joules": 1.2198033915000001e-21
     },
-    "result": 3.575291776917765e-05,
-    "units": "kg",
-    "plan": [
-     {
-      "tool": "tnt_to_joules",
-      "args": {
-       "tnt_amount": 0.768,
-       "unit": "kt"
-      }
-     },
-     {
-      "tool": "energy_to_mass",
-      "args": {
-       "energy_j": "$1"
-      }
-     }
-    ],
-    "recipe": "tnt_to_mass",
-    "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-030"
-  },
-  {
-   "question": "A 106 Ω load carries 2.7 A; how many watts does it consume?",
-   "domain": "physics",
-   "kind": "spec",
-   "expected": {
-    "tool": "electrical_power",
-    "args": {
-     "voltage_v": 286.20000000000005,
-     "current_a": 2.7
-    },
-    "result": 772.7400000000001,
-    "units": "W",
-    "plan": [
-     {
-      "tool": "ohms_law_voltage",
-      "args": {
-       "current_a": 2.7,
-       "resistance_ohm": 106.0
-      }
-     },
-     {
-      "tool": "electrical_power",
-      "args": {
-       "voltage_v": "$1",
-       "current_a": 2.7
-      }
-     }
-    ],
-    "recipe": "ohm_voltage_power",
-    "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-031"
-  },
-  {
-   "question": "What is the energy of the n = 7 level of hydrogen?",
-   "domain": "chemistry",
-   "kind": "spec",
-   "expected": {
-    "tool": "hydrogen_like_energy_level",
-    "args": {
-     "n": 7
-    },
-    "result": -0.2776672065917143,
+    "result": 0.007613413937105265,
     "units": "eV",
     "plan": [
      {
-      "tool": "hydrogen_like_energy_level",
+      "tool": "thermal_energy_per_molecule",
       "args": {
-       "n": 7
+       "temperature_k": 58.9
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
       }
      }
     ],
-    "recipe": "level_hydrogen",
+    "recipe": "thermal_energy_ev",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-032"
+   }
   },
   {
-   "question": "singly ionized helium: how much energy is the n = 3 level?",
+   "id": "distill-2026-10-30-027",
+   "question": "What is 18.9 percent of the rest energy of 5.29 g of matter?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 18.9,
+     "value": 475441489551776.56
+    },
+    "result": 89858441525285.75,
+    "units": "",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 0.00529
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 18.9,
+       "value": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_energy_percent",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-028",
+   "question": "Thermal de Broglie wavelength for molecules of 5.75e-28 kg at 1.58e3 K?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "de_broglie_wavelength",
+    "args": {
+     "mass_kg": 5.75e-28,
+     "velocity_m_s": 8710.66396910182
+    },
+    "result": 1.3229301801429796e-10,
+    "units": "m",
+    "plan": [
+     {
+      "tool": "maxwell_boltzmann_most_probable_speed",
+      "args": {
+       "temperature_k": 1580.0,
+       "molecular_mass_kg": 5.75e-28
+      }
+     },
+     {
+      "tool": "de_broglie_wavelength",
+      "args": {
+       "mass_kg": 5.75e-28,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "thermal_de_broglie",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-029",
+   "question": "Mean thermal energy per molecule at 123 K, expressed in eV?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 2.5472974050000003e-21
+    },
+    "result": 0.015898979868657855,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "thermal_energy_per_molecule",
+      "args": {
+       "temperature_k": 123.0
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "thermal_energy_ev",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-030",
+   "question": "Convert 2.03 mph to metres per second.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 2.03,
+     "from_units": "mph",
+     "to_units": "m/s"
+    },
+    "result": 0.9074911999999999,
+    "units": "meter / second",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 2.03,
+       "from_units": "mph",
+       "to_units": "m/s"
+      }
+     }
+    ],
+    "recipe": "convert_mph_ms",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-031",
+   "question": "Photon energy for the hydrogen transition 6 → 3?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "photon_energy_from_wavelength",
+    "args": {
+     "wavelength_m": 1.093520460698865e-06
+    },
+    "result": 1.8165602998066125e-19,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "rydberg_hydrogen_wavelength",
+      "args": {
+       "n_initial": 6,
+       "n_final": 3
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "recipe": "hydrogen_photon_energy",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-032",
+   "question": "triply ionized beryllium: how much energy is the n = 6 level?",
    "domain": "chemistry",
    "kind": "spec",
    "expected": {
     "tool": "hydrogen_like_energy_level",
     "args": {
-     "n": 3,
-     "atomic_number": 2
+     "n": 6,
+     "atomic_number": 4
     },
     "result": -6.046974721330667,
     "units": "eV",
@@ -1033,78 +872,102 @@
      {
       "tool": "hydrogen_like_energy_level",
       "args": {
-       "n": 3,
-       "atomic_number": 2
+       "n": 6,
+       "atomic_number": 4
       }
      }
     ],
     "recipe": "level_hydrogen_like",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-033"
+   }
   },
   {
-   "question": "molar mass of H2SO4",
+   "id": "distill-2026-10-30-033",
+   "question": "What is the first ionization energy of nitrogen?",
    "domain": "chemistry",
-   "kind": "wild",
-   "expected": {
-    "tool": null,
-    "args": null,
-    "result": null,
-    "oracle": "none"
-   },
-   "id": "distill-2026-10-30-034"
-  },
-  {
-   "question": "density of gold at 20 C",
-   "domain": "chemistry",
-   "kind": "wild",
-   "expected": {
-    "tool": null,
-    "args": null,
-    "result": null,
-    "oracle": "none"
-   },
-   "id": "distill-2026-10-30-035"
-  },
-  {
-   "question": "speed of light in vacuum",
-   "domain": "chemistry",
-   "kind": "wild",
-   "expected": {
-    "tool": null,
-    "args": null,
-    "result": null,
-    "oracle": "none"
-   },
-   "id": "distill-2026-10-30-036"
-  },
-  {
-   "question": "What is the Hawking temperature of a black hole of 36.5 solar masses?",
-   "domain": "astronomy",
    "kind": "spec",
    "expected": {
-    "tool": "hawking_temperature",
+    "tool": "first_ionization_energy",
     "args": {
-     "mass_kg": 7.25769602805e+31
+     "element_symbol": "N"
     },
-    "result": 1.6904823033376827e-09,
-    "units": "K",
+    "result": 14.534,
+    "units": "eV",
     "plan": [
      {
-      "tool": "hawking_temperature",
+      "tool": "first_ionization_energy",
       "args": {
-       "mass_kg": 7.25769602805e+31
+       "element_symbol": "N"
       }
      }
     ],
-    "recipe": "solar_hawking_temperature",
+    "recipe": "ionization_energy",
     "oracle": "tool"
-   },
-   "id": "distill-2026-10-30-037"
+   }
   },
   {
-   "question": "surface gravity of Jupiter in m/s^2",
+   "id": "distill-2026-10-30-034",
+   "question": "molar mass of water in g/mol",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-035",
+   "question": "density of gold in kg/m³",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-036",
+   "question": "boiling point of mercury in degrees Celsius",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-037",
+   "question": "What is the evaporation time of a 42.3 solar masses black hole?",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "hawking_evaporation_time",
+    "args": {
+     "mass_kg": 8.41097375305e+31
+    },
+    "result": 5.0050813615463504e+79,
+    "units": "s",
+    "plan": [
+     {
+      "tool": "hawking_evaporation_time",
+      "args": {
+       "mass_kg": 8.41097375305e+31
+      }
+     }
+    ],
+    "recipe": "solar_hawking_evaporation_time",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-10-30-038",
+   "question": "mass of the Sun in kilograms",
    "domain": "astronomy",
    "kind": "wild",
    "expected": {
@@ -1112,11 +975,11 @@
     "args": null,
     "result": null,
     "oracle": "none"
-   },
-   "id": "distill-2026-10-30-038"
+   }
   },
   {
-   "question": "wavelength of Lyman-alpha line in nanometers",
+   "id": "distill-2026-10-30-039",
+   "question": "age of the Universe in years",
    "domain": "astronomy",
    "kind": "wild",
    "expected": {
@@ -1124,8 +987,7 @@
     "args": null,
     "result": null,
     "oracle": "none"
-   },
-   "id": "distill-2026-10-30-039"
+   }
   }
  ]
 }

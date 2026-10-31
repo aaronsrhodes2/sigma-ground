@@ -204,6 +204,15 @@ def classify_for_thermo(question: str) -> ThermoMatch | None:
                   r"\bWien", q, re.IGNORECASE):
         T = _extract_temperature_K(q)
         if T is not None:
+            if re.search(r"\benergy\b|\bjoules?\b|\beV\b|\belectron\s*volts?\b|\bfrequency\b|\bhertz\b|\bHz\b", q, re.IGNORECASE):
+                # "Photon energy at the Wien peak for 3500 K" asks for the photon's ENERGY (or frequency), not the wavelength: this cue
+                # answered 8.28e-7 m for it, a silently wrong answer caught by the distillation branch on its first day (2026-10-30).
+                return ThermoMatch(
+                    tool="peak_photon_energy",
+                    args={"temperature_k": T, "in_ev": bool(re.search(r"\beV\b|\belectron\s*volts?\b", q, re.IGNORECASE)),
+                          "frequency": bool(re.search(r"\bfrequency\b|\bhertz\b|\bHz\b", q, re.IGNORECASE))},
+                    rationale=f"lambda_max = b/T at T={T}K, then E = h c / lambda_max",
+                )
             return ThermoMatch(
                 tool="blackbody_peak_wavelength",
                 args={"temperature_k": T},
@@ -292,6 +301,22 @@ def execute_thermo_match(match: ThermoMatch) -> tuple[object, str, str]:
             r = t_thermo.ideal_gas_volume(**match.args)
         elif match.tool == "blackbody_peak_wavelength":
             r = t_thermo.blackbody_peak_wavelength(**match.args)
+        elif match.tool == "peak_photon_energy":
+            from sigma_ground.mcp.tools import atomic as t_atom
+            from sigma_ground.mcp.tools import energy_conversion as t_econv
+            lam = t_thermo.blackbody_peak_wavelength(temperature_k=match.args["temperature_k"])
+            if lam.value is None:
+                return None, "", ""
+            if match.args.get("frequency"):
+                r = t_atom.photon_energy_from_wavelength(lam.value)
+                if r.value is not None:
+                    from sigma_ground.field.constants import C
+                    from sigma_ground.mcp.provenance import ToolResult
+                    r = ToolResult(value=C / lam.value, units="Hz", source=f"{lam.source}; nu = c / lambda", formula="nu = c / (b / T)")
+            else:
+                r = t_atom.photon_energy_from_wavelength(lam.value)
+                if match.args.get("in_ev") and r.value is not None:
+                    r = t_econv.joules_to_eV(r.value)
         elif match.tool == "blackbody_total_power":
             r = t_thermo.blackbody_total_power(**match.args)
         elif match.tool == "carnot_efficiency":

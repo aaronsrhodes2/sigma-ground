@@ -302,9 +302,15 @@ def main(argv=None) -> int:
     if a.n:
         total = sum(rota.values())
         rota = {k: max(1, round(v * a.n / total)) for k, v in rota.items()}
-    day = asyncio.run(build_day(a.date, rota, None if a.no_trickle else a.url, None if a.no_wild else a.ollama_url, WILD_MODEL))
     a.out.mkdir(parents=True, exist_ok=True)
-    path = a.out / f"{day['suite']}.set.json"
+    existing = a.out / f"distill-{a.date}.set.json"
+    if existing.is_file():
+        # A day is made once. On 2026-10-30 a second run re-made a different set under the same ids: the trickle ignored the duplicate
+        # ids (one question per id, ever) while this file was overwritten, so the record no longer matched what was asked.
+        print(f"distill-{a.date} already made ({existing}); nothing to do. Use another --date for another set.")
+        return 0
+    day = asyncio.run(build_day(a.date, rota, None if a.no_trickle else a.url, None if a.no_wild else a.ollama_url, WILD_MODEL))
+    path = existing
     path.write_text(json.dumps(day, indent=1, ensure_ascii=False, default=str), encoding="utf-8", newline="\n")
     g = day["generator"]
     print(f"{day['suite']}: {len(day['items'])} questions {g['made']}; oracles {g['oracles']}; known before: {g['known_before']} -> {path}")
