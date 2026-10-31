@@ -183,3 +183,31 @@ def test_a_broken_desk_is_rebuilt():
     assert theater.repair_desks(w) == []                       # all there: nothing touched
     w.ok.discard(theater.desk_checks("melt")[3])               # he breaks the melt desk's Run button
     assert theater.repair_desks(w) == ["melt"] and w.rebuilt == 3
+
+
+def test_hot_cells_are_drawn_glowing_and_cool_ones_plain(looks):
+    import export_mc
+    glows = theater.shared_glows()
+    _, world = theater.build("melt")
+    mc = FakeMinecraft()
+    th = theater.Theater(world, looks, (60, -60, 20), mc.send, glows=glows)
+    th.open()
+    w, lead = world.materials.index("tungsten"), world.materials.index("lead")
+    plate = tuple(np.argwhere(world.label == w)[0])
+    rod = tuple(np.argwhere(world.label == lead)[-1])                   # the top of the lead: still room temperature
+    band = int(np.searchsorted(export_mc.GLOW_BANDS_K, world.T[plate], side="right") - 1)
+    assert band == 4                                                    # the 1500 K plate
+    assert mc.blocks[th.mc(*plate)] == export_mc.GLOW_CARRIERS[glows[("tungsten", world.pitch, band)][0]][0]
+    assert mc.blocks[th.mc(*rod)] == looks[("lead", world.pitch)]
+    for _ in range(5):
+        world.step(0.05)
+        th.draw()
+    shown = th.display()
+    assert {th.mc(i, j, k): th.block[shown[i, j, k]] for i, j, k in np.argwhere(world.label > 0)} == mc.shown()
+
+
+def test_glow_carriers_emit_light_and_are_never_material_carriers():
+    import export_mc
+    states = [c[0] for c in export_mc.GLOW_CARRIERS]
+    assert not set(states) & set(export_mc.CARRIERS_OPAQUE + export_mc.CARRIERS_CLEAR)
+    assert theater.DESK_LOOK["fill"].split(":")[1] not in states

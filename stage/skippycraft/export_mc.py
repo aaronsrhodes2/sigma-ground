@@ -89,6 +89,71 @@ def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
     (root / "skippycraft_looks.json").write_text(json.dumps(legend, indent=2, default=str), encoding="utf-8")
     return legend
 
+# ── glow: a block hot enough to shine (field.interface.block.glow) ───────────────────────────────────────────────────────
+# A resource pack can repaint a block but not make it give off light, so a glowing cell is drawn with a block that already
+# does, repainted in its glow colour. Light-emitting blocks that never change by themselves (random ticks are off; copper
+# bulbs keep lit=true without redstone), dimmest first: (block state, light level, the textures that paint it).
+GLOW_CARRIERS = [
+    ("magma_block", 3, ["magma"]),
+    ("waxed_oxidized_copper_bulb[lit=true]", 4, ["oxidized_copper_bulb_lit"]),
+    ("waxed_weathered_copper_bulb[lit=true]", 8, ["weathered_copper_bulb_lit"]),
+    ("crying_obsidian", 10, ["crying_obsidian"]),
+    ("waxed_exposed_copper_bulb[lit=true]", 12, ["exposed_copper_bulb_lit"]),
+    ("waxed_copper_bulb[lit=true]", 15, ["copper_bulb_lit"]),
+    ("glowstone", 15, ["glowstone"]),
+    ("shroomlight", 15, ["shroomlight"]),
+    ("ochre_froglight", 15, ["ochre_froglight_top", "ochre_froglight_side"]),
+    ("verdant_froglight", 15, ["verdant_froglight_top", "verdant_froglight_side"]),
+    ("pearlescent_froglight", 15, ["pearlescent_froglight_top", "pearlescent_froglight_side"]),
+    ("jack_o_lantern", 15, ["jack_o_lantern", "pumpkin_side", "pumpkin_top"]),
+]
+# a cell is drawn in the band of the highest edge at or below its temperature (the first is the Draper point)
+GLOW_BANDS_K = (700.0, 900.0, 1100.0, 1300.0, 1500.0, 1800.0, 2200.0, 2800.0)
+# display exposure (a screen, not physics): real glow brightens ~10^12-fold from the Draper point to 3000 K; a texture has
+# 256 levels, so brightness is drawn on a log scale from GLOW_FLOOR at the Draper point to 1 at GLOW_FULL_K
+GLOW_FLOOR, GLOW_FULL_K = 0.3, 3000.0
+
+
+def _srgb(v):
+    """Linear light → the sRGB encoding textures are stored in."""
+    return 12.92 * v if v <= 0.0031308 else 1.055 * v ** (1 / 2.4) - 0.055
+
+
+def glow_display(material, band_k):
+    """``(rgba, brightness, glow)`` for drawing ``material`` at ``band_k``: its glow hue (sRGB-encoded) times a log-scale
+    brightness from its own radiance."""
+    import math
+    from sigma_ground.field.interface.block import glow
+
+    g = glow(material, band_k)
+    lo = glow(material, GLOW_BANDS_K[0])["radiance_W_m2_sr_m"][0]
+    hi = glow(material, GLOW_FULL_K)["radiance_W_m2_sr_m"][0]
+    L = g["radiance_W_m2_sr_m"][0]
+    v = GLOW_FLOOR + (1 - GLOW_FLOOR) * max(0.0, min(1.0, math.log(L / lo) / math.log(hi / lo))) if L > 0 else 0.0
+    rgba = tuple(round(255 * max(0.0, min(1.0, _srgb(c) * v))) for c in g["rgb"]) + (255,)
+    return rgba, v, g
+
+
+def write_glow_textures(glows, packs_dir, name="skippycraft"):
+    """Repaint each glow carrier: ``glows`` maps a key to ``(carrier index, rgba, brightness)``. LabPBR's emission (the
+    specular map's alpha) carries the brightness for shader packs. Returns a legend."""
+    from PIL import Image
+
+    tex = Path(packs_dir) / name / "assets" / "minecraft" / "textures" / "block"
+    tex.mkdir(parents=True, exist_ok=True)
+    legend = {}
+    for key, (ci, rgba, v) in glows.items():
+        state, light, textures = GLOW_CARRIERS[ci]
+        for t in textures:
+            Image.new("RGBA", (16, 16), rgba).save(tex / f"{t}.png")
+            Image.new("RGBA", (16, 16), (40, 10, 0, max(1, min(254, round(254 * v))))).save(tex / f"{t}_s.png")
+            meta = tex / f"{t}.png.mcmeta"                            # magma's animation would read a missing strip
+            meta.write_text(json.dumps({"animation": {"frametime": 1000}}), encoding="utf-8")
+        legend[" ".join(map(str, key))] = {"carrier": state, "light": light, "rgba": rgba, "brightness": round(v, 3)}
+    (Path(packs_dir) / name / "skippycraft_glow.json").write_text(json.dumps(legend, indent=2), encoding="utf-8")
+    return legend
+
+
 # a theater world runs no physics of its own: these switch off what Minecraft would otherwise change. Minecraft 26.x names
 # (snake_case; checked against Paper 26.3 on 2026-10-30: the old camelCase names are rejected, and one bad line makes Minecraft
 # refuse the whole function)

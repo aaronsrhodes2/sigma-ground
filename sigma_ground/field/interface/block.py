@@ -225,4 +225,42 @@ def appearance(material: str, thickness_m: float, temperature_k: float = 293.15)
     return out
 
 
-__all__ = ["block", "appearance", "SAME_SUBSTANCE", "UNITS", "OPTICAL_MODEL"]
+GLOW_SAMPLES_M = (650e-9, 550e-9, 450e-9)       # thermal_emission's red, green, blue sample wavelengths
+
+
+def glow(material: str, temperature_k: float) -> dict:
+    """The light a block of ``material`` gives off at ``temperature_k`` by its own heat (thermal emission).
+
+    L(λ, T) = ε(λ) · B(λ, T): Planck's law times Kirchhoff's emissivity (``thermal_emission``). A metal with measured
+    n+ik uses its own spectral emissivity (``thermal_emission.emissivity``, ε = 1 − R); any other material is a grey body
+    with ``block()``'s emissivity. Returns ``{"visible", "rgb", "radiance_W_m2_sr_m", "sources", "gaps"}``:
+    ``radiance`` is L at 650, 550 and 450 nm (absolute, so the brightness rises as steeply as it really does),
+    ``rgb`` their ratio normalised to the largest (the glow's hue), ``visible`` whether it is past the Draper point.
+    """
+    from . import thermal_emission as te
+
+    b = block(material, temperature_k)
+    canon = b["canonical"]
+    T = float(temperature_k)
+    out = {"material": material, "temperature_k": T, "visible": te.is_visibly_glowing(T), "rgb": (0.0, 0.0, 0.0),
+           "radiance_W_m2_sr_m": (0.0, 0.0, 0.0), "sources": {}, "gaps": []}
+    if canon in te.THERMAL_EMISSION_MATERIALS:
+        eps = [te.emissivity(canon, lam) for lam in GLOW_SAMPLES_M]
+        out["sources"]["emissivity"] = "thermal_emission.emissivity (Kirchhoff 1 - R, measured n+ik)"
+    elif "emissivity" in b["properties"]:
+        eps = [b["properties"]["emissivity"]["value"]] * 3
+        out["sources"]["emissivity"] = "grey body: block() emissivity (" + b["properties"]["emissivity"]["source"] + ")"
+    else:
+        eps = [1.0] * 3
+        out["gaps"].append("no emissivity: drawn as a blackbody")
+        out["sources"]["emissivity"] = "blackbody (gap)"
+    L = tuple(e * te.planck_spectral_radiance(lam, T) for e, lam in zip(eps, GLOW_SAMPLES_M))
+    out["radiance_W_m2_sr_m"] = L
+    out["sources"]["radiance"] = "thermal_emission.planck_spectral_radiance (Planck 1900) x emissivity"
+    out["sources"]["visible"] = "thermal_emission.is_visibly_glowing (Draper point)"
+    if max(L) > 0:
+        out["rgb"] = tuple(v / max(L) for v in L)
+    return out
+
+
+__all__ = ["block", "appearance", "glow", "SAME_SUBSTANCE", "UNITS", "OPTICAL_MODEL"]

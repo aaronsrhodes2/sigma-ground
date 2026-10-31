@@ -72,3 +72,14 @@ def test_appearance_names_what_it_lacks():
     from .block import appearance
     g = appearance("granite", 0.05)
     assert g["color_rgb"] is None and "no colour model" in g["gaps"]
+
+
+def test_glow_starts_at_the_draper_point_and_whitens_as_it_heats():
+    from .block import glow
+    assert not glow("tungsten", 600)["visible"]
+    warm, hot = glow("tungsten", 1000), glow("tungsten", 2500)
+    assert warm["visible"] and hot["visible"]
+    assert hot["rgb"][1] > warm["rgb"][1]                           # green rises: red → orange → yellow
+    assert hot["radiance_W_m2_sr_m"][0] > 1e5 * warm["radiance_W_m2_sr_m"][0]   # Planck at 650 nm: ~6e5-fold
+    assert "Kirchhoff" in warm["sources"]["emissivity"]
+    assert glow("granite", 1000)["sources"]["emissivity"].startswith("grey body")

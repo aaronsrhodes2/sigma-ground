@@ -92,3 +92,13 @@ as a wall moving at its velocity, which is the splash. Gold sinks to the floor; 
 rule decides either. Faces touching a wall take the pressure of the liquid beside them (the film the grid can't hold), or a
 body driven to the floor would be sucked there forever. Known limits (in `gaps()`): no rotation, no friction (the gold slides
 along the floor with the slosh), and a floater rides about half a cell high.
+
+**Hot blocks glow** (2026-10-31): a cell past the Draper point (700 K) is drawn in its thermal glow,
+`field.interface.block.glow`: Planck's law times Kirchhoff's emissivity (measured n+ik for the metals, `block()`'s
+emissivity as a grey body otherwise), from sigma-ground's `thermal_emission`. The hue is the ratio of its radiance at 650,
+550 and 450 nm (sRGB-encoded for the texture); the brightness is drawn on a log scale (a screen can't show the real
+~10^12-fold rise from 700 K to 3000 K: `export_mc.GLOW_FLOOR`/`GLOW_FULL_K`, a display choice, not physics). A resource pack
+can't make a block give off light, so glowing cells use blocks that already do (glowstone, shroomlight, froglights, lit
+copper bulbs: `export_mc.GLOW_CARRIERS`), one per (material, 200-300 K band) a scene can reach, dimmer glows on dimmer
+blocks, with LabPBR emission for shader packs. Live check on melt: 7168 of 7168 cells matched, the plate cooling from
+1500 K and the lead glowing as it passed ~1100 K.

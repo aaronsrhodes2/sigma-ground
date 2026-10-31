@@ -4200,3 +4200,9 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   pressure may now bring a body to the liquid's speed but not past it, and no faster than buoyancy. Live: gold on the glass
   floor (sliding a block with the slosh: no friction), oak afloat 0.23-0.33 m over a 0.30 m water line. Gaps named: no
   rotation, no friction, floaters ride ~half a cell high (free-surface pressure at the air cell's centre).
+- SkippyCraft hot blocks glow: `block.glow(material, T)` (thermal_emission: Planck x Kirchhoff, measured n+ik for metals,
+  grey body otherwise; hue = radiance ratio at 650/550/450 nm, absolute radiance kept). export_mc: 12 light-emitting
+  carriers (magma, copper bulbs lit, crying obsidian, glowstone, shroomlight, froglights, jack o'lantern) repainted per
+  (material, band) with sRGB encoding and a log-scale display brightness (stated as a display choice); theater draws a cell
+  in its glow band past 700 K. Live melt checked against a deterministic replay: 7168/7168 cells, glow included.
+  Seen: the lead column reaches 1100-1300 K in 7.5 s on the 1500 K plate (2 cm of lead, vacuum).

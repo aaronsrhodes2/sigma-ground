@@ -200,17 +200,55 @@ def shared_looks():
     return looks, appearances
 
 
+def shared_glows():
+    """A glow carrier for every (material, block size, band) a scene can reach: heat only flows downhill here, so a scene's
+    hottest start bounds it. Dimmer glows get the dimmer light-emitting blocks. Returns ``{key: (carrier, rgba, v)}``."""
+    import numpy as np
+    needs = {}
+    for name, (_, _, _, temp, _, _) in SCENES.items():
+        if temp in (None, "flip"):
+            continue
+        field, world = build(name)
+        hottest = float(np.max(world.T))
+        for k, m in enumerate(world.materials[1:], 1):
+            for band, edge in enumerate(export_mc.GLOW_BANDS_K):
+                if edge <= hottest:
+                    rgba, v, _ = export_mc.glow_display(m, edge)
+                    needs[(m, world.pitch, band)] = (rgba, v)
+    if len(needs) > len(export_mc.GLOW_CARRIERS):
+        raise ValueError(f"{len(needs)} glows, {len(export_mc.GLOW_CARRIERS)} light-emitting carriers")
+    order = sorted(needs, key=lambda key: needs[key][1])
+    lights = sorted(range(len(export_mc.GLOW_CARRIERS)), key=lambda i: export_mc.GLOW_CARRIERS[i][1])
+    # dimmest glow → dimmest carrier, brightest → brightest (spread across the list when there are fewer glows)
+    pick = [lights[round(i * (len(lights) - 1) / max(1, len(order) - 1))] for i in range(len(order))]         if len(order) < len(lights) else lights
+    out, used = {}, set()
+    for key, ci in zip(order, pick):
+        while ci in used:                                             # rounding may repeat one: take the next free
+            ci = next(i for i in lights if i not in used)
+        used.add(ci)
+        out[key] = (ci, *needs[key])
+    return out
+
+
 # ── a live theater ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 class Theater:
     """A ``VoxelWorld`` shown in Minecraft with its low corner at ``origin``. ``send(commands)`` delivers commands."""
 
-    def __init__(self, world, looks, origin, send, blocks=None):
+    def __init__(self, world, looks, origin, send, blocks=None, glows=None):
         import numpy as np
         self.world, self.send, self.blocks = world, send, blocks
         self.origin = tuple(int(v) for v in origin)
         occ = np.argwhere(world.label > 0)
         self.i0, self.k0, self.jhi = int(occ[:, 0].min()), int(occ[:, 2].min()), int(occ[:, 1].max())
         self.block = ["air"] + [looks[(m, world.pitch)] for m in world.materials[1:]]
+        # glowing cells: (material index, band) → an index into self.block past the materials
+        nb = len(export_mc.GLOW_BANDS_K)
+        self.glow_lut = np.tile(np.arange(len(self.block))[:, None], (1, nb))
+        for (m, size, band), (ci, _, _) in (glows or {}).items():
+            if size == world.pitch and m in world.materials:
+                self.glow_lut[world.materials.index(m), band] = len(self.block)
+                self.block.append(export_mc.GLOW_CARRIERS[ci][0])
+        self.glowing = bool(glows) and hasattr(world, "T")
         # unknown (-1) from the theater's ground up, so the first draw also clears what an earlier run left there; below
         # the ground is Minecraft's own ground and is never touched
         self.shown = np.full_like(world.label, -1)
@@ -221,10 +259,22 @@ class Theater:
         x0, y0, z0 = self.origin
         return x0 + int(i) - self.i0, y0 + int(k) - self.k0, z0 + self.jhi - int(j)
 
+    def display(self):
+        """What each cell is drawn as: its material, or its material's glow when it is past the Draper point."""
+        import numpy as np
+        label = self.world.label
+        if not self.glowing:
+            return label
+        band = np.searchsorted(export_mc.GLOW_BANDS_K, self.world.T, side="right") - 1
+        hot = (band >= 0) & (label > 0)
+        out = label.copy()
+        out[hot] = self.glow_lut[label[hot], band[hot]]
+        return out
+
     def draw(self):
         """Send every cell whose block differs from what Minecraft shows. Returns how many."""
         import numpy as np
-        label = self.world.label
+        label = self.display()
         changed = label != self.shown
         if self.blocks is not None:
             self._draw_frame(label, changed)
@@ -310,11 +360,12 @@ def verify(theater, rcon):
     (Cells below the ground are Minecraft's own ground.) Returns the mismatches."""
     import numpy as np
     bad = []
+    shown = theater.display()
     for i, j, k in np.ndindex(theater.world.label.shape):
         if k < theater.k0:
             continue
         x, y, z = theater.mc(i, j, k)
-        want = theater.block[theater.world.label[i, j, k]]
+        want = theater.block[shown[i, j, k]]
         if "passed" not in rcon.command(f"execute if block {x} {y} {z} minecraft:{want}"):
             bad.append(((x, y, z), want))
     return bad
@@ -326,6 +377,7 @@ def build_pack():
     import shutil
     looks, appearances = shared_looks()
     export_mc.write_resourcepack(looks, appearances, PACK_DIR)
+    export_mc.write_glow_textures(shared_glows(), PACK_DIR)
     shutil.make_archive(str(PACK_DIR / "skippycraft"), "zip", PACK_DIR / "skippycraft")
     return looks
 
@@ -407,6 +459,7 @@ def read_request(rcon):
 def serve(player="aaronsrhodes"):
     """Run forever: answer the panel buttons with live theaters."""
     looks = build_pack()
+    glows = shared_glows()
     serve_pack()
     rcon = Rcon()
     send = rcon.commands
@@ -444,7 +497,7 @@ def serve(player="aaronsrhodes"):
             continue
         st = STAGES[name]
         _, world = build(name)
-        th = Theater(world, looks, st["origin"], send, blocks)
+        th = Theater(world, looks, st["origin"], send, blocks, glows)
         rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
         tell(f"Building {name} at {RESOLUTION}x resolution (a few seconds)...")
         th.open()
@@ -496,7 +549,9 @@ def main(argv=None):
         return
     _, world = build(a.scene)
     rcon = Rcon()
-    th = Theater(world, looks, a.at, rcon.commands, block_writer())
+    glows = shared_glows()
+    export_mc.write_glow_textures(glows, packs)
+    th = Theater(world, looks, a.at, rcon.commands, block_writer(), glows)
     th.open()
     _, _, _, _, ticks, dt = SCENES[a.scene]
     th.run(a.ticks or ticks, dt, a.rate, on_tick=print)
