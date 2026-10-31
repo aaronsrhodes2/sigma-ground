@@ -126,3 +126,21 @@ def test_gold_sinks_and_oak_floats():
     assert gold["cell"][2] == floor                                   # sunk, resting on the glass
     assert floor + (surface - floor) // 2 < oak["cell"][2] <= surface    # afloat: bottom in the water,
     assert oak["cell"][2] + 2 > surface                                    # top out of it (2 cells tall)
+
+
+def test_a_sealed_pocket_of_liquid_never_gives_nan():
+    """A pocket walled in on every side has no air to hold p = 0: the Poisson problem is singular there (pure Neumann).
+    Its sources' mean is taken out, so CG converges instead of diverging to NaN (it did when a melt froze around itself)."""
+    import numpy as np
+    from sigma_ground.dynamics.fluid.flip import Flip
+    solid = np.ones((6, 6, 6), bool)
+    solid[1:5, 1:5, 1:5] = False                                     # a closed box
+    liquid = np.zeros_like(solid)
+    liquid[1:5, 1:5, 1:3] = True                                     # half full: air above, sealed in
+    f = Flip(solid.shape, 0.01, density=1000.0, viscosity=0.0, gravity=9.81, solid=solid, liquid=liquid, ppc=8)
+    sealed = np.zeros_like(solid)
+    sealed[2:4, 2:4, 1] = True
+    f.set_solid(solid | (liquid & ~sealed & (np.indices(solid.shape)[2] == 2)))   # a lid of wall over a pocket
+    f.step(0.05)
+    assert np.isfinite(f.pos).all() and np.isfinite(f.vel).all() and np.isfinite(f.pressure).all()
+    assert f.ledger.get("poisson_nonfinite", 0) == 0

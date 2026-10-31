@@ -51,7 +51,16 @@ SCENES = {
     "slit": (None, 0.001, None, "slits", 240, 0.1),
     # the shooting range: Weapon vs. Armor's physics carved into an armour target of 2 mm blocks (shooting_range.py)
     "range": (None, 0.002, "STP", "range", 150, 0.02),
+    # the playground (SKIPPYCRAFT_PLAN 10b): heat, melting, liquid momentum and bodies at once (materia.playground). A 2200 K
+    # tungsten plate on a cold granite floor melts the lead slab on it; the melt runs off onto the granite and freezes where
+    # it stops; the gold cube on the slab sinks through the melt to the plate. Every value from each cell's live state.
+    "playground": ('box(0,0,0,19,0,19,"granite"); box(6,1,6,13,1,13,"tungsten"); box(7,2,7,12,4,12,"lead"); '
+                   'box(9,5,9,10,6,10,"gold")', 0.01, "ISM", "playground", 400, 0.05),
 }
+PLAYGROUND_BODIES = ("gold", "lead")
+# a scene may be built at its own resolution (fixed for its life): the playground runs heat, a liquid and bodies at once,
+# and at 4x (2.5 mm blocks) a tick took ~3.7 s; at 2x (5 mm) it is watchable
+SCENE_RESOLUTION = {"playground": 2}
 PADDLE = {"material": "aluminum", "axis": 0, "amplitude_m": 0.015, "period_s": None}
 BODIES = ("gold", "wood_oak")          # free bodies in the slosh tank: they fall in when it runs (gold sinks, oak floats)
 BOSSBAR = "skippycraft:theater"
@@ -76,11 +85,16 @@ STAGES = {
                      "= 1 mm). Photons arrive one at a time; the fringes appear only as they pile up. Observe = learn which slit "
                      "each photon took (the fringes vanish). One slit = close one. Colour = change the laser."},
     # the target's face is 64 x 64 blocks (12.8 cm square, 2 mm blocks) at z = 60; the desk floats 40 blocks back at its centre
-    "range": {"origin": (120, -60, 60), "desk": (152, -28, 20), "pitch": 0, "other": "sink", "request": 11, "rate": 8.0,
+    "range": {"origin": (120, -60, 60), "desk": (152, -28, 20), "pitch": 0, "other": "playground", "request": 11, "rate": 8.0,
               "extra": (("Weapon", 12), ("Armor", 13)),
               "tell": "Range: Weapon vs. Armor's own physics, carved into a real target of 2 mm blocks. Run fires; the hole "
                       "goes through every layer the shot defeats, the crater glows at the temperature the game computes, then "
                       "cools by conduction. Weapon / Armor change the setup."},
+    # the playground's grid is ~90 blocks square at x 100-190, z 105-195; the desk floats in front of it
+    "playground": {"origin": (100, -60, 105), "desk": (145, -38, 92), "pitch": 35, "other": "sink", "request": 14, "rate": 6.0,
+                   "tell": "Playground: everything at once. A 2200 K tungsten plate melts the lead slab on it; the melt flows with "
+                           "momentum, runs off onto the cold granite and freezes where it stops; the gold cube sinks through the "
+                           "melt. Every number comes from each block's own temperature; the boss bar keeps the books."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
@@ -188,7 +202,7 @@ def scene_field(name):
     code, block_m = SCENES[name][:2]
     if code is None:
         return None
-    return field_from_voxel_exec(code, block_m=block_m, resolution=RESOLUTION)[0]
+    return field_from_voxel_exec(code, block_m=block_m, resolution=SCENE_RESOLUTION.get(name, RESOLUTION))[0]
 
 
 def build(name):
@@ -205,6 +219,10 @@ def build(name):
         from sigma_ground.materia.voxel_slits import SlitScreen
         return None, SlitScreen()
     field = scene_field(name)
+    if temp == "playground":
+        from sigma_ground.materia.playground import PlaygroundWorld
+        T = np.where(field.label_grid == field.materials.index("tungsten"), 2200.0, 293.15)
+        return field, PlaygroundWorld(field, liquid="lead", temperature_k=T, bodies=PLAYGROUND_BODIES, env=env)
     if temp == "flip":
         return field, FluidVoxelWorld(field, paddle=dict(PADDLE), bodies=BODIES)
     T = None
@@ -310,7 +328,7 @@ class Theater:
     def display(self):
         """What each cell is drawn as: its material, or its material's glow when it is past the Draper point."""
         import numpy as np
-        label = self.world.label
+        label = getattr(self.world, "drawn", self.world.label)
         if not self.glowing:
             return label
         band = np.searchsorted(export_mc.GLOW_BANDS_K, self.world.T, side="right") - 1
@@ -584,7 +602,7 @@ def serve(player="aaronsrhodes"):
                 _, world = build(name)
             th = Theater(world, looks, st["origin"], send, blocks, glows)
             rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
-            tell(f"Building {name} at {RESOLUTION}x resolution (a few seconds)...")
+            tell(f"Building {name} at {SCENE_RESOLUTION.get(name, RESOLUTION)}x resolution (a few seconds)...")
             th.open()
             tell(st["tell"])
             _, _, _, _, ticks, dt = SCENES[name]

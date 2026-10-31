@@ -301,6 +301,18 @@ class Flip:
         if not cell.any():
             return out
         b = np.where(cell, rhs, 0.0)
+        # a pocket of liquid sealed on every side by walls (no air cell to hold p = 0) is a pure-Neumann problem: A is
+        # singular there and has a solution only if the pocket's sources sum to zero, so take each sealed pocket's mean
+        # out (its pressure is then defined up to a constant, which no face sees). Without this CG diverged to NaN when a
+        # melt froze around a pocket of itself (materia.playground).
+        from scipy.ndimage import binary_dilation, label as components
+        air = ~self.solid & ~np.asarray(liquid, bool)
+        pockets, n_pockets = components(cell)
+        if n_pockets:
+            vented = np.unique(pockets[binary_dilation(air) & cell])
+            for pid in np.setdiff1d(np.arange(1, n_pockets + 1), vented):
+                m = pockets == pid
+                b[m] -= b[m].mean()
         x0 = np.where(cell, x0, 0.0) if x0 is not None else np.zeros(self.shape)
         occ = np.argwhere(cell)
         box = tuple(slice(lo, hi + 1) for lo, hi in zip(occ.min(0), occ.max(0)))
@@ -311,6 +323,10 @@ class Flip:
         else:
             x, iters = self._sparse_pcg(cell, diag, b, x0)
             out[cell] = x
+        bad = ~np.isfinite(out)
+        if bad.any():                                                 # never hand a NaN pressure on: count it, zero it
+            self.ledger["poisson_nonfinite"] = self.ledger.get("poisson_nonfinite", 0) + int(bad.sum())
+            out[bad] = 0.0
         self.ledger["cg_iterations"] += iters
         return out
 
@@ -408,7 +424,11 @@ class Flip:
         inside = self.solid[idx[:, 0], idx[:, 1], idx[:, 2]]
         if not inside.any():
             return
-        _, near = distance_transform_edt(self.solid, return_indices=True)
+        key = hash(self.solid.tobytes())                              # the walls rarely change: keep the transform
+        if getattr(self, "_near_key", None) != key:
+            _, self._near = distance_transform_edt(self.solid, return_indices=True)
+            self._near_key = key
+        near = self._near
         stuck = idx[inside]
         target = np.stack([near[a][tuple(stuck.T)] for a in range(3)], 1)
         lo = target * self.h + 0.01 * self.h
