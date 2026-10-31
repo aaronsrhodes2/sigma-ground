@@ -25,6 +25,12 @@ class FakeMinecraft:
             if c.startswith("setblock"):
                 x, y, z, b = c.split()[1:]
                 self.blocks[(int(x), int(y), int(z))] = b
+            elif c.startswith("fill"):
+                x0, y0, z0, x1, y1, z1, b = c.split()[1:]
+                for x in range(int(x0), int(x1) + 1):
+                    for y in range(int(y0), int(y1) + 1):
+                        for z in range(int(z0), int(z1) + 1):
+                            self.blocks[(x, y, z)] = b
             elif " name " in c:
                 self.bar = c.split(" name ", 1)[1]
 
@@ -69,7 +75,7 @@ def test_a_rerun_clears_what_the_last_run_left():
     _, w1 = theater.build("sink")
     t1 = theater.Theater(w1, looks, (0, 0, 0), mc.send)
     t1.open()
-    t1.run(12, 0.05, rate_hz=1e6)
+    t1.run(theater.SCENES["sink"][4], 0.05, rate_hz=1e6)
     _, w2 = theater.build("sink")
     t2 = theater.Theater(w2, looks, (0, 0, 0), mc.send)
     t2.open()
@@ -81,9 +87,11 @@ def test_gold_sinks_and_lands_on_the_floor_of_the_mercury(looks):
     mc = FakeMinecraft()
     th = theater.Theater(world, looks, (0, 0, 0), mc.send)
     th.open()
-    th.run(12, 0.05, rate_hz=1e6)
-    gold = [p for p, b in mc.shown().items() if b == looks[("gold", 0.05)]]
-    assert len(gold) == 1 and gold[0][1] == 1                  # MineBench y 1: the bottom layer of the mercury
+    th.run(theater.SCENES["sink"][4], 0.05, rate_hz=1e6)
+    n = theater.RESOLUTION
+    gold = [p for p, b in mc.shown().items() if b == looks[("gold", 0.05 / n)]]
+    assert len(gold) == n ** 3                                  # one written block = n³ theater blocks
+    assert {y for _, y, _ in gold} == set(range(n, 2 * n))     # written y 1: the bottom layer of the mercury
 
 
 def test_readout_is_the_worlds_own_ledger(looks):
@@ -97,7 +105,8 @@ def test_readout_is_the_worlds_own_ledger(looks):
 
 def test_every_scene_material_has_its_own_carrier(looks):
     assert len(set(looks.values())) == len(looks)
-    assert looks[("lead", 0.01)] != looks[("granite", 0.05)]
+    n = theater.RESOLUTION
+    assert looks[("lead", 0.01 / n)] != looks[("granite", 0.05 / n)]
 
 
 def test_panel_puts_a_button_on_a_command_block_that_records_the_request():

@@ -35,22 +35,25 @@ import export_mc  # noqa: E402
 TANK = ('box(0,0,0,7,0,7,"granite"); box(1,1,1,6,5,6,"glass"); box(2,1,2,5,5,5,"air"); box(2,1,2,5,2,5,"mercury");'
         'block(3,3,3,"iron"); block(4,4,4,"gold"); box(9,0,0,10,2,1,"copper")')
 
-# name → (MineBench code, block size m, atmosphere, temperature_k(field) or None, ticks, dt s)
+# name → (MineBench code, its written block size m, atmosphere, temperature_k(field) or None, ticks, dt s). The theater is
+# built at RESOLUTION times finer than written (the Captain: higher resolution), fixed for its life: every written block is
+# RESOLUTION³ blocks, each 1/RESOLUTION as wide.
+RESOLUTION = 4
 SCENES = {
-    "sink": (TANK.replace('block(4,4,4,"gold")', 'block(4,5,4,"gold")'), 0.05, "STP", None, 12, 0.05),
-    "melt": ('box(0,0,0,9,0,9,"tungsten"); box(4,1,4,5,3,5,"lead")', 0.01, "ISM", "plate_1500", 120, 0.05),
+    "sink": (TANK.replace('block(4,4,4,"gold")', 'block(4,5,4,"gold")'), 0.05, "STP", None, 40, 0.05),
+    "melt": ('box(0,0,0,9,0,9,"tungsten"); box(4,1,4,5,3,5,"lead")', 0.01, "ISM", "plate_1500", 160, 0.05),
 }
 BOSSBAR = "skippycraft:theater"
 
 # where each scene stands, its panel (run and stop buttons on the ground in front of it), its request number, and its pace
 STAGES = {
-    "sink": {"origin": (4, -60, 20), "run": (8, -60, 16), "stop": (10, -60, 16), "request": 1, "rate": 1.5,
+    "sink": {"origin": (0, -60, 24), "run": (20, -60, 20), "stop": (23, -60, 20), "request": 1, "rate": 4.0,
              "tell": "Sink: a gold block drops into the mercury and sinks; the iron floats (gold is denser than mercury, iron is not)."},
-    "melt": {"origin": (24, -60, 4), "run": (28, -60, 0), "stop": (30, -60, 0), "request": 2, "rate": 4.0,
+    "melt": {"origin": (56, -60, 24), "run": (74, -60, 20), "stop": (77, -60, 20), "request": 2, "rate": 6.0,
              "tell": "Melt: a lead column on a 1500 K tungsten plate, in vacuum. It slumps when it melts; the boss bar keeps the books."},
 }
 STOP = 9
-SPAWN = (9, -60, 12)
+SPAWN = (21, -60, 15)
 PACK_DIR = HERE / "dev-server" / "pack"
 PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet address: the server's RESOURCE_PACK points here
 
@@ -59,6 +62,7 @@ PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet ad
 class Rcon:
     def __init__(self, host="127.0.0.1", port=42575, password=None, timeout=10.0):
         self.sock = socket.create_connection((host, port), timeout=timeout)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         self._id = 0
         if self._request(3, password or server_password()) == -1:
             raise PermissionError("RCON refused the password")
@@ -92,6 +96,11 @@ class Rcon:
         self._packet(2, cmd)
         return self._read()[2]
 
+    def commands(self, cmds):
+        """Many commands, one at a time: Minecraft's RCON reads one packet per read and closes the connection on
+        pipelined packets (seen 2026-10-31), so each waits for its reply. Rows are merged into fills to keep this short."""
+        return [self.command(c) for c in cmds]
+
     def close(self):
         self.sock.close()
 
@@ -111,7 +120,7 @@ def build(name):
     from sigma_ground.materia.voxel_world import VoxelWorld
 
     code, block_m, env, temp, _, _ = SCENES[name]
-    field, _ = field_from_voxel_exec(code, block_m=block_m)
+    field, _ = field_from_voxel_exec(code, block_m=block_m, resolution=RESOLUTION)
     T = None
     if temp == "plate_1500":
         T = np.where(field.label_grid == field.materials.index("tungsten"), 1500.0, 293.15)
@@ -156,15 +165,27 @@ class Theater:
     def draw(self):
         """Send every cell whose block differs from what Minecraft shows. Returns how many."""
         import numpy as np
-        diff = np.argwhere(self.world.label != self.shown)
+        label = self.world.label
+        changed = label != self.shown
         cmds = []
-        for i, j, k in diff:
-            x, y, z = self.mc(i, j, k)
-            cmds.append(f"setblock {x} {y} {z} {self.block[self.world.label[i, j, k]]}")
+        for j, k in zip(*np.nonzero(changed.any(axis=0))):          # rows along x that have a change
+            row, todo = label[:, j, k], changed[:, j, k]
+            i = 0
+            while i < len(row):
+                if not todo[i]:
+                    i += 1
+                    continue
+                end = i
+                while end + 1 < len(row) and todo[end + 1] and row[end + 1] == row[i]:
+                    end += 1
+                (x0, y, z), x1, block = self.mc(i, j, k), self.mc(end, j, k)[0], self.block[row[i]]
+                cmds.append(f"setblock {x0} {y} {z} {block}" if end == i else f"fill {x0} {y} {z} {x1} {y} {z} {block}")
+                i = end + 1
         self.send(cmds)
-        self.shown = self.world.label.copy()
-        self.changed_total += len(cmds)
-        return len(cmds)
+        n = int(changed.sum())
+        self.shown = label.copy()
+        self.changed_total += n
+        return n
 
     def readout(self, changed):
         w = self.world
@@ -262,9 +283,17 @@ def serve(player="aaronsrhodes"):
     looks = build_pack()
     serve_pack()
     rcon = Rcon()
-    send = lambda cmds: [rcon.command(c) for c in cmds]
-    send(["forceload add -16 -16 47 47", "scoreboard objectives add skippycraft dummy",
+    send = rcon.commands
+    send(["forceload add -16 0 111 79", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
           "scoreboard players set #request skippycraft 0", f"setworldspawn {SPAWN[0]} {SPAWN[1]} {SPAWN[2]}"])
+    # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
+    spots = [st[k] for st in STAGES.values() for k in ("origin", "run", "stop")]
+    for _ in range(100):
+        if all("passed" in rcon.command(f"execute if loaded {x} {y} {z}") for x, y, z in spots):
+            break
+        time.sleep(0.2)
+    else:
+        raise RuntimeError("theater chunks never loaded")
     for name in STAGES:
         send(panel_commands(name))
     by_number = {st["request"]: name for name, st in STAGES.items()}
@@ -282,8 +311,9 @@ def serve(player="aaronsrhodes"):
         _, world = build(name)
         th = Theater(world, looks, st["origin"], send)
         rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
-        tell(st["tell"])
+        tell(f"Building {name} at {RESOLUTION}x resolution (a few seconds)...")
         th.open()
+        tell(st["tell"])
         _, _, _, _, ticks, dt = SCENES[name]
         print("run", name, flush=True)
         for _ in range(ticks):
@@ -322,7 +352,7 @@ def main(argv=None):
         return
     _, world = build(a.scene)
     rcon = Rcon()
-    th = Theater(world, looks, a.at, lambda cmds: [rcon.command(c) for c in cmds])
+    th = Theater(world, looks, a.at, rcon.commands)
     th.open()
     _, _, _, _, ticks, dt = SCENES[a.scene]
     th.run(a.ticks or ticks, dt, a.rate, on_tick=print)

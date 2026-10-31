@@ -4163,3 +4163,9 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - Day one's two misses closed: the Wien cue (energy asked, wavelength answered) fixed with tests, physics 150/150 unchanged; the ODE set
   wording names y(t). The scheduled task's first run had re-made the day under the same ids (trickle ignored them, set file overwritten):
   distill_day.py now refuses to re-make a day; the set file was rebuilt from the trickle's export. misc/distill_fixes.json feeds the ledger.
+- SkippyCraft at 4x resolution (the Captain: "we want to see it at higher resolution"): theaters built at RESOLUTION = 4 (the tank
+  32 blocks wide, the gold a 4x4x4 cube), spaced apart (sink at (0,-60,24), melt at (56,-60,24), panels at z = 20, spawn (21,-60,15)).
+  Draws merge changed x-runs into `fill`; RCON stays one command at a time (Minecraft closes the connection on pipelined packets).
+  First draw: sink 3648 commands in 6.0 s, melt 1856 in 2.1 s; a tick ~60 ms. The service now waits for forceloaded chunks before
+  building panels (the melt panel was silently missing). Live: Run sink -> gold cube on the tank floor; Run melt -> all 768 lead
+  blocks accounted for, slumped from 12 high to a mound 7 high (still flowing at the run's end: one cell per tick).
