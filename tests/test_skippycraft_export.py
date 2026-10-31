@@ -68,3 +68,11 @@ def test_writes_a_loadable_pack(tmp_path):
     assert (root / "data/skippycraft/function/pad.mcfunction").read_text().count("gold_block") == 3
     assert json.loads((root / "data/minecraft/tags/function/load.json").read_text())["values"] == ["skippycraft:theater_rules"]
     assert rep["size_xyz"] == [3, 1, 3]
+
+
+def test_theater_rules_use_minecraft_26_names():
+    # 26.x rejects the old camelCase names, and one bad line makes it refuse the whole function
+    for cmd in export_mc.LOAD_COMMANDS:
+        if cmd.startswith("gamerule "):
+            name = cmd.split()[1]
+            assert name == name.lower() and not any(c.isupper() for c in name), name

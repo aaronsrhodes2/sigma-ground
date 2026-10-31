@@ -31,10 +31,12 @@ LOOKS = {
 }
 FALLBACK = "white_concrete"
 
-# a theater world runs no physics of its own: these switch off what Minecraft would otherwise change
+# a theater world runs no physics of its own: these switch off what Minecraft would otherwise change. Minecraft 26.x names
+# (snake_case; checked against Paper 26.3 on 2026-10-30: the old camelCase names are rejected, and one bad line makes Minecraft
+# refuse the whole function)
 LOAD_COMMANDS = [
-    "gamerule randomTickSpeed 0", "gamerule doFireTick false", "gamerule doDaylightCycle false",
-    "gamerule doWeatherCycle false", "gamerule doMobSpawning false", "gamerule mobGriefing false",
+    "gamerule random_tick_speed 0", "gamerule fire_spread_radius_around_player 0", "gamerule advance_time false",
+    "gamerule advance_weather false", "gamerule spawn_mobs false", "gamerule mob_griefing false",
     "time set noon", "weather clear",
 ]
 

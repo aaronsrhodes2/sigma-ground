@@ -4097,3 +4097,9 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - Adversarial round (2026-10-30): puzzle tools (Monty Hall, birthday, closing time) + puzzle_classifier (rate x duration counts) + Avogadro
   alias + a guard on the age-of-universe cue that had answered a price question with seconds (silent wrong). Local pair: adversarial
   8 -> 14/18 (+6 -0), physics 148 unchanged. Left: 3 open-ended knowledge rows and Everest-in-bananas.
+- SkippyCraft Phase 0 (2026-10-30; the Captain approved the downloads and accepted Minecraft's EULA in chat): Paper 26.3-231 in
+  Docker (itzg/minecraft-server:java25; Minecraft 26.x needs Java 25, the java21 image failed) on skippy-pc, port 42565, localhost +
+  tailnet, whitelist on (empty until he gives his name). export_mc.py writes the theater as a data pack; game rules use 26.x names
+  (random_tick_speed, fire_spread_radius_around_player, advance_time, advance_weather, spawn_mobs, mob_griefing: camelCase rejected).
+  The tank (210 blocks, 74 commands) placed from the console at (4,-60,4) and verified block by block with `execute if block`;
+  clear works. Not yet: a real client flying through it (no Minecraft client on skippy-pc; needs his name and his Java client).

@@ -4,22 +4,22 @@
 #   SKIPPYCRAFT_EULA=TRUE MC_PLAYER=<his Minecraft name> docker compose up -d     # EULA: the Captain's own acceptance
 #   docker compose logs -f skippycraft                                            # "Done (...)! For help" = ready
 #
-# itzg/minecraft-server brings Java 21 and downloads Paper itself (TYPE=PAPER). One player: online mode, a whitelist of his name,
+# itzg/minecraft-server brings Java 25 (Minecraft 26.x needs it) and downloads Paper itself (TYPE=PAPER). One player: online mode, a whitelist of his name,
 # creative, peaceful, a flat world. Port 42565 (not Minecraft's default), bound to skippy-pc's tailnet address and localhost only.
 # The world lives in ./data (gitignored); theaters go in as a data pack: export_mc.py --out data/world/datapacks.
 services:
   skippycraft:
-    image: itzg/minecraft-server:java21
+    image: itzg/minecraft-server:java25
     container_name: skippycraft
     environment:
       EULA: "${SKIPPYCRAFT_EULA:-FALSE}"
       TYPE: PAPER
-      VERSION: "${MC_VERSION:-LATEST}"
+      VERSION: "${MC_VERSION:-26.3}"             # pinned: the client must match (Paper 26.3-231 checked 2026-10-30)
       MEMORY: 3G
       ONLINE_MODE: "TRUE"
       ENABLE_WHITELIST: "TRUE"
-      WHITELIST: "${MC_PLAYER:?set MC_PLAYER to the Captain's Minecraft name}"
-      OPS: "${MC_PLAYER}"
+      WHITELIST: "${MC_PLAYER:-}"            # empty = nobody can join yet (whitelist is on)
+      OPS: "${MC_PLAYER:-}"
       MODE: creative
       DIFFICULTY: peaceful
       SPAWN_MONSTERS: "FALSE"
