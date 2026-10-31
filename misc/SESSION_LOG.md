@@ -4152,3 +4152,6 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - `benchmark/distill_score.py`: verdicts from OUR oracle, causes from Mentat's own record (no_route/bad_args/tool_error/wrong_tool/
   wrong_value/unverified), Wolfram as wa_status + wa_agrees_with_us only (its text never copied); day files + misc/DISTILLATION_LEDGER.md.
 - Day one queued: distill-2026-10-30, 40 questions (math 20, physics 12, chemistry 5, astronomy 3; 35 with an oracle, 5 wild).
+- Portal: "Improvement distillation" section on the benchmark experiment (SkippyTel portal/experiments.py distillation(), benchmark.html,
+  Dockerfile copies results/distill/); tests pass. Daily running: for now `python tools/distill_day.py --enqueue` then, a day later,
+  `python -m sigma_ground.mcp.benchmark.distill_score` and a commit of results/distill/ + the ledger; the purple scheduled job is the next step.
