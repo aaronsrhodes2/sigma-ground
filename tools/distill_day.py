@@ -135,7 +135,10 @@ def terse_math(tool: str, args: dict) -> str | None:
         return f"solve {a.get('matrix_a')} x = {a.get('vector_b')}"
     if tool == "solve_ode":
         eq = e if "=" in e else f"{e} = 0"
-        return f"solve {eq}"
+        f, var = a.get("func", "y"), a.get("variable", "x")
+        # day one (2026-10-30): the oracle solved in t and the question did not say so, so Mentat's y(x) was marked wrong; the
+        # question now names the function and its variable whenever the variable is not x
+        return f"solve {eq}" + (f" for {f}({var})" if var != "x" else "")
     return None
 
 

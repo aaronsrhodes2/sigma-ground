@@ -4155,3 +4155,8 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - Portal: "Improvement distillation" section on the benchmark experiment (SkippyTel portal/experiments.py distillation(), benchmark.html,
   Dockerfile copies results/distill/); tests pass. Daily running: for now `python tools/distill_day.py --enqueue` then, a day later,
   `python -m sigma_ground.mcp.benchmark.distill_score` and a commit of results/distill/ + the ledger; the purple scheduled job is the next step.
+- Scheduled: Windows task "sigma-ground distill daily" (06:30, `tools/distill_daily.sh`: score the trickle's distill-* suites, commit the day
+  files + ledger, make and queue today's set with wild questions through a short ssh tunnel). First run end to end: scored, pushed,
+  queued (rc=0). Day one as of 19:38: Mentat 33/35 right; misses: `solve y'' + y = 0` (the oracle solved in t, the question did not say so:
+  the set's wording now names y(t)), and "photon energy at the Wien peak" answered with the WAVELENGTH by a cascade cue (a real miss to fix).
+  Unverified wild rows already show as-asked-unit misses (boiling point in K for a degC question; age of the Universe in s for years).

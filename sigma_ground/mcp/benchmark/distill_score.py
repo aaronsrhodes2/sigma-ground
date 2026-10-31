@@ -193,7 +193,7 @@ def write_days(rows: list[dict], out_dir: Path) -> list[Path]:
 # ── the ledger ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 def build_ledger(out_dir: Path, fixes_path: Path | None = None) -> str:
-    days = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(out_dir.glob("distill-*.json"))]
+    days = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(out_dir.glob("distill-*.json")) if not p.name.endswith(".set.json")]
     fixes = json.loads(fixes_path.read_text(encoding="utf-8")) if fixes_path and fixes_path.is_file() else {}
     lines = ["# Distillation ledger: what Mentat missed on the daily new questions, and why",
              "",
