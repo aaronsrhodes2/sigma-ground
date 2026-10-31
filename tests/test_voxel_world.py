@@ -90,13 +90,14 @@ def test_liquid_falls_and_spreads():
 
 def test_gaps_are_named_not_filled():
     hg = material_card("mercury", 13534.0)
-    assert hg["rho_cp"] == 0 and any("no thermal data" in g for g in hg["gaps"])
+    assert hg["rho_cp"] == 0 and "inert to heat" in hg["gaps"] and "no thermal conductivity" in hg["gaps"]
     glass = material_card("glass", 2500.0)
     assert glass["L_fus"] is None and any("mole basis" in g for g in glass["gaps"])
     water = material_card("water", 998.2)
     assert water["L_fus"] > 0 and any("water_ice" in g for g in water["gaps"])
     lead = material_card("lead", 11340.0)
     assert lead["gaps"] == [] and lead["L_fus"] > 0
+    assert lead["sources"]["thermal_conductivity"].startswith("NASA TPSX")   # measured beats derived
 
 
 def test_to_field_carries_temperature():

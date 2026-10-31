@@ -6,8 +6,8 @@ says what every cell is made of. This keeps, per cell, what it currently IS
 (temperature, melted fraction, boiled fraction) and steps the world forward,
 composing laws sigma-ground already has, never new numbers:
 
-  heat      ``dynamics.fields.heat.diffuse_fvm`` on ``thermal_field.material_grids``
-            (k, ρ·cp per material from ``field.interface.thermal``), bounded by the
+  heat      ``dynamics.fields.heat.diffuse_fvm`` on k and ρ·cp per material from
+            ``field.interface.block`` (measured where sigma-ground has it, else derived), bounded by the
             theater's atmosphere (``boundary_from_env``: air → ambient bath, vacuum →
             Stefan-Boltzmann loss, ledgered).
   phase     enthalpy method on ``phase_transition.PHASE_DATA``: a cell past its
@@ -32,8 +32,8 @@ Honest limits (each one reported, none papered over):
     (sigma-ground has none for liquid water); the card reports it.
   - A material with no thermal data (liquid mercury) is inert to heat: it
     neither conducts nor changes temperature.
-  - k and ρ·cp are frozen at their T_ref values (``material_grids``' flagged
-    approximation); a melted cell keeps its solid's thermal properties.
+  - k and ρ·cp are room-temperature values (``block``), frozen for the run; a
+    melted cell keeps its solid's thermal properties.
   - A cell's MASS is its build density × block volume, forever: melting changes
     which liquid it sinks through (liquid density = ρ_solid / (1 + ΔV_fus), from
     PHASE_DATA) but not its block's size.
@@ -53,52 +53,35 @@ SOLID, LIQUID = 0, 1
 MELTED = 0.5
 
 
-# a substance written under its liquid name, and the name its phase and thermal data are under
-SAME_SUBSTANCE = {"water": "water_ice"}
-
-
 def material_card(name, density_kg_m3):
-    """Everything the tick needs about one material, and what is missing (``gaps``).
+    """What the tick needs about one material, from ``field.interface.block`` (one
+    source per property, measured before derived; its ``gaps`` carried along).
 
     ``rho`` is the build density: a cell's mass forever. ``rho_solid`` and
-    ``rho_liquid`` are what it offers when settling in each phase, related by
-    PHASE_DATA's ΔV_fus (ρ_liquid = ρ_solid / (1 + ΔV_fus)).
+    ``rho_liquid`` are what it offers when settling in each phase. Latent heats
+    are J/m³ of the block (J/kg × the build density).
     """
-    from ..field.interface import thermal
-    from ..field.interface.phase_transition import PHASE_DATA, latent_heat_J_kg
-    from ..field.interface.resolve import material_profile
+    from ..field.interface.block import block
 
-    starts_liquid = material_profile(name).get("material_class") == "liquid"
+    b = block(name)
+    p = {k: v["value"] for k, v in b["properties"].items()}
+    starts_liquid = b["written_as"] == "liquid"
     rho = float(density_kg_m3)
-    card = {"name": name, "rho": rho, "rho_solid": rho, "rho_liquid": rho if starts_liquid else None,
-            "k": 0.0, "rho_cp": 0.0, "T_melt": None, "T_boil": None,
-            "L_fus": None, "L_vap": None,                       # J/m³ of the block
-            "starts_liquid": starts_liquid, "gaps": []}
-    data_name = card["data_name"] = SAME_SUBSTANCE.get(name, name)
-    if data_name != name:
-        card["gaps"].append(f"uses {data_name}'s phase and (solid) thermal data")
-    try:
-        card["k"] = float(thermal.thermal_conductivity(data_name))
-        card["rho_cp"] = float(thermal.heat_capacity_volumetric(data_name))
-    except KeyError:
-        card["gaps"].append("no thermal data: inert to heat")
-    data = PHASE_DATA.get(data_name)
-    if data is None:
-        card["gaps"].append("no phase data: keeps its phase")
-        return card
-    expand = 1.0 + float(data.get("delta_V_fus", 0.0))
-    if starts_liquid:
-        card["rho_solid"] = rho * expand
+    card = {"name": name, "rho": rho,
+            "rho_solid": p.get("density_solid", rho), "rho_liquid": p.get("density_liquid", rho if starts_liquid else None),
+            "k": float(p.get("thermal_conductivity", 0.0)), "emissivity": float(p.get("emissivity", 0.0)),
+            "rho_cp": rho * float(p["specific_heat"]) if "specific_heat" in p and "thermal_conductivity" in p else 0.0,
+            "T_melt": None, "T_boil": None, "L_fus": None, "L_vap": None,
+            "starts_liquid": starts_liquid, "gaps": list(b["gaps"]),
+            "sources": {k: v["source"] for k, v in b["properties"].items()}}
+    if card["rho_cp"] <= 0:
+        card["k"] = 0.0
+        card["gaps"].append("inert to heat")
+    if "latent_heat_fusion" in p and "latent_heat_vaporization" in p and card["rho_cp"] > 0:
+        card["T_melt"], card["T_boil"] = float(p["melting_point"]), float(p["boiling_point"])
+        card["L_fus"], card["L_vap"] = p["latent_heat_fusion"] * rho, p["latent_heat_vaporization"] * rho
     else:
-        card["rho_liquid"] = rho / expand
-    L_fus, L_vap = latent_heat_J_kg(data_name, "fus"), latent_heat_J_kg(data_name, "vap")
-    if L_fus is None:
-        card["gaps"].append("PHASE_DATA states no mole basis for its latent heat: keeps its phase")
-    elif card["rho_cp"] <= 0:
-        card["gaps"].append("no heat capacity: keeps its phase")
-    else:
-        card["T_melt"], card["T_boil"] = float(data["T_melt_K"]), float(data["T_boil_K"])
-        card["L_fus"], card["L_vap"] = L_fus * rho, L_vap * rho
+        card["gaps"].append("keeps its phase")
     return card
 
 
@@ -190,11 +173,7 @@ class VoxelWorld:
             return {"heat_substeps": 0}
         bc = boundary_from_env(self.env, self.label > 0, emissivity_grid=None)
         if "radiative" in bc:
-            from ..field.interface.thermal import emissivity
-            import numpy as np
-            lut = np.array([0.0] + [float(emissivity(c["data_name"])) if c["rho_cp"] > 0 else 0.0
-                                    for c in self.cards[1:]])
-            bc["radiative"]["emissivity"] = lut[self.label]
+            bc["radiative"]["emissivity"] = self._grid("emissivity") * (rho_cp > 0)
         E0 = float((rho_cp * self.T).sum()) * self.cell_m3
         self.T, info = diffuse_fvm(self.T, k, rho_cp, self.pitch, total_time=dt, **bc)
         E1 = float((rho_cp * self.T).sum()) * self.cell_m3

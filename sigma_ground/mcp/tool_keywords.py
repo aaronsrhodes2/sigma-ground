@@ -827,6 +827,8 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "speed of light in medium", "optical density",
     ],
     "melting_point": ["melting point", "T_melt", "fusion temperature"],
+    "block_properties": ["material properties", "all properties of a material", "block of", "material card",
+                         "phase at temperature", "fill fraction"],
     "boiling_point": ["boiling point", "T_boil", "vaporization temperature"],
     "youngs_modulus": [
         "Young's modulus", "E", "elastic modulus",
@@ -1085,6 +1087,8 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "density": ["how heavy for its size", "how dense", "will it be heavy",
                 "heavy or light", "mass per volume"],
     "melting_point": ["when does it melt", "how hot to melt it", "melts at"],
+    "block_properties": ["everything about a block of this material", "what is this material like at this temperature",
+                         "is it solid or liquid at this temperature"],
     "boiling_point": ["when does it boil", "how hot to boil"],
     "youngs_modulus": ["how stiff", "how springy", "how much does it stretch", "how rigid"],
     "elastic_analysis": ["will it stretch", "how much does it bend", "springiness",

@@ -4089,3 +4089,8 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   granite exact; the rest is rounding to whole merged blocks: mercury 13.5 -> 14, copper 1.5 -> 2, a lone gold block -> 0).
 - E LIVE (image rebuilt 16:28 PDT from the fixed deployer): "highest noble gas first ionization energy" -> 24.587 eV via the cascade;
   the container carries VENDORED_REF = 8145ed8 and 238 tools. Suites: 148/150 physics, 328/329 maths (local engine, paired every step).
+- One block of matter (2026-10-30, the Captain): `field/interface/block.py` block(material, temperature_k, mass_kg=, volume_m3=) ->
+  phase, densities (solid/liquid), conductivity, specific heat, emissivity, colour, phase points, latent heats, mechanics, each with
+  ONE source: measured (material_profile: NASA TPSX/CRC) before derived (thermal.py), else a named gap. Mass+volume -> fill fraction.
+  Mentat tool `block_properties` (manifest, keywords). VoxelWorld cards now come from block(): the world's heat moved from derived to
+  measured values where they exist (granite k 45.8 -> 2.51, zinc 6.26 -> 112, iron 108 -> 71.1). test_block.py (7); MCP suite 818 pass.

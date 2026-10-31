@@ -239,6 +239,24 @@ def band_gap_ev(material: str) -> ToolResult:
     return _generic_lookup(_BAND_GAPS_EV, material, "eV", "band gap")
 
 
+def block_properties(material: str, temperature_k: float = 293.15,
+                     mass_kg: float | None = None, volume_m3: float | None = None) -> ToolResult:
+    """Everything about one block of a material at a temperature: phase, density
+    (solid and liquid), heat conductivity, specific heat, emissivity, colour,
+    melting and boiling points, latent heats, stiffness and strength, each with
+    its own source (measured before derived), plus what sigma-ground lacks.
+    Optional amount: mass_kg alone gives the volume; volume_m3 alone the mass;
+    both give the fill fraction.
+
+    Examples: ('lead', 700, mass_kg=2) -> liquid lead, 175 cm^3;
+    ('water', 263.15) -> solid (ice).
+    """
+    from sigma_ground.field.interface.block import block
+    b = block(material, temperature_k, mass_kg=mass_kg, volume_m3=volume_m3)
+    return ToolResult(value=b, units="", source="sigma-ground field.interface.block (each property cites its own source)",
+                      notes="gaps: " + "; ".join(b["gaps"]) if b["gaps"] else "")
+
+
 def list_materials() -> ToolResult:
     """List every material in the lookup tables.
 

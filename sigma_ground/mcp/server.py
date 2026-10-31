@@ -743,6 +743,14 @@ def main() -> int:
         return t_mat.melting_point(material).to_dict()
 
     @server.tool()
+    def block_properties(material: str, temperature_k: float = 293.15,
+                         mass_kg: float | None = None, volume_m3: float | None = None) -> dict[str, Any]:
+        """Everything about one block of a material at a temperature (phase, densities,
+        thermal, optical, phase points, latent heats, mechanics), each property with its
+        source; optional mass/volume gives the other and the fill fraction."""
+        return t_mat.block_properties(material, temperature_k, mass_kg, volume_m3).to_dict()
+
+    @server.tool()
     def boiling_point(material: str) -> dict[str, Any]:
         """Boiling point at 1 atm in K."""
         return t_mat.boiling_point(material).to_dict()
