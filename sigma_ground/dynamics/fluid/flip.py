@@ -124,6 +124,7 @@ class Flip:
         mid = self.pos + 0.5 * dt * pic
         self.pos = self.pos + dt * self._sample(grid, mid)
         self._push_out()
+        self._spread()
         self.t += dt
         gi = np.array([0.0, 0.0, -self.g * self.mass_kg() * dt])
         self.ledger["gravity_impulse_Ns"] += gi
@@ -230,10 +231,8 @@ class Flip:
         self.pressure = np.zeros(self.shape)
         if n == 0:
             return grid
-        if _fast is not None:
-            self._solve_grid(grid, liquid, dt)
-        else:
-            self._solve_sparse(grid, liquid, cells, dt)
+        div = sum(np.diff(grid[c], axis=c) for c in range(3)) / h
+        self.pressure = self._poisson(liquid, -(rho * h * h / dt) * div, self._last_p)
         self._last_p = self.pressure.copy()
         # subtract the pressure gradient on every face with liquid on a side and no wall
         out = []
@@ -256,10 +255,9 @@ class Flip:
         self.ledger["paddle_work_J"] += work
         return out
 
-    def _solve_grid(self, grid, liquid, dt):
-        """The pressure solve on the grid itself (compiled MIC(0)-PCG)."""
-        h = self.h
-        div = sum(np.diff(grid[c], axis=c) for c in range(3)) / h
+    def _poisson(self, liquid, rhs, x0=None):
+        """Solve A x = rhs on the liquid cells, A = −h²∇² with x = 0 in air and no flux through walls. Compiled MIC(0)-PCG
+        over the liquid's bounding box when numba is there, else SciPy CG (Jacobi-preconditioned) on a sparse matrix."""
         open_ = np.pad(~self.solid, 1, constant_values=False)
         diag = np.zeros(self.shape)
         for c in range(3):
@@ -268,63 +266,82 @@ class Flip:
                 sl[c] = slice(1 + sh, open_.shape[c] - 1 + sh)
                 diag += open_[tuple(sl)]
         cell = liquid & (diag > 0)                                    # a cell walled in on all six sides: no pressure
-        b = np.where(cell, -(self.rho * h * h / dt) * div, 0.0)
-        x0 = np.where(cell, self._last_p, 0.0) if self._last_p is not None else np.zeros(self.shape)
-        self.pressure = np.zeros(self.shape)
+        out = np.zeros(self.shape)
         if not cell.any():
-            return
-        occ = np.argwhere(cell)                                       # solve only over the liquid's bounding box
+            return out
+        b = np.where(cell, rhs, 0.0)
+        x0 = np.where(cell, x0, 0.0) if x0 is not None else np.zeros(self.shape)
+        occ = np.argwhere(cell)
         box = tuple(slice(lo, hi + 1) for lo, hi in zip(occ.min(0), occ.max(0)))
-        x, iters = _fast.pcg(np.ascontiguousarray(cell[box]), np.ascontiguousarray(diag[box]),
-                             np.ascontiguousarray(b[box]), np.ascontiguousarray(x0[box]), 1e-5, 2000)
+        if _fast is not None:
+            x, iters = _fast.pcg(np.ascontiguousarray(cell[box]), np.ascontiguousarray(diag[box]),
+                                 np.ascontiguousarray(b[box]), np.ascontiguousarray(x0[box]), 1e-5, 2000)
+            out[box] = np.where(cell[box], x, 0.0)
+        else:
+            x, iters = self._sparse_pcg(cell, diag, b, x0)
+            out[cell] = x
         self.ledger["cg_iterations"] += iters
-        self.pressure[box] = np.where(cell[box], x, 0.0)
+        return out
 
-    def _solve_sparse(self, grid, liquid, cells, dt):
-        """The pressure solve as a sparse system (SciPy CG, Jacobi-preconditioned): the fallback without numba."""
+    def _sparse_pcg(self, cell, diag, b, x0):
         import scipy.sparse as sp
         from scipy.sparse.linalg import cg
 
-        h, rho, n = self.h, self.rho, len(cells)
+        cells = np.argwhere(cell)
+        n = len(cells)
         index = -np.ones(self.shape, int)
-        index[liquid] = np.arange(n)          # argwhere and boolean indexing share C order
-        div = np.zeros(n)
-        diag = np.zeros(n)
+        index[cell] = np.arange(n)            # argwhere and boolean indexing share C order
         rows, cols = [], []
         for c in range(3):
-            u = grid[c]
-            hi = cells.copy()
-            hi[:, c] += 1
-            div += (u[tuple(hi.T)] - u[tuple(cells.T)]) / h
             for step in (-1, 1):
                 nb = cells.copy()
                 nb[:, c] += step
                 inside = (nb[:, c] >= 0) & (nb[:, c] < self.shape[c])
-                nbc = np.clip(nb, 0, np.array(self.shape) - 1)
-                solid = ~inside | self.solid[tuple(nbc.T)]
-                diag += ~solid                                       # liquid or air neighbour: one coupling
-                nbi = np.where(inside, index[tuple(nbc.T)], -1)
-                link = ~solid & (nbi >= 0)
+                nbi = np.where(inside, index[tuple(np.clip(nb, 0, np.array(self.shape) - 1).T)], -1)
+                link = nbi >= 0
                 rows.append(np.nonzero(link)[0])
                 cols.append(nbi[link])
         rows, cols = np.concatenate(rows), np.concatenate(cols)
-        A = sp.csr_matrix((np.concatenate([diag, -np.ones(len(rows))]),
+        A = sp.csr_matrix((np.concatenate([diag[cell], -np.ones(len(rows))]),
                            (np.concatenate([np.arange(n), rows]), np.concatenate([np.arange(n), cols]))), shape=(n, n))
-        b = -(rho * h * h / dt) * div
-        keep = diag > 0
-        if not keep.all():                                            # a cell walled in on all six sides: no pressure
-            A = A[keep][:, keep]
-            b = b[keep]
-        x0 = None
-        if self._last_p is not None:
-            x0 = self._last_p[tuple(cells[keep].T)]
-        M = sp.diags(1.0 / A.diagonal())
         iters = [0]
-        x, info = cg(A, b, x0=x0, rtol=1e-5, maxiter=2000, M=M, callback=lambda _: iters.__setitem__(0, iters[0] + 1))
-        self.ledger["cg_iterations"] += iters[0]
-        p = np.zeros(n)
-        p[keep] = x
-        self.pressure[liquid] = p
+        x, _ = cg(A, b[cell], x0=x0[cell], rtol=1e-5, maxiter=2000, M=sp.diags(1.0 / diag[cell]),
+                  callback=lambda _: iters.__setitem__(0, iters[0] + 1))
+        return x, iters[0]
+
+    # ── keeping the particles evenly spread (position only) ────────────────────────────────────────────────────────
+    def _spread(self):
+        """Move particles from over-full cells to under-full ones, without touching any velocity: a displacement d = −∇q
+        with −h²∇²q = h²·(fill − 1) (Kugelstadt et al., "Implicit density projection for volume conserving liquids", IEEE TVCG
+        2019). FLIP's particles drift and bunch (a moving paddle shoves a whole layer into the next cell); the velocity
+        projection keeps the FLOW incompressible but never spreads particles back, so the drawn volume would shrink.
+        This is a correction of the particle sampling, not a force: momentum is unchanged."""
+        counts = self.cell_counts()
+        liquid = (counts > 0) & ~self.solid
+        # over-full cells push out everywhere; under-full cells pull in only inside the liquid (every face neighbour
+        # liquid or wall), so the surface is free to move
+        closed = liquid.copy()
+        for c in range(3):
+            for sh in (-1, 1):
+                nb = np.roll(liquid | self.solid, sh, axis=c)
+                edge = [slice(None)] * 3
+                edge[c] = 0 if sh == 1 else -1
+                nb[tuple(edge)] = True                                # outside the grid is a wall
+                closed &= nb
+        excess = counts / self.ppc - 1.0
+        excess = np.where(liquid & ((excess > 0) | closed), excess, 0.0)
+        if not excess.any():
+            return
+        q = self._poisson(liquid, self.h * self.h * excess)
+        d = []
+        for c in range(3):
+            qa, qb = self._neighbours(q, c, 0.0)
+            sa, sb = self._neighbours(self.solid, c, True)
+            d.append(np.where(sa | sb, 0.0, -(qb - qa) / self.h))
+        move = self._sample(d, self.pos)
+        limit = 0.5 * self.h
+        self.pos = self.pos + np.clip(move, -limit, limit)
+        self._push_out()
 
     # ── velocity beyond the liquid ─────────────────────────────────────────────────────────────────────────────────
     def _extrapolate(self, u, valid, layers=3):

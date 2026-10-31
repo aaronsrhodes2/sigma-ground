@@ -4,7 +4,7 @@ FluidVoxelWorld: a voxel build whose liquid MOVES, with momentum, driven by a wa
 The liquid's cells become ``dynamics.fluid.flip.Flip`` particles (incompressible, free surface, momentum carried); every
 other material is a wall. One material may be a PADDLE: its cells are a rigid piston that moves back and forth along one
 axis, ``x(t) = A·sin(2πt/T)``, pushing the liquid with its own velocity (the wave machine). Each tick the cells are drawn
-again from where the particles are: a cell at least half full of liquid is liquid (``voxel_world.MELTED``'s rule).
+again from where the particles are: as many liquid blocks as the liquid's volume, in its fullest cells.
 
 Numbers: the liquid's density and viscosity from ``field.interface.block`` (measured first), gravity the standard value
 (``fluid_surface.STANDARD_GRAVITY``), and the wave machine's default period is the tank's own first sloshing mode
@@ -22,7 +22,6 @@ import math
 
 import numpy as np
 
-from .voxel_world import MELTED
 
 
 class FluidVoxelWorld:
@@ -137,9 +136,17 @@ class FluidVoxelWorld:
         lab = self.base.copy()
         if self.paddle:
             lab[self.paddle_mask] = self.paddle["index"]
-        full = np.zeros(self.label.shape, bool)
-        full[self.box] = self.flip.fill_fraction() >= MELTED
-        lab[full & (lab == 0)] = self.li
+        # exactly as many liquid blocks as the particles' volume, in the fullest cells (the mass-keeping rule of
+        # deckard.voxel_resample): a fill threshold would grow the drawn water with every half-full surface cell
+        # ranked by fill averaged over each cell's 3×3×3 neighbourhood, so sampling noise does not punch holes in the body
+        from scipy.ndimage import uniform_filter
+        fill = np.zeros(self.label.shape)
+        fill[self.box] = uniform_filter(self.flip.fill_fraction(), size=3, mode="constant") + 1e-6 * self.flip.fill_fraction()
+        fill[lab > 0] = 0.0
+        quota = int(round(len(self.flip.pos) / self.flip.ppc))
+        order = np.argsort(-fill, axis=None, kind="stable")[:quota]
+        order = order[fill.ravel()[order] > 0]
+        lab.ravel()[order] = self.li
         self.label = lab
 
     # ── the books ──────────────────────────────────────────────────────────────────────────────────────────────────

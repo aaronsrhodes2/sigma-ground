@@ -4187,3 +4187,8 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   a block writer on 127.0.0.1:42576, one binary frame per tick. Slosh desk at z = 88 with Slower/Faster. Live: the surface read
   back from Minecraft tilts 10-11 cells deep at the paddle, 13-14 at the far wall, then the other way.
   Flagged, not fixed: water's derived thermal conductivity 21.7 W/(m K) (real ~0.6; no measured value for liquid water in block()).
+- Slosh, live-checked and fixed: the first run lost half its drawn water (FLIP particles bunched up to 140 per cell in front of the
+  paddle; the velocity projection never spreads them back). Added a position-only density correction (Kugelstadt et al. 2019:
+  −h²∇²q = h²(fill − 1), interior under-full cells included; momentum untouched) and the drawing now places exactly the water's
+  volume of blocks, ranked by neighbourhood-averaged fill (the mass-keeping rule). Read back from Minecraft: columns 10→15 cells
+  along the tank, then flat, then 15→10: the first sloshing mode, one body, no holes. Cost 0.32 s per 0.04 s frame (1/8 real speed).

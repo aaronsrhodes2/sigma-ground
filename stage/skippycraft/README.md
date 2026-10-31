@@ -78,6 +78,9 @@ Blocks go through the SkippyCraft plugin (`plugin/`, built in Docker by `bash st
 PC): the service sends each tick's changed blocks as one binary frame to 127.0.0.1:42576 and the plugin sets them on the server
 thread without block physics. RCON stays for commands (and is the fallback when the plugin is absent).
 
-Speed (skippy-pc, numba installed): a 0.04 s frame takes ~0.15 s to compute, so it plays at about a quarter of real speed.
+Speed (skippy-pc, numba installed): a 0.04 s frame takes ~0.3 s to compute, so it plays at about 1/8 of real speed.
+The water is drawn as exactly its own volume of blocks, in the cells fullest on average over their neighbourhood; a
+second, position-only solve keeps the particles evenly spread (FLIP bunches them, and a moving paddle shoves a layer at
+a time), without touching any velocity.
 Tests: `tests/test_flip.py` (still water stays still and the floor carries exactly its weight; a falling blob gains exactly
 M·g·t; mass exact; the paddle does work).
