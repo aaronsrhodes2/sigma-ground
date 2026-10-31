@@ -102,3 +102,13 @@ can't make a block give off light, so glowing cells use blocks that already do (
 copper bulbs: `export_mc.GLOW_CARRIERS`), one per (material, 200-300 K band) a scene can reach, dimmer glows on dimmer
 blocks, with LabPBR emission for shader packs. Live check on melt: 7168 of 7168 cells matched, the plate cooling from
 1500 K and the lead glowing as it passed ~1100 K.
+
+## The double slit (`slit`, 2026-10-31)
+
+A screen of 128 x 32 blocks at z = 200, drawn at true scale (1 block = 1 mm), behind a laser and two slits 0.04 mm wide,
+0.25 mm apart, 2 m away (`materia.voxel_slits.SlitScreen`). Photons arrive one at a time, each landing where
+`quantum.double_slit_intensity` sends it (exact paths, single-slit envelope, which-path distinguishability), so the screen
+starts as scattered dots and the fringes appear as they pile up; cells are coloured in the laser's colour at five
+brightness levels. Desk (z = 150, "Go to slit" from slosh): **Run**, **Observe** (which-path known: the fringes vanish),
+**One slit**, **Colour** (650 / 532 / 405 nm); the three setup buttons also work between runs and start a fresh one. Live:
+bright fringes 5 blocks apart for λL/d = 5.20 mm; observed, one smooth envelope.

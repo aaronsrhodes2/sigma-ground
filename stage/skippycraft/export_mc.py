@@ -154,6 +154,15 @@ def write_glow_textures(glows, packs_dir, name="skippycraft"):
     return legend
 
 
+def write_flat_textures(paint, packs_dir, name="skippycraft"):
+    """Repaint blocks in one flat colour each: ``paint`` maps a block (its texture name) to rgba."""
+    from PIL import Image
+    tex = Path(packs_dir) / name / "assets" / "minecraft" / "textures" / "block"
+    tex.mkdir(parents=True, exist_ok=True)
+    for block, rgba in paint.items():
+        Image.new("RGBA", (16, 16), rgba).save(tex / f"{block}.png")
+
+
 # a theater world runs no physics of its own: these switch off what Minecraft would otherwise change. Minecraft 26.x names
 # (snake_case; checked against Paper 26.3 on 2026-10-30: the old camelCase names are rejected, and one bad line makes Minecraft
 # refuse the whole function)

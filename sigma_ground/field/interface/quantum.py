@@ -318,6 +318,16 @@ def _sinc2_envelope(y_screen, a, L, wavelength_m):
     return sinc * sinc
 
 
+def single_slit_intensity(y_screen, L, wavelength_m, a, offset=0.0):
+    """One slit open: what reaches y_screen through a slit of width a centred at ``offset``.
+
+    The same amplitude as one term of ``double_slit_intensity`` (|A|² = 1/r from the slit's exact path) times the
+    Fraunhofer envelope sinc²(π·a·sinθ/λ). FIRST_PRINCIPLES. Comparable in scale with ``double_slit_intensity``.
+    """
+    r = math.sqrt(L * L + (y_screen - offset) ** 2)
+    return _sinc2_envelope(y_screen - offset, a, L, wavelength_m) / r
+
+
 # ── Visibility and Englert check ──────────────────────────────────────────────
 
 def fringe_visibility(I_max, I_min):

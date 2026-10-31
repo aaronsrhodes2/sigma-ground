@@ -47,6 +47,8 @@ SCENES = {
     # tank's own first sloshing period (fluid_surface.sloshing_angular_frequency) unless he changes it at the desk
     "slosh": ('box(0,0,0,17,6,7,"glass"); box(1,1,1,16,6,6,"air"); box(2,1,1,2,6,6,"aluminum"); '
               'box(3,1,1,16,3,6,"water"); block(8,5,3,"gold"); block(12,5,4,"wood_oak")', 0.05, "STP", "flip", 750, 0.04),
+    # the double slit, one photon at a time, on a screen of 1 mm blocks (materia.voxel_slits): no build code, its own world
+    "slit": (None, 0.001, None, "slits", 240, 0.1),
 }
 PADDLE = {"material": "aluminum", "axis": 0, "amplitude_m": 0.015, "period_s": None}
 BODIES = ("gold", "wood_oak")          # free bodies in the slosh tank: they fall in when it runs (gold sinks, oak floats)
@@ -61,13 +63,20 @@ STAGES = {
              "tell": "Sink: a gold block drops into the mercury and sinks; the iron floats (gold is denser than mercury, iron is not)."},
     "melt": {"origin": (56, -60, 24), "desk": (75, -46, 14), "pitch": 35, "other": "slosh", "request": 2, "rate": 6.0,
              "tell": "Melt: a lead column on a 1500 K tungsten plate, in vacuum. It slumps when it melts; the boss bar keeps the books."},
-    "slosh": {"origin": (0, -60, 100), "desk": (36, -46, 88), "pitch": 25, "other": "sink", "request": 3, "rate": 25.0,
+    "slosh": {"origin": (0, -60, 100), "desk": (36, -46, 88), "pitch": 25, "other": "slit", "request": 3, "rate": 25.0,
               "extra": (("Slower", 4), ("Faster", 5)),
               "tell": "Slosh: the paddle pushes the water at the tank's own sloshing period, so each push adds to the last. "
                       "A gold block and an oak block drop in: the water's own pressure sinks one and floats the other."},
+    # the screen stands at z = 200 (128 x 32 blocks, 1 mm each); the desk is 50 blocks back so the whole screen is in view
+    "slit": {"origin": (0, -60, 200), "desk": (64, -45, 150), "pitch": 0, "other": "sink", "request": 8, "rate": 8.0,
+             "extra": (("Observe", 6), ("One slit", 7), ("Colour", 10)),
+             "tell": "Double slit: a laser through two slits 0.25 mm apart, onto a screen 2 m away, drawn at true scale (1 block "
+                     "= 1 mm). Photons arrive one at a time; the fringes appear only as they pile up. Observe = learn which slit "
+                     "each photon took (the fringes vanish). One slit = close one. Colour = change the laser."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
+SCREEN_BUTTONS = {6: "observe", 7: "one_slit", 10: "colour"}
 DESK_LOOK = {"fill": "minecraft:sea_lantern", "board": "minecraft:command_block"}
 PACK_DIR = HERE / "dev-server" / "pack"
 PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet address: the server's RESOURCE_PACK points here
@@ -165,8 +174,11 @@ def server_password(dev_server=HERE / "dev-server"):
 
 # ── scenes and their shared looks ──────────────────────────────────────────────────────────────────────────────────────────
 def scene_field(name):
+    """The scene's VoxelField (None for the slit screen, which has no build)."""
     from sigma_ground.deckard.voxel_exec import field_from_voxel_exec
     code, block_m = SCENES[name][:2]
+    if code is None:
+        return None
     return field_from_voxel_exec(code, block_m=block_m, resolution=RESOLUTION)[0]
 
 
@@ -177,6 +189,9 @@ def build(name):
     from sigma_ground.materia.voxel_world import VoxelWorld
 
     _, _, env, temp, _, _ = SCENES[name]
+    if temp == "slits":
+        from sigma_ground.materia.voxel_slits import SlitScreen
+        return None, SlitScreen()
     field = scene_field(name)
     if temp == "flip":
         return field, FluidVoxelWorld(field, paddle=dict(PADDLE), bodies=BODIES)
@@ -188,7 +203,7 @@ def build(name):
 
 def shared_looks():
     """One carrier per (material, block size) across every scene, so all theaters share one resource pack."""
-    fields = [scene_field(n) for n in SCENES]
+    fields = [f for f in (scene_field(n) for n in SCENES) if f is not None]
     looks, appearances = {}, {}
     for f in fields:
         lk, ap = export_mc.derive_looks(f)
@@ -206,7 +221,7 @@ def shared_glows():
     import numpy as np
     needs = {}
     for name, (_, _, _, temp, _, _) in SCENES.items():
-        if temp in (None, "flip"):
+        if temp in (None, "flip", "slits"):
             continue
         field, world = build(name)
         hottest = float(np.max(world.T))
@@ -228,6 +243,22 @@ def shared_glows():
         used.add(ci)
         out[key] = (ci, *needs[key])
     return out
+
+
+def slit_looks():
+    """The slit screen's looks: the bare screen is plain black terracotta; each (wavelength, brightness) is a wool block
+    repainted in the laser's colour. Returns ``(looks, {carrier: rgba})``."""
+    from sigma_ground.materia.voxel_slits import LEVELS, WAVELENGTHS_NM, SlitScreen
+    pitch = SCENES["slit"][1]
+    looks, paint = {("screen", pitch): "black_terracotta"}, {}
+    wool = iter(f"{d}_wool" for d in export_mc._DYES)
+    for nm in WAVELENGTHS_NM:
+        for lv in range(1, LEVELS + 1):
+            carrier = next(wool)
+            looks[(f"light {nm} {lv}", pitch)] = carrier
+            rgb = SlitScreen.light_rgb(nm, lv)
+            paint[carrier] = tuple(round(255 * c) for c in rgb) + (255,)
+    return looks, paint
 
 
 # ── a live theater ─────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -378,8 +409,10 @@ def build_pack():
     looks, appearances = shared_looks()
     export_mc.write_resourcepack(looks, appearances, PACK_DIR)
     export_mc.write_glow_textures(shared_glows(), PACK_DIR)
+    screen, paint = slit_looks()
+    export_mc.write_flat_textures(paint, PACK_DIR)
     shutil.make_archive(str(PACK_DIR / "skippycraft"), "zip", PACK_DIR / "skippycraft")
-    return looks
+    return {**looks, **screen}
 
 
 def serve_pack():
@@ -465,7 +498,7 @@ def serve(player="aaronsrhodes"):
     send = rcon.commands
     blocks = block_writer()
     print("block writer:", "plugin" if blocks else "none (RCON fills)", flush=True)
-    send(["forceload add -16 0 111 159", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
+    send(["forceload add -16 0 127 207", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
           "scoreboard players set #request skippycraft 0"])
     # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
     spots = [st[k] for st in STAGES.values() for k in ("origin", "desk")]
@@ -480,12 +513,16 @@ def serve(player="aaronsrhodes"):
     sx, sy, sz, _, _ = stand("sink")
     send([f"setworldspawn {int(sx)} {sy} {int(sz)}", "gamerule respawn_radius 0"])
     by_number = {st["request"]: name for name, st in STAGES.items()}
+    kept = {}
     tell = lambda text: rcon.command("tellraw @a " + json.dumps({"text": text, "color": "green"}))
     print("serving: panels built, pack at", f"http://{PACK_HOST}:{PACK_PORT}/skippycraft.zip", flush=True)
     pending, last_check = 0, 0.0
     while True:
         req = pending or read_request(rcon)
         pending = 0
+        if req in SCREEN_BUTTONS:                                     # pressed between runs: change the setup, then run
+            tell(kept.setdefault("slit", build("slit")[1]).press(SCREEN_BUTTONS[req]))
+            req = STAGES["slit"]["request"]
         name = by_number.get(req)
         if name is None:
             if time.monotonic() - last_check > 3.0:              # idle: put back anything he broke
@@ -496,7 +533,11 @@ def serve(player="aaronsrhodes"):
             time.sleep(0.3)
             continue
         st = STAGES[name]
-        _, world = build(name)
+        if name == "slit":                                            # the screen keeps its setup between runs
+            world = kept.setdefault("slit", build("slit")[1])
+            world.reset()
+        else:
+            _, world = build(name)
         th = Theater(world, looks, st["origin"], send, blocks, glows)
         rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
         tell(f"Building {name} at {RESOLUTION}x resolution (a few seconds)...")
@@ -507,6 +548,9 @@ def serve(player="aaronsrhodes"):
         for tick in range(ticks):
             t0 = time.monotonic()
             nxt = read_request(rcon)
+            if nxt in SCREEN_BUTTONS and hasattr(world, "press"):
+                tell(world.press(SCREEN_BUTTONS[nxt]))
+                nxt = 0
             if nxt in (SLOWER, FASTER) and getattr(world, "paddle", None):
                 period = world.paddle["period_s"] * (1.1 if nxt == SLOWER else 1 / 1.1)
                 world.set_period(period)
@@ -544,6 +588,9 @@ def main(argv=None):
     looks, appearances = shared_looks()
     packs = os.path.join(os.environ["APPDATA"], ".minecraft", "resourcepacks")
     export_mc.write_resourcepack(looks, appearances, packs)
+    screen, paint = slit_looks()
+    export_mc.write_flat_textures(paint, packs)
+    looks = {**looks, **screen}
     if a.scene == "looks":
         print(json.dumps({f"{m}@{s:g}m": c for (m, s), c in looks.items()}, indent=2))
         return

@@ -147,7 +147,7 @@ def test_read_request_takes_the_value_and_clears_it():
 
 def test_no_desk_is_inside_any_theaters_grid():
     # a theater's first draw sets every cell of its grid from the ground up: a desk inside one would be erased by a run
-    looks = theater.shared_looks()[0]
+    looks = {**theater.shared_looks()[0], **theater.slit_looks()[0]}
     for name, st in theater.STAGES.items():
         _, world = theater.build(name)
         th = theater.Theater(world, looks, st["origin"], lambda c: None)
@@ -211,3 +211,19 @@ def test_glow_carriers_emit_light_and_are_never_material_carriers():
     states = [c[0] for c in export_mc.GLOW_CARRIERS]
     assert not set(states) & set(export_mc.CARRIERS_OPAQUE + export_mc.CARRIERS_CLEAR)
     assert theater.DESK_LOOK["fill"].split(":")[1] not in states
+
+
+def test_slit_screen_shows_the_photons_in_the_lasers_colour(looks):
+    _, world = theater.build("slit")
+    screen = {**looks, **theater.slit_looks()[0]}
+    mc = FakeMinecraft()
+    th = theater.Theater(world, screen, theater.STAGES["slit"]["origin"], mc.send)
+    th.open()
+    assert set(mc.shown().values()) == {"black_terracotta"} and len(mc.shown()) == 128 * 32
+    for _ in range(30):
+        world.step(0.1)
+        th.draw()
+    assert mc.shown() == _expected(th)
+    lit = {b for b in mc.shown().values() if b.endswith("_wool")}
+    assert lit and lit <= {theater.slit_looks()[0][(f"light 650 {lv}", 0.001)] for lv in range(1, 6)}
+    assert "photons" in mc.bar

@@ -4206,3 +4206,8 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   (material, band) with sRGB encoding and a log-scale display brightness (stated as a display choice); theater draws a cell
   in its glow band past 700 K. Live melt checked against a deterministic replay: 7168/7168 cells, glow included.
   Seen: the lead column reaches 1100-1300 K in 7.5 s on the 1500 K plate (2 cm of lead, vacuum).
+- SkippyCraft double slit: `materia/voxel_slits.SlitScreen` (photon by photon from quantum.double_slit_intensity, new public
+  quantum.single_slit_intensity; observe = D 1, one slit, three laser colours), slit desk with Observe / One slit / Colour,
+  wool carriers painted in atomic_spectra.wavelength_to_rgb. Live: fringe columns 53, 58, 63, 68, 73 (5.2 mm predicted);
+  observed: smooth envelope, no fringes. Fixed: setup buttons pressed between runs were ignored. Next proposed by the
+  Captain: port the weapons vs armor experiment to a SkippyCraft shooting range.
