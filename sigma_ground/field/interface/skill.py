@@ -28,7 +28,7 @@ def stale_sources() -> list[str]:
     out = []
     for rel, h in _table()["metadata"]["sources"].items():
         p = _FIX / rel
-        if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest() != h:
+        if not p.is_file() or hashlib.sha256(p.read_bytes().replace(b"\r\n", b"\n")).hexdigest() != h:           # line endings normalised: see make_body_skill_table.sha
             out.append(rel)
     return out
 

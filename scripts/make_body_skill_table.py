@@ -40,7 +40,8 @@ NOT_CONVERGED_NOTES = {
 
 
 def sha(p: Path) -> str:
-    return hashlib.sha256(p.read_bytes()).hexdigest()
+    """Hash of the file with line endings normalised to LF: the repo stores LF (.gitattributes) and a Windows checkout may hold CRLF, so the raw bytes differ between machines (2026-10-31: the deployed table read as stale)."""
+    return hashlib.sha256(p.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def step_limited_for(m: dict) -> bool:

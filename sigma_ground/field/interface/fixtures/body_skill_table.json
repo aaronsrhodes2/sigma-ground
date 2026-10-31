@@ -9,9 +9,9 @@
   "sources": {
    "v2physics_restated/rolling_shootout_r8_full_short_0.025.json": "c59a10d707da3d5b10276c134a93922e82ffb824d101af201c5654082c8f490c",
    "v2physics_restated/rolling_shootout_r8_full_long_0.025.json": "5b83249ba684fd000685595b1c1dd0370ec9f1b11384c13e36ad3fce71e7f1ab",
-   "v2physics_restated/SYSTEM_LOCAL_MOONS.json": "a5f9350980350957f27651c71da874a94ad388beb9b4983f019867c3322f453f",
-   "v2physics_restated/SYSTEM_LOCAL_WITH_PLANETS.json": "73553f60ba971e09aa3d12a2b1196386e67da7efdc29e60ecf8251c9a431aac1",
-   "prediction_error_table.json": "fb3358fcda58f496ad1958c17c9b7547210fe88c3e90d33a14d026c0176eb618"
+   "v2physics_restated/SYSTEM_LOCAL_MOONS.json": "61b6c7ad714894dd7e956c6d1c6734129aaf9bc662fd01fc1cbfc06657219439",
+   "v2physics_restated/SYSTEM_LOCAL_WITH_PLANETS.json": "cc2baf8bccd4c8d4a1c4720cab311605722b727293c50a0b94d77a9ce62bd6b2",
+   "prediction_error_table.json": "5adcdbb258b334d20729f002048ee5d22055a434abf16f3df3356fd3c055e4eb"
   },
   "ledger": "misc/CANDIDATE_LEDGER.md C14, C16, C17, C19, C23a"
  },
