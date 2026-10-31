@@ -7,6 +7,7 @@
 # itzg/minecraft-server brings Java 25 (Minecraft 26.x needs it) and downloads Paper itself (TYPE=PAPER). One player: online mode, a whitelist of his name,
 # creative, peaceful, a flat world. Port 42565 (not Minecraft's default), bound to skippy-pc's tailnet address and localhost only.
 # The world lives in ./data (gitignored); theaters go in as a data pack: export_mc.py --out data/world/datapacks.
+# A live theater (theater.py) drives the server over RCON on 127.0.0.1:42575.
 services:
   skippycraft:
     image: itzg/minecraft-server:java25
@@ -28,9 +29,11 @@ services:
       LEVEL_TYPE: minecraft:flat
       GENERATE_STRUCTURES: "FALSE"
       MOTD: SkippyCraft
+      BROADCAST_RCON_TO_OPS: "FALSE"   # the theater service sends many commands; they must not scroll through his chat
     ports:
       - "127.0.0.1:42565:25565"
       - "100.122.71.14:42565:25565"   # skippy-pc on the tailnet
+      - "127.0.0.1:42575:25575"       # RCON for the theater service: this PC only (password in data/server.properties)
     volumes:
       - ./data:/data
     restart: "no"

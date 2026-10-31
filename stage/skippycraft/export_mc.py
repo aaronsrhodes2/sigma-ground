@@ -83,7 +83,8 @@ def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
         g = 255 if a["metal"] else (min(229, round(255 * f0)) if isinstance(f0, float) else 10)
         r = round(255 * a["smoothness"]) if a["smoothness"] is not None else 0
         Image.new("RGBA", (16, 16), (r, g, 0, 255)).save(tex / f"{carrier}_s.png")
-        legend[m] = {"carrier": carrier, "rgba": rgba, "opacity": round(a["opacity"], 4), "metal": a["metal"],
+        key = f"{m[0]}@{m[1]:g}m" if isinstance(m, tuple) else m   # (material, block size) when theaters share a pack
+        legend[key] = {"carrier": carrier, "rgba": rgba, "opacity": round(a["opacity"], 4), "metal": a["metal"],
                      "reflectance_f0": f0, "smoothness": a["smoothness"], "gaps": a["gaps"], "sources": a["sources"]}
     (root / "skippycraft_looks.json").write_text(json.dumps(legend, indent=2, default=str), encoding="utf-8")
     return legend

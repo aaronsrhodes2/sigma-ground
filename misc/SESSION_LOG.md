@@ -4125,3 +4125,9 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   measured live: the box's CI holds off while the bridge says the workshop is busy (core/quiet.py, up to 4 h), and the commits after the
   pin are Room-box ones, so the Mentat-only exception does not apply. A waiter (local-cache/word_stage/wait_ref.sh) measures the
   adversarial suite the moment /version shows 5b0c4da.
+- SkippyCraft Phase 1 DONE (2026-10-30): `stage/skippycraft/theater.py` runs a VoxelWorld live and sends only changed blocks over
+  RCON (published on 127.0.0.1:42575 only; broadcast-rcon-to-ops off), with a boss-bar readout from the world's ledger. One shared
+  resource pack for every scene, carriers keyed by (material, block size). Live on Paper 26.3: `sink` (gold falls 4 cells into the
+  mercury, iron floats; verify: 0 mismatched cells), `melt` (12 lead blocks melt off a 1500 K tungsten plate in vacuum and lie in
+  one layer; 0 mismatches), and a re-run in place clears the last run (0 mismatches). Plan deviation: RCON instead of a Java plugin
+  (no Java build tools here; nothing in Phase 1 needs one). The Captain has not watched a run live yet.

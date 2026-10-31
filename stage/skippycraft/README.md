@@ -34,3 +34,17 @@ In the game: stand where the theater's low corner should be, `/function skippycr
 removes it. Minecraft only shows it: each material has a look (`export_mc.LOOKS`), chosen from blocks Minecraft leaves alone,
 and the data pack switches off random ticks, fire, weather and mobs.
 Tests: `python -m pytest tests/test_skippycraft_export.py`.
+
+## Phase 1: a live theater
+
+```bash
+python stage/skippycraft/theater.py looks                          # one resource pack for every scene; F3+T in game
+python stage/skippycraft/theater.py sink --at 4 -60 20 --verify    # gold falls into the mercury and sinks; iron floats
+python stage/skippycraft/theater.py melt --at 24 -60 4 --verify    # lead melts on a 1500 K tungsten plate (vacuum) and spreads
+```
+
+`theater.py` ticks sigma-ground's `VoxelWorld` and sends only the changed blocks over RCON (127.0.0.1:42575, password from
+`dev-server/data/server.properties`); a boss bar shows the world's own ledger (time, mass, energy, radiated, vented, changed
+blocks). The first draw sets every cell from the theater's ground up, so a re-run clears what the last one left; Minecraft's own
+ground below is never touched. `--verify` asks Minecraft about every cell afterwards. Tests: `tests/test_skippycraft_theater.py`
+(against a fake server).
