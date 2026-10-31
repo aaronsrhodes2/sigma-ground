@@ -12,8 +12,8 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 
 | cause | expected tool | rows | examples | status |
 |---|---|---|---|---|
-| wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | open |
-| wrong_value | photon_energy_from_wavelength | 1 | `Photon energy at the Wien peak for 3.5e3 K?` (got 8.279348442857143e-0 via None) | open |
+| wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | set wording f0a0e56 |
+| wrong_value | photon_energy_from_wavelength | 1 | `Photon energy at the Wien peak for 3.5e3 K?` (got 8.279348442857143e-0 via None) | fixed f0a0e56 |
 
 ## Unverified (5): wild questions with no oracle, for a person to read
 

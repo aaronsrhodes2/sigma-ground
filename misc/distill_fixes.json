@@ -1,0 +1,12 @@
+{
+ "wrong_value|photon_energy_from_wavelength": {
+  "status": "fixed",
+  "commit": "f0a0e56",
+  "what": "the thermo cue answered an energy question with the peak wavelength"
+ },
+ "wrong_value|solve_ode": {
+  "status": "set wording",
+  "commit": "f0a0e56",
+  "what": "the oracle solved in t and the question never said so; the set now names y(t)"
+ }
+}

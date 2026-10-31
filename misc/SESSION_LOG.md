@@ -4160,3 +4160,6 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   queued (rc=0). Day one as of 19:38: Mentat 33/35 right; misses: `solve y'' + y = 0` (the oracle solved in t, the question did not say so:
   the set's wording now names y(t)), and "photon energy at the Wien peak" answered with the WAVELENGTH by a cascade cue (a real miss to fix).
   Unverified wild rows already show as-asked-unit misses (boiling point in K for a degC question; age of the Universe in s for years).
+- Day one's two misses closed: the Wien cue (energy asked, wavelength answered) fixed with tests, physics 150/150 unchanged; the ODE set
+  wording names y(t). The scheduled task's first run had re-made the day under the same ids (trickle ignored them, set file overwritten):
+  distill_day.py now refuses to re-make a day; the set file was rebuilt from the trickle's export. misc/distill_fixes.json feeds the ledger.
