@@ -61,10 +61,14 @@ class TestMeltingPoint(unittest.TestCase):
                     f"tungsten should melt higher than {key}")
 
     def test_all_melt_below_boil(self):
-        """Melting point must be below boiling point for all materials."""
+        """Melting point must be below boiling point for all materials (a substance that decomposes instead, like
+        rubber, goes from solid straight to decomposition: equal is allowed there)."""
         for key in PHASE_DATA:
             T_m = PHASE_DATA[key]['T_melt_K']
             T_b = PHASE_DATA[key]['T_boil_K']
+            if PHASE_DATA[key].get('decomposes'):
+                self.assertLessEqual(T_m, T_b)
+                continue
             self.assertLess(T_m, T_b,
                 f"{key}: T_melt ({T_m} K) should be < T_boil ({T_b} K)")
 

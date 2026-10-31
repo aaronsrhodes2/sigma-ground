@@ -265,8 +265,12 @@ PHASE_DATA = {
     # Polymers do not have sharp melting points; values here represent
     # glass transition or softening temperatures and decomposition points.
     'rubber': {
-        'T_melt_K':         200.0,      # glass transition ~200 K (-73 C)
+        # Rubber never melts: at room temperature it is already above its glass transition (~200 K, -73 C, where it
+        # turns glassy below) and it decomposes on heating. Until 2026-10-31 T_melt was the glass transition, so every
+        # rubber block was "liquid" at room temperature. It now stays solid to its decomposition point.
+        'T_melt_K':         573.0,      # decomposes ~300 C: the end of the solid
         'T_boil_K':         573.0,      # decomposes ~300 C
+        'decomposes':       True,       # solid straight to decomposition: T_melt = T_boil by design
         'L_fus_J_mol':      4000.0,     # approximate enthalpy of glass transition
         'L_vap_J_mol':      50000.0,    # decomposition enthalpy
         'delta_V_fus':      0.05,       # ~5% expansion at Tg

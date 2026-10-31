@@ -48,12 +48,12 @@ Three transport mechanisms, all derived from quantities we already have:
      λ_peak = b / T   (Wien's displacement law)
 
      Where:
-       ε = emissivity (≈ 1 - specular_fraction from texture module)
+       ε = total emissivity (``emissivity_fact``: Hagen-Rubens for metals, measured for non-metals)
        σ_SB = Stefan-Boltzmann constant
        b = Wien's displacement constant
 
      FIRST_PRINCIPLES: Planck's law is exact quantum mechanics.
-     APPROXIMATION: emissivity from specular fraction (surface finish matters).
+     APPROXIMATION: a metal's ε is the polished-surface (Hagen-Rubens) value; surface finish matters.
 
   4. Blackbody color from temperature
      Maps temperature to visible (R, G, B) for thermal emission rendering.
@@ -536,32 +536,64 @@ def thermal_diffusivity(material_key, T=300.0, sigma=0.0):
 
 # ── Thermal Radiation ─────────────────────────────────────────────
 
-def emissivity(material_key, T=300.0, sigma=0.0):
-    """Total hemispherical emissivity ε ∈ [0.01, 1].
+# Measured total emissivity near 300 K for non-metals (the IR emissivity of a dielectric comes from its molecular
+# vibration bands, which no property sigma-ground holds determines). Source: Engineering ToolBox, "Emissivity
+# Coefficients of some common Materials" (compiled IR-thermometry table, 300 K guideline; retrieved 2026-10-31). Where it
+# gives a range, its midpoint. Surface finish moves these by +-0.05 or more; confidence 0.5.
+MEASURED_TOTAL_EMISSIVITY = {
+    'ceramic_alumina': (0.80, 'Alumina, flame sprayed'),
+    'rubber':          (0.91, 'Rubber, natural hard'),
+    'wood_oak':        (0.89, 'Oak, planed'),
+    'concrete':        (0.85, 'Concrete'),
+    'granite':         (0.96, 'Granite, natural surface'),
+    'water_ice':       (0.966, 'Ice smooth'),
+    'water':           (0.957, 'Water (0 - 100 C), 0.95-0.963'),
+    'glass':           (0.93, 'Glass smooth, 0.92-0.94'),
+    'plastic_abs':     (0.935, 'Plastics, 0.90-0.97'),
+    'carbon_fiber':    (0.81, 'Carbon, not oxidized (stand-in: no carbon-fibre entry)'),
+}
+_EMISSIVITY_TABLE = 'Engineering ToolBox emissivity table (300 K)'
 
-    ε = 1 − f_specular (Kirchhoff's law: what doesn't reflect, absorbs — and a
-    good absorber is a good emitter). f_specular comes from the texture module
-    (Rayleigh roughness criterion), so a rough surface emits more.
+
+def emissivity_fact(material_key, T=300.0):
+    """``(total hemispherical emissivity, source, confidence)``. Raises KeyError when sigma-ground has no basis.
+
+    Kirchhoff: ε = 1 − R with R the TOTAL reflectance in the thermal infrared (until 2026-10-31 this used the
+    specular fraction, how mirror-like the reflected part is, which gave 0.01 to 18 of 25 materials incl. alumina and ice):
+      - a metal (measured resistivity, ``electronics.resistivity`` with its Bloch-Grüneisen T dependence): the Drude /
+        Hagen-Rubens result integrated over the Planck spectrum and the hemisphere,
+          ε = 0.578·r^½ − 0.178·r + 0.0584·r^³ᐟ², r = ρ[Ω·cm]·T   (Parker & Abbott, NASA SP-55, 1965)
+        a clean, polished surface: a lower bound (Hagen-Rubens runs low near room temperature; oxide raises ε a lot,
+        oxidised steel ~0.79);
+      - a non-metal: ``MEASURED_TOTAL_EMISSIVITY``;
+      - otherwise no emissivity (KeyError), named, never a default.
+    """
+    from . import electronics
+    try:
+        rho = electronics.resistivity(material_key, T)
+    except KeyError:
+        rho = None
+    if rho is not None and rho < 1e-5:                       # metallic conduction (silicon's 640 Ω·m is not)
+        r = rho * 100.0 * T                                  # Ω·m → Ω·cm, times K
+        eps = 0.578 * r ** 0.5 - 0.178 * r + 0.0584 * r ** 1.5
+        return (max(0.0, min(1.0, eps)),
+                "Hagen-Rubens total emissivity, Parker & Abbott 1965, from electronics.resistivity (polished: lower bound)",
+                0.5)
+    if material_key in MEASURED_TOTAL_EMISSIVITY:
+        v, row = MEASURED_TOTAL_EMISSIVITY[material_key]
+        return v, f"{_EMISSIVITY_TABLE}: {row}", 0.5
+    raise KeyError(f"no emissivity basis for {material_key!r}")
+
+
+def emissivity(material_key, T=300.0, sigma=0.0):
+    """Total hemispherical emissivity ε (``emissivity_fact``'s value). Raises KeyError when there is no basis.
 
     Extracted from ``thermal_emission_power`` so orchestrators that need ε
     itself (e.g. a radiative boundary condition ε·σ_SB·(T⁴−T_env⁴) applied per
     exposed voxel face) use the SAME emissivity the emission law does.
-
-    Args:
-        material_key: key into MATERIALS dict
-        T: temperature in Kelvin
-        sigma: σ-field value
-
-    Returns:
-        Emissivity in [0.01, 1] (clamped to the physical range).
+    ``sigma`` is accepted for the σ-field interface; emissivity is EM, σ-invariant.
     """
-    from .texture import specular_fraction
-    f_spec = specular_fraction(material_key, T, sigma=sigma)
-
-    # Emissivity = 1 - reflectivity (Kirchhoff's law, FIRST_PRINCIPLES)
-    # For thermal emission in the infrared, specular_fraction gives
-    # the mirror-like fraction. The complement absorbs and emits.
-    return max(0.01, min(1.0 - f_spec, 1.0))
+    return emissivity_fact(material_key, T)[0]
 
 
 def thermal_emission_power(material_key, T=300.0, sigma=0.0):
@@ -828,7 +860,10 @@ def material_thermal_properties(material_key, T=300.0, sigma=0.0):
     c_p = specific_heat_j_kg_K(material_key, T, sigma)
     ell = phonon_mean_free_path(material_key, T, sigma)
     kappa = thermal_conductivity(material_key, T, sigma)
-    P_rad = thermal_emission_power(material_key, T, sigma)
+    try:
+        P_rad = thermal_emission_power(material_key, T, sigma)
+    except KeyError:                       # no emissivity basis (e.g. silicon): not exported as a number
+        P_rad = None
     lam_peak = wien_peak_wavelength(T)
     bb_color = blackbody_color(T)
     glowing = is_visibly_glowing(T)

@@ -85,13 +85,6 @@ KNOWN_DEGENERATE = {
     # physics; the two-bucket collapse is the honest resolution limit of the
     # model, disclosed in _emergent_matter's roughness_origin.
     "texture.specular_fraction": (2, "crystalline/amorphous binary"),
-    # DEFECT (task chip filed 2026-07-30): inherits specular_fraction's
-    # binary via epsilon = 1 - f_spec, so 18 of 25 materials get 0.01
-    # (polished-silver emissivity) incl. ceramic_alumina (real ~0.8). The
-    # per-wavelength render-glow emissivity (thermal_emission.py, measured
-    # n+k) is a separate, healthy path -- this is the TOTAL emissivity a
-    # radiative solver would consume, and it needs a real derivation.
-    "thermal.emissivity": (2, "inherits the specular binary; 0.01 for 18/25"),
 }
 
 

@@ -33,7 +33,7 @@ SAME_SUBSTANCE = {"water": "water_ice"}
 UNITS = {
     "density": "kg/m^3", "density_solid": "kg/m^3", "density_liquid": "kg/m^3",
     "thermal_conductivity": "W/(m K)", "specific_heat": "J/(kg K)", "heat_capacity_volumetric": "J/(m^3 K)",
-    "emissivity": "dimensionless", "color": "sRGB 0-1",
+    "emissivity": "dimensionless", "emissivity_visible_550nm": "dimensionless", "color": "sRGB 0-1",
     "melting_point": "K", "boiling_point": "K", "latent_heat_fusion": "J/kg", "latent_heat_vaporization": "J/kg",
     "volume_change_on_melting": "fraction of solid volume",
     "E": "Pa", "G": "Pa", "K": "Pa", "poisson_ratio": "dimensionless", "sigma_UTS": "Pa", "K_Ic": "Pa m^0.5",
@@ -78,10 +78,14 @@ def block(material: str, temperature_k: float = 293.15, *, mass_kg: float | None
     if data_name != canonical:
         gaps.append(f"uses {data_name}'s phase data")
 
+    # the profile's emissivity is Kirchhoff 1 - R at 550 nm (resolve.py): the VISIBLE absorptivity, right for a glow's
+    # colour, wrong for heat radiated (thermal infrared). It keeps its own name; "emissivity" is the total thermal one.
+    if "emissivity" in props and "Kirchhoff" in props["emissivity"]["source"]:
+        props["emissivity_visible_550nm"] = props.pop("emissivity")
+
     # 2. derived where nothing measured
     for name, fn in (("thermal_conductivity", thermal.thermal_conductivity),
-                     ("specific_heat", thermal.specific_heat_j_kg_K),
-                     ("emissivity", thermal.emissivity)):
+                     ("specific_heat", thermal.specific_heat_j_kg_K)):
         if name in props:
             continue
         for key in dict.fromkeys((canonical, data_name)):
@@ -92,6 +96,16 @@ def block(material: str, temperature_k: float = 293.15, *, mass_kg: float | None
                 continue
         else:
             gaps.append(f"no {name.replace('_', ' ')}")
+    if "emissivity" not in props:                             # total thermal: Hagen-Rubens for metals, else measured
+        for key in dict.fromkeys((canonical, data_name)):
+            try:
+                v, src, conf = thermal.emissivity_fact(key, float(temperature_k))
+                props["emissivity"] = _fact(float(v), src, conf)
+                break
+            except KeyError:
+                continue
+        else:
+            gaps.append("no emissivity")
     if "density" in props and "specific_heat" in props:
         props["heat_capacity_volumetric"] = _fact(
             props["density"]["value"] * props["specific_heat"]["value"], "density x specific_heat",
@@ -247,9 +261,10 @@ def glow(material: str, temperature_k: float) -> dict:
     if canon in te.THERMAL_EMISSION_MATERIALS:
         eps = [te.emissivity(canon, lam) for lam in GLOW_SAMPLES_M]
         out["sources"]["emissivity"] = "thermal_emission.emissivity (Kirchhoff 1 - R, measured n+ik)"
-    elif "emissivity" in b["properties"]:
-        eps = [b["properties"]["emissivity"]["value"]] * 3
-        out["sources"]["emissivity"] = "grey body: block() emissivity (" + b["properties"]["emissivity"]["source"] + ")"
+    elif "emissivity_visible_550nm" in b["properties"] or "emissivity" in b["properties"]:
+        e = b["properties"].get("emissivity_visible_550nm") or b["properties"]["emissivity"]
+        eps = [e["value"]] * 3
+        out["sources"]["emissivity"] = "grey body: block() emissivity (" + e["source"] + ")"
     else:
         eps = [1.0] * 3
         out["gaps"].append("no emissivity: drawn as a blackbody")

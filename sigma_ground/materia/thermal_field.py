@@ -176,7 +176,10 @@ def material_grids(label_grid, materials, *, T_ref=293.15):
             continue
         k[cells] = float(thermal_conductivity(name, T=T_ref))
         rho_cp[cells] = float(heat_capacity_volumetric(name, T=T_ref))
-        eps[cells] = float(emissivity(name, T=T_ref))
+        try:
+            eps[cells] = float(emissivity(name, T=T_ref))
+        except KeyError:                           # no emissivity basis (kevlar, bone): radiates nothing, a named gap
+            eps[cells] = 0.0
     return k, rho_cp, eps
 
 

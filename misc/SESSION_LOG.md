@@ -4232,3 +4232,17 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   Flagged, not fixed (sigma-ground data): block('rubber') melting point 200 K from PHASE_DATA (a glass transition);
   block() emissivity 0.01 for steel_mild, ceramic_alumina, carbon_fiber, depleted_uranium (alumina and carbon fibre are
   near-black in the IR).
+- sigma-ground data fixed (the Captain: "Yes, fix the data"):
+  (1) thermal.emissivity used Kirchhoff with the SPECULAR fraction (how mirror-like the reflected light is) instead of
+  the total reflectance, at 550 nm instead of the thermal IR: 0.01 for 18 of 25 materials (alumina, ice, bone, every
+  metal), a blanket 0.85 for the rest. Now `thermal.emissivity_fact`: metals = Hagen-Rubens total hemispherical emissivity
+  from measured resistivity with its Bloch-Grueneisen T dependence (Parker & Abbott, NASA SP-55, 1965; polished: a lower
+  bound), non-metals = MEASURED_TOTAL_EMISSIVITY (Engineering ToolBox's 300 K table, cited row per material, confidence
+  0.5), else a named gap (kevlar, bone, silicon). Iron 0.031, steel 0.037, tungsten 0.023 at 300 K / 0.113 at 1500 K,
+  alumina 0.80, ice 0.966, granite 0.96, rubber 0.91. The degeneracy probe's documented-defect entry removed (fixed).
+  (2) block(): the profile's "emissivity" was resolve.py's Kirchhoff 1 - R at 550 nm (visible); it is now
+  `emissivity_visible_550nm` (glow uses it), and `emissivity` is the total thermal one, at the block's temperature.
+  (3) PHASE_DATA rubber: T_melt was its glass transition (200 K), so every rubber block was liquid at room temperature;
+  now solid to decomposition (573 K, T_melt = T_boil, flagged `decomposes`).
+  819 tests in the 31 affected files pass. Still flagged: VoxelWorld's material cards are built at room temperature
+  (frozen for the run), so a hot metal radiates with its 293 K emissivity (tungsten 0.023 vs 0.113 at 1500 K).

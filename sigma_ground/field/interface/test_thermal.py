@@ -213,9 +213,10 @@ class TestThermalRadiation(unittest.TestCase):
         P_300 = thermal_emission_power('iron', T=300.0)
         P_600 = thermal_emission_power('iron', T=600.0)
         ratio = P_600 / P_300
-        # Should be ~16 (T⁴ scaling), but emissivity may shift slightly
-        self.assertGreater(ratio, 10)
-        self.assertLess(ratio, 20)
+        # T⁴ times the emissivity's own rise (a metal's ε grows with ρ·T: Hagen-Rubens)
+        from sigma_ground.field.interface.thermal import emissivity
+        self.assertAlmostEqual(ratio, 16 * emissivity('iron', 600.0) / emissivity('iron', 300.0), places=6)
+        self.assertGreater(ratio, 16)
 
     def test_wien_peak_visible_at_high_T(self):
         """At ~5800K (Sun), peak is in visible range (~500nm)."""
