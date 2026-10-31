@@ -4103,3 +4103,6 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   (random_tick_speed, fire_spread_radius_around_player, advance_time, advance_weather, spawn_mobs, mob_griefing: camelCase rejected).
   The tank (210 blocks, 74 commands) placed from the console at (4,-60,4) and verified block by block with `execute if block`;
   clear works. Not yet: a real client flying through it (no Minecraft client on skippy-pc; needs his name and his Java client).
+- SkippyCraft Phase 0 DONE (2026-10-30 01:17 UTC): the Captain joined as aaronsrhodes from a Minecraft 26.3 client and flew around
+  the tank (his screen recording): granite slab, glass tank, mercury (light-grey stained glass, faint), the iron block on it, the gold
+  block above it as written (no tick yet), the copper block beside. Look note: mercury reads too faint; revisit in Phase 1.

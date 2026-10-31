@@ -125,7 +125,7 @@ Said to Skippy, or as `/theater …`:
 
 | Phase | Work | Done when | Est. |
 |---|---|---|---|
-| **0 Spike** | Paper server locally; a minimal plugin that reads a `VoxelField` and places its blocks once; material → block look table | the demo tank appears in a local world and a stock client flies through it | 1 day |
+| **0 Spike** (DONE 2026-10-30: the Captain flew around the tank on Paper 26.3) | Paper server locally; a minimal plugin that reads a `VoxelField` and places its blocks once; material → block look table | the demo tank appears in a local world and a stock client flies through it | 1 day |
 | **1 Live theater** | the service with one `VoxelWorld`, a tick loop, block diffs over WebSocket; vanilla physics off in the region; a readout | the gold ring sinks and the bolt floats in front of you; the lead melts on the hot plate; the readout's energy balance matches the service's | 2 to 3 days |
 | **2 Commands** | `/theater` new/heat/drop/pause/speed/undo/reset; "what is that?" via `block_properties` | every command in section 8 works from inside, without words | 2 days |
 | **3 Talking to Skippy** | port parse/plan/layout; the bridge to Skippy Core; block-code builds via MineBench-style prompts and `voxel_exec` | "Skippy, build ..." and "Skippy, heat the floor ..." work in plain words; failures say why | 3 to 4 days |
