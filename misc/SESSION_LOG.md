@@ -4246,3 +4246,4 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   now solid to decomposition (573 K, T_melt = T_boil, flagged `decomposes`).
   819 tests in the 31 affected files pass. Still flagged: VoxelWorld's material cards are built at room temperature
   (frozen for the run), so a hot metal radiates with its 293 K emissivity (tungsten 0.023 vs 0.113 at 1500 K).
+- Unrelated, pre-existing: tests/test_trajectory_thermo.py::test_front_door_two_turn_thermal_render fails on the commit before the data fix too (front door routes the question to 'clarify', not 'simulate').
