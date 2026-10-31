@@ -98,3 +98,29 @@ def test_readout_is_the_worlds_own_ledger(looks):
 def test_every_scene_material_has_its_own_carrier(looks):
     assert len(set(looks.values())) == len(looks)
     assert looks[("lead", 0.01)] != looks[("granite", 0.05)]
+
+
+def test_panel_puts_a_button_on_a_command_block_that_records_the_request():
+    cmds = theater.panel_commands("sink")
+    x, y, z = theater.STAGES["sink"]["run"]
+    assert f'setblock {x} {y} {z} minecraft:command_block{{Command:"scoreboard players set #request skippycraft 1"}}' in cmds
+    assert f"setblock {x} {y + 1} {z} minecraft:stone_button[face=floor]" in cmds
+    assert any(f"#request skippycraft {theater.STOP}" in c for c in cmds)
+    assert any(c.startswith("summon minecraft:text_display") and '"Run sink"' in c for c in cmds)
+
+
+def test_read_request_takes_the_value_and_clears_it():
+    class FakeRcon:
+        def __init__(self):
+            self.value, self.sent = 2, []
+
+        def command(self, c):
+            self.sent.append(c)
+            if c.startswith("scoreboard players get"):
+                return f"#request has {self.value} [skippycraft]"
+            if c.startswith("scoreboard players set"):
+                self.value = int(c.split()[-1])
+            return ""
+    r = FakeRcon()
+    assert theater.read_request(r) == 2 and r.value == 0
+    assert theater.read_request(r) == 0

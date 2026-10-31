@@ -4134,3 +4134,11 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - The last rows (2026-10-30): question_enrich (y(t) -> func), GEO zero-speed cue (+ new_tools guard), orbital_clock_drift tool + GPS cue,
   landmark_height + bananas cue. Local engine, paired: maths 329/329, physics 150/150, adversarial 15/18. Left: 3 open-ended knowledge rows.
 - SkippyCraft Phase 1 watched live by the Captain (2026-10-31 02:16 UTC): sink and melt played in front of him, both verified 0 mismatches; his verdict: "Looked right".
+- SkippyCraft buttons (the Captain: "the blocks didn't move ... I need a hotkey to click, not an awful keyboard combo"). The log
+  showed both scenes ran while he was in (02:15:59-02:17:39), but the melt's only visible change is one slump tick (~1.3 s sim)
+  and F3+T reloads may have covered the sink. Now `theater.py serve`: a Run/Stop panel of stone buttons on command blocks in front
+  of each theater (the command block sets #request in scoreboard skippycraft; the service polls over RCON), the resource pack
+  served over HTTP (100.122.71.14:42566) and set as the server's RESOURCE_PACK so it arrives on join (the folder copy in his client
+  removed), command blocks enabled. Checked by powering the command blocks with a redstone block: Run sink ran and the gold ended at
+  the bottom of the mercury; Run melt then Stop stopped it (the next run started at once). Still open: heat is invisible (no glow),
+  so a melt shows only as a slump.

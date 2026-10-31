@@ -9,6 +9,12 @@ every block it draws is a carrier repainted by the shared resource pack (``expor
     python stage/skippycraft/theater.py sink --at 4 -60 20      # gold sinks through mercury, iron floats
     python stage/skippycraft/theater.py melt --at 20 -60 4      # lead melts on a 1500 K tungsten plate, in vacuum
     python stage/skippycraft/theater.py looks                    # (re)write the resource pack for every scene; F3+T in game
+    python stage/skippycraft/theater.py serve                    # the service: buttons in the world, the pack on join
+
+``serve`` is how the Captain uses it: it builds a small panel in front of each theater (a button to run it, a button to stop),
+serves the resource pack over HTTP so the server hands it to him when he joins (no F3+T), and runs whichever scene he clicks.
+A button sits on a command block that records the request in the scoreboard (``#request`` in objective ``skippycraft``);
+the service polls it over RCON.
 
 RCON is 127.0.0.1:42575 (dev-server/docker-compose.yml); its password is read from dev-server/data/server.properties.
 Phase 1 drives the server with commands; no plugin is needed yet.
@@ -35,6 +41,18 @@ SCENES = {
     "melt": ('box(0,0,0,9,0,9,"tungsten"); box(4,1,4,5,3,5,"lead")', 0.01, "ISM", "plate_1500", 120, 0.05),
 }
 BOSSBAR = "skippycraft:theater"
+
+# where each scene stands, its panel (run and stop buttons on the ground in front of it), its request number, and its pace
+STAGES = {
+    "sink": {"origin": (4, -60, 20), "run": (8, -60, 16), "stop": (10, -60, 16), "request": 1, "rate": 1.5,
+             "tell": "Sink: a gold block drops into the mercury and sinks; the iron floats (gold is denser than mercury, iron is not)."},
+    "melt": {"origin": (24, -60, 4), "run": (28, -60, 0), "stop": (30, -60, 0), "request": 2, "rate": 4.0,
+             "tell": "Melt: a lead column on a 1500 K tungsten plate, in vacuum. It slumps when it melts; the boss bar keeps the books."},
+}
+STOP = 9
+SPAWN = (9, -60, 12)
+PACK_DIR = HERE / "dev-server" / "pack"
+PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet address: the server's RESOURCE_PACK points here
 
 
 # ── RCON (the Source RCON protocol Minecraft speaks) ──────────────────────────────────────────────────────────────────────
@@ -192,17 +210,110 @@ def verify(theater, rcon):
     return bad
 
 
+# ── the service: panels, the served pack, requests ────────────────────────────────────────────────────────────────────────
+def build_pack():
+    """Write the shared resource pack and its zip for the server to hand out. Returns the looks."""
+    import shutil
+    looks, appearances = shared_looks()
+    export_mc.write_resourcepack(looks, appearances, PACK_DIR)
+    shutil.make_archive(str(PACK_DIR / "skippycraft"), "zip", PACK_DIR / "skippycraft")
+    return looks
+
+
+def serve_pack():
+    """Serve ``PACK_DIR`` over HTTP on the tailnet address, in a background thread."""
+    import functools
+    import threading
+    from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+    class Quiet(SimpleHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+    httpd = ThreadingHTTPServer((PACK_HOST, PACK_PORT), functools.partial(Quiet, directory=str(PACK_DIR)))
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    return httpd
+
+
+def panel_commands(name):
+    """A run button and a stop button, each on a command block, with a floating label."""
+    st, cmds = STAGES[name], []
+    for key, number, label in (("run", st["request"], f"Run {name}"), ("stop", STOP, "Stop")):
+        x, y, z = st[key]
+        cmds += [f'setblock {x} {y} {z} minecraft:command_block{{Command:"scoreboard players set #request skippycraft {number}"}}',
+                 f"setblock {x} {y + 1} {z} minecraft:stone_button[face=floor]",
+                 f"kill @e[type=text_display,tag=skippycraft_{name}_{key}]",
+                 f'summon minecraft:text_display {x + 0.5} {y + 1.7} {z + 0.5} {{text:{json.dumps(label)},billboard:"center",'
+                 f'Tags:["skippycraft_label","skippycraft_{name}_{key}"]}}']
+    return cmds
+
+
+def read_request(rcon):
+    out = rcon.command("scoreboard players get #request skippycraft")
+    if " has " not in out:
+        return 0
+    value = int(out.split(" has ", 1)[1].split()[0])
+    if value:
+        rcon.command("scoreboard players set #request skippycraft 0")
+    return value
+
+
+def serve(player="aaronsrhodes"):
+    """Run forever: answer the panel buttons with live theaters."""
+    looks = build_pack()
+    serve_pack()
+    rcon = Rcon()
+    send = lambda cmds: [rcon.command(c) for c in cmds]
+    send(["forceload add -16 -16 47 47", "scoreboard objectives add skippycraft dummy",
+          "scoreboard players set #request skippycraft 0", f"setworldspawn {SPAWN[0]} {SPAWN[1]} {SPAWN[2]}"])
+    for name in STAGES:
+        send(panel_commands(name))
+    by_number = {st["request"]: name for name, st in STAGES.items()}
+    tell = lambda text: rcon.command("tellraw @a " + json.dumps({"text": text, "color": "green"}))
+    print("serving: panels built, pack at", f"http://{PACK_HOST}:{PACK_PORT}/skippycraft.zip", flush=True)
+    pending = 0
+    while True:
+        req = pending or read_request(rcon)
+        pending = 0
+        name = by_number.get(req)
+        if name is None:
+            time.sleep(0.3)
+            continue
+        st = STAGES[name]
+        _, world = build(name)
+        th = Theater(world, looks, st["origin"], send)
+        rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
+        tell(st["tell"])
+        th.open()
+        _, _, _, _, ticks, dt = SCENES[name]
+        print("run", name, flush=True)
+        for _ in range(ticks):
+            t0 = time.monotonic()
+            nxt = read_request(rcon)
+            if nxt:
+                pending = 0 if nxt == STOP else nxt
+                tell(f"Stopped {name}.")
+                break
+            world.step(dt)
+            th.readout(th.draw())
+            time.sleep(max(0.0, 1.0 / st["rate"] - (time.monotonic() - t0)))
+        else:
+            tell(f"{name} done: the world ran {world.t:.2f} simulated seconds.")
+
+
 def main(argv=None):
     import argparse
     import os
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("scene", choices=[*SCENES, "looks"])
+    ap.add_argument("scene", choices=[*SCENES, "looks", "serve"])
     ap.add_argument("--at", nargs=3, type=int, default=[4, -60, 20], metavar=("X", "Y", "Z"))
     ap.add_argument("--rate", type=float, default=4.0, help="ticks shown per real second")
     ap.add_argument("--ticks", type=int)
     ap.add_argument("--verify", action="store_true", help="check every cell in Minecraft afterwards")
     a = ap.parse_args(argv)
 
+    if a.scene == "serve":
+        serve()
+        return
     looks, appearances = shared_looks()
     packs = os.path.join(os.environ["APPDATA"], ".minecraft", "resourcepacks")
     export_mc.write_resourcepack(looks, appearances, packs)

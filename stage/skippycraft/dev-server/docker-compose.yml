@@ -29,6 +29,9 @@ services:
       LEVEL_TYPE: minecraft:flat
       GENERATE_STRUCTURES: "FALSE"
       MOTD: SkippyCraft
+      ENABLE_COMMAND_BLOCK: "TRUE"     # the theater panels: a button on a command block records a request the service reads
+      RESOURCE_PACK: "http://100.122.71.14:42566/skippycraft.zip"   # served by theater.py serve; arrives on join, no F3+T
+      RESOURCE_PACK_ENFORCE: "FALSE"
       BROADCAST_RCON_TO_OPS: "FALSE"   # the theater service sends many commands; they must not scroll through his chat
     ports:
       - "127.0.0.1:42565:25565"

@@ -48,3 +48,16 @@ python stage/skippycraft/theater.py melt --at 24 -60 4 --verify    # lead melts 
 blocks). The first draw sets every cell from the theater's ground up, so a re-run clears what the last one left; Minecraft's own
 ground below is never touched. `--verify` asks Minecraft about every cell afterwards. Tests: `tests/test_skippycraft_theater.py`
 (against a fake server).
+
+## Using it: buttons, no keyboard combos
+
+```bash
+python stage/skippycraft/theater.py serve
+```
+
+The service builds a small panel on the ground in front of each theater: **Run sink** at (8, -60, 16) and **Run melt** at
+(28, -60, 0), each with a **Stop** beside it. Right-click a button: it sits on a command block that records the request in the
+scoreboard, and the service (polling over RCON) runs that theater in front of you, with the boss bar as the readout. The world
+spawn is beside the sink panel. The service also serves the resource pack (http://100.122.71.14:42566/skippycraft.zip, the
+server's `RESOURCE_PACK`), so it arrives when he joins: accept it once, no F3+T. The service runs on skippy-pc for now (it must be
+running for the buttons and the pack); Phase 5 makes it a kept-up service.
