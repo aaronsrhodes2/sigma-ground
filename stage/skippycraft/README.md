@@ -23,6 +23,13 @@ rules run (26.x game-rule names), every block lands where it was written (`execu
 The flat world's surface is y = -60. The server uses its 3 GB. A player name joins the whitelist with
 `docker exec skippycraft rcon-cli "whitelist add <name>"`.
 
+Looks are derived by sigma-ground (`field.interface.block.appearance`): colour, opacity through one block of the theater's
+size, reflectance and smoothness. The exporter writes a resource pack into this PC's `.minecraft/resourcepacks/skippycraft`
+that repaints one carrier block per material (concrete if opaque, stained glass if see-through) and adds LabPBR specular maps
+(reflections need a shader pack; vanilla draws none). Enable it once in Options > Resource Packs; after a re-export press F3+T.
+`--looks vanilla` uses hand-picked stock blocks and no pack. `skippycraft_looks.json` in the pack lists each material's look,
+its sources and its gaps.
+
 In the game: stand where the theater's low corner should be, `/function skippycraft:tank`; `/function skippycraft:clear_tank`
 removes it. Minecraft only shows it: each material has a look (`export_mc.LOOKS`), chosen from blocks Minecraft leaves alone,
 and the data pack switches off random ticks, fire, weather and mobs.

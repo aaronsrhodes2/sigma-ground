@@ -51,3 +51,24 @@ def test_every_property_has_units_and_a_source():
     for m in ("copper", "water", "granite", "mercury"):
         for name, p in block(m)["properties"].items():
             assert p["source"], f"{m}.{name} has no source"
+
+
+def test_appearance_of_a_metal_is_its_reflectance_and_opaque():
+    from .block import appearance
+    a = appearance("gold", 0.05)
+    assert a["metal"] and a["opacity"] == 1.0 and a["color_rgb"] == a["reflectance_f0"]
+    assert a["color_rgb"][0] > a["color_rgb"][2]                  # gold: more red than blue
+
+
+def test_clear_material_opacity_depends_on_block_size():
+    from .block import appearance
+    thin, thick = appearance("water", 0.05), appearance("water", 2.0)
+    assert thin["opacity"] < thick["opacity"] < 1.0               # a metre of water is bluer than a cup's worth
+    assert thick["color_rgb"][2] > thick["color_rgb"][0]
+    assert 0.0 < appearance("glass", 0.05)["reflectance_f0"] < 0.1   # Fresnel at n ~ 1.5
+
+
+def test_appearance_names_what_it_lacks():
+    from .block import appearance
+    g = appearance("granite", 0.05)
+    assert g["color_rgb"] is None and "no colour model" in g["gaps"]

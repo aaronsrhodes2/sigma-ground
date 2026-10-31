@@ -76,3 +76,21 @@ def test_theater_rules_use_minecraft_26_names():
         if cmd.startswith("gamerule "):
             name = cmd.split()[1]
             assert name == name.lower() and not any(c.isupper() for c in name), name
+
+
+def test_derived_looks_repaint_carriers_from_sigma_ground(tmp_path):
+    from PIL import Image
+    field, _ = field_from_voxel_exec(TANK, block_m=0.05)
+    looks, appearances = export_mc.derive_looks(field)
+    assert looks["glass"] in export_mc.CARRIERS_CLEAR                 # see-through at 5 cm
+    assert looks["mercury"] in export_mc.CARRIERS_OPAQUE              # a metal: opaque
+    assert len(set(looks.values())) == len(looks)                     # one carrier per material
+    legend = export_mc.write_resourcepack(looks, appearances, tmp_path)
+    tex = tmp_path / "skippycraft" / "assets" / "minecraft" / "textures" / "block"
+    glass = Image.open(tex / f"{looks['glass']}.png").getpixel((0, 0))
+    assert glass[3] == legend["glass"]["rgba"][3] < 64                # alpha from opacity through one block
+    spec = Image.open(tex / f"{looks['iron']}_s.png").getpixel((0, 0))
+    assert spec[1] == 255                                             # LabPBR: metal, albedo is F0
+    assert legend["granite"]["rgba"][:3] == (128, 128, 128) and "no colour model" in legend["granite"]["gaps"]
+    place, _, _ = export_mc.field_to_commands(field, looks)
+    assert any(looks["mercury"] in c for c in place)

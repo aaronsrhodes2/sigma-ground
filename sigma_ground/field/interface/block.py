@@ -153,4 +153,76 @@ def block(material: str, temperature_k: float = 293.15, *, mass_kg: float | None
             "amount": amount, "gaps": gaps}
 
 
-__all__ = ["block", "SAME_SUBSTANCE", "UNITS"]
+# material → (Cauchy key, absorption key) in optics: which measured optical model a clear material is
+OPTICAL_MODEL = {
+    "glass": ("crown_glass", "clear"), "water": ("water", "water_blue"), "water_ice": ("ice", "clear"),
+    "diamond": ("diamond", "clear"), "quartz": ("quartz", "clear"), "sapphire": ("sapphire", "clear"),
+}
+
+
+def appearance(material: str, thickness_m: float, temperature_k: float = 293.15) -> dict:
+    """How one block of ``material``, ``thickness_m`` across, looks: what a renderer needs.
+
+    Returns ``{"color_rgb", "transmittance_rgb", "opacity", "reflectance_f0", "metal", "smoothness",
+    "sources", "gaps"}``, every value from sigma-ground's optics, or a named gap:
+
+      - a METAL (``optics.metal_rgb``: Drude / measured n+ik → Fresnel): its colour IS its normal-incidence
+        reflectance; opaque (light dies within nanometres);
+      - a CLEAR dielectric (``OPTICAL_MODEL``): Cauchy n and Beer-Lambert absorption through ``thickness_m``
+        (``optics.dielectric_transmission_rgb``): colour = what gets through, opacity = 1 − mean
+        transmittance, F0 = the Fresnel reflectance at 550 nm. So transparency depends on block size: a 5 cm
+        block of water is nearly clear, a metre of it is blue;
+      - anything else: the profile's colour if it has one, opaque; else gaps.
+
+    ``smoothness`` is 1 − √α from ``texture.microfacet_roughness`` (Beckmann α of a clean, equilibrium
+    surface: an upper bound on how mirror-like a real, worked surface is).
+    """
+    import math
+    from . import optics, texture
+
+    b = block(material, temperature_k)
+    canon, props = b["canonical"], b["properties"]
+    out = {"material": material, "canonical": canon, "thickness_m": float(thickness_m), "color_rgb": None,
+           "transmittance_rgb": (0.0, 0.0, 0.0), "opacity": 1.0, "reflectance_f0": None, "metal": False,
+           "smoothness": None, "sources": {}, "gaps": []}
+    try:
+        c = tuple(float(v) for v in optics.metal_rgb(canon))
+        out.update(color_rgb=c, reflectance_f0=c, metal=True)
+        out["sources"]["color_rgb"] = out["sources"]["reflectance_f0"] = "optics.metal_rgb (Drude / measured n+ik, Fresnel)"
+        out["sources"]["opacity"] = "metal: opaque"
+    except (KeyError, ValueError):
+        if canon in OPTICAL_MODEL:
+            key, absorb = OPTICAL_MODEL[canon]
+            T = tuple(float(v) for v in optics.dielectric_transmission_rgb(key, absorb, float(thickness_m)))
+            out.update(color_rgb=T, transmittance_rgb=T, opacity=1.0 - sum(T) / 3,
+                       reflectance_f0=optics.dielectric_surface_reflectance(optics.cauchy_n(key, optics.LAMBDA_G)))
+            src = f"optics: Cauchy n ({key}) + Beer-Lambert ({absorb}) through {thickness_m:g} m"
+            out["sources"].update(color_rgb=src, transmittance_rgb=src, opacity=src,
+                                  reflectance_f0=f"optics.dielectric_surface_reflectance(n({key}, 550 nm))")
+        else:
+            col = props.get("color")
+            if col is not None:
+                out["color_rgb"] = tuple(float(v) for v in col["value"])
+                out["sources"]["color_rgb"] = col["source"]
+            else:
+                out["gaps"].append("no colour model")
+            refl = props.get("reflectance")
+            if refl is not None and isinstance(refl["value"], (int, float)):
+                out["reflectance_f0"] = float(refl["value"])
+                out["sources"]["reflectance_f0"] = refl["source"]
+            else:
+                out["gaps"].append("no reflectance")
+            out["sources"]["opacity"] = "no transmission model: drawn opaque"
+    for key in dict.fromkeys((canon, SAME_SUBSTANCE.get(canon, canon))):
+        try:
+            out["smoothness"] = max(0.0, 1.0 - math.sqrt(float(texture.microfacet_roughness(key, T=temperature_k))))
+            out["sources"]["smoothness"] = f"1 - sqrt(texture.microfacet_roughness({key!r}))"
+            break
+        except (KeyError, ValueError):
+            continue
+    else:
+        out["gaps"].append("no surface roughness")
+    return out
+
+
+__all__ = ["block", "appearance", "SAME_SUBSTANCE", "UNITS", "OPTICAL_MODEL"]

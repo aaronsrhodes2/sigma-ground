@@ -4106,3 +4106,9 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 - SkippyCraft Phase 0 DONE (2026-10-30 01:17 UTC): the Captain joined as aaronsrhodes from a Minecraft 26.3 client and flew around
   the tank (his screen recording): granite slab, glass tank, mercury (light-grey stained glass, faint), the iron block on it, the gold
   block above it as written (no tick yet), the copper block beside. Look note: mercury reads too faint; revisit in Phase 1.
+- SkippyCraft looks from sigma-ground (the Captain): `block.appearance(material, thickness_m)`: metals from optics.metal_rgb (colour =
+  F0, opaque), clear dielectrics from Cauchy n + Beer-Lambert through ONE block (5 cm glass: opacity 0.11; 5 cm water 0.05; 2 m water
+  0.24 and blue), else the profile colour or a named gap; smoothness 1 - sqrt(texture.microfacet_roughness). export_mc derives looks:
+  a generated resource pack (format 97 = Minecraft 26.3) repaints one carrier per material (concrete if opaque, stained glass if
+  see-through, alpha = opacity) + LabPBR _s maps. The tank rebuilt with derived looks (mercury now an opaque bright metal, not faint
+  glass); granite has no colour model (neutral grey, reported). The Captain enables the pack once in Options > Resource Packs.
