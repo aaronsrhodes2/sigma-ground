@@ -147,7 +147,7 @@ def test_read_request_takes_the_value_and_clears_it():
 
 def test_no_desk_is_inside_any_theaters_grid():
     # a theater's first draw sets every cell of its grid from the ground up: a desk inside one would be erased by a run
-    looks = {**theater.shared_looks()[0], **theater.slit_looks()[0]}
+    looks = {**theater.shared_looks()[0], **theater.slit_looks()[0]}   # the range's materials are in shared_looks
     for name, st in theater.STAGES.items():
         _, world = theater.build(name)
         th = theater.Theater(world, looks, st["origin"], lambda c: None)
@@ -197,7 +197,7 @@ def test_hot_cells_are_drawn_glowing_and_cool_ones_plain(looks):
     rod = tuple(np.argwhere(world.label == lead)[-1])                   # the top of the lead: still room temperature
     band = int(np.searchsorted(export_mc.GLOW_BANDS_K, world.T[plate], side="right") - 1)
     assert band == 4                                                    # the 1500 K plate
-    assert mc.blocks[th.mc(*plate)] == export_mc.GLOW_CARRIERS[glows[("tungsten", world.pitch, band)][0]][0]
+    assert mc.blocks[th.mc(*plate)] == export_mc.GLOW_CARRIERS[glows[band][0]][0]
     assert mc.blocks[th.mc(*rod)] == looks[("lead", world.pitch)]
     for _ in range(5):
         world.step(0.05)
@@ -227,3 +227,18 @@ def test_slit_screen_shows_the_photons_in_the_lasers_colour(looks):
     lit = {b for b in mc.shown().values() if b.endswith("_wool")}
     assert lit and lit <= {theater.slit_looks()[0][(f"light 650 {lv}", 0.001)] for lv in range(1, 6)}
     assert "photons" in mc.bar
+
+
+def test_the_range_target_and_its_glowing_crater_reach_minecraft(looks):
+    import shooting_range
+    glows = theater.shared_glows()
+    world = shooting_range.RangeWorld("m2_browning", "nij_iv")
+    mc = FakeMinecraft()
+    th = theater.Theater(world, looks, theater.STAGES["range"]["origin"], mc.send, glows=glows)
+    th.open()
+    world.step(0.02)
+    th.draw()
+    shown = th.display()
+    assert {th.mc(i, j, k): th.block[shown[i, j, k]] for i, j, k in np.argwhere(world.label > 0)} == mc.shown()
+    lit = {theater.export_mc.GLOW_CARRIERS[ci][0] for ci, _, _ in glows.values()}
+    assert lit & set(mc.shown().values())                               # the crater's walls glow

@@ -40,7 +40,7 @@ FALLBACK = "white_concrete"
 
 _DYES = ["white", "light_gray", "gray", "black", "brown", "red", "orange", "yellow", "lime", "green", "cyan", "light_blue",
          "blue", "purple", "magenta", "pink"]
-CARRIERS_OPAQUE = [f"{d}_concrete" for d in _DYES]
+CARRIERS_OPAQUE = [f"{d}_concrete" for d in _DYES] + [f"{d}_terracotta" for d in _DYES if d != "black"]  # black: the slit screen
 CARRIERS_CLEAR = [f"{d}_stained_glass" for d in _DYES]
 CLEAR_BELOW = 0.99           # opacity under this draws through stained glass (translucent)
 NO_COLOUR = (0.5, 0.5, 0.5)  # neutral grey for a material with no colour model: shown, and reported as a gap
@@ -149,7 +149,7 @@ def write_glow_textures(glows, packs_dir, name="skippycraft"):
             Image.new("RGBA", (16, 16), (40, 10, 0, max(1, min(254, round(254 * v))))).save(tex / f"{t}_s.png")
             meta = tex / f"{t}.png.mcmeta"                            # magma's animation would read a missing strip
             meta.write_text(json.dumps({"animation": {"frametime": 1000}}), encoding="utf-8")
-        legend[" ".join(map(str, key))] = {"carrier": state, "light": light, "rgba": rgba, "brightness": round(v, 3)}
+        legend[str(key)] = {"carrier": state, "light": light, "rgba": rgba, "brightness": round(v, 3)}
     (Path(packs_dir) / name / "skippycraft_glow.json").write_text(json.dumps(legend, indent=2), encoding="utf-8")
     return legend
 

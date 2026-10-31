@@ -112,3 +112,17 @@ starts as scattered dots and the fringes appear as they pile up; cells are colou
 brightness levels. Desk (z = 150, "Go to slit" from slosh): **Run**, **Observe** (which-path known: the fringes vanish),
 **One slit**, **Colour** (650 / 532 / 405 nm); the three setup buttons also work between runs and start a fresh one. Live:
 bright fringes 5 blocks apart for λL/d = 5.20 mm; observed, one smooth envelope.
+
+## The shooting range (`range`, 2026-10-31)
+
+Weapon vs. Armor (`games/weapon_vs_armor`) as a real target (`shooting_range.py`): the armour preset built as layers of
+2 mm blocks, 64 x 64 across (12.8 cm square), front layer toward the desk (z = 20, "Go to range" from the slit desk; the
+target stands at x 120-183, z 60). **Run** fires: the game's own per-layer physics (kinetic Poncelet/Birkhoff, laser,
+shaped-charge jet) decides which layers the shot defeats and how deep it gets into the one that stops it; that is carved in
+(a hole of the weapon's radius, a crater) and the crater's walls are set to the game's temperature. From then on the target
+is a VoxelWorld: the hot channel glows (one light-emitting carrier per glow band, shared by every material), conducts its
+heat away, and melts or boils off by sigma-ground's data. **Weapon** / **Armor** cycle the setup (9 weapons, 8 armours) and
+show the fresh target. Only standard-physics weapons: the game's plasma and sigma-field weapons import `SIGMA_CONV`, which
+moved to ssbm-theory. Materials sigma-ground has no colour for (kevlar, rubber, ceramic, ...) take the game's hand-picked
+colours, named as a gap. Live: AK-47 vs NIJ IV stops 5.9 mm into the ceramic (3-block crater, 3286 K walls, 11875/11875
+cells verified); the .50 cal breaches it.

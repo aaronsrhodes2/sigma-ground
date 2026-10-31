@@ -49,6 +49,8 @@ SCENES = {
               'box(3,1,1,16,3,6,"water"); block(8,5,3,"gold"); block(12,5,4,"wood_oak")', 0.05, "STP", "flip", 750, 0.04),
     # the double slit, one photon at a time, on a screen of 1 mm blocks (materia.voxel_slits): no build code, its own world
     "slit": (None, 0.001, None, "slits", 240, 0.1),
+    # the shooting range: Weapon vs. Armor's physics carved into an armour target of 2 mm blocks (shooting_range.py)
+    "range": (None, 0.002, "STP", "range", 150, 0.02),
 }
 PADDLE = {"material": "aluminum", "axis": 0, "amplitude_m": 0.015, "period_s": None}
 BODIES = ("gold", "wood_oak")          # free bodies in the slosh tank: they fall in when it runs (gold sinks, oak floats)
@@ -68,15 +70,22 @@ STAGES = {
               "tell": "Slosh: the paddle pushes the water at the tank's own sloshing period, so each push adds to the last. "
                       "A gold block and an oak block drop in: the water's own pressure sinks one and floats the other."},
     # the screen stands at z = 200 (128 x 32 blocks, 1 mm each); the desk is 50 blocks back so the whole screen is in view
-    "slit": {"origin": (0, -60, 200), "desk": (64, -45, 150), "pitch": 0, "other": "sink", "request": 8, "rate": 8.0,
+    "slit": {"origin": (0, -60, 200), "desk": (64, -45, 150), "pitch": 0, "other": "range", "request": 8, "rate": 8.0,
              "extra": (("Observe", 6), ("One slit", 7), ("Colour", 10)),
              "tell": "Double slit: a laser through two slits 0.25 mm apart, onto a screen 2 m away, drawn at true scale (1 block "
                      "= 1 mm). Photons arrive one at a time; the fringes appear only as they pile up. Observe = learn which slit "
                      "each photon took (the fringes vanish). One slit = close one. Colour = change the laser."},
+    # the target's face is 64 x 64 blocks (12.8 cm square, 2 mm blocks) at z = 60; the desk floats 40 blocks back at its centre
+    "range": {"origin": (120, -60, 60), "desk": (152, -28, 20), "pitch": 0, "other": "sink", "request": 11, "rate": 8.0,
+              "extra": (("Weapon", 12), ("Armor", 13)),
+              "tell": "Range: Weapon vs. Armor's own physics, carved into a real target of 2 mm blocks. Run fires; the hole "
+                      "goes through every layer the shot defeats, the crater glows at the temperature the game computes, then "
+                      "cools by conduction. Weapon / Armor change the setup."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
 SCREEN_BUTTONS = {6: "observe", 7: "one_slit", 10: "colour"}
+RANGE_BUTTONS = {12: "weapon", 13: "armor"}
 DESK_LOOK = {"fill": "minecraft:sea_lantern", "board": "minecraft:command_block"}
 PACK_DIR = HERE / "dev-server" / "pack"
 PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet address: the server's RESOURCE_PACK points here
@@ -189,6 +198,9 @@ def build(name):
     from sigma_ground.materia.voxel_world import VoxelWorld
 
     _, _, env, temp, _, _ = SCENES[name]
+    if temp == "range":
+        import shooting_range
+        return None, shooting_range.RangeWorld(armed=False)
     if temp == "slits":
         from sigma_ground.materia.voxel_slits import SlitScreen
         return None, SlitScreen()
@@ -209,39 +221,45 @@ def shared_looks():
         lk, ap = export_mc.derive_looks(f)
         for m in lk:
             appearances.setdefault((m, f.voxel_size), ap[m])
+    for key, a in range_appearances().items():
+        appearances.setdefault(key, a)
     opaque, clear = iter(export_mc.CARRIERS_OPAQUE), iter(export_mc.CARRIERS_CLEAR)
     for key, a in appearances.items():
         looks[key] = next(clear if a["opacity"] < export_mc.CLEAR_BELOW else opaque)
     return looks, appearances
 
 
+GLOW_HUE_OF = "blackbody"   # the band's hue: each material's spectral emissivity shifts it by under 2% (checked: tungsten, lead)
+
+
 def shared_glows():
-    """A glow carrier for every (material, block size, band) a scene can reach: heat only flows downhill here, so a scene's
-    hottest start bounds it. Dimmer glows get the dimmer light-emitting blocks. Returns ``{key: (carrier, rgba, v)}``."""
-    import numpy as np
-    needs = {}
-    for name, (_, _, _, temp, _, _) in SCENES.items():
-        if temp in (None, "flip", "slits"):
-            continue
-        field, world = build(name)
-        hottest = float(np.max(world.T))
-        for k, m in enumerate(world.materials[1:], 1):
-            for band, edge in enumerate(export_mc.GLOW_BANDS_K):
-                if edge <= hottest:
-                    rgba, v, _ = export_mc.glow_display(m, edge)
-                    needs[(m, world.pitch, band)] = (rgba, v)
-    if len(needs) > len(export_mc.GLOW_CARRIERS):
-        raise ValueError(f"{len(needs)} glows, {len(export_mc.GLOW_CARRIERS)} light-emitting carriers")
-    order = sorted(needs, key=lambda key: needs[key][1])
+    """One light-emitting carrier per glow band, shared by every material (the range can reach any band): its hue and
+    brightness from ``export_mc.glow_display`` at the band's lower edge; dimmer bands on dimmer blocks. Returns
+    ``{band: (carrier index, rgba, brightness)}``."""
     lights = sorted(range(len(export_mc.GLOW_CARRIERS)), key=lambda i: export_mc.GLOW_CARRIERS[i][1])
-    # dimmest glow → dimmest carrier, brightest → brightest (spread across the list when there are fewer glows)
-    pick = [lights[round(i * (len(lights) - 1) / max(1, len(order) - 1))] for i in range(len(order))]         if len(order) < len(lights) else lights
-    out, used = {}, set()
-    for key, ci in zip(order, pick):
-        while ci in used:                                             # rounding may repeat one: take the next free
-            ci = next(i for i in lights if i not in used)
-        used.add(ci)
-        out[key] = (ci, *needs[key])
+    n = len(export_mc.GLOW_BANDS_K)
+    pick = [lights[round(i * (len(lights) - 1) / (n - 1))] for i in range(n)]
+    out = {}
+    for band, (edge, ci) in enumerate(zip(export_mc.GLOW_BANDS_K, pick)):
+        rgba, v, _ = export_mc.glow_display(GLOW_HUE_OF, edge)
+        out[band] = (ci, rgba, v)
+    return out
+
+
+def range_appearances():
+    """``{(material, 0.002): appearance}`` for every range material. A material sigma-ground has no colour for takes the
+    game's hand-picked cross-section colour (weapon_vs_armor.materials.MATERIAL_COLORS), named as a gap."""
+    import shooting_range
+    from sigma_ground.field.interface.block import appearance
+    from weapon_vs_armor.materials import MATERIAL_COLORS
+    out = {}
+    for m in shooting_range.materials():
+        a = dict(appearance(m, shooting_range.PITCH))
+        if a["color_rgb"] is None and m in MATERIAL_COLORS:
+            a["color_rgb"] = tuple(c / 255 for c in MATERIAL_COLORS[m])
+            a["sources"] = dict(a["sources"], color_rgb="weapon_vs_armor MATERIAL_COLORS (hand-picked)")
+            a["gaps"] = [g for g in a["gaps"] if "colour" not in g] + ["colour hand-picked by the game"]
+        out[(m, shooting_range.PITCH)] = a
     return out
 
 
@@ -275,10 +293,9 @@ class Theater:
         # glowing cells: (material index, band) → an index into self.block past the materials
         nb = len(export_mc.GLOW_BANDS_K)
         self.glow_lut = np.tile(np.arange(len(self.block))[:, None], (1, nb))
-        for (m, size, band), (ci, _, _) in (glows or {}).items():
-            if size == world.pitch and m in world.materials:
-                self.glow_lut[world.materials.index(m), band] = len(self.block)
-                self.block.append(export_mc.GLOW_CARRIERS[ci][0])
+        for band, (ci, _, _) in (glows or {}).items():
+            self.glow_lut[1:, band] = len(self.block)
+            self.block.append(export_mc.GLOW_CARRIERS[ci][0])
         self.glowing = bool(glows) and hasattr(world, "T")
         # unknown (-1) from the theater's ground up, so the first draw also clears what an earlier run left there; below
         # the ground is Minecraft's own ground and is never touched
@@ -479,6 +496,16 @@ def repair_desks(rcon):
     return fixed
 
 
+def range_press(aim, what):
+    """Cycle the range's weapon or armour. Returns what it is now, in words."""
+    import shooting_range
+    weapons, armors = shooting_range.presets()
+    names = shooting_range.WEAPONS if what == "weapon" else shooting_range.ARMORS
+    aim[what] = names[(names.index(aim[what]) + 1) % len(names)]
+    table = weapons if what == "weapon" else armors
+    return f"{what.capitalize()}: {table[aim[what]]['name']}. Press Run to fire."
+
+
 def read_request(rcon):
     out = rcon.command("scoreboard players get #request skippycraft")
     if " has " not in out:
@@ -498,7 +525,7 @@ def serve(player="aaronsrhodes"):
     send = rcon.commands
     blocks = block_writer()
     print("block writer:", "plugin" if blocks else "none (RCON fills)", flush=True)
-    send(["forceload add -16 0 127 207", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
+    send(["forceload add -16 0 191 207", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
           "scoreboard players set #request skippycraft 0"])
     # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
     spots = [st[k] for st in STAGES.values() for k in ("origin", "desk")]
@@ -514,6 +541,8 @@ def serve(player="aaronsrhodes"):
     send([f"setworldspawn {int(sx)} {sy} {int(sz)}", "gamerule respawn_radius 0"])
     by_number = {st["request"]: name for name, st in STAGES.items()}
     kept = {}
+    import shooting_range
+    aim, preview = {"weapon": shooting_range.WEAPONS[0], "armor": shooting_range.ARMORS[0]}, False
     tell = lambda text: rcon.command("tellraw @a " + json.dumps({"text": text, "color": "green"}))
     print("serving: panels built, pack at", f"http://{PACK_HOST}:{PACK_PORT}/skippycraft.zip", flush=True)
     pending, last_check = 0, 0.0
@@ -523,6 +552,9 @@ def serve(player="aaronsrhodes"):
         if req in SCREEN_BUTTONS:                                     # pressed between runs: change the setup, then run
             tell(kept.setdefault("slit", build("slit")[1]).press(SCREEN_BUTTONS[req]))
             req = STAGES["slit"]["request"]
+        if req in RANGE_BUTTONS:                                      # a new weapon or armour: show the fresh target
+            tell(range_press(aim, RANGE_BUTTONS[req]))
+            req, preview = STAGES["range"]["request"], True
         name = by_number.get(req)
         if name is None:
             if time.monotonic() - last_check > 3.0:              # idle: put back anything he broke
@@ -536,6 +568,9 @@ def serve(player="aaronsrhodes"):
         if name == "slit":                                            # the screen keeps its setup between runs
             world = kept.setdefault("slit", build("slit")[1])
             world.reset()
+        elif name == "range":
+            import shooting_range
+            world = shooting_range.RangeWorld(aim["weapon"], aim["armor"], armed=not preview)
         else:
             _, world = build(name)
         th = Theater(world, looks, st["origin"], send, blocks, glows)
@@ -544,10 +579,16 @@ def serve(player="aaronsrhodes"):
         th.open()
         tell(st["tell"])
         _, _, _, _, ticks, dt = SCENES[name]
+        if preview:                                                   # just show the fresh target
+            ticks, preview = 0, False
         print("run", name, flush=True)
         for tick in range(ticks):
             t0 = time.monotonic()
             nxt = read_request(rcon)
+            if nxt in RANGE_BUTTONS:                                  # change the setup mid-run: start over with it
+                tell(range_press(aim, RANGE_BUTTONS[nxt]))
+                pending, preview = STAGES["range"]["request"], True
+                break
             if nxt in SCREEN_BUTTONS and hasattr(world, "press"):
                 tell(world.press(SCREEN_BUTTONS[nxt]))
                 nxt = 0

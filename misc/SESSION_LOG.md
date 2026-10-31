@@ -4211,3 +4211,11 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   wool carriers painted in atomic_spectra.wavelength_to_rgb. Live: fringe columns 53, 58, 63, 68, 73 (5.2 mm predicted);
   observed: smooth envelope, no fringes. Fixed: setup buttons pressed between runs were ignored. Next proposed by the
   Captain: port the weapons vs armor experiment to a SkippyCraft shooting range.
+- SkippyCraft shooting range (the Captain's idea): `stage/skippycraft/shooting_range.py` runs Weapon vs. Armor's per-layer
+  physics (kinetic/laser/explosive only), carves the result into a 2 mm voxel target and hands the heated crater to
+  VoxelWorld (glow, conduction, boiling). Glow carriers are now one per band, shared by all materials (hue from a grey
+  body). Terracotta added as opaque carriers; the game's colours stand in where block() has none. Live: AK-47 vs NIJ IV
+  stopped in the ceramic, 11875/11875 cells verified; .50 cal breaches it via the desk buttons.
+  Flagged, not fixed: (1) the game itself no longer starts: physics/plasma.py and gravitational.py import SIGMA_CONV,
+  moved to ssbm-theory; (2) its flint arrowhead preset uses material 'stone_proxy', gone from surface.MATERIALS;
+  (3) its 100 kW laser leaves ~1e9 K (no ablation cap); (4) block('rubber') melting point 200 K (a glass transition?).
