@@ -265,6 +265,23 @@ def single_slit_first_minimum_angle(wavelength_m: float,
     )
 
 
+def single_slit_intensity(wavelength_m: float, slit_width_m: float, screen_distance_m: float, screen_position_m: float = 0.0) -> ToolResult:
+    """Intensity at a point on the screen behind one slit, relative to the centre of the pattern: the Fraunhofer envelope sinc^2(pi a sin(theta) / lambda), with the 1/r fall-off of the
+    exact path from the slit (the same model as the double-slit pattern). screen_position_m is measured from the centre line; e.g. single_slit_intensity(550 nm, 0.05 mm, 1 m, 5 mm)."""
+    from sigma_ground.field.interface import quantum as Q
+    inputs = {"wavelength_m": wavelength_m, "slit_width_m": slit_width_m, "screen_distance_m": screen_distance_m, "screen_position_m": screen_position_m}
+    if wavelength_m <= 0 or slit_width_m <= 0 or screen_distance_m <= 0:
+        return ToolResult(value=None, source="invalid input", notes="the wavelength, the slit width and the screen distance must be positive", inputs=inputs)
+    here = Q.single_slit_intensity(screen_position_m, screen_distance_m, wavelength_m, slit_width_m)
+    centre = Q.single_slit_intensity(0.0, screen_distance_m, wavelength_m, slit_width_m)
+    fresnel = slit_width_m ** 2 / (wavelength_m * screen_distance_m)
+    far = "far field (Fresnel number a^2/(lambda L) = %.3g, well below 1): the Fraunhofer form holds" % fresnel if fresnel < 0.1 else (
+        "NOT far field (Fresnel number a^2/(lambda L) = %.3g is not small): the screen is too close for the Fraunhofer form, so treat this as an estimate" % fresnel)
+    return ToolResult(value=here / centre, units="relative to the centre", source="sigma-ground (single-slit Fraunhofer diffraction, field.interface.quantum)", provenance_tag="DERIVED",
+                      formula="I/I0 = sinc^2(pi a sin(theta) / lambda) * (L / r)", inputs=inputs,
+                      notes=(f"First zeros at sin(theta) = n lambda / a; the first secondary maximum is about 4.7 % of the centre. {far}."))
+
+
 def diffraction_grating_angle(wavelength_m: float, grating_spacing_m: float,
                                 order: int = 1) -> ToolResult:
     """Diffraction grating maximum angle: d sin(theta) = m lambda."""

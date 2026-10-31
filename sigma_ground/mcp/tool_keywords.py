@@ -891,6 +891,8 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "how deep does it sit", "submerged", "half sunk", "floats or sinks",
         "why does ice float", "displacement",
     ],
+    "sloshing_frequency": ["sloshing frequency of a tank", "natural frequency of water sloshing in a tank", "standing wave in a rectangular tank of water", "how fast does water slosh back and forth"],
+    "single_slit_intensity": ["single slit diffraction intensity", "relative intensity of single-slit diffraction at a point on the screen", "how bright is the diffraction pattern behind one slit", "sinc squared envelope of a single slit"],
     "wind_wave_analysis": [
         "wind blowing across", "wind on water", "ripples", "waves on a pond",
         "wind-driven waves", "capillary waves", "surface waves", "wind stress",
@@ -1348,6 +1350,8 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "playground_clear": ["clear the scene", "drop the scene", "get rid of it", "forget it", "close everything out"],
     "request_clarification": ["I need to know a value from you", "can you clarify that", "what value should I use", "which one do you mean", "how big is it", "I can't guess that, need more info"],
     "buoyancy_analysis": ["will it float", "does it sink or float", "how deep will it sit in the water", "why does ice float", "is it half sunk", "floats or sinks"],
+    "sloshing_frequency": ["how fast does water slosh in a 30 cm tank", "what is the sloshing frequency of a fish tank"],
+    "single_slit_intensity": ["how bright is the light 5 mm off centre behind a single slit", "how strong is single slit diffraction at a point on the screen"],
     "wind_wave_analysis": ["wind blowing across a pond", "ripples forming on the water", "how fast do the ripples move", "breeze ruffling the surface of the water", "wind kicking up small waves"],
 }
 

@@ -103,6 +103,35 @@ def buoyancy_analysis(material_key: str = "copper", temperature_k: float = 293.1
                               "temperature_k": temperature_k}).to_dict()
 
 
+def sloshing_frequency(length_m: float, depth_m: float, order: int = 1, temperature_k: float = 293.15) -> ToolResult:
+    """Natural frequency of the n-th standing (sloshing) wave across a rectangular tank of water, from linear wave theory in water of finite depth with capillarity (Lamb §227, §267).
+
+    The tank's fundamental is order 1 (the surface rocks, high at one wall while low at the other); length_m is the tank length in the direction of the wave and depth_m the water
+    depth. Water's surface tension and density are read at temperature_k from the liquid-water seeds. e.g. sloshing_frequency(0.3, 0.1)."""
+    from sigma_ground.field.interface import fluid_surface as FS
+    inputs = {"length_m": length_m, "depth_m": depth_m, "order": order, "temperature_k": temperature_k}
+    if not (length_m > 0 and depth_m > 0):
+        return ToolResult(value=None, source=_SRC, notes="the tank length and the water depth must be positive", inputs=inputs)
+    if int(order) != order or order < 1:
+        return ToolResult(value=None, source=_SRC, notes="order is the number of half-wavelengths across the tank: 1, 2, 3, ...", inputs=inputs)
+    if not 273.15 <= temperature_k <= 373.15:
+        return ToolResult(value=None, source=_SRC, notes=f"water is liquid at one atmosphere only between 273.15 K and 373.15 K; {temperature_k:g} K is outside that, and a tank of another liquid is not covered", inputs=inputs)
+    try:
+        sigma, rho = _water_seeds(temperature_k)
+    except Exception as e:                                           # the water seeds' own range: say so, do not guess
+        return ToolResult(value=None, source=_SRC, notes=f"water's surface tension and density are not defined at {temperature_k} K ({type(e).__name__}: {e})", inputs=inputs)
+    omega = FS.sloshing_angular_frequency(length_m, depth_m, int(order), sigma, rho)
+    k = int(order) * math.pi / length_m
+    kh = k * depth_m
+    regime = "deep water (kh > 3): the depth does not matter" if kh > 3 else ("shallow water (kh < 0.3): the wave runs at sqrt(g h)" if kh < 0.3 else "intermediate depth")
+    return ToolResult(value=omega / (2 * math.pi), units="Hz", source=_SRC, provenance_tag="DERIVED",
+                      formula="omega^2 = (g k + sigma k^3 / rho) tanh(k h), k = n pi / L",
+                      notes=(f"Sloshing mode {int(order)} of a {length_m:g} m by {depth_m:g} m water tank: angular frequency {omega:.4g} rad/s, period {2 * math.pi / omega:.4g} s, "
+                             f"wavelength {2 * length_m / int(order):.4g} m, kh = {kh:.3g} ({regime}). Water at {temperature_k:g} K: surface tension {sigma:.4g} N/m, density {rho:.4g} kg/m^3. "
+                             "Linear (small-amplitude) theory with the walls as antinodes; a tank of another liquid is not covered."),
+                      inputs=inputs)
+
+
 def wind_wave_analysis(wind_speed_m_s: float = 5.0, temperature_k: float = 293.15,
                        wavelength_m: float | None = None) -> dict[str, Any]:
     """Wind blowing across water -> surface stress + capillary-gravity ripples.

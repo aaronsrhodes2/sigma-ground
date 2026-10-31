@@ -79,6 +79,7 @@ area_m2 | m^2 | area | 0.5 | >0
 barrier_width_nm | nm | width of the potential barrier | 1 |
 box_size_nm | nm | side of the confining box | 1 |
 core_thickness_m | m | core thickness | 8e-6 |
+depth_m | m | depth of the liquid in a tank | 0.1 | >0
 design_wavelength_m | m | design (reference) wavelength | 550 nm |
 distance_m | m | distance | 100 |
 focal_length_m | m | focal length (negative for a diverging lens) | 0.1 |
@@ -100,6 +101,7 @@ radius_m | m | radius | 0.1 | >0
 rest_length_m | m | length measured in the object's rest frame | 100 |
 roughness_m | m | surface roughness | 1e-6 |
 screen_distance_m | m | distance from the slits to the screen | 1 |
+screen_position_m | m | position on the screen, measured from the centre line | 5 mm |
 semimajor_axis_au | au | semi-major axis | 1 |
 semimajor_axis_m | m | semi-major axis | 1.496e11 |
 separation_m | m | separation between the two bodies or charges | 1e-9 | >0

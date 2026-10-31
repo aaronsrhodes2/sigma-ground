@@ -720,6 +720,12 @@ def main() -> int:
                                                         slit_width_m).to_dict()
 
     @server.tool()
+    def single_slit_intensity(wavelength_m: float, slit_width_m: float, screen_distance_m: float,
+                              screen_position_m: float = 0.0) -> dict[str, Any]:
+        """Intensity behind one slit relative to the centre of the pattern (Fraunhofer sinc^2 envelope), e.g. single_slit_intensity(550e-9, 5e-5, 1.0, 5e-3)."""
+        return t_opt.single_slit_intensity(wavelength_m, slit_width_m, screen_distance_m, screen_position_m).to_dict()
+
+    @server.tool()
     def diffraction_grating_angle(wavelength_m: float, grating_spacing_m: float,
                                     order: int = 1) -> dict[str, Any]:
         """d sin(theta) = m lambda."""
@@ -2080,6 +2086,12 @@ def main() -> int:
         fraction = rho_body/rho_fluid (sinks if >= 1). Default copper in water
         (copper sinks). Body keys: copper, water_ice, wood_oak, lead, ..."""
         return t_fluidsurf.buoyancy_analysis(material_key, temperature_k, fluid_density_kg_m3)
+
+    @server.tool()
+    def sloshing_frequency(length_m: float, depth_m: float, order: int = 1,
+                           temperature_k: float = 293.15) -> dict[str, Any]:
+        """Natural frequency of the n-th sloshing (standing-wave) mode of a rectangular water tank, e.g. sloshing_frequency(0.3, 0.1)."""
+        return t_fluidsurf.sloshing_frequency(length_m, depth_m, order, temperature_k).to_dict()
 
     @server.tool()
     def wind_wave_analysis(wind_speed_m_s: float = 5.0,

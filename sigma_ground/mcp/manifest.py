@@ -369,6 +369,10 @@ _PRIMARY_TOOLS = [
      "domain": "optics", "summary": "sin(theta) = lambda / a.",
      "inputs": {"wavelength_m": "float", "slit_width_m": "float"},
      "returns": "angle in deg"},
+    {"name": "single_slit_intensity", "tier": "PRIMARY", "domain": "optics",
+     "summary": "Intensity at a point on the screen behind one slit, relative to the centre of the pattern: Fraunhofer sinc^2 envelope with the 1/r fall-off, and whether the screen is in the far field.",
+     "inputs": {"wavelength_m": "float", "slit_width_m": "float", "screen_distance_m": "float", "screen_position_m": "float, default 0 (the centre line)"},
+     "returns": "relative intensity"},
     {"name": "diffraction_grating_angle", "tier": "PRIMARY", "domain": "optics",
      "summary": "d sin(theta) = m lambda.",
      "inputs": {"wavelength_m": "float", "grating_spacing_m": "float",
@@ -1396,6 +1400,10 @@ _PRIMARY_TOOLS = [
                 "temperature_k": "float", "fluid_density_kg_m3": "float|None"},
      "returns": "dict with floats, submerged_fraction"},
 
+    {"name": "sloshing_frequency", "tier": "PRIMARY", "domain": "fluids",
+     "summary": "Natural frequency of the n-th sloshing (standing-wave) mode across a rectangular tank of water, from finite-depth linear wave theory with capillarity.",
+     "inputs": {"length_m": "float (tank length)", "depth_m": "float (water depth)", "order": "int, default 1", "temperature_k": "float, default 293.15"},
+     "returns": "frequency in Hz; angular frequency, period and regime in the notes"},
     {"name": "wind_wave_analysis", "tier": "PRIMARY", "domain": "fluids",
      "summary": "Wind across water: shear stress, friction velocity, the capillary-"
                 "gravity minimum (~0.23 m/s at ~1.7 cm), and the ripple field "

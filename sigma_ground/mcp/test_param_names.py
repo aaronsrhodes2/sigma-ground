@@ -113,4 +113,7 @@ def test_the_vocabulary_shrank(server):
     # 291 since 2026-10-26: body_position adds ONE genuinely new concept, `when` (the time asked about); its other names (body_name, central_body) are existing ones.
     # 295 since 2026-10-30: the celestial tools add TWO genuinely new concepts, `step_s` (an integration step) and `other_body` (the second body of a synodic period or a transfer); the white-dwarf tools add TWO more,
     # `mu_e` (mean molecular weight per electron) and `central_density_kg_m3` (the star's central density; no existing name means that). Their other names are existing ones.
-    assert len(names) <= 295
+    # 297 since 2026-10-31: the sloshing and single-slit tools add TWO genuinely new concepts, `depth_m` (the depth of liquid in a tank; `height_m` is a height, not a depth) and
+    # `screen_position_m` (where on the screen, from the centre line; `screen_distance_m` is how far the screen is). Their other names (length_m, order, temperature_k, wavelength_m,
+    # slit_width_m, screen_distance_m) are existing ones.
+    assert len(names) <= 297
