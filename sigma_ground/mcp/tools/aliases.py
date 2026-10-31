@@ -113,6 +113,9 @@ CONSTANT_ALIASES: dict[str, str] = {
     "na": "n_avogadro",
     "avogadro": "n_avogadro",
     "avogadros number": "n_avogadro",
+    "avogadro number": "n_avogadro",          # the router writes avogadro_number (adv_impossible_003, 2026-10-30)
+    "avogadro constant": "n_avogadro",
+    "avogadros constant": "n_avogadro",
     "avogadros constant": "n_avogadro",
     "molar number": "n_avogadro",
     # Gas constant (sigma_ground.R_GAS)

@@ -75,13 +75,15 @@ def classify_for_cosmology(question: str) -> CosmologyMatch | None:
             matched_pattern="hubble_radius",
         )
 
-    # Hubble time / age of universe
+    # Hubble time / age of universe. Not when the age is only an input to a count or a price ("if a nanosecond cost one
+    # dollar, what would the age of the universe cost?"): this cue answered that with the age in seconds, a silently wrong
+    # answer (adv_units_002, 2026-10-30); the puzzle classifier handles those.
     if re.search(
         r"\bHubble\s+(?:time|age)\b|"
         r"\bage\s+of\s+(?:the\s+)?universe\b|"
         r"\bhow\s+old\s+is\s+(?:the\s+)?universe\b",
         q, re.IGNORECASE,
-    ):
+    ) and not re.search(r"\bcost|\bdollars?\b|\bprice|\bhow\s+many\b|\bnanosecond|\bmicrosecond|\bmillisecond", q, re.IGNORECASE):
         return CosmologyMatch(
             tool="age_of_universe", arg=None,
             rationale="true flat-LambdaCDM age (Planck 2018)",

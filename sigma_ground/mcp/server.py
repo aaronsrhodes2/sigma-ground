@@ -891,6 +891,38 @@ def main() -> int:
         """E = h f."""
         return t_atom.photon_energy_from_frequency(frequency_hz).to_dict()
 
+    # ── puzzles with one exact answer ───────────────────────────────
+    from sigma_ground.mcp.tools import puzzles as t_puz
+
+    @server.tool()
+    def monty_hall_switch(n: int = 3) -> dict[str, Any]:
+        """Monty Hall: the probability of winning by switching with n doors, (n - 1) / n (e.g. 3 doors -> 2/3; stay -> 1/3).
+
+        Args:
+            n: number of doors, at least 3 (default 3).
+        """
+        return t_puz.monty_hall_switch(n).to_dict()
+
+    @server.tool()
+    def birthday_collision(n: int) -> dict[str, Any]:
+        """The birthday problem: the probability that at least two of n people share a birthday (e.g. 23 people -> 0.5073).
+
+        Args:
+            n: number of people.
+        """
+        return t_puz.birthday_collision(n).to_dict()
+
+    @server.tool()
+    def closing_time(distance_m: float, velocity1_m_s: float, velocity2_m_s: float) -> dict[str, Any]:
+        """Two bodies approaching head-on meet after t = d / (v1 + v2), e.g. 100 km apart at 60 and 40 km/h -> 3600 s (1 h).
+
+        Args:
+            distance_m: the separation when the clock starts.
+            velocity1_m_s: speed of the first body towards the second.
+            velocity2_m_s: speed of the second body towards the first.
+        """
+        return t_puz.closing_time(distance_m, velocity1_m_s, velocity2_m_s).to_dict()
+
     # ── astronomy ──────────────────────────────────────────────────
     @server.tool()
     def solar_system_body(body_name: str) -> dict[str, Any]:

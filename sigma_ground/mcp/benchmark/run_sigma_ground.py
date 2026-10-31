@@ -1308,6 +1308,27 @@ def cascade_answer(question: str, t0: float | None = None, router: bool = False)
     from sigma_ground.mcp.benchmark.modern_classifier import (
         classify_for_modern, execute_modern_match,
     )
+    # Textbook puzzles and rate-times-duration counts (Monty Hall, birthdays, two trains closing, heartbeats in a
+    # lifetime, a duration counted in nanoseconds): the adversarial suite's puzzle and unit rows (2026-10-30).
+    from sigma_ground.mcp.benchmark.puzzle_classifier import (
+        classify_for_puzzle, execute_puzzle_match,
+    )
+    pz_match = classify_for_puzzle(question) if _tw.on("cascade.puzzle") else None
+    if pz_match is not None:
+        val, units, answer_text = execute_puzzle_match(pz_match)
+        if val is not None:
+            return {
+                "answer_text":            answer_text,
+                "extracted_value":        val,
+                "extracted_units":        units,
+                "tool_calls":             [],
+                "turns":                  0,
+                "elapsed_s":              time.time() - t0,
+                "extracted_via_fallback": False,
+                "nudges_sent":            0,
+                "puzzle_classifier_hit":  pz_match.tool,
+            }
+
     # The highest / lowest value of a property over an element group ("highest noble gas first ionization
     # energy"): an argmax over a set, not a lookup (atom_004; STATIC_INTENTS_PLAN group E).
     from sigma_ground.mcp.benchmark.group_extreme_classifier import (

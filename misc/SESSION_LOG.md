@@ -4094,3 +4094,6 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   ONE source: measured (material_profile: NASA TPSX/CRC) before derived (thermal.py), else a named gap. Mass+volume -> fill fraction.
   Mentat tool `block_properties` (manifest, keywords). VoxelWorld cards now come from block(): the world's heat moved from derived to
   measured values where they exist (granite k 45.8 -> 2.51, zinc 6.26 -> 112, iron 108 -> 71.1). test_block.py (7); MCP suite 818 pass.
+- Adversarial round (2026-10-30): puzzle tools (Monty Hall, birthday, closing time) + puzzle_classifier (rate x duration counts) + Avogadro
+  alias + a guard on the age-of-universe cue that had answered a price question with seconds (silent wrong). Local pair: adversarial
+  8 -> 14/18 (+6 -0), physics 148 unchanged. Left: 3 open-ended knowledge rows and Everest-in-bananas.

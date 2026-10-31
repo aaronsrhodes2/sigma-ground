@@ -85,6 +85,15 @@ Left on the suites after rounds 1-5: mech_intro_015 (ground-relative speed at GE
 inertial speed), gr_008 (GPS altitude from 38 us/day: GR and SR terms together, not one formula), msuite_0285 (the router passes no variable
 for y(t)). From 132/150 and 317/329 to **148/150 and 328/329** on one engine, no row lost at any step.
 
+- **Adversarial set** (2026-10-30, rounds 1-5 done, then this): of the 10 misses, five were made static and honest. Three textbook puzzles
+  as real tools (`mcp/tools/puzzles.py`: `monty_hall_switch`, `birthday_collision`, `closing_time`, registered with vocabulary names), a
+  `puzzle_classifier` cue (15th cascade module) that also does rate x duration (heartbeats in a lifetime; a duration counted in
+  nanoseconds), and the `avogadro number` alias the router asked for. One of the ten was a **silently wrong cascade answer**: the
+  age-of-universe cue returned the age in seconds for "if a nanosecond cost a dollar..."; it now stands aside for counts and prices.
+  Paired on the local engine: adversarial **8 -> 14 of 18, +6 -0**; physics 148 unchanged. Left: adv_open_001/002/003 (space-elevator
+  material, terraforming energy, interstellar fuel: knowledge or estimation, not one computation) and adv_units_001 (Everest in bananas:
+  no landmark table here).
+
 ## Order of work
 
 1. **A, field pick** (+7, a day). The largest gain, pure code, and it fixes the live dashboard too: the daily live rows count a dict as "not
