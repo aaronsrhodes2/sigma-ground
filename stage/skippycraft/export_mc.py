@@ -43,7 +43,7 @@ _DYES = ["white", "light_gray", "gray", "black", "brown", "red", "orange", "yell
 CARRIERS_OPAQUE = [f"{d}_concrete" for d in _DYES] + [f"{d}_terracotta" for d in _DYES if d != "black"]  # black: the slit screen
 CARRIERS_CLEAR = [f"{d}_stained_glass" for d in _DYES]
 CLEAR_BELOW = 0.99           # opacity under this draws through stained glass (translucent)
-NO_COLOUR = (0.5, 0.5, 0.5)  # neutral grey for a material with no colour model: shown, and reported as a gap
+NO_COLOUR = (0.2, 0.2, 0.2)  # a material with no colour model: a flat mid grey (sRGB 124), shown and reported as a gap
 RESOURCE_FORMAT = 97         # Minecraft 26.3's resource pack format (its version.json, pack_version.resource_major)
 
 
@@ -76,7 +76,8 @@ def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
         a = appearances[m]
         rgb = a["color_rgb"] or NO_COLOUR
         alpha = 1.0 if a["opacity"] >= CLEAR_BELOW else a["opacity"]
-        rgba = tuple(round(255 * max(0.0, min(1.0, v))) for v in (*rgb, alpha))
+        # appearance's colour is linear reflectance; a texture is stored sRGB-encoded (as glow_display already does)
+        rgba = tuple(round(255 * max(0.0, min(1.0, v))) for v in (*(_srgb(max(0.0, min(1.0, c))) for c in rgb), alpha))
         Image.new("RGBA", (16, 16), rgba).save(tex / f"{carrier}.png")
         # LabPBR specular: R perceptual smoothness, G F0 (0-229 linear) or 255 = metal (albedo is F0), B 0, A 255 = no emission
         f0 = a["reflectance_f0"]

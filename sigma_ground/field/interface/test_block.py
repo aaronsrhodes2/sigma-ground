@@ -70,7 +70,7 @@ def test_clear_material_opacity_depends_on_block_size():
 
 def test_appearance_names_what_it_lacks():
     from .block import appearance
-    g = appearance("granite", 0.05)
+    g = appearance("kevlar", 0.05)                                  # granite has a measured spectrum now
     assert g["color_rgb"] is None and "no colour model" in g["gaps"]
 
 

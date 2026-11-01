@@ -91,6 +91,25 @@ def test_derived_looks_repaint_carriers_from_sigma_ground(tmp_path):
     assert glass[3] == legend["glass"]["rgba"][3] < 64                # alpha from opacity through one block
     spec = Image.open(tex / f"{looks['iron']}_s.png").getpixel((0, 0))
     assert spec[1] == 255                                             # LabPBR: metal, albedo is F0
-    assert legend["granite"]["rgba"][:3] == (128, 128, 128) and "no colour model" in legend["granite"]["gaps"]
+    # granite: ECOSTRESS's measured grey, stored sRGB-encoded (linear 0.17 would be 43/255: far too dark)
+    g = legend["granite"]
+    assert "reflectance_spectra" in g["sources"]["color_rgb"] and 100 < g["rgba"][0] < 135 and "no colour model" not in g["gaps"]
     place, _, _ = export_mc.field_to_commands(field, looks)
     assert any(looks["mercury"] in c for c in place)
+
+
+def test_a_material_with_no_colour_is_flat_grey_and_flagged(tmp_path):
+    field, _ = field_from_voxel_exec('box(0,0,0,1,0,1,"kevlar")', block_m=0.01)
+    looks, appearances = export_mc.derive_looks(field)
+    legend = export_mc.write_resourcepack(looks, appearances, tmp_path)
+    k = legend["kevlar"]
+    assert k["rgba"][:3] == (124, 124, 124) and "no colour model" in k["gaps"]
+
+
+def test_glow_brightness_goes_into_the_labpbr_emission_channel(tmp_path):
+    from PIL import Image
+    glows = {"band0": (0, (255, 80, 0, 255), 0.5)}                       # magma carrier at half brightness
+    export_mc.write_glow_textures(glows, tmp_path)
+    tex = tmp_path / "skippycraft" / "assets" / "minecraft" / "textures" / "block"
+    assert Image.open(tex / "magma.png").getpixel((0, 0)) == (255, 80, 0, 255)
+    assert Image.open(tex / "magma_s.png").getpixel((0, 0))[3] == 127

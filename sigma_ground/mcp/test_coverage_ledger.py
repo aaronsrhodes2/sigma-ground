@@ -167,6 +167,9 @@ EXCLUDE_SET = frozenset(
     + [_P + n for n in (
         "friction.material_friction_properties",
         "friction.contact_friction",
+        "reflectance_spectra.ecostress_spectrum",
+        "reflectance_spectra.sample_rgb",
+        "reflectance_spectra.measured_rgb",
         "viscosity.viscous_flow_properties",
         "projectile.projectile_report",
     )]

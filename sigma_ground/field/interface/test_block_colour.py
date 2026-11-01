@@ -58,9 +58,10 @@ def test_narrow_gap_semiconductors_look_like_their_surface(material):
     assert a["color_rgb"] is not None and a["reflectance_f0"] == max(a["color_rgb"])
 
 
-@pytest.mark.parametrize("material", ["titanium dioxide", "malachite", "turquoise", "granite", "wood_oak", "concrete"])
+@pytest.mark.parametrize("material", ["titanium dioxide", "malachite", "turquoise", "kevlar", "plastic_abs"])
 def test_no_model_stays_a_gap(material):
-    """Wide-gap semiconductors (see-through), opaque minerals (need scattering) and rocks/wood: no colour, never a guess."""
+    """Wide-gap semiconductors (see-through), opaque minerals (need scattering) and unmeasured organics: no colour,
+    never a guess (granite, concrete, rubber and oak have measured spectra now: reflectance_spectra)."""
     a = appearance(material, 0.1)
     assert a["color_rgb"] is None
     assert "no colour model" in a["gaps"]

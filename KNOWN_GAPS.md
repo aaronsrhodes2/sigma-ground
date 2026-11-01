@@ -650,3 +650,21 @@ in the game's own bore volume. Still approximate:
   corner-first at ~44 m/s heated three granite cells to 4800 K.
 - **Shaped charges and the game's sigma-field weapons:** not offered (no jet mass, no momentum in the game).
 - Sentinels: the impact tests in `tests/test_playground.py`, the impact theater test in `tests/test_skippycraft_theater.py`.
+
+## PHYSICS_GAP: the colour of ordinary surfaces is measured, not derived (2026-10-31)
+
+`field/interface/reflectance_spectra.py` (SkippyCraft P5): granite, concrete and rubber take their visible reflectance
+from ECOSTRESS Spectral Library spectra kept whole in `fixtures/ecostress/` (directional-hemispherical, sampled at
+650/550/450 nm); oak from a measured CIE L*a*b* (a spectrophotometer reading, converted exactly); alumina from a
+measured bound. sigma-ground has no model for any of them (a rock or concrete is a scattering mixture: Kubelka-Munk at
+least; wood and rubber are molecular). Still approximate:
+
+- **One sample each:** Quincy alkalic granite (grey), a 30-year-old weathered runway concrete (light grey), a weathered
+  black roofing rubber, one natural oak board; a pink granite, a fresh concrete, a tan gum rubber or a different oak
+  would differ. Three wavelengths, not the spectrum.
+- **Alumina is a bound:** "0.8 or more over 380-700 nm" (a Kyocera A-476 reference plate), drawn at 0.8 and flagged.
+- **No measurement for Kevlar or ABS:** drawn flat grey and flagged (the range's hand-picked colours are gone).
+- **No F0 for any of them:** a hemispherical reflectance includes the specular part, so no Fresnel reflectance is
+  separated out (`no reflectance` stays on the readout); the smoothness is `texture.microfacet_roughness`'s as before.
+- **No temperature dependence:** the colour is the room-temperature one at every temperature (the glow is separate).
+- Sentinels: `sigma_ground/field/interface/test_reflectance_spectra.py`, `tests/test_skippycraft_export.py`.

@@ -73,6 +73,11 @@ against coverage. Listed by the batch in which they were ruled out.
   (`dynamics.voxel_rigid`): measured pair first, else the covered
   friction_coefficient, with flags. An input selector for a simulation, not a
   new physics answer. EXCLUDE.
+- `field.interface.reflectance_spectra.{ecostress_spectrum, sample_rgb, measured_rgb}` —
+  the measured-surface colour records (ECOSTRESS files, a measured L*a*b*, a
+  bound) that `block.appearance` (covered) reads for granite, concrete, rubber,
+  oak and alumina. Data loaders behind a covered answer, not physics of their
+  own. EXCLUDE.
 - `field.interface.wear.wear_profile` — "Simulate wear depth vs time", returns a
   per-time-step list; re-bundles the Archard physics covered via wear_analysis.
   Simulation pipeline, not Q&A. EXCLUDE.

@@ -354,20 +354,12 @@ def shared_glows():
 
 
 def range_appearances():
-    """``{(material, 0.002): appearance}`` for every range material. A material sigma-ground has no colour for takes the
-    game's hand-picked cross-section colour (weapon_vs_armor.materials.MATERIAL_COLORS), named as a gap."""
+    """``{(material, 0.002): appearance}`` for every range material. A material sigma-ground has no colour for (Kevlar,
+    ABS) is drawn in the pack's flat grey and named as a gap; the game's hand-picked cross-section colours are not used
+    (the Captain's rule: a sourced colour or a flagged gap, never a borrowed number)."""
     import shooting_range
     from sigma_ground.field.interface.block import appearance
-    from weapon_vs_armor.materials import MATERIAL_COLORS
-    out = {}
-    for m in shooting_range.materials():
-        a = dict(appearance(m, shooting_range.PITCH))
-        if a["color_rgb"] is None and m in MATERIAL_COLORS:
-            a["color_rgb"] = tuple(c / 255 for c in MATERIAL_COLORS[m])
-            a["sources"] = dict(a["sources"], color_rgb="weapon_vs_armor MATERIAL_COLORS (hand-picked)")
-            a["gaps"] = [g for g in a["gaps"] if "colour" not in g] + ["colour hand-picked by the game"]
-        out[(m, shooting_range.PITCH)] = a
-    return out
+    return {(m, shooting_range.PITCH): appearance(m, shooting_range.PITCH) for m in shooting_range.materials()}
 
 
 def slit_looks():
