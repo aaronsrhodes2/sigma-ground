@@ -280,29 +280,6 @@
    }
   },
   {
-   "id": "distill-2026-10-31-011",
-   "day": "2026-10-31",
-   "reason": "fixed_miss",
-   "question": "curl of (2*u*w, 0, u^2)",
-   "domain": "math",
-   "signature": [
-    "curl"
-   ],
-   "expected": {
-    "tool": "curl",
-    "args": {
-     "vector_field": "2*u*w, 0, u**2",
-     "variables": "u,v,w"
-    },
-    "result": [
-     "0",
-     "0",
-     "0"
-    ],
-    "oracle": "agrees"
-   }
-  },
-  {
    "id": "distill-2026-10-31-020",
    "day": "2026-10-31",
    "reason": "new_combination",

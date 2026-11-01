@@ -2,20 +2,18 @@
  "summary": {
   "n": 40,
   "judged": 35,
-  "mentat_right": 34,
-  "mentat_misses": {
-   "wrong_value": 1
-  },
+  "mentat_right": 35,
+  "mentat_misses": {},
   "unverified": 5,
   "unasked": 0,
   "wolfram": {
-   "answered": 16,
-   "no_result": 1,
-   "unasked": 23,
-   "agrees_with_us": 13,
-   "disagrees_with_us": 2
+   "answered": 29,
+   "no_result": 11,
+   "unasked": 0,
+   "agrees_with_us": 16,
+   "disagrees_with_us": 5
   },
-  "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+  "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
   "by_domain": {
    "astronomy": {
     "n": 3,
@@ -27,7 +25,7 @@
    },
    "math": {
     "n": 20,
-    "right": 19
+    "right": 20
    },
    "physics": {
     "n": 12,
@@ -50,7 +48,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -70,7 +68,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -90,7 +88,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -110,7 +108,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -136,7 +134,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -156,7 +154,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -176,7 +174,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -196,7 +194,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -216,7 +214,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -242,7 +240,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -262,7 +260,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -281,18 +279,18 @@
     "0"
    ],
    "mentat_value": [
-    "2*u",
-    "2*u",
-    "-2*w"
+    "0",
+    "0",
+    "0"
    ],
    "mentat_units": "",
    "mentat_tool": "curl",
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
-   "agrees": false,
-   "cause": "wrong_value",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
+   "agrees": true,
+   "cause": null,
    "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
@@ -310,7 +308,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -330,7 +328,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -350,7 +348,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -370,7 +368,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -390,7 +388,7 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
    "wa_status": "answered",
@@ -410,11 +408,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-31-018",
@@ -430,11 +428,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-31-019",
@@ -450,11 +448,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": true
   },
   {
    "id": "distill-2026-10-31-020",
@@ -470,10 +468,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -490,10 +488,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -510,10 +508,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -530,11 +528,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": false
   },
   {
    "id": "distill-2026-10-31-024",
@@ -550,11 +548,11 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": false
   },
   {
    "id": "distill-2026-10-31-025",
@@ -570,10 +568,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -590,10 +588,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -610,10 +608,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -630,10 +628,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -650,11 +648,11 @@
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
-   "wa_agrees_with_us": null
+   "wa_status": "answered",
+   "wa_agrees_with_us": false
   },
   {
    "id": "distill-2026-10-31-030",
@@ -670,10 +668,10 @@
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -690,10 +688,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "105467303d8530593bf25347e1a70e3d3bc26186",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -710,10 +708,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -730,10 +728,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -756,10 +754,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -776,10 +774,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -790,16 +788,28 @@
    "expected_tool": null,
    "oracle": "none",
    "expected": null,
-   "mentat_value": 6.17460749025e-21,
-   "mentat_units": "J",
-   "mentat_tool": "thermal_energy_per_molecule",
-   "route": "router",
-   "router_miss": null,
-   "error": null,
-   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "mentat_value": null,
+   "mentat_units": "",
+   "mentat_tool": null,
+   "route": "deterministic",
+   "router_miss": {
+    "cascade": "no stage matched",
+    "emission": "no emission cue (glow, emissivity, radiated power)",
+    "fallback": {
+     "model": "qwen3-8b-stock",
+     "plan": "{\"tool\": \"thermal_glow\", \"tool_args\": {\"temperature_k\": 298.15}}",
+     "reason": "error: thermal_glow: missing required parameter material (thermal_glow needs 'material' (a name from the tool's own table (materials: see list_materials; bodi)"
+    },
+    "fold": "no folded quantity named",
+    "plan": "{\"tool\": \"buffer_ph\", \"tool_args\": {\"acid_key\": \"water\", \"temperature_k\": 298.15}}",
+    "position": "no position word",
+    "reason": "error: buffer_ph: declined (Unknown acid 'water'. Available: ['acetic_acid', 'ammonia', 'carbonic_acid_1', 'carbonic_acid_2', 'f)"
+   },
+   "error": "needs_input",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -816,10 +826,10 @@
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": true,
    "cause": null,
-   "wa_status": "unasked",
+   "wa_status": "no_result",
    "wa_agrees_with_us": null
   },
   {
@@ -844,10 +854,10 @@
    "route": "router",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   },
   {
@@ -864,13 +874,13 @@
    "route": "cascade",
    "router_miss": null,
    "error": null,
-   "mentat_ref": "7c9ef6025c838e1b6d59ce45443d5a42612c622e",
+   "mentat_ref": "883ea00dd2293d7c67179fae8d2ef63f3e696ee6",
    "agrees": null,
    "cause": "unverified",
-   "wa_status": "unasked",
+   "wa_status": "answered",
    "wa_agrees_with_us": null
   }
  ],
  "suite": "distill-2026-10-31",
- "scored_at": "2026-10-31T18:30Z"
+ "scored_at": "2026-11-01T14:30Z"
 }
