@@ -1,0 +1,1051 @@
+{
+ "suite": "distill-2026-11-01",
+ "generator": {
+  "date": "2026-11-01",
+  "seed": 4235385934,
+  "rota": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "known_before": 577,
+  "wild": [
+   {
+    "model": "chat",
+    "url": "http://127.0.0.1:17434",
+    "prompt_sha256": "184cc1d8ff132321",
+    "seed": 4235385934,
+    "domain": "chemistry",
+    "kept": 3
+   },
+   {
+    "model": "chat",
+    "url": "http://127.0.0.1:17434",
+    "prompt_sha256": "184cc1d8ff132321",
+    "seed": 4235385934,
+    "domain": "astronomy",
+    "kept": 2
+   }
+  ],
+  "made": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "oracles": {
+   "agrees": 20,
+   "unchecked": 0,
+   "tool": 15,
+   "none": 5
+  }
+ },
+ "items": [
+  {
+   "question": "solve y'' - 3*y = 0 for y(t)",
+   "question_long": "Give me every function y(t) with y'' - 3y = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y'' - 3*y",
+     "variable": "t"
+    },
+    "result": "Eq(y(t), C1*exp(-sqrt(3)*t) + C2*exp(sqrt(3)*t))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y'' - 3*y",
+     "fn": "y",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-000"
+  },
+  {
+   "question": "solve [[-4, 0], [-2, -1]] x = [6, -7]",
+   "question_long": "Given A = [[-4, 0], [-2, -1]] and b = [6, -7], what x solves A x = b?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[-4, 0], [-2, -1]]",
+     "vector_b": "[6, -7]"
+    },
+    "result": [
+     "-3/2",
+     "10"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       -4,
+       0
+      ],
+      [
+       -2,
+       -1
+      ]
+     ],
+     "b": [
+      6,
+      -7
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-001"
+  },
+  {
+   "question": "expand (x + 6)*(x^2 - x + 3)",
+   "question_long": "Write (x + 6)(x^2 - x + 3) without brackets.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 6)*(x**2 - x + 3)"
+    },
+    "result": "x**3 + 5*x**2 - 3*x + 18",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 6)*(x**2 - x + 3)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-002"
+  },
+  {
+   "question": "derivative of sin(3*x)",
+   "question_long": "work out d/dx(sin(3x)).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sin(3*x)",
+     "variable": "x"
+    },
+    "result": "3*cos(3*x)",
+    "spec": {
+     "kind": "diff",
+     "expr": "sin(3*x)",
+     "var": "x",
+     "order": 1
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-003"
+  },
+  {
+   "question": "solve [[1, -3], [1, 2]] x = [11, -2]",
+   "question_long": "Given A = the matrix with rows (1, -3) and (1, 2) and b = (11, -2), what x solves A x = b?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[1, -3], [1, 2]]",
+     "vector_b": "[11, -2]"
+    },
+    "result": [
+     "16/5",
+     "-13/5"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       1,
+       -3
+      ],
+      [
+       1,
+       2
+      ]
+     ],
+     "b": [
+      11,
+      -2
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-004"
+  },
+  {
+   "question": "sum of 2*k for k from 0 to 20",
+   "question_long": "What does Σ_(k=0)^20 2*k come to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "2*k",
+     "variable": "k",
+     "lower": "0",
+     "upper": "20"
+    },
+    "result": "420",
+    "spec": {
+     "kind": "sum",
+     "expr": "2*k",
+     "var": "k",
+     "lo": "0",
+     "hi": "20"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-005"
+  },
+  {
+   "question": "expand (x + 2)*(x^2 - x + 6)",
+   "question_long": "write (x + 2)*(x**2 - x + 6) without brackets.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 2)*(x**2 - x + 6)"
+    },
+    "result": "x**3 + x**2 + 4*x + 12",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 2)*(x**2 - x + 6)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-006"
+  },
+  {
+   "question": "limit of (exp(1*x) - 1)/x as x -> 0",
+   "question_long": "Determine lim (exp(1*x) - 1)/x when x → 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(exp(1*x) - 1)/x",
+     "point": "0"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "(exp(1*x) - 1)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-007"
+  },
+  {
+   "question": "inverse of [[5, -1, 3], [1, 5, -2], [0, 0, -2]]",
+   "question_long": "Give me the matrix that undoes the matrix with rows (5, -1, 3) and (1, 5, -2) and (0, 0, -2).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[5, -1, 3], [1, 5, -2], [0, 0, -2]]"
+    },
+    "result": "[[5/26, 1/26, 1/4], [-1/26, 5/26, -1/4], [0, 0, -1/2]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       5,
+       -1,
+       3
+      ],
+      [
+       1,
+       5,
+       -2
+      ],
+      [
+       0,
+       0,
+       -2
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-008"
+  },
+  {
+   "question": "inverse of [[-3, -2], [-3, 4]]",
+   "question_long": "Give me the matrix that undoes [-3 -2; -3 4].",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[-3, -2], [-3, 4]]"
+    },
+    "result": "[[-2/9, -1/9], [-1/6, 1/6]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       -3,
+       -2
+      ],
+      [
+       -3,
+       4
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-009"
+  },
+  {
+   "question": "curl of (2*y, z*y^2, 4*z)",
+   "question_long": "how much does the field (2*y, z*y^2, 4*z) rotate? Give the curl.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "2*y, z*y**2, 4*z"
+    },
+    "result": [
+     "-y**2",
+     "0",
+     "-2"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "2*y",
+      "z*y**2",
+      "4*z"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-010"
+  },
+  {
+   "question": "expand (x + 2)^2",
+   "question_long": "Write (x + 2)**2 without brackets",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 2)**2"
+    },
+    "result": "x**2 + 4*x + 4",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 2)**2",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-011"
+  },
+  {
+   "question": "integrate 1/x from 2 to 3",
+   "question_long": "Find the exact value of ∫(1/x) dx for x running from 2 up to 3.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/x",
+     "variable": "x",
+     "lower": "2",
+     "upper": "3"
+    },
+    "result": "-log(2) + log(3)",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/x",
+     "var": "x",
+     "lo": "2",
+     "hi": "3"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-012"
+  },
+  {
+   "question": "curl of (z*x^2, sin(x), 0)",
+   "question_long": "How much does the field (z*x^2, sin(x), 0) rotate? Give the curl",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "z*x**2, sin(x), 0"
+    },
+    "result": [
+     "0",
+     "x**2",
+     "cos(x)"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "z*x**2",
+      "sin(x)",
+      "0"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-013"
+  },
+  {
+   "question": "derivative of x*exp(x)",
+   "question_long": "I need the rate of change of x times e to the x.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "x*exp(x)"
+    },
+    "result": "x*exp(x) + exp(x)",
+    "spec": {
+     "kind": "diff",
+     "expr": "x*exp(x)",
+     "var": "x",
+     "order": 1
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-014"
+  },
+  {
+   "question": "Fourier transform of exp(-2*t^2)",
+   "question_long": "What is the frequency-domain form of e^(-2x^2)? Use the Fourier transform, from t to w",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "fourier_transform",
+    "args": {
+     "expression": "exp(-2*t**2)",
+     "x_var": "t",
+     "k_var": "w"
+    },
+    "result": "sqrt(2)*sqrt(pi)*exp(-pi**2*w**2/2)/2",
+    "spec": {
+     "kind": "fourier",
+     "expr": "exp(-2*t**2)",
+     "xvar": "t",
+     "kvar": "w"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-015"
+  },
+  {
+   "question": "integral of 1/(x^2 + 25) dx",
+   "question_long": "give me an antiderivative for 1 over (x squared plus 25).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(x**2 + 25)",
+     "variable": "x"
+    },
+    "result": "atan(x/5)/5",
+    "spec": {
+     "kind": "int",
+     "expr": "1/(x**2 + 25)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-016"
+  },
+  {
+   "question": "solve -7*x^3 + 7*x^2 + 3*x + 1 = 0 for x",
+   "question_long": "Where does minus 7 x cubed plus 7 x squared plus 3 x plus 1 cross zero?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "-7*x**3 + 7*x**2 + 3*x + 1",
+     "variable": "x"
+    },
+    "result": [
+     "1/3 + (-1/2 - sqrt(3)*I/2)*(2*sqrt(777)/441 + 34/189)**(1/3) + 16/(63*(-1/2 - sqrt(3)*I/2)*(2*sqrt(777)/441 + 34/189)**(1/3))",
+     "1/3 + 16/(63*(-1/2 + sqrt(3)*I/2)*(2*sqrt(777)/441 + 34/189)**(1/3)) + (-1/2 + sqrt(3)*I/2)*(2*sqrt(777)/441 + 34/189)**(1/3)",
+     "1/3 + 16/(63*(2*sqrt(777)/441 + 34/189)**(1/3)) + (2*sqrt(777)/441 + 34/189)**(1/3)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "-7*x**3 + 7*x**2 + 3*x + 1",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-017"
+  },
+  {
+   "question": "derivative of 1/(1 + t^2) with respect to t",
+   "question_long": "How does 1/(1 + t^2) change with t? Give the derivative.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "1/(1 + t**2)",
+     "variable": "t"
+    },
+    "result": "-2*t/(t**2 + 1)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "1/(1 + t**2)",
+     "var": "t",
+     "order": 1
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-018"
+  },
+  {
+   "question": "eigenvalues of [[-1, 1], [0, 6]]",
+   "question_long": "What are the characteristic values of [[-1, 1], [0, 6]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[-1, 1], [0, 6]]"
+    },
+    "result": [
+     "6",
+     "-1"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       -1,
+       1
+      ],
+      [
+       0,
+       6
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-01-019"
+  },
+  {
+   "question": "Momentum on impact of a 62.7 kg ball dropped from 184 m?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "momentum",
+    "args": {
+     "mass_kg": 62.7,
+     "velocity_m_s": 60.07368142539626
+    },
+    "result": 3766.6198253723455,
+    "units": "kg m/s",
+    "plan": [
+     {
+      "tool": "free_fall_velocity",
+      "args": {
+       "height_m": 184.0
+      }
+     },
+     {
+      "tool": "momentum",
+      "args": {
+       "mass_kg": 62.7,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "drop_impact_momentum",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-020"
+  },
+  {
+   "question": "What is 6.91 percent of 2.36 W?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 6.91,
+     "value": 2.36
+    },
+    "result": 0.16307599999999997,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 6.91,
+       "value": 2.36
+      }
+     }
+    ],
+    "recipe": "percent_of_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-021"
+  },
+  {
+   "question": "Mean thermal energy per molecule at 141 K, expressed in eV?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 2.9200726350000002e-21
+    },
+    "result": 0.018225659849437054,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "thermal_energy_per_molecule",
+      "args": {
+       "temperature_k": 141.0
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "thermal_energy_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-022"
+  },
+  {
+   "question": "Momentum of a 53.3 kg moon going round a 0.341 solar masses planet at 0.351 million km from the centre?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "momentum",
+    "args": {
+     "mass_kg": 53.3,
+     "velocity_m_s": 359070.2700077132
+    },
+    "result": 19138445.39141111,
+    "units": "kg m/s",
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 6.78047765908e+29,
+       "radius_m": 351000000.0
+      }
+     },
+     {
+      "tool": "momentum",
+      "args": {
+       "mass_kg": 53.3,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "orbit_momentum",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-023"
+  },
+  {
+   "question": "Convert 1.9 kWh to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 1.9,
+     "from_units": "kWh",
+     "to_units": "J"
+    },
+    "result": 6840000.0,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 1.9,
+       "from_units": "kWh",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_kwh_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-024"
+  },
+  {
+   "question": "Convert 0.29 keV to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 0.29,
+     "from_units": "keV",
+     "to_units": "J"
+    },
+    "result": 4.646312238599999e-17,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 0.29,
+       "from_units": "keV",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_kev_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-025"
+  },
+  {
+   "question": "Express the mass-energy of 8.36e-28 kg in eV.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 7.513593294239794e-11
+    },
+    "result": 468961607.27805215,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 8.36e-28
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_to_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-026"
+  },
+  {
+   "question": "Convert 3.77 mph to metres per second.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 3.77,
+     "from_units": "mph",
+     "to_units": "m/s"
+    },
+    "result": 1.6853408,
+    "units": "meter / second",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 3.77,
+       "from_units": "mph",
+       "to_units": "m/s"
+      }
+     }
+    ],
+    "recipe": "convert_mph_ms",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-027"
+  },
+  {
+   "question": "Convert 8.31 mph to metres per second.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 8.31,
+     "from_units": "mph",
+     "to_units": "m/s"
+    },
+    "result": 3.7149024,
+    "units": "meter / second",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 8.31,
+       "from_units": "mph",
+       "to_units": "m/s"
+      }
+     }
+    ],
+    "recipe": "convert_mph_ms",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-028"
+  },
+  {
+   "question": "Momentum of a 1.52 tonnes moon going round a 1 solar masses planet at 223 million km from the centre?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "momentum",
+    "args": {
+     "mass_kg": 1520.0,
+     "velocity_m_s": 24395.143970223617
+    },
+    "result": 37080618.83473989,
+    "units": "kg m/s",
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 1.9884098707e+30,
+       "radius_m": 223000000000.0
+      }
+     },
+     {
+      "tool": "momentum",
+      "args": {
+       "mass_kg": 1520.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "orbit_momentum",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-029"
+  },
+  {
+   "question": "Convert 0.224 GeV to megaelectronvolts.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 0.224,
+     "from_units": "GeV",
+     "to_units": "MeV"
+    },
+    "result": 224.0,
+    "units": "megaelectron_volt",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 0.224,
+       "from_units": "GeV",
+       "to_units": "MeV"
+      }
+     }
+    ],
+    "recipe": "convert_gev_mev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-030"
+  },
+  {
+   "question": "Convert 83.9 MeV to electronvolts.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 83.9,
+     "from_units": "MeV",
+     "to_units": "eV"
+    },
+    "result": 83900000.0,
+    "units": "electron_volt",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 83.9,
+       "from_units": "MeV",
+       "to_units": "eV"
+      }
+     }
+    ],
+    "recipe": "convert_mev_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-031"
+  },
+  {
+   "question": "What is the energy of the n = 4 level of hydrogen?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "hydrogen_like_energy_level",
+    "args": {
+     "n": 4
+    },
+    "result": -0.850355820187125,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "hydrogen_like_energy_level",
+      "args": {
+       "n": 4
+      }
+     }
+    ],
+    "recipe": "level_hydrogen",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-032"
+  },
+  {
+   "question": "doubly ionized lithium: how much energy is the n = 3 level?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "hydrogen_like_energy_level",
+    "args": {
+     "n": 3,
+     "atomic_number": 3
+    },
+    "result": -13.605693122994,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "hydrogen_like_energy_level",
+      "args": {
+       "n": 3,
+       "atomic_number": 3
+      }
+     }
+    ],
+    "recipe": "level_hydrogen_like",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-033"
+  },
+  {
+   "question": "molar mass of H2SO4",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-01-034"
+  },
+  {
+   "question": "density of gold g/cm3",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-01-035"
+  },
+  {
+   "question": "speed of light m/s",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-01-036"
+  },
+  {
+   "question": "What is the Hawking temperature of a black hole of 3.11 solar masses?",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "hawking_temperature",
+    "args": {
+     "mass_kg": 6.18395469787e+30
+    },
+    "result": 1.9840065617959086e-08,
+    "units": "K",
+    "plan": [
+     {
+      "tool": "hawking_temperature",
+      "args": {
+       "mass_kg": 6.18395469787e+30
+      }
+     }
+    ],
+    "recipe": "solar_hawking_temperature",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-01-037"
+  },
+  {
+   "question": "mass of the Sun in kg",
+   "domain": "astronomy",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-01-038"
+  },
+  {
+   "question": "radius of Earth in meters",
+   "domain": "astronomy",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-01-039"
+  }
+ ]
+}
