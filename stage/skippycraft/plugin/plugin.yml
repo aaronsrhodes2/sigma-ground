@@ -1,5 +1,9 @@
 name: SkippyCraft
-version: 1.0.0
+version: 1.1.0
 main: local.skippy.craft.SkippyCraftPlugin
 api-version: '1.21'
-description: SkippyCraft's block writer (stage/skippycraft/theater.py sends each tick's blocks here)
+description: SkippyCraft's block writer and ear (stage/skippycraft/theater.py sends each tick's blocks here and reads what he says)
+commands:
+  theater:
+    description: Tell the running theater what to do (the same as saying "Skippy, ..." in chat)
+    usage: /theater <what to do>

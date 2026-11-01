@@ -85,6 +85,7 @@ SCENE_RESOLUTION = {"playground": 2, "strength": 1, "impact": 2}
 PADDLE = {"material": "aluminum", "axis": 0, "amplitude_m": 0.015, "period_s": None}
 BODIES = ("gold", "wood_oak")          # free bodies in the slosh tank: they fall in when it runs (gold sinks, oak floats)
 BOSSBAR = "skippycraft:theater"
+MAX_MATERIALS = 64                       # palette slots per theater: a scene's materials plus any placed from inside
 
 # where each scene stands, its control desk, its request number, and its pace. A desk (the Captain: buttons must be easy to
 # find at this scale) floats at the theater's viewing spot: a glowing platform to stand on, and in front of it at eye level a
@@ -208,6 +209,29 @@ class Blocks:
             buf += chunk
         return struct.unpack(">ii", buf)
 
+    def _exact(self, n):
+        buf = b""
+        while len(buf) < n:
+            chunk = self.sock.recv(n - len(buf))
+            if not chunk:
+                raise ConnectionError("block writer closed")
+            buf += chunk
+        return buf
+
+    def poll(self):
+        """What he said to Skippy since the last poll (P6): ``[{"player", "text", "eye", "look", "hit", "block"}]``."""
+        self.sock.sendall(struct.pack(">i", 0x534B4350))
+        out = []
+        for _ in range(struct.unpack(">i", self._exact(4))[0]):
+            player = self._exact(struct.unpack(">H", self._exact(2))[0]).decode("utf-8")
+            text = self._exact(struct.unpack(">H", self._exact(2))[0]).decode("utf-8")
+            x, y, z, dx, dy, dz = struct.unpack(">6d", self._exact(48))
+            hit = bool(self._exact(1)[0])
+            bx, by, bz = struct.unpack(">iii", self._exact(12))
+            out.append({"player": player, "text": text, "eye": (x, y, z), "look": (dx, dy, dz), "hit": hit,
+                        "block": (bx, by, bz)})
+        return out
+
     def close(self):
         self.sock.close()
 
@@ -330,9 +354,16 @@ def shared_looks():
             appearances.setdefault((m, f.voxel_size), ap[m])
     for key, a in range_appearances().items():
         appearances.setdefault(key, a)
+    import controls
+    from sigma_ground.field.interface.block import appearance
+    for m in controls.PLACEABLE:                                  # what he can place from inside the game (P6)
+        appearances.setdefault((m, controls.PLACE_PITCH), appearance(m, controls.PLACE_PITCH))
     opaque, clear = iter(export_mc.CARRIERS_OPAQUE), iter(export_mc.CARRIERS_CLEAR)
     for key, a in appearances.items():
-        looks[key] = next(clear if a["opacity"] < export_mc.CLEAR_BELOW else opaque)
+        try:
+            looks[key] = next(clear if a["opacity"] < export_mc.CLEAR_BELOW else opaque)
+        except StopIteration:
+            raise ValueError(f"the pack is out of carrier blocks at {key}: fewer materials or scenes") from None
     return looks, appearances
 
 
@@ -388,10 +419,14 @@ class Theater:
         self.origin = tuple(int(v) for v in origin)
         occ = np.argwhere(world.label > 0)
         self.i0, self.k0, self.jhi = int(occ[:, 0].min()), int(occ[:, 2].min()), int(occ[:, 1].max())
+        # material slots 0..MAX_MATERIALS-1 (a material placed from inside the game takes the next free one: sync);
+        # glow carriers past them
+        self.looks = looks
         self.block = ["air"] + [looks[(m, world.pitch)] for m in world.materials[1:]]
-        # glowing cells: (material index, band) → an index into self.block past the materials
+        self.block += ["air"] * (MAX_MATERIALS - len(self.block))
+        self.n_materials = len(world.materials)
         nb = len(export_mc.GLOW_BANDS_K)
-        self.glow_lut = np.tile(np.arange(len(self.block))[:, None], (1, nb))
+        self.glow_lut = np.tile(np.arange(MAX_MATERIALS)[:, None], (1, nb))
         for band, (ci, _, _) in (glows or {}).items():
             self.glow_lut[1:, band] = len(self.block)
             self.block.append(export_mc.GLOW_CARRIERS[ci][0])
@@ -405,6 +440,31 @@ class Theater:
     def mc(self, i, j, k):
         x0, y0, z0 = self.origin
         return x0 + int(i) - self.i0, y0 + int(k) - self.k0, z0 + self.jhi - int(j)
+
+    def cell(self, x, y, z):
+        """The grid cell shown at Minecraft block (x, y, z), or None when it is outside the grid."""
+        x0, y0, z0 = self.origin
+        i, k, j = int(x) - x0 + self.i0, int(y) - y0 + self.k0, self.jhi - (int(z) - z0)
+        if all(0 <= c < n for c, n in zip((i, j, k), self.world.label.shape)):
+            return (i, j, k)
+        return None
+
+    def cell_float(self, x, y, z):
+        """A point in Minecraft's continuous coordinates as grid cell units (cell i spans [i, i+1))."""
+        x0, y0, z0 = self.origin
+        return (x - x0 + self.i0, self.jhi + 1 - (z - z0), y - y0 + self.k0)
+
+    def sync(self):
+        """Give every material the world gained since the last draw its carrier block."""
+        mats = self.world.materials
+        for idx in range(self.n_materials, len(mats)):
+            key = (mats[idx], self.world.pitch)
+            if key not in self.looks:
+                raise ValueError(f"no carrier block for {mats[idx]} at {self.world.pitch:g} m in the pack")
+            if idx >= MAX_MATERIALS:
+                raise ValueError("too many materials for the theater's palette")
+            self.block[idx] = self.looks[key]
+        self.n_materials = len(mats)
 
     def display(self):
         """What each cell is drawn as: its material, or its material's glow when it is past the Draper point."""
@@ -421,6 +481,7 @@ class Theater:
     def draw(self):
         """Send every cell whose block differs from what Minecraft shows. Returns how many."""
         import numpy as np
+        self.sync()
         label = self.display()
         changed = label != self.shown
         if self.blocks is not None:
@@ -656,6 +717,19 @@ def serve(player="aaronsrhodes"):
         impact_aim["weapon"] = IMPACT_ROUNDS[(IMPACT_ROUNDS.index(impact_aim["weapon"]) + 1) % len(IMPACT_ROUNDS)]
         return f"Impact: next round {shooting_range.presets()[0][impact_aim['weapon']]['name']}."
     tell = lambda text: rcon.command("tellraw @a " + json.dumps({"text": text, "color": "green"}))
+    import controls
+    session = controls.Session()
+
+    def hear(world=None, th=None):
+        """What he said since the last tick, acted on and answered (P6). Returns a request the loop must act on."""
+        if blocks is None:
+            return None
+        for m in blocks.poll():
+            reply = session.apply(m, world, th)
+            print(f"{m['player']} said: {m['text']!r} -> {reply}", flush=True)
+            tell(reply)
+        req, session.request = session.request, None
+        return req
     print("serving: panels built, pack at", f"http://{PACK_HOST}:{PACK_PORT}/skippycraft.zip", flush=True)
     pending, last_check = 0, 0.0
     while True:
@@ -671,6 +745,11 @@ def serve(player="aaronsrhodes"):
             if req == IMPACT_WEAPON:                                      # the next round, and fire it
                 tell(impact_press())
                 req = STAGES["impact"]["request"]
+            heard = hear()
+            if heard in STAGES:
+                req = STAGES[heard]["request"]
+            elif heard and heard not in ("stop", "reset"):
+                tell(f"No theater called {heard}: " + ", ".join(STAGES) + ".")
             name = by_number.get(req)
             if name is None:
                 if time.monotonic() - last_check > 3.0:              # idle: put back anything he broke
@@ -700,8 +779,24 @@ def serve(player="aaronsrhodes"):
             if preview:                                                   # just show the fresh target
                 ticks, preview = 0, False
             print("run", name, flush=True)
-            for tick in range(ticks):
+            tick = 0
+            while tick < ticks:
                 t0 = time.monotonic()
+                heard = hear(world, th)
+                if heard == "stop":
+                    tell(f"Stopped {name}.")
+                    break
+                if heard == "reset":
+                    pending = st["request"]
+                    break
+                if heard in STAGES:
+                    pending = STAGES[heard]["request"]
+                    break
+                if not session.tick_allowed():                             # paused: show what he changed, wait
+                    th.readout(th.draw())
+                    time.sleep(0.1)
+                    continue
+                tick += 1
                 nxt = read_request(rcon)
                 if nxt in RANGE_BUTTONS:                                  # change the setup mid-run: start over with it
                     tell(range_press(aim, RANGE_BUTTONS[nxt]))
@@ -729,7 +824,7 @@ def serve(player="aaronsrhodes"):
                 if tick % 25 == 0:                                        # the service's log: what it last drew, and where
                     where = " ".join(f"{_body_name(b)}@{th.mc(*_body_cell(b))}" for b in getattr(world, "bodies", ()))
                     print(f"{name} tick {tick}: {text} {where}", flush=True)
-                time.sleep(max(0.0, 1.0 / st["rate"] - (time.monotonic() - t0)))
+                time.sleep(max(0.0, 1.0 / (st["rate"] * session.speed) - (time.monotonic() - t0)))
             else:
                 tell(f"{name} done: the world ran {world.t:.2f} simulated seconds.")
 

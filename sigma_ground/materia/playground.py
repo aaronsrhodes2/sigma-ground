@@ -122,18 +122,8 @@ class PlaygroundWorld(FluidVoxelWorld):
               else np.broadcast_to(T0, self.label.shape).copy())
 
         # per material: build density (a cell's mass), per-kg live table, phase points and latent heats
-        dens = field.density_by_label or {}
-        self.mat = [None]
-        for name in self.materials[1:]:
-            p = block(name)["properties"]
-            data_name = {"water": "water_ice"}.get(block(name)["canonical"], block(name)["canonical"])
-            m = {"name": name, "rho": float(dens.get(name) or p["density"]["value"]), "lv": _per_kg(name),
-                 "T_melt": p.get("melting_point", {}).get("value"), "T_boil": p.get("boiling_point", {}).get("value"),
-                 "L_fus": latent_heat_J_kg(data_name, "fus") if "melting_point" in p else None,
-                 "L_vap": latent_heat_J_kg(data_name, "vap") if "boiling_point" in p else None}
-            if m["L_fus"] is None or m["L_vap"] is None:
-                m["T_melt"] = m["T_boil"] = None                    # keeps its phase (block() names the gap)
-            self.mat.append(m)
+        self.dens = dict(field.density_by_label or {})
+        self.mat = [None] + [self._material_card(name) for name in self.materials[1:]]
 
         # the liquid: inviscid, at the material's build density so a cell is exactly ppc particles (mass and energy exact)
         self.liquid_name = liquid
@@ -202,11 +192,34 @@ class PlaygroundWorld(FluidVoxelWorld):
                         "dissipated_J": 0.0, "heat_from_motion_J": 0.0, "melted_cells": 0, "frozen_cells": 0,
                         "vented_particles": 0, "impact_heat_J": 0.0, "impact_in_J": 0.0, "impact_impulse_Ns": 0.0,
                         "ejected_kg": 0.0, "ejected_J": 0.0, "shots": 0, "left_kg": 0.0, "left_J": 0.0,
-                        "left_mech_J": 0.0, "left_Ns": np.zeros(3)}
+                        "left_mech_J": 0.0, "left_Ns": np.zeros(3), "placed_kg": 0.0, "placed_J": 0.0,
+                        "injected_J": 0.0, "pushed_J": 0.0}
         self.shots = []
         self.events = []                     # (t, fn(world)): things that happen at a time (a shot fired)
         self._update_solids()
         self._draw()
+
+    def _material_card(self, name):
+        """Build density (a cell's mass), per-kg live table, phase points and latent heats of one material."""
+        from ..field.interface.block import block
+        from ..field.interface.phase_transition import latent_heat_J_kg
+        p = block(name)["properties"]
+        data_name = {"water": "water_ice"}.get(block(name)["canonical"], block(name)["canonical"])
+        m = {"name": name, "rho": float(self.dens.get(name) or p["density"]["value"]), "lv": _per_kg(name),
+             "T_melt": p.get("melting_point", {}).get("value"), "T_boil": p.get("boiling_point", {}).get("value"),
+             "L_fus": latent_heat_J_kg(data_name, "fus") if "melting_point" in p else None,
+             "L_vap": latent_heat_J_kg(data_name, "vap") if "boiling_point" in p else None}
+        if m["L_fus"] is None or m["L_vap"] is None:
+            m["T_melt"] = m["T_boil"] = None                        # keeps its phase (block() names the gap)
+        return m
+
+    def add_material(self, name):
+        """A material the world did not start with (placed from inside the game): its index."""
+        if name in self.materials:
+            return self.materials.index(name)
+        self.materials.append(name)
+        self.mat.append(self._material_card(name))
+        return len(self.materials) - 1
 
     # ── where things are ──────────────────────────────────────────────────────────────────────────────────────────
     def _particle_cells(self, pos=None):
@@ -839,6 +852,171 @@ class PlaygroundWorld(FluidVoxelWorld):
             order = np.lexsort((dither, -self.Ms[part]))
             hide = cells[order[n_draw:]]
             self.drawn[tuple(hide.T)] = 0
+
+    # ── controls from inside the game (P6): every change through the books ─────────────────────────────────────────
+    def owner_at(self, cell):
+        """``("wall", material index)``, ``("body", body)`` or None (air, or liquid particles) at a grid cell."""
+        c = tuple(int(v) for v in cell)
+        if self.static[c]:
+            return ("wall", int(self.label[c]))
+        for b in self.bodies:
+            if (b.grid == np.array(c)).all(1).any():
+                return ("body", b)
+        return None
+
+    def _enthalpy(self, k, mass, T, melt, boil):
+        m = self.mat[k]
+        return float((mass * (_h(m["lv"], T) + melt * (m["L_fus"] or 0) + boil * (m["L_vap"] or 0))).sum())
+
+    def card(self, cell):
+        """What is that: the block's live card in a sentence."""
+        from ..field.interface.block import block
+        own = self.owner_at(cell)
+        if own is None:
+            pc = self._particle_cells() if len(self.flip.pos) else np.zeros((0, 3), int)
+            here = (pc == np.array(cell)).all(1) if len(pc) else np.zeros(0, bool)
+            if here.any():
+                n = int(here.sum())
+                return (f"Liquid {self.liquid_name}: {n} particles, {n * self.flip.particle_mass * 1e3:.3g} g, "
+                        f"{float(self.pT[here].mean()):.0f} K.")
+            return "Air."
+        kind, who = own
+        c = tuple(int(v) for v in cell)
+        if kind == "wall":
+            k, T, melt, mass = who, float(self.Ts[c]), float(self.melt[c]), float(self.Ms[c])
+            name, what, speed = self.materials[k], "a wall", 0.0
+        else:
+            k = who.index
+            i = int(np.nonzero((who.grid == np.array(c)).all(1))[0][0])
+            T, melt, mass = float(who.T[i]), float(who.melt[i]), float(who.cell_mass[i])
+            name, what, speed = who.material, f"a body of {who.mass:.3g} kg", float(np.linalg.norm(who.v))
+        m = self.mat[k]
+        phase = "solid" if melt <= 0 else ("liquid" if melt >= 1 else f"melting ({melt:.0%})")
+        p = block(name, T)["properties"]
+        kk, cp = p["thermal_conductivity"]["value"], p["specific_heat"]["value"]
+        return (f"{name}, {what}: {T:.0f} K, {phase}, this cell {mass * 1e3:.3g} g"
+                + (f", moving at {speed:.2f} m/s" if speed > 1e-3 else "")
+                + f"; at this temperature k {kk:.3g} W/m/K, cp {cp:.0f} J/kg/K"
+                + (f", melts at {m['T_melt']:.0f} K" if m["T_melt"] else "") + " (field.interface.block).")
+
+    def set_temperature_around(self, cell, radius_m, T):
+        """Set the temperature: a body wholly, or the wall cells within ``radius_m``; past its melting point a cell is
+        set molten (its latent heat included). The energy added or taken is booked (``injected_J``)."""
+        T = float(T)
+        own = self.owner_at(cell)
+        if own is None:
+            return "Nothing solid there to heat."
+        if own[0] == "body":
+            b = own[1]
+            m = self.mat[b.index]
+            E0 = self._enthalpy(b.index, b.cell_mass, b.T, b.melt, b.boil)
+            b.T[:] = T
+            b.melt[:] = 1.0 if m["T_melt"] and T > m["T_melt"] else 0.0
+            b.boil[:] = 0.0
+            dE = self._enthalpy(b.index, b.cell_mass, b.T, b.melt, b.boil) - E0
+            what = f"the {b.material} body ({len(b.r)} cells)"
+        else:
+            r = max(radius_m / self.pitch, 0.5)
+            idx = np.argwhere(self.static)
+            idx = idx[np.linalg.norm(idx - np.array(cell), axis=1) <= r]
+            sel = tuple(idx.T)
+            dE = 0.0
+            for k in np.unique(self.label[sel]):
+                m = self.mat[int(k)]
+                sub = tuple(a[self.label[sel] == k] for a in sel)
+                E0 = self._enthalpy(int(k), self.Ms[sub], self.Ts[sub], self.melt[sub], self.boil[sub])
+                self.Ts[sub] = T
+                self.melt[sub] = 1.0 if m["T_melt"] and T > m["T_melt"] else 0.0
+                self.boil[sub] = 0.0
+                dE += self._enthalpy(int(k), self.Ms[sub], self.Ts[sub], self.melt[sub], self.boil[sub]) - E0
+            what = f"{len(idx)} wall cells within {radius_m * 100:.0f} cm"
+        self.ledger_["injected_J"] += dE
+        return f"Set {what} to {T:.0f} K ({dE:+.3g} J)."
+
+    def push_at(self, cell, dv):
+        """Add ``dv`` (m/s, grid axes) to the body at the cell. Booked as ``pushed_J``."""
+        own = self.owner_at(cell)
+        if own is None or own[0] != "body":
+            return "Only a body can be pushed (that is a wall, or air)."
+        b = own[1]
+        ke0 = b.kinetic_J()
+        b.v = b.v + np.asarray(dv, float)
+        self.ledger_["pushed_J"] += b.kinetic_J() - ke0
+        self._update_solids()
+        return f"Pushed the {b.material} body: now {np.linalg.norm(b.v):.2f} m/s."
+
+    def remove_around(self, cell, radius_m):
+        """Take a body out of the world (booked as left), or the wall cells within ``radius_m`` (booked as ejected)."""
+        own = self.owner_at(cell)
+        if own is None:
+            return "Nothing solid there."
+        if own[0] == "body":
+            b = own[1]
+            self.rigid.joints = [J for J in self.rigid.joints if J["a"] is not b and J["b"] is not b]
+            self.bodies.remove(b)
+            self.rigid.gone.append(b)
+            self._book_departures()
+            what = f"the {b.material} body"
+        else:
+            r = max(radius_m / self.pitch, 0.5)
+            idx = np.argwhere(self.static)
+            idx = idx[np.linalg.norm(idx - np.array(cell), axis=1) <= r]
+            self._cut_wall(idx)
+            what = f"{len(idx)} wall cells"
+        self.rigid.set_static(self.static)
+        self.rigid.raster(self.static)
+        self._update_solids()
+        self._draw()
+        return f"Removed {what}."
+
+    def place_above(self, cell, material, size_m, temperature_k=None, body=True, lift_m=0.0):
+        """A cube of ``material``, ``size_m`` across, standing on the targeted block (``lift_m`` higher to drop it), at
+        ``temperature_k`` (ambient by default). A rigid body; the world's liquid, molten, becomes particles. Booked as
+        placed mass and enthalpy."""
+        n = max(1, int(round(size_m / self.pitch)))
+        T = self.ambient_T if temperature_k is None else float(temperature_k)
+        i, j, k = (int(v) for v in cell)
+        lo = np.array([i - n // 2, j - n // 2, k + 1 + int(round(lift_m / self.pitch))])
+        hi = lo + n
+        shape = np.array(self.label.shape)
+        if (lo < 0).any() or (hi > shape).any():
+            return "No room there inside the theater."
+        cells = np.argwhere(np.ones((n, n, n), bool)) + lo
+        idx = tuple(cells.T)
+        if (self.static[idx] | self._bodies_mask()[idx]).any():
+            return "Something is in the way there."
+        ki = self.add_material(material)
+        m = self.mat[ki]
+        mass = np.full(len(cells), m["rho"] * self.V)
+        molten = m["T_melt"] is not None and T > m["T_melt"]
+        if molten and ki == self.li:
+            self._spawn(cells, np.full(len(cells), T), mass, np.zeros((len(cells), 3)))
+            E = float((mass * (_h(m["lv"], T) + m["L_fus"])).sum())
+            what = f"{n * self.pitch * 100:.0f} cm of molten {material}"
+        elif body:
+            b = VoxelBody(material, ki, cells, self.pitch, mass, np.full(len(cells), T))
+            if molten:
+                b.melt[:] = 1.0
+            self.rigid.bodies.append(b)
+            E = self._enthalpy(ki, b.cell_mass, b.T, b.melt, b.boil)
+            what = f"a {n * self.pitch * 100:.0f} cm {material} block"
+        else:
+            self.static[idx] = True
+            self.label[idx] = ki
+            self.base[idx] = ki
+            self.Ms[idx] = mass
+            self.Ts[idx] = T
+            self.melt[idx] = 1.0 if molten else 0.0
+            self.boil[idx] = 0.0
+            E = self._enthalpy(ki, self.Ms[idx], self.Ts[idx], self.melt[idx], self.boil[idx])
+            what = f"a {n * self.pitch * 100:.0f} cm {material} wall"
+        self.ledger_["placed_kg"] += float(mass.sum())
+        self.ledger_["placed_J"] += E
+        self.rigid.set_static(self.static)
+        self.rigid.raster(self.static)
+        self._update_solids()
+        self._draw()
+        return f"Placed {what} at {T:.0f} K ({float(mass.sum()) * 1e3:.3g} g)."
 
     def shot_line(self):
         """The last shot, layer by layer: what the solve said and what the world did with it."""
