@@ -989,3 +989,27 @@ def plasticity_properties(material_key, sigma=SIGMA_HERE):
             "σ-coupling: CORE (□σ = −ξR → E_coh → σ_y, K')."
         ),
     }
+
+
+# ── Structural (carbon) steel at temperature: measured reduction of the yield strength ──────────────────────────────
+
+# EN 1993-1-2:2005 (Eurocode 3, fire design) Table 3.1, carbon steel: k_y,theta = f_y,theta / f_y (effective yield
+# strength at 2% strain) against steel temperature, from the standard's test programme; linear between the rows.
+STEEL_FIRE_KY_SOURCE = "EN 1993-1-2:2005 Table 3.1 (carbon steel, effective yield strength reduction k_y,theta)"
+STEEL_FIRE_KY = ((20.0, 1.0), (100.0, 1.0), (200.0, 1.0), (300.0, 1.0), (400.0, 1.0), (500.0, 0.78), (600.0, 0.47),
+                 (700.0, 0.23), (800.0, 0.11), (900.0, 0.06), (1000.0, 0.04), (1100.0, 0.02), (1200.0, 0.0))
+STEEL_FIRE_KEYS = ("steel_mild",)
+
+
+def steel_yield_at(material_key, temperature_K):
+    """Yield strength (Pa) of carbon steel at temperature: the measured room-temperature yield times Eurocode 3's
+    k_y,theta (0 from 1200 C up). None for a material the table does not cover."""
+    if material_key not in STEEL_FIRE_KEYS:
+        return None
+    t = temperature_K - 273.15
+    k = 1.0 if t <= STEEL_FIRE_KY[0][0] else 0.0
+    for (t0, k0), (t1, k1) in zip(STEEL_FIRE_KY, STEEL_FIRE_KY[1:]):
+        if t0 <= t <= t1:
+            k = k0 + (k1 - k0) * (t - t0) / (t1 - t0)
+            break
+    return PLASTICITY_DATA[material_key]["sigma_y_Pa"] * k

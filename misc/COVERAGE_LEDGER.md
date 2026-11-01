@@ -69,6 +69,10 @@ against coverage. Listed by the batch in which they were ruled out.
   properties in Nagatha-compatible format"; re-bundles already-covered
   interfacial_shear_strength / friction_coefficient / ploughing_friction.
   Serialization helper. EXCLUDE.
+- `field.interface.friction.contact_friction` — the rigid-body solver's lookup
+  (`dynamics.voxel_rigid`): measured pair first, else the covered
+  friction_coefficient, with flags. An input selector for a simulation, not a
+  new physics answer. EXCLUDE.
 - `field.interface.wear.wear_profile` — "Simulate wear depth vs time", returns a
   per-time-step list; re-bundles the Archard physics covered via wear_analysis.
   Simulation pipeline, not Q&A. EXCLUDE.

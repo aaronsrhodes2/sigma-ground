@@ -166,6 +166,7 @@ EXCLUDE_SET = frozenset(
     # Nagatha-format / serialization export aggregators (re-bundle covered physics)
     + [_P + n for n in (
         "friction.material_friction_properties",
+        "friction.contact_friction",
         "viscosity.viscous_flow_properties",
         "projectile.projectile_report",
     )]

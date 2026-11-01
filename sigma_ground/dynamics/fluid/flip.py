@@ -112,6 +112,44 @@ class Flip:
             F[c] += self.h * self.h * float((p_high * (liquid & body_above)).sum() - (p_low * (liquid & body_below)).sum())
         return F
 
+    def force_torque_on(self, mask, about):
+        """``force_on`` and the torque (N m) of the same face forces about ``about`` (m, this grid's frame: cell i spans
+        i*h .. (i+1)*h): each face's force acts at the face's centre."""
+        F, T = np.zeros(3), np.zeros(3)
+        liquid = getattr(self, "_liquid", None)
+        if liquid is None:
+            return F, T
+        P, M = self.pressure, np.asarray(mask, bool)
+        h = self.h
+        for c in range(3):
+            e = np.eye(3)[c]
+            for sgn in (1, -1):
+                nbP = np.zeros_like(P)
+                nbL = np.zeros_like(liquid)
+                nbM = np.zeros_like(M)
+                src = [slice(None)] * 3
+                dst = [slice(None)] * 3
+                # values of the neighbour toward +sgn along c, and the one opposite (to carry pressure to the face)
+                if sgn > 0:
+                    src[c], dst[c] = slice(1, None), slice(None, -1)
+                else:
+                    src[c], dst[c] = slice(None, -1), slice(1, None)
+                nbM[tuple(dst)] = M[tuple(src)]
+                opP = np.zeros_like(P)
+                opL = np.zeros_like(liquid)
+                opP[tuple(src)] = P[tuple(dst)]
+                opL[tuple(src)] = liquid[tuple(dst)]
+                face = liquid & nbM                                  # a liquid cell with the body beside it toward sgn
+                if not face.any():
+                    continue
+                pf = np.where(opL, 1.5 * P - 0.5 * opP, P)[face]     # pressure carried to the face
+                idx = np.argwhere(face)
+                pos = (idx + 0.5) * h + 0.5 * h * sgn * e
+                f = (sgn * pf * h * h)[:, None] * e                  # pushes into the body
+                F += f.sum(0)
+                T += np.cross(pos - about, f).sum(0)
+        return F, T
+
     def mass_kg(self):
         return self.particle_mass * len(self.pos)
 

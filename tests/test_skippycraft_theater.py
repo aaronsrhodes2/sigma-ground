@@ -242,3 +242,32 @@ def test_the_range_target_and_its_glowing_crater_reach_minecraft(looks):
     assert {th.mc(i, j, k): th.block[shown[i, j, k]] for i, j, k in np.argwhere(world.label > 0)} == mc.shown()
     lit = {theater.export_mc.GLOW_CARRIERS[ci][0] for ci, _, _ in glows.values()}
     assert lit & set(mc.shown().values())                               # the crater's walls glow
+
+
+def test_strength_scene_topples_the_stack_and_breaks_the_beam_where_hot():
+    """P3's done-when: the leaning stack topples; the hot block's heat runs into the beam, which hinges where it is
+    hottest (under the block), sags, tears and drops it; the books close with the heat made by contact and bending."""
+    field, w = theater.build("strength")
+    top = max((b for b in w.bodies if b.material == "granite"), key=lambda b: b.x[2])
+    load = next(b for b in w.bodies if b.material == "tungsten")
+    top0, load0 = top.x.copy(), load.x[2]
+    E0 = w.thermal_J()
+    hinge_hot = []
+    for _ in range(90):
+        n = len(w.rigid.joints)
+        w.step(0.05)
+        for J in w.rigid.joints[n:]:
+            steel = np.concatenate([b.T for b in w.bodies if b.material == "steel_mild"])
+            hinge_hot.append(float(J["a"].T[J["cells_a"]].mean()) >= np.percentile(steel, 90))
+        if w.ledger["tears"]:
+            break
+    L = w.ledger
+    assert np.linalg.norm(top.x - top0) > 0.03
+    assert L["hinges"] >= 1 and hinge_hot and all(hinge_hot)
+    assert L["tears"] >= 1
+    for _ in range(20):
+        w.step(0.05)
+    assert load.x[2] < load0 - 0.05
+    L = w.ledger
+    assert (w.thermal_J() + L["radiated_J"] + L["vented_J"] + L["to_surroundings_J"] - L["heat_from_motion_J"]
+            == pytest.approx(E0, rel=1e-9))

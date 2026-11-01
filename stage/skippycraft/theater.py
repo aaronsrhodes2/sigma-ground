@@ -56,11 +56,20 @@ SCENES = {
     # it stops; the gold cube on the slab sinks through the melt to the plate. Every value from each cell's live state.
     "playground": ('box(0,0,0,19,0,19,"granite"); box(6,1,6,13,1,13,"tungsten"); box(7,2,7,12,4,12,"lead"); '
                    'box(9,5,9,10,6,10,"gold")', 0.01, "ISM", "playground", 400, 0.05),
+    # strength (SKIPPYCRAFT_PLAN 10b, P3): bodies that rotate, touch, slide, topple and break (dynamics.voxel_rigid), in the
+    # same world as heat. A stack of five granite blocks, each 2 cm further out than the one below, topples; a 3000 K
+    # tungsten block rests on a steel beam between two granite piers, its heat runs into the beam, and where the steel is
+    # hot enough to yield (Eurocode 3's measured fire table) the beam forms a plastic hinge, sags, tears and drops it.
+    "strength": ('box(0,0,0,69,0,29,"granite"); box(4,1,12,8,18,17,"granite"); box(61,1,12,65,18,17,"granite"); '
+                 'box(5,19,14,64,19,15,"steel"); box(32,20,14,37,31,15,"tungsten")', 0.01, "ISM", "strength", 300, 0.05),
 }
+# the strength scene's stack: separate granite bodies that touch (written apart, so each is its own body)
+STRENGTH_STACK = tuple((20 + 2 * k, 1 + 4 * k, 22, 23 + 2 * k, 4 + 4 * k, 25) for k in range(5))
+STRENGTH_LOAD_K = 3000.0
 PLAYGROUND_BODIES = ("gold", "lead")
 # a scene may be built at its own resolution (fixed for its life): the playground runs heat, a liquid and bodies at once,
 # and at 4x (2.5 mm blocks) a tick took ~3.7 s; at 2x (5 mm) it is watchable
-SCENE_RESOLUTION = {"playground": 2}
+SCENE_RESOLUTION = {"playground": 2, "strength": 1}
 PADDLE = {"material": "aluminum", "axis": 0, "amplitude_m": 0.015, "period_s": None}
 BODIES = ("gold", "wood_oak")          # free bodies in the slosh tank: they fall in when it runs (gold sinks, oak floats)
 BOSSBAR = "skippycraft:theater"
@@ -91,10 +100,15 @@ STAGES = {
                       "goes through every layer the shot defeats, the crater glows at the temperature the game computes, then "
                       "cools by conduction. Weapon / Armor change the setup."},
     # the playground's grid is ~90 blocks square at x 100-190, z 105-195; the desk floats in front of it
-    "playground": {"origin": (100, -60, 105), "desk": (145, -38, 92), "pitch": 35, "other": "sink", "request": 14, "rate": 6.0,
+    "playground": {"origin": (100, -60, 105), "desk": (145, -38, 92), "pitch": 35, "other": "strength", "request": 14, "rate": 6.0,
                    "tell": "Playground: everything at once. A 2200 K tungsten plate melts the lead slab on it; the melt flows with "
                            "momentum, runs off onto the cold granite and freezes where it stops; the gold cube sinks through the "
                            "melt. Every number comes from each block's own temperature; the boss bar keeps the books."},
+    # the strength scene is 74 x 34 blocks (1 cm each) at x 0-74, z 260-294, 36 high; the desk floats in front of it
+    "strength": {"origin": (0, -60, 260), "desk": (37, -40, 244), "pitch": 30, "other": "sink", "request": 15, "rate": 6.0,
+                 "tell": "Strength: bodies that rotate, slide and break. The leaning granite stack topples. The 3000 K tungsten "
+                         "block heats the steel beam under it; where the steel is hot enough to yield, the beam bends, sags, "
+                         "tears and drops it. Every strength, friction and bounce comes from the blocks' own state."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
@@ -223,6 +237,21 @@ def build(name):
         from sigma_ground.materia.playground import PlaygroundWorld
         T = np.where(field.label_grid == field.materials.index("tungsten"), 2200.0, 293.15)
         return field, PlaygroundWorld(field, liquid="lead", temperature_k=T, bodies=PLAYGROUND_BODIES, env=env)
+    if temp == "strength":
+        from sigma_ground.deckard.voxel_exec import field_from_voxel_exec
+        from sigma_ground.materia.playground import PlaygroundWorld
+        code, block_m = SCENES[name][:2]
+        res = SCENE_RESOLUTION.get(name, RESOLUTION)
+        stack = "; ".join('box(%d,%d,%d,%d,%d,%d,"granite")' % b for b in STRENGTH_STACK)
+        field = field_from_voxel_exec(code + "; " + stack, block_m=block_m, resolution=res)[0]
+        masks = []
+        for b in STRENGTH_STACK:                          # each block's cells: the same build with that block marked
+            probe = field_from_voxel_exec(code + '; box(%d,%d,%d,%d,%d,%d,"gold")' % b, block_m=block_m, resolution=res)[0]
+            masks.append(("granite", np.asarray(probe.label_grid) == probe.materials.index("gold")))
+        lab = np.asarray(field.label_grid)
+        T = np.where(lab == field.materials.index("tungsten"), STRENGTH_LOAD_K, 293.15)
+        return field, PlaygroundWorld(field, liquid="steel_mild", temperature_k=T, env=env,
+                                      bodies=["steel_mild", "tungsten"] + masks)
     if temp == "flip":
         return field, FluidVoxelWorld(field, paddle=dict(PADDLE), bodies=BODIES)
     T = None

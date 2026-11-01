@@ -384,3 +384,49 @@ def material_friction_properties(mat1, mat2, pressure_pa=1e7, sigma=SIGMA_HERE):
             "APPROXIMATION (single-scale asperity model)."
         ),
     }
+
+
+# ── Measured dry friction (what a contact solver uses first) ──────
+
+# Clean, dry, static and kinetic (sliding) coefficients, measured. A range is given as its midpoint with the range kept.
+_ETB = "Engineering ToolBox (2004), Friction - Coefficients for Common Materials and Surfaces, clean and dry"
+_BYERLEE = ("Byerlee, J. (1978), Friction of rocks, Pure Appl. Geophys. 116, 615-626: tau = 0.85 sigma_n below "
+            "200 MPa for nearly every rock type (the peak, static value; no separate sliding value)")
+MEASURED_FRICTION = {
+    ("steel_mild", "steel_mild"): {"static": 0.65, "static_range": (0.5, 0.8), "kinetic": 0.42, "source": _ETB},
+    ("wood_oak", "wood_oak"): {"static": 0.62, "kinetic": 0.48, "source": _ETB + " (oak on oak, parallel to the grain)"},
+    ("glass", "glass"): {"static": 0.95, "static_range": (0.9, 1.0), "kinetic": 0.4, "source": _ETB},
+    ("aluminum", "aluminum"): {"static": 1.2, "static_range": (1.05, 1.35), "kinetic": 0.4, "source": _ETB},
+    ("copper", "copper"): {"static": 1.6, "kinetic": None, "source": _ETB},
+    ("granite", "granite"): {"static": 0.85, "kinetic": None, "source": _BYERLEE},
+}
+
+
+def contact_friction(mat1, mat2, sigma=SIGMA_HERE):
+    """Static and kinetic friction for a contact between two materials (canonical keys), measured first.
+
+    Returns ``{"static", "kinetic", "source", "flags"}``. Order: a measured pair (``MEASURED_FRICTION``); else the
+    Bowden-Tabor adhesive estimate (``friction_coefficient``, both keys in ``surface.MATERIALS``), flagged because it
+    gives about 1.0 for every pair; else the smaller of the two materials' measured self-contact values, flagged as
+    borrowed. A missing kinetic value is the static one, flagged. None when nothing applies."""
+    rec = MEASURED_FRICTION.get((mat1, mat2)) or MEASURED_FRICTION.get((mat2, mat1))
+    flags = []
+    if rec:
+        out = {"static": rec["static"], "kinetic": rec["kinetic"], "source": rec["source"]}
+    elif mat1 in MATERIALS and mat2 in MATERIALS:
+        mu = friction_coefficient(mat1, mat2, sigma)
+        out = {"static": mu, "kinetic": None, "source": "friction.friction_coefficient (Bowden-Tabor, derived)"}
+        flags.append(f"{mat1}/{mat2}: no measured friction; Bowden-Tabor's estimate is about 1.0 for any pair")
+    else:
+        selfs = [MEASURED_FRICTION.get((m, m)) for m in (mat1, mat2)]
+        selfs = [s for s in selfs if s]
+        if not selfs:
+            return None
+        s = min(selfs, key=lambda r: r["static"])
+        out = {"static": s["static"], "kinetic": s["kinetic"], "source": s["source"]}
+        flags.append(f"{mat1}/{mat2}: no measured friction for the pair; the lower self-contact value is borrowed")
+    if out["kinetic"] is None:
+        out["kinetic"] = out["static"]
+        flags.append(f"{mat1}/{mat2}: no measured sliding value; sliding uses the static one")
+    out["flags"] = flags
+    return out

@@ -7,8 +7,10 @@ Three kinds of matter, every property from ``field.interface.block`` at its own 
 ``voxel_world.live_table``):
 
   walls   static solid cells: temperature, mass, melt and boil fractions per cell;
-  bodies  rigid bodies with momentum (``FluidVoxelWorld``'s coupling: gravity, the liquid's pressure, added mass,
-          inelastic contact); every body cell carries its own temperature;
+  bodies  rigid bodies that move and rotate (``dynamics.voxel_rigid``: gravity, the liquid's pressure and its torque,
+          contact with friction and restitution, toppling; a cut that fails at its cells' temperature becomes a plastic
+          hinge that sags and tears, or a brittle break); every body cell carries its own temperature, and the energy
+          contact and bending take becomes heat in the cells where it happens;
   liquid  FLIP particles (``dynamics.fluid.flip``) of ONE material, each carrying its temperature, its liquid fraction
           (frozen 0 .. liquid 1) and its boiled fraction.
 
@@ -22,15 +24,14 @@ the latent heat of vaporisation and then vent (mass and energy to the ledger); (
 (FLIP sub-steps at its CFL limit).
 
 The books: mass (walls + bodies + particles + vented) is exact. Thermal energy (enthalpy + latent heat held) closes
-against what was radiated, vented and lost to an air bath. Mechanical energy is reported apart: FLIP's numerical damping
-and bodies stopping dead on contact take kinetic energy out of the world (``dissipated_J``), where a real liquid would
-turn it into heat; it is shown, not hidden.
+against what was radiated, vented and lost to an air bath, plus the heat made from motion (``heat_from_motion_J``: contact,
+friction, plastic bending). FLIP's numerical damping takes kinetic energy out of the world (``dissipated_J``), where a
+real liquid would turn it into heat; it is shown, not hidden.
 
 Honest limits (``gaps()``): one liquid material (another material that melts does so in place, as a wall); the melt is
-inviscid (sigma-ground's melt viscosity, ``fluid.eyring_viscosity``, is 10^3-10^6 too high: KNOWN_GAPS); bodies translate
-only and stop dead on
-contact; a body of the liquid's material that melts loses those cells but is not split in two; steam is not modelled;
-the melt flows at its solid's density (no expansion on melting) so a cell is exactly its particles and the books are exact.
+inviscid (sigma-ground's melt viscosity, ``fluid.eyring_viscosity``, is 10^3-10^6 too high: KNOWN_GAPS); steam is not
+modelled; the melt flows at its solid's density (no expansion on melting) so a cell is exactly its particles and the books
+are exact; the rigid world's own limits (``RigidWorld.gaps``).
 """
 from __future__ import annotations
 
@@ -38,6 +39,7 @@ import math
 
 import numpy as np
 
+from ..dynamics.voxel_rigid import RigidWorld, VoxelBody
 from .voxel_fluid import FluidVoxelWorld
 from .voxel_world import live_table
 
@@ -64,7 +66,8 @@ def _T(lv, H):
 class PlaygroundWorld(FluidVoxelWorld):
     """``field``: a Deckard VoxelField. ``temperature_k``: scalar or a grid like the field. ``liquid``: the one material
     that flows when molten (its cells start as walls or bodies unless they are already past its melting point).
-    ``bodies``: materials whose connected pieces are rigid bodies. ``env``: "ISM" (vacuum, radiating) or "STP" (an air
+    ``bodies``: materials whose connected pieces are rigid bodies, or ``(material, mask)`` pairs naming one body's cells
+    (blocks of one material that touch but are separate bodies, like a stack). ``env``: "ISM" (vacuum, radiating) or "STP" (an air
     bath at its temperature)."""
 
     def __init__(self, field, *, liquid, temperature_k=293.15, bodies=(), env="ISM", ppc=8, seed=1, headroom=8, cfl=2.0):
@@ -119,25 +122,33 @@ class PlaygroundWorld(FluidVoxelWorld):
             self.Ms[self.label == k] = self.mat[k]["rho"] * self.V
         self.melt = np.zeros(self.label.shape)
         self.boil = np.zeros(self.label.shape)
-        self.bodies = []
+        found = []
         body_mask = np.zeros(self.label.shape, bool)
-        for name in bodies:
+        named = [item for item in bodies if not isinstance(item, str)]
+        for name, mask in named:                      # a body given by its cells (blocks of one material that touch)
+            mask = np.asarray(mask, bool) & (self.label == self.materials.index(name)) & ~molten
+            idx = np.argwhere(mask)
             bi = self.materials.index(name)
-            cells = (self.label == bi) & ~molten
+            body_mask[mask] = True
+            found.append(VoxelBody(name, bi, idx, self.pitch, np.full(len(idx), self.mat[bi]["rho"] * self.V),
+                                   T0[tuple(idx.T)]))
+        for name in [item for item in bodies if isinstance(item, str)]:
+            bi = self.materials.index(name)
+            cells = (self.label == bi) & ~molten & ~body_mask
             pieces, n = components(cells)
             for k in range(1, n + 1):
                 idx = np.argwhere(pieces == k)
-                anchor = idx.min(0)
                 body_mask[tuple(idx.T)] = True
-                self.bodies.append({"material": name, "index": bi, "offsets": idx - anchor, "pos": anchor.astype(float),
-                                    "cell": anchor.copy(), "vel": np.zeros(3), "acc": np.zeros(3), "force_N": np.zeros(3),
-                                    "density": self.mat[bi]["rho"], "mass_kg": self.mat[bi]["rho"] * len(idx) * self.V,
-                                    "T": T0[tuple(idx.T)].copy(), "melt": np.zeros(len(idx)), "boil": np.zeros(len(idx))})
+                found.append(VoxelBody(name, bi, idx, self.pitch, np.full(len(idx), self.mat[bi]["rho"] * self.V),
+                                       T0[tuple(idx.T)]))
         self.static = (self.label > 0) & ~body_mask & ~molten
         for a in (self.Ms, self.melt, self.boil):
             a[~self.static] = 0.0
         self.Ts[~self.static] = self.ambient_T
         self.base = np.where(self.static, self.label, 0)
+        self.rigid = RigidWorld(self.label.shape, self.pitch, self.static,
+                                lambda flat: self.materials[max(1, int(self.base.flat[flat]))], self.gravity)
+        self.rigid.bodies.extend(found)
 
         # the liquid's domain: the build's bounding box plus headroom
         occ = np.argwhere(self.label > 0)
@@ -156,7 +167,8 @@ class PlaygroundWorld(FluidVoxelWorld):
         self.t = 0.0
         self.shift = 0
         self.ledger_ = {"radiated_J": 0.0, "to_surroundings_J": 0.0, "vented_kg": 0.0, "vented_J": 0.0,
-                        "dissipated_J": 0.0, "melted_cells": 0, "frozen_cells": 0, "vented_particles": 0}
+                        "dissipated_J": 0.0, "heat_from_motion_J": 0.0, "melted_cells": 0, "frozen_cells": 0,
+                        "vented_particles": 0}
         self._update_solids()
         self._draw()
 
@@ -167,12 +179,28 @@ class PlaygroundWorld(FluidVoxelWorld):
         pos = f.pos if pos is None else pos
         return np.clip((pos / f.h).astype(int), 0, np.array(f.shape) - 1) + self.lo
 
+    @property
+    def bodies(self):
+        return self.rigid.bodies
+
     def _body_cell_list(self, b):
-        return b["cell"] + b["offsets"]
+        return b.grid
+
+    def _body_mask(self, b, cell=None):
+        m = np.zeros(self.label.shape, bool)
+        m[tuple(b.grid.T)] = True
+        return m
+
+    def _bodies_mask(self, skip=None):
+        m = np.zeros(self.label.shape, bool)
+        for b in self.bodies:
+            if b is not skip:
+                m[tuple(b.grid.T)] = True
+        return m
 
     # ── the books ─────────────────────────────────────────────────────────────────────────────────────────────────
     def mass_kg(self):
-        bodies = sum(b["mass_kg"] for b in self.bodies)
+        bodies = sum(b.mass for b in self.bodies)
         return float(self.Ms.sum()) + bodies + len(self.flip.pos) * self.flip.particle_mass
 
     def thermal_J(self):
@@ -184,9 +212,8 @@ class PlaygroundWorld(FluidVoxelWorld):
                 E += float((self.Ms[c] * (_h(m["lv"], self.Ts[c]) + self.melt[c] * (m["L_fus"] or 0)
                                           + self.boil[c] * (m["L_vap"] or 0))).sum())
         for b in self.bodies:
-            m = self.mat[b["index"]]
-            per = b["mass_kg"] / len(b["offsets"])
-            E += float((per * (_h(m["lv"], b["T"]) + b["melt"] * (m["L_fus"] or 0) + b["boil"] * (m["L_vap"] or 0))).sum())
+            m = self.mat[b.index]
+            E += float((b.cell_mass * (_h(m["lv"], b.T) + b.melt * (m["L_fus"] or 0) + b.boil * (m["L_vap"] or 0))).sum())
         if len(self.pT):
             L = self.mat[self.li]
             E += float((self.flip.particle_mass * (_h(L["lv"], self.pT) + self.pL * L["L_fus"] + self.pB * L["L_vap"])).sum())
@@ -195,22 +222,20 @@ class PlaygroundWorld(FluidVoxelWorld):
     def mechanical_J(self):
         """Kinetic + gravitational potential energy (height from the grid's floor) of the liquid and the bodies."""
         E = self.flip.kinetic_J() + self.flip.potential_J() + float(self.lo[2] * self.pitch) * self.flip.mass_kg() * self.gravity
-        for b in self.bodies:
-            z = (b["pos"][2] + b["offsets"][:, 2].mean() + 0.5) * self.pitch
-            E += 0.5 * b["mass_kg"] * float(b["vel"] @ b["vel"]) + b["mass_kg"] * self.gravity * z
-        return E
+        return E + self.rigid.mechanical_J()
 
     @property
     def ledger(self):
-        return dict(self.ledger_, momentum_Ns=self.flip.momentum() + sum(b["mass_kg"] * b["vel"] for b in self.bodies))
+        return dict(self.ledger_, momentum_Ns=self.flip.momentum() + sum(b.mass * b.v for b in self.bodies),
+                    **{k: v for k, v in self.rigid.ledger.items()})
 
     def gaps(self):
         return ["one liquid material: another that melts does so in place, as a wall",
                 "the melt is inviscid (sigma-ground's melt viscosity is unusable: KNOWN_GAPS) and flows at the solid's "
                 "density (it does not expand on melting: lead is 3.5% less dense molten), so mass and energy stay exact",
-                "bodies translate only and stop dead on contact; a body that loses cells to melting is not split",
-                "kinetic energy lost to FLIP's damping and to inelastic contact leaves the world (dissipated_J), not as heat",
-                "steam is not modelled: boiled particles vent"]
+                "kinetic energy lost to FLIP's damping leaves the world (dissipated_J), not as heat; what contact, friction "
+                "and bending take becomes heat where it happens (heat_from_motion_J)",
+                "steam is not modelled: boiled particles vent"] + self.rigid.gaps()
 
     # ── one tick ──────────────────────────────────────────────────────────────────────────────────────────────────
     def step(self, dt):
@@ -228,10 +253,39 @@ class PlaygroundWorld(FluidVoxelWorld):
             self._move_bodies(sub)
             self.t += sub
             left -= sub
-        # gravity's work is in the mechanical energy itself; what is missing after the flow is what the step dissipated
-        self.ledger_["dissipated_J"] += max(0.0, E_mech0 - self.mechanical_J())
+        # what contact and bending took is heat now, in the cells where it happened; the rest of what is missing after
+        # the flow (FLIP's damping) left the world
+        moved = self._take_motion_heat()
+        self.ledger_["dissipated_J"] += max(0.0, E_mech0 - self.mechanical_J() - moved)
+        if self.rigid.check_strength():
+            self.rigid.raster(self.static)
         self._update_solids()
         self._draw()
+
+    def _take_motion_heat(self):
+        """Heat the rigid world returned (contact, friction, plastic hinges) into its cells' enthalpy. Heat meant for a
+        wall cell that is no longer a wall (it melted this tick) is not lost: it goes to the body's side of the contact."""
+        total = 0.0
+        for body, cells, J in self.rigid.collect_heat():
+            if body is None:
+                idx = np.unravel_index(cells, self.label.shape)
+                if self.static[idx].all():
+                    k = int(self.label[idx][0])
+                    lv = self.mat[k]["lv"]
+                    self.Ts[idx] = _T(lv, _h(lv, self.Ts[idx]) + J / len(cells) / self.Ms[idx])
+                    total += J
+                    continue
+                body = min(self.bodies, key=lambda b: float(np.abs(b.grid - np.array(idx).T[0]).sum()), default=None)
+                if body is None:
+                    continue
+                cells = np.array([int(np.argmin(np.abs(body.grid - np.array(idx).T[0]).sum(1)))])
+            if body not in self.bodies:
+                continue
+            lv = self.mat[body.index]["lv"]
+            body.T[cells] = _T(lv, _h(lv, body.T[cells]) + J / len(cells) / body.cell_mass[cells])
+            total += J
+        self.ledger_["heat_from_motion_J"] += total
+        return total
 
     def run(self, n, dt):
         for _ in range(n):
@@ -244,10 +298,10 @@ class PlaygroundWorld(FluidVoxelWorld):
         T = np.where(self.static, self.Ts, self.ambient_T)
         M = np.where(self.static, self.Ms, 0.0)
         for b in self.bodies:
-            cells = self._body_cell_list(b)
-            lab[tuple(cells.T)] = b["index"]
-            T[tuple(cells.T)] = b["T"]
-            M[tuple(cells.T)] = b["mass_kg"] / len(b["offsets"])
+            cells = b.grid
+            lab[tuple(cells.T)] = b.index
+            T[tuple(cells.T)] = b.T
+            M[tuple(cells.T)] = b.cell_mass
         pc = self._particle_cells()
         if len(pc):
             flat = np.ravel_multi_index(pc.T, self.label.shape)
@@ -294,9 +348,8 @@ class PlaygroundWorld(FluidVoxelWorld):
                 lv = self.mat[kk]["lv"]
                 self.Ts[c] = _T(lv, _h(lv, self.Ts[c]) + dE[c] / self.Ms[c])
         for b in self.bodies:
-            lv, cells = self.mat[b["index"]]["lv"], self._body_cell_list(b)
-            per = b["mass_kg"] / len(b["offsets"])
-            b["T"] = _T(lv, _h(lv, b["T"]) + dE[tuple(cells.T)] / per)
+            lv = self.mat[b.index]["lv"]
+            b.T = _T(lv, _h(lv, b.T) + dE[tuple(b.grid.T)] / b.cell_mass)
         if len(self.pT):
             lv = self.mat[self.li]["lv"]
             share = np.zeros(len(self.pT))
@@ -352,22 +405,22 @@ class PlaygroundWorld(FluidVoxelWorld):
             self.ledger_["melted_cells"] += len(cells)
         # body cells
         for b in list(self.bodies):
-            m = self.mat[b["index"]]
+            m = self.mat[b.index]
             if m["T_melt"] is None:
                 continue
             for heating in (True, False):
-                b["T"], b["melt"] = self._latent(m["lv"], b["T"], b["melt"], m["T_melt"], m["L_fus"], heating)
-            if b["index"] == self.li and (b["melt"] >= 1).any():
-                go = b["melt"] >= 1
-                per = b["mass_kg"] / len(b["offsets"])
-                cells = self._body_cell_list(b)[go]
-                self._spawn(cells, b["T"][go], np.full(go.sum(), per), np.tile(b["vel"], (go.sum(), 1)))
-                keep = ~go
-                b["offsets"], b["T"], b["melt"], b["boil"] = b["offsets"][keep], b["T"][keep], b["melt"][keep], b["boil"][keep]
-                b["mass_kg"] = per * keep.sum()
+                b.T, b.melt = self._latent(m["lv"], b.T, b.melt, m["T_melt"], m["L_fus"], heating)
+            if b.index == self.li and (b.melt >= 1).any():
+                go = b.melt >= 1
+                cells = b.grid[go]
+                vel = b.point_velocity(b.centres()[go])
+                self._spawn(cells, b.T[go], b.cell_mass[go], vel)
                 self.ledger_["melted_cells"] += int(go.sum())
-                if not keep.any():
-                    self.bodies.remove(b)
+                # what is left, split into its face-connected pieces; hinges on this body let go
+                pieces = [b.piece(k) for k in b.components(~go)]
+                self.rigid.joints = [J for J in self.rigid.joints if J["a"] is not b and J["b"] is not b]
+                i = self.bodies.index(b)
+                self.bodies[i:i + 1] = pieces
         # particles: freeze below T_melt, boil past T_boil, vent
         if len(self.pT):
             self.pT, self.pL = self._latent(L["lv"], self.pT, self.pL, L["T_melt"], L["L_fus"], False)
@@ -461,6 +514,34 @@ class PlaygroundWorld(FluidVoxelWorld):
         self.ledger_["frozen_cells"] += len(cells)
         self._drop(go)
 
+    # ── the bodies and the liquid, together ──────────────────────────────────────────────────────────────────────────
+    def _update_solids(self):
+        vel = np.zeros(self.label.shape + (3,))
+        solid = self.static.copy()
+        for b in self.bodies:
+            idx = tuple(b.grid.T)
+            vel[idx] = b.point_velocity((b.grid + 0.5) * self.pitch)
+            solid[idx] = True
+        self.flip.set_solid(solid[self.box], vel[self.box])
+
+    def _move_bodies(self, dt):
+        """The liquid's pressure (force and torque) on each body, then the rigid world: gravity, contact, friction,
+        hinges; then the bodies are drawn onto the grid again."""
+        ext = []
+        about0 = self.lo * self.pitch
+        for b in self.bodies:
+            if len(self.flip.pos):
+                ext.append(self.flip.force_torque_on(self._body_mask(b)[self.box], b.x - about0))
+            else:
+                ext.append(None)
+        self.rigid.set_static(self.static)
+        self.rigid.step(dt, ext)
+        self.rigid.raster(self.static)
+
+    def _max_speed(self):
+        v = float(np.sqrt((self.flip.vel ** 2).sum(1)).max()) if len(self.flip.vel) else 0.0
+        return max(v, self.rigid.max_speed(), math.sqrt(2 * self.gravity * self.pitch))
+
     # ── what is drawn, and the temperatures that go with it ───────────────────────────────────────────────────────
     @property
     def T(self):
@@ -472,13 +553,21 @@ class PlaygroundWorld(FluidVoxelWorld):
         return self._assemble()[1]
 
     def _draw(self):
+        lab = self.base.copy()
+        for b in self.bodies:
+            lab[tuple(b.grid.T)] = b.index
         if len(self.flip.pos):
-            super()._draw()
-        else:
-            lab = self.base.copy()
-            for b in self.bodies:
-                lab[self._body_mask(b)] = b["index"]
-            self.label = lab
+            # as many liquid blocks as the particles' volume, in the fullest cells (FluidVoxelWorld's rule)
+            from scipy.ndimage import uniform_filter
+            fill = np.zeros(self.label.shape)
+            fill[self.box] = (uniform_filter(self.flip.fill_fraction(), size=3, mode="constant")
+                              + 1e-6 * self.flip.fill_fraction())
+            fill[lab > 0] = 0.0
+            quota = int(round(len(self.flip.pos) / self.flip.ppc))
+            order = np.argsort(-fill, axis=None, kind="stable")[:quota]
+            order = order[fill.ravel()[order] > 0]
+            lab.ravel()[order] = self.li
+        self.label = lab
         self.label[self.static] = self.base[self.static]
         self.drawn = self.label.copy()
         # a wall that froze from a thin splash holds less than a cell's mass: per material, exactly as many blocks are
@@ -504,4 +593,4 @@ class PlaygroundWorld(FluidVoxelWorld):
         return (f"t {self.t:.2f} s | {self.mass_kg():.4g} kg | {self.liquid_name} liquid {n * self.flip.particle_mass:.3g} kg "
                 f"| melted {L['melted_cells']} froze {L['frozen_cells']} cells | hottest {hot:.0f} K | thermal "
                 f"{self.thermal_J():.6g} J, radiated {L['radiated_J']:.4g} J | p ({p[0]:+.3f}, {p[1]:+.3f}, {p[2]:+.3f}) N s" +
-                "".join(f" | {b['material']} z {b['pos'][2] * self.pitch:.3f} m v {b['vel'][2]:+.2f} m/s" for b in self.bodies))
+                "".join(f" | {b.material} z {b.x[2]:.3f} m v {b.v[2]:+.2f} m/s" for b in self.bodies))

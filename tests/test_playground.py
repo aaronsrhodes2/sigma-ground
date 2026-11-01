@@ -12,7 +12,8 @@ from sigma_ground.materia.playground import PlaygroundWorld
 def _books(w, M0, E0):
     L = w.ledger
     assert w.mass_kg() == pytest.approx(M0, rel=1e-12)
-    assert w.thermal_J() + L["radiated_J"] + L["vented_J"] + L["to_surroundings_J"] == pytest.approx(E0, rel=1e-9)
+    assert (w.thermal_J() + L["radiated_J"] + L["vented_J"] + L["to_surroundings_J"] - L["heat_from_motion_J"]
+            == pytest.approx(E0, rel=1e-9))
 
 
 @pytest.fixture(scope="module")
@@ -22,8 +23,8 @@ def melted():
                                      block_m=0.01)
     T = np.where(field.label_grid == field.materials.index("tungsten"), 2200.0, 293.15)
     w = PlaygroundWorld(field, liquid="lead", temperature_k=T, bodies=("gold", "lead"), env="ISM")
-    gold = next(b for b in w.bodies if b["material"] == "gold")
-    start = {"M": w.mass_kg(), "E": w.thermal_J(), "gold_z": gold["pos"][2], "plate_top": 2,
+    gold = next(b for b in w.bodies if b.material == "gold")
+    start = {"M": w.mass_kg(), "E": w.thermal_J(), "gold_z": gold.x[2], "plate_top_m": 0.03,
              "lead_x": np.ptp(np.argwhere(w.label == w.materials.index("lead"))[:, 0])}
     w.run(200, 0.05)
     return w, start
@@ -31,8 +32,8 @@ def melted():
 
 def test_the_hot_plate_melts_the_whole_slab(melted):
     w, s = melted
-    assert w.ledger["melted_cells"] == 192
-    assert not any(b["material"] == "lead" for b in w.bodies)
+    assert w.ledger["melted_cells"] >= 192                             # every slab cell (and lead that refroze on the plate, again)
+    assert not any(b.material == "lead" for b in w.bodies)
 
 
 def test_the_melt_flows_out(melted):
@@ -43,9 +44,9 @@ def test_the_melt_flows_out(melted):
 
 def test_gold_sinks_through_the_melt_to_the_plate(melted):
     w, s = melted
-    gold = next(b for b in w.bodies if b["material"] == "gold")
-    assert gold["pos"][2] < s["gold_z"] - 2                             # fell through the lead
-    assert int(round(gold["pos"][2])) == s["plate_top"] + 1              # resting on the plate
+    gold = next(b for b in w.bodies if b.material == "gold")
+    assert gold.x[2] < s["gold_z"] - 0.02                               # fell through the lead
+    assert gold.x[2] == pytest.approx(s["plate_top_m"] + 0.01, abs=0.002)  # resting on the plate (2 cm cube)
 
 
 def test_the_books_close(melted):
@@ -92,10 +93,10 @@ def test_a_body_falls_in_air_and_stops_on_the_floor():
     field, _ = field_from_voxel_exec('box(0,0,0,5,0,5,"granite"); box(2,6,2,3,7,3,"gold")', block_m=0.05)
     w = PlaygroundWorld(field, liquid="lead", bodies=("gold",), env="ISM")  # no lead in it: a liquid that never appears
     b = w.bodies[0]
-    z0 = b["pos"][2]
+    z0 = b.x[2]
     w.run(10, 0.05)
-    assert b["pos"][2] < z0 and int(round(b["pos"][2])) == 3             # landed on the granite (top at z = 2)
-    assert np.allclose(b["vel"], 0.0)
+    assert b.x[2] < z0 and b.x[2] == pytest.approx(0.20, abs=0.002)    # landed on the granite (top at 15 cm)
+    assert np.allclose(b.v, 0.0, atol=1e-6)
 
 
 def test_live_cards_drive_the_heat():

@@ -613,3 +613,22 @@ ice took the derived phonon values (21.7 W/m/K; now measured, `fixtures/ice_1atm
 - **Wood:** oak's specific heat is derived (3558 J/kg/K; measured wood is ~1700-2400); no measured value in the profile.
 - **Water above 370 K / below 275 K (liquid):** NIST's nearest end; steam is not modelled (boiled cells vent).
 - Sentinels: `sigma_ground/field/interface/test_live_laws.py`, `tests/test_live_cards.py`.
+
+## PHYSICS_GAP: rigid voxel bodies, friction and strength at temperature (2026-10-31)
+
+`dynamics/voxel_rigid.py` (SkippyCraft P3): bodies rotate, touch, slide, topple and break; a failed ductile cut is a plastic
+hinge. Data added on the way: measured dry friction (`friction.MEASURED_FRICTION`: Engineering ToolBox's clean-and-dry
+table; Byerlee 1978 for rock), carbon steel's yield against temperature (`plasticity.steel_yield_at`, EN 1993-1-2 Table 3.1:
+Johnson-Cook's softening left steel 41% of its yield at 900 C, the measured value is 6%). Still approximate:
+
+- **Friction:** only six measured pairs; another pair takes Bowden-Tabor's estimate (`friction_coefficient`), which gives
+  about 1.0 for every pair, or the lower measured self-contact value (flagged on the readout). Rock has no separate
+  sliding value (Byerlee is the peak). Friction does not change with temperature.
+- **Hot strength of anything but carbon steel:** Johnson-Cook's thermal softening (fitted to impact tests; it overstates
+  hot strength for steel by ~7x at 900 C, likely for others too). Brittle materials: room-temperature tensile strength,
+  tension only (no compressive or shear failure, nothing for them hot).
+- **Hinges:** rigid-plastic (no elastic deflection before yield, micrometres here); torsion resisted with the bending
+  capacity; hinge length = section depth (strain = bend / 2); no strain hardening or creep.
+- **Contact:** penetration removed by split impulses; perfect thermal contact between touching cells; the energy contact
+  and bending take is heat at the contact cells (exact in the books), but its split between the two sides is by halves.
+- Sentinels: `tests/test_voxel_rigid.py`, the strength theater test in `tests/test_skippycraft_theater.py`.
