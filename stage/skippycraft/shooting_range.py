@@ -83,6 +83,48 @@ def shoot(weapon, armor, environment="atmosphere_earth", distance_m=10.0):
     return out
 
 
+C_LIGHT = 299792458.0
+
+
+def layer_solver(weapon, environment="atmosphere_earth", distance_m=10.0):
+    """The game's per-layer physics as ``PlaygroundWorld.impact`` asks for it: ``solve(layers)`` over the layers the shot's
+    path crosses, with each layer's lost momentum and energy. Kinetic: from the round's mass and its speed in and out
+    (all of it in the layer that stops it); a laser: the energy the layer absorbed, and its momentum E/c. The shaped
+    charge has no jet mass in the game, so it cannot push anything: not offered."""
+    from weapon_vs_armor.physics import kinetic, laser
+    from weapon_vs_armor.physics.environment import attenuate
+
+    weapons, _ = presets()
+    w0 = attenuate(dict(weapons[weapon]["weapon"]), environment, distance_m)
+    if w0["type"] not in ("kinetic", "laser"):
+        raise ValueError(f"{weapon}: a {w0['type']} weapon has no momentum in the game to put into the world")
+    module = {"kinetic": kinetic, "laser": laser}[w0["type"]]
+
+    def solve(layers):
+        w, out = dict(w0), []
+        for L in layers:
+            if L.get("gap"):
+                w = attenuate(w, environment, L["thickness_m"])
+                out.append({"gap": True})
+                continue
+            r = module.interact(w, L["material"], L["thickness_m"])
+            if w["type"] == "kinetic":
+                m, v_in = w["mass_kg"], w["velocity_ms"]
+                v_out = r["weapon_out"]["velocity_ms"] if r.get("penetrated") and r.get("weapon_out") else 0.0
+                dp, dE = m * (v_in - v_out), 0.5 * m * (v_in ** 2 - v_out ** 2)
+            else:
+                dE = float(r.get("energy_deposited_j", 0.0))
+                dp = dE / C_LIGHT
+            out.append({"penetrated": bool(r.get("penetrated")), "depth_m": float(r.get("damage_depth_m", 0.0)),
+                        "dp_Ns": dp, "dE_J": dE, "temperature_k": float(r.get("temperature_k", 300.0)),
+                        "notes": r.get("notes", "")})
+            if not r.get("penetrated") or r.get("weapon_out") is None:
+                break
+            w = r["weapon_out"]
+        return out
+    return solve
+
+
 def hole_radius_m(weapon):
     weapons, _ = presets()
     w = weapons[weapon]["weapon"]

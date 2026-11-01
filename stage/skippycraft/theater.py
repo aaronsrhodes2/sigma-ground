@@ -62,14 +62,26 @@ SCENES = {
     # hot enough to yield (Eurocode 3's measured fire table) the beam forms a plastic hinge, sags, tears and drops it.
     "strength": ('box(0,0,0,69,0,29,"granite"); box(4,1,12,8,18,17,"granite"); box(61,1,12,65,18,17,"granite"); '
                  'box(5,19,14,64,19,15,"steel"); box(32,20,14,37,31,15,"tungsten")', 0.01, "ISM", "strength", 300, 0.05),
+    # impact (SKIPPYCRAFT_PLAN 10b, P4): the range's shot as an event in the playground. A wall of four 10 cm steel blocks
+    # stands on a granite floor with a granite backstop behind it; 0.2 s in, the range's weapon fires at the top-left
+    # block. The game's per-layer solve says how deep it goes and what momentum and energy it loses in each layer
+    # (shooting_range.layer_solver); the world knocks out the bore, pushes the block with that momentum, and heats the
+    # bore's walls with the energy the block does not take as motion (materia.playground.PlaygroundWorld.impact).
+    "impact": ('box(0,0,0,47,0,39,"granite"); box(0,1,26,47,24,29,"granite")', 0.01, "STP", "impact", 200, 0.05),
 }
+IMPACT_BLOCKS = tuple((14 + 10 * i, 1 + 10 * j, 10, 23 + 10 * i, 10 + 10 * j, 19) for j in range(2) for i in range(2))
+IMPACT_FIRE_S = 0.2
+IMPACT_ROOM = (0, 0, 40)                 # empty cells above the build: what is knocked flying stays in the world longer
+IMPACT_WEAPON = 17                       # the impact desk's Weapon button: the next round that can push, then fire
 # the strength scene's stack: separate granite bodies that touch (written apart, so each is its own body)
 STRENGTH_STACK = tuple((20 + 2 * k, 1 + 4 * k, 22, 23 + 2 * k, 4 + 4 * k, 25) for k in range(5))
+# scenes whose blocks of one material are separate bodies: (boxes, material written, canonical name)
+SEPARATE = {"strength": (STRENGTH_STACK, "granite", "granite"), "impact": (IMPACT_BLOCKS, "steel", "steel_mild")}
 STRENGTH_LOAD_K = 3000.0
 PLAYGROUND_BODIES = ("gold", "lead")
 # a scene may be built at its own resolution (fixed for its life): the playground runs heat, a liquid and bodies at once,
 # and at 4x (2.5 mm blocks) a tick took ~3.7 s; at 2x (5 mm) it is watchable
-SCENE_RESOLUTION = {"playground": 2, "strength": 1}
+SCENE_RESOLUTION = {"playground": 2, "strength": 1, "impact": 2}
 PADDLE = {"material": "aluminum", "axis": 0, "amplitude_m": 0.015, "period_s": None}
 BODIES = ("gold", "wood_oak")          # free bodies in the slosh tank: they fall in when it runs (gold sinks, oak floats)
 BOSSBAR = "skippycraft:theater"
@@ -105,10 +117,16 @@ STAGES = {
                            "momentum, runs off onto the cold granite and freezes where it stops; the gold cube sinks through the "
                            "melt. Every number comes from each block's own temperature; the boss bar keeps the books."},
     # the strength scene is 74 x 34 blocks (1 cm each) at x 0-74, z 260-294, 36 high; the desk floats in front of it
-    "strength": {"origin": (0, -60, 260), "desk": (37, -40, 244), "pitch": 30, "other": "sink", "request": 15, "rate": 6.0,
+    "strength": {"origin": (0, -60, 260), "desk": (37, -40, 244), "pitch": 30, "other": "impact", "request": 15, "rate": 6.0,
                  "tell": "Strength: bodies that rotate, slide and break. The leaning granite stack topples. The 3000 K tungsten "
                          "block heats the steel beam under it; where the steel is hot enough to yield, the beam bends, sags, "
                          "tears and drops it. Every strength, friction and bounce comes from the blocks' own state."},
+    # the impact scene is 48 x 40 written blocks at 5 mm (96 x 80 blocks) at x 80-176, z 300-380; the desk in front of it
+    "impact": {"origin": (80, -60, 312), "desk": (128, -42, 300), "pitch": 30, "other": "sink", "request": 16, "rate": 6.0,
+               "extra": (("Weapon", IMPACT_WEAPON),),
+               "tell": "Impact: the range's weapon fires at the steel wall. The game's own solve says how far the round "
+                       "goes and what it loses in each layer; that momentum pushes the block into the backstop, and the "
+                       "energy the block does not take as motion heats the bore, which glows. Weapon = next round."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
@@ -216,7 +234,46 @@ def scene_field(name):
     code, block_m = SCENES[name][:2]
     if code is None:
         return None
+    if name in SEPARATE:
+        return separate_blocks(name, *SEPARATE[name])[0]
     return field_from_voxel_exec(code, block_m=block_m, resolution=SCENE_RESOLUTION.get(name, RESOLUTION))[0]
+
+
+def separate_blocks(name, boxes, material, canonical):
+    """A scene's field with ``boxes`` of ``material`` added, and each box's cells as its own body ``(canonical, mask)``:
+    blocks of one material that touch would otherwise be one body. Each mask comes from the same build with that box
+    marked, so the grids match."""
+    import numpy as np
+    from sigma_ground.deckard.voxel_exec import field_from_voxel_exec
+    code, block_m = SCENES[name][:2]
+    res = SCENE_RESOLUTION.get(name, RESOLUTION)
+    full = code + "; " + "; ".join('box(%d,%d,%d,%d,%d,%d,"%s")' % (*b, material) for b in boxes)
+    field = field_from_voxel_exec(full, block_m=block_m, resolution=res)[0]
+    masks = []
+    for b in boxes:
+        probe = field_from_voxel_exec(full + '; box(%d,%d,%d,%d,%d,%d,"gold")' % b, block_m=block_m, resolution=res)[0]
+        assert np.shape(probe.label_grid) == np.shape(field.label_grid)
+        masks.append((canonical, np.asarray(probe.label_grid) == probe.materials.index("gold")))
+    return field, masks
+
+
+IMPACT_ROUNDS = ("m2_browning", "ak47", "pistol_9mm", "crossbow_bolt", "armor_piercing_30mm", "sabot_apfsds",
+                 "railgun_hypersonic", "hel_100kw")          # the range's weapons that carry momentum in the game
+
+
+def impact_world(weapon="m2_browning"):
+    """The impact scene with ``weapon`` set to fire at IMPACT_FIRE_S, at the middle of the top-left block's face."""
+    import numpy as np
+    import shooting_range
+    from sigma_ground.materia.playground import PlaygroundWorld
+    field, masks = separate_blocks("impact", *SEPARATE["impact"])
+    w = PlaygroundWorld(field, liquid="steel_mild", bodies=masks, env=SCENES["impact"][2], room=IMPACT_ROOM)
+    target = min((b for b in w.bodies), key=lambda b: (-round(b.x[2], 3), b.x[0]))     # top course, lowest x
+    start = np.array([target.x[0], w.label.shape[1] * w.pitch - 1e-4, target.x[2]])   # from the desk's side
+    solve = shooting_range.layer_solver(weapon)
+    w.at(IMPACT_FIRE_S, lambda W: W.impact(start, (0.0, -1.0, 0.0), solve, shooting_range.hole_radius_m(weapon)))
+    w.weapon = weapon
+    return field, w
 
 
 def _body_name(b):
@@ -247,20 +304,14 @@ def build(name):
         T = np.where(field.label_grid == field.materials.index("tungsten"), 2200.0, 293.15)
         return field, PlaygroundWorld(field, liquid="lead", temperature_k=T, bodies=PLAYGROUND_BODIES, env=env)
     if temp == "strength":
-        from sigma_ground.deckard.voxel_exec import field_from_voxel_exec
         from sigma_ground.materia.playground import PlaygroundWorld
-        code, block_m = SCENES[name][:2]
-        res = SCENE_RESOLUTION.get(name, RESOLUTION)
-        stack = "; ".join('box(%d,%d,%d,%d,%d,%d,"granite")' % b for b in STRENGTH_STACK)
-        field = field_from_voxel_exec(code + "; " + stack, block_m=block_m, resolution=res)[0]
-        masks = []
-        for b in STRENGTH_STACK:                          # each block's cells: the same build with that block marked
-            probe = field_from_voxel_exec(code + '; box(%d,%d,%d,%d,%d,%d,"gold")' % b, block_m=block_m, resolution=res)[0]
-            masks.append(("granite", np.asarray(probe.label_grid) == probe.materials.index("gold")))
+        field, masks = separate_blocks(name, *SEPARATE[name])
         lab = np.asarray(field.label_grid)
         T = np.where(lab == field.materials.index("tungsten"), STRENGTH_LOAD_K, 293.15)
         return field, PlaygroundWorld(field, liquid="steel_mild", temperature_k=T, env=env,
                                       bodies=["steel_mild", "tungsten"] + masks)
+    if temp == "impact":
+        return impact_world()
     if temp == "flip":
         return field, FluidVoxelWorld(field, paddle=dict(PADDLE), bodies=BODIES)
     T = None
@@ -581,7 +632,7 @@ def serve(player="aaronsrhodes"):
     send = rcon.commands
     blocks = block_writer()
     print("block writer:", "plugin" if blocks else "none (RCON fills)", flush=True)
-    send(["forceload add -16 0 191 303", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
+    send(["forceload add -16 0 191 207", "forceload add -16 208 191 399", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
           "scoreboard players set #request skippycraft 0"])
     # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
     spots = [st[k] for st in STAGES.values() for k in ("origin", "desk")]
@@ -607,6 +658,11 @@ def serve(player="aaronsrhodes"):
     kept = {}
     import shooting_range
     aim, preview = {"weapon": shooting_range.WEAPONS[0], "armor": shooting_range.ARMORS[0]}, False
+    impact_aim = {"weapon": IMPACT_ROUNDS[0]}
+
+    def impact_press():
+        impact_aim["weapon"] = IMPACT_ROUNDS[(IMPACT_ROUNDS.index(impact_aim["weapon"]) + 1) % len(IMPACT_ROUNDS)]
+        return f"Impact: next round {shooting_range.presets()[0][impact_aim['weapon']]['name']}."
     tell = lambda text: rcon.command("tellraw @a " + json.dumps({"text": text, "color": "green"}))
     print("serving: panels built, pack at", f"http://{PACK_HOST}:{PACK_PORT}/skippycraft.zip", flush=True)
     pending, last_check = 0, 0.0
@@ -620,6 +676,9 @@ def serve(player="aaronsrhodes"):
             if req in RANGE_BUTTONS:                                      # a new weapon or armour: show the fresh target
                 tell(range_press(aim, RANGE_BUTTONS[req]))
                 req, preview = STAGES["range"]["request"], True
+            if req == IMPACT_WEAPON:                                      # the next round, and fire it
+                tell(impact_press())
+                req = STAGES["impact"]["request"]
             name = by_number.get(req)
             if name is None:
                 if time.monotonic() - last_check > 3.0:              # idle: put back anything he broke
@@ -636,6 +695,8 @@ def serve(player="aaronsrhodes"):
             elif name == "range":
                 import shooting_range
                 world = shooting_range.RangeWorld(aim["weapon"], aim["armor"], armed=not preview)
+            elif name == "impact":
+                _, world = impact_world(impact_aim["weapon"])
             else:
                 _, world = build(name)
             th = Theater(world, looks, st["origin"], send, blocks, glows)
@@ -653,6 +714,10 @@ def serve(player="aaronsrhodes"):
                 if nxt in RANGE_BUTTONS:                                  # change the setup mid-run: start over with it
                     tell(range_press(aim, RANGE_BUTTONS[nxt]))
                     pending, preview = STAGES["range"]["request"], True
+                    break
+                if nxt == IMPACT_WEAPON:
+                    tell(impact_press())
+                    pending = STAGES["impact"]["request"]
                     break
                 if nxt in SCREEN_BUTTONS and hasattr(world, "press"):
                     tell(world.press(SCREEN_BUTTONS[nxt]))

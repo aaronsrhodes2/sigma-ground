@@ -8,7 +8,9 @@ holds exactly the body's mass, whatever its angle.
 
 Contact (``RigidWorld.step``): the classic voxmap/point-shell test (McNeely, Neff and Troy, SIGGRAPH 1999): the corners
 of a body's exposed faces are tested against the signed distance field of the static walls and of every other body
-(trilinear, in cell units); every corner inside gives a contact point with its depth and normal. The contacts are solved
+(cube-exact: the depth to the nearest open face of the cell it is in, through a face that faces the point's own
+surface); every corner inside gives a contact point with its depth and normal. A body that crosses the grid's edge leaves
+the world (``gone``). Bodies are drawn back onto the grid by inverse rasterisation (``raster``). The contacts are solved
 by sequential impulses (Catto's projected Gauss-Seidel): non-penetration with the coefficient of restitution, Coulomb
 friction in a circular cone (static coefficient below 1 mm/s of sliding, kinetic above), and penetration removed by
 split impulses, which move the bodies without giving them speed (so correcting overlap adds no kinetic energy).
@@ -107,12 +109,17 @@ def sample_sdf(phi, p):
     return val, grad
 
 
-def voxel_penetration(occ, phi, g):
+def voxel_penetration(occ, phi, g, toward=None):
     """Points at ``g`` (N,3), in a padded occupancy grid's continuous coordinates (cell i spans [i, i+1)): which are
     inside a solid cell, how deep (cells) and the outward normal. Exact for cubes: the depth is the distance to the
     nearest face of the point's cell that is open (its neighbour empty), the normal that face's; a point with no open
     face nearby (deep inside) takes the distance field's depth and gradient. (A distance field alone rounds every
-    edge by a third of a cell, so a block flush on a beam of its own width would stand on a knife edge.)"""
+    edge by a third of a cell, so a block flush on a beam of its own width would stand on a knife edge.)
+
+    ``toward`` (N,3), in this grid's frame: the way the touching point's OWN surface faces, inward (minus its outward
+    normal). A point can only be pushed out through a face that faces it: a point on a brick's bottom only up, one on its
+    bottom-front edge up or back, never forward. Without this, two bodies whose edges line up (a brick sliding off a
+    brick of its size) get a normal straight against their sliding and a huge impulse."""
     hi = np.array(occ.shape) - 1
     cell = np.clip(np.floor(g).astype(int), 0, hi)
     inside = occ[cell[:, 0], cell[:, 1], cell[:, 2]]
@@ -122,16 +129,31 @@ def voxel_penetration(occ, phi, g):
         return inside, depth, normal
     c = cell[inside]
     fr = g[inside] - c
+    tw = None if toward is None else np.asarray(toward, float)[inside]
     best = np.full(len(c), np.inf)
     nrm = np.zeros((len(c), 3))
+    edge = np.full(len(c), np.inf)                          # an open face the point lies exactly on
+    edge_n = np.zeros((len(c), 3))
     for f in FACES:
         ax = int(np.nonzero(f)[0][0])
         nb = np.clip(c + f, 0, hi)
         open_ = ~occ[nb[:, 0], nb[:, 1], nb[:, 2]]
         d = (1 - fr[:, ax]) if f[ax] > 0 else fr[:, ax]
-        take = open_ & (d < best)
+        # a point exactly ON an open face's plane is on the surface there, not inside through it: two bodies whose
+        # edges line up (a brick sliding off a brick of its size) would otherwise get a normal straight against their
+        # sliding, with depth 0, and a huge impulse
+        on = d <= 1e-6
+        if tw is not None:
+            open_ = open_ & ((tw @ f) > 1e-9)
+        take = open_ & ~on & (d < best)
         best[take] = d[take]
         nrm[take] = f
+        e_ = open_ & on & ~np.isfinite(edge)
+        edge[e_] = d[e_]
+        edge_n[e_] = f[None]
+    only_edge = ~np.isfinite(best) & np.isfinite(edge)
+    best[only_edge] = edge[only_edge]
+    nrm[only_edge] = edge_n[only_edge]
     deep = ~np.isfinite(best)
     if deep.any():
         val, grad = sample_sdf(phi, g[inside][deep] - 0.5)
@@ -274,7 +296,7 @@ class VoxelBody:
         _, near = edt(~occ, return_indices=True)
         self.nearest = ids[near[0], near[1], near[2]]            # nearest cell of the body to any voxmap cell
         # point shell: corners of exposed faces, each with the cell it belongs to
-        pts, own = [], []
+        pts, own, nrms = [], [], []
         corners = np.array([[a, b, c] for a in (0, 1) for b in (0, 1) for c in (0, 1)])
         for f in FACES:
             nb = o + f
@@ -284,11 +306,16 @@ class VoxelBody:
             for c in on:
                 pts.append(self.offsets[exposed] + c)
                 own.append(np.nonzero(exposed)[0])
+                nrms.append(np.tile(f.astype(float), (int(exposed.sum()), 1)))
         pts = np.concatenate(pts)
         own = np.concatenate(own)
-        key, first = np.unique(pts, axis=0, return_index=True)
+        nrm = np.concatenate(nrms)
+        key, first, inv = np.unique(pts, axis=0, return_index=True, return_inverse=True)
         self.shell = key * h - self.r0                        # in the body frame, about the centre of mass
         self.shell_owner = own[first]
+        out_n = np.zeros((len(key), 3))
+        np.add.at(out_n, inv.ravel(), nrm)                    # a corner on two or three faces: their sum
+        self.shell_normal = out_n / np.maximum(np.linalg.norm(out_n, axis=1, keepdims=True), 1e-12)
         self.radius = float(np.sqrt((self.shell ** 2).sum(1)).max())
 
     @property
@@ -344,6 +371,30 @@ def _cross(a, b):
     return np.array([a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]])
 
 
+@njit(cache=True, inline="always")
+def _rel(v, w, a, b, D, RA, RB, c, k):
+    """Relative velocity of contact c along its direction k (0 normal, 1-2 tangents): a's point minus b's."""
+    s = 0.0
+    for i in range(3):
+        if a >= 0:
+            s += v[a, i] * D[c, k, i] + w[a, i] * RA[c, k, i]
+        if b >= 0:
+            s -= v[b, i] * D[c, k, i] + w[b, i] * RB[c, k, i]
+    return s
+
+
+@njit(cache=True, inline="always")
+def _push(v, w, inv_m, a, b, D, IA, IB, c, k, lam):
+    """An impulse ``lam`` along contact c's direction k: on a, and the opposite on b."""
+    for i in range(3):
+        if a >= 0:
+            v[a, i] += inv_m[a] * lam * D[c, k, i]
+            w[a, i] += lam * IA[c, k, i]
+        if b >= 0:
+            v[b, i] -= inv_m[b] * lam * D[c, k, i]
+            w[b, i] -= lam * IB[c, k, i]
+
+
 @njit(cache=True)
 def _solve(inv_m, inv_I, v, w, vp, wp, ca, cb, ra, rb, n, t1, t2, depth, mu_s, mu_k, e_bias, slip0,
            ja, jb, jra, jrb, jC, jtau, dt, iters, beta, slop, lam_n0, lam_t0):
@@ -356,23 +407,29 @@ def _solve(inv_m, inv_I, v, w, vp, wp, ca, cb, ra, rb, n, t1, t2, depth, mu_s, m
     lam_p = np.zeros(nc)
     jl = np.zeros((nj, 3))
     jang = np.zeros((nj, 3))
-    kn = np.zeros(nc)
-    kt = np.zeros((nc, 2))
+    # per contact and direction (normal, two tangents): the direction, r x d on each side, I^-1 (r x d), and the
+    # effective mass's inverse; the iterations below are then plain scalar arithmetic
+    D = np.zeros((nc, 3, 3))
+    RA = np.zeros((nc, 3, 3))
+    RB = np.zeros((nc, 3, 3))
+    IA = np.zeros((nc, 3, 3))
+    IB = np.zeros((nc, 3, 3))
+    Kc = np.zeros((nc, 3))
     for c in range(nc):
         a, b = ca[c], cb[c]
         for k in range(3):
             d = n[c] if k == 0 else (t1[c] if k == 1 else t2[c])
+            D[c, k] = d
             ka = 0.0
             if a >= 0:
-                rn = _cross(ra[c], d)
-                ka += inv_m[a] + rn @ (inv_I[a] @ rn)
+                RA[c, k] = _cross(ra[c], d)
+                IA[c, k] = inv_I[a] @ RA[c, k]
+                ka += inv_m[a] + RA[c, k] @ IA[c, k]
             if b >= 0:
-                rn = _cross(rb[c], d)
-                ka += inv_m[b] + rn @ (inv_I[b] @ rn)
-            if k == 0:
-                kn[c] = ka
-            else:
-                kt[c, k - 1] = ka
+                RB[c, k] = _cross(rb[c], d)
+                IB[c, k] = inv_I[b] @ RB[c, k]
+                ka += inv_m[b] + RB[c, k] @ IB[c, k]
+            Kc[c, k] = ka
     # joint effective masses
     Kl = np.zeros((nj, 3, 3))
     Ka = np.zeros((nj, 3, 3))
@@ -392,13 +449,9 @@ def _solve(inv_m, inv_I, v, w, vp, wp, ca, cb, ra, rb, n, t1, t2, depth, mu_s, m
         Ka[j] = np.linalg.inv(A + np.eye(3) * 1e-30)
     for c in range(nc):                                          # warm start
         a, b = ca[c], cb[c]
-        P = n[c] * lam_n[c] + t1[c] * lam_t[c, 0] + t2[c] * lam_t[c, 1]
-        if a >= 0:
-            v[a] += inv_m[a] * P
-            w[a] += inv_I[a] @ _cross(ra[c], P)
-        if b >= 0:
-            v[b] -= inv_m[b] * P
-            w[b] -= inv_I[b] @ _cross(rb[c], P)
+        _push(v, w, inv_m, a, b, D, IA, IB, c, 0, lam_n[c])
+        _push(v, w, inv_m, a, b, D, IA, IB, c, 1, lam_t[c, 0])
+        _push(v, w, inv_m, a, b, D, IA, IB, c, 2, lam_t[c, 1])
     for it in range(iters):
         for j in range(nj):
             a, b = ja[j], jb[j]
@@ -440,37 +493,27 @@ def _solve(inv_m, inv_I, v, w, vp, wp, ca, cb, ra, rb, n, t1, t2, depth, mu_s, m
                 w[b] -= inv_I[b] @ _cross(jrb[j], L)
         for c in range(nc):
             a, b = ca[c], cb[c]
-            vr = np.zeros(3)
-            if a >= 0:
-                vr += v[a] + _cross(w[a], ra[c])
-            if b >= 0:
-                vr -= v[b] + _cross(w[b], rb[c])
-            vn = vr @ n[c]
-            dl = -(vn - e_bias[c]) / kn[c]
+            vn = _rel(v, w, a, b, D, RA, RB, c, 0)
+            dl = -(vn - e_bias[c]) / Kc[c, 0]
             new = max(lam_n[c] + dl, 0.0)
             dl = new - lam_n[c]
             lam_n[c] = new
-            Pn = n[c] * dl
+            _push(v, w, inv_m, a, b, D, IA, IB, c, 0, dl)
             # friction, circular cone: static below the slip speed the contact started at, kinetic above
             mu = mu_s[c] if slip0[c] < 1e-3 else mu_k[c]
-            vt1 = vr @ t1[c]
-            vt2 = vr @ t2[c]
+            vt1 = _rel(v, w, a, b, D, RA, RB, c, 1)
+            vt2 = _rel(v, w, a, b, D, RA, RB, c, 2)
             o1, o2 = lam_t[c, 0], lam_t[c, 1]
-            n1 = o1 - vt1 / kt[c, 0]
-            n2 = o2 - vt2 / kt[c, 1]
+            n1 = o1 - vt1 / Kc[c, 1]
+            n2 = o2 - vt2 / Kc[c, 2]
             cap = mu * lam_n[c]
             m2 = math.sqrt(n1 * n1 + n2 * n2)
             if m2 > cap:
                 n1 *= cap / m2
                 n2 *= cap / m2
             lam_t[c, 0], lam_t[c, 1] = n1, n2
-            P = Pn + t1[c] * (n1 - o1) + t2[c] * (n2 - o2)
-            if a >= 0:
-                v[a] += inv_m[a] * P
-                w[a] += inv_I[a] @ _cross(ra[c], P)
-            if b >= 0:
-                v[b] -= inv_m[b] * P
-                w[b] -= inv_I[b] @ _cross(rb[c], P)
+            _push(v, w, inv_m, a, b, D, IA, IB, c, 1, n1 - o1)
+            _push(v, w, inv_m, a, b, D, IA, IB, c, 2, n2 - o2)
     # split impulses: penetration and joint drift removed by pseudo-velocities (positions only, no kinetic energy)
     for it in range(iters):
         for j in range(nj):
@@ -489,23 +532,12 @@ def _solve(inv_m, inv_I, v, w, vp, wp, ca, cb, ra, rb, n, t1, t2, depth, mu_s, m
                 wp[b] -= inv_I[b] @ _cross(jrb[j], L)
         for c in range(nc):
             a, b = ca[c], cb[c]
-            vr = np.zeros(3)
-            if a >= 0:
-                vr += vp[a] + _cross(wp[a], ra[c])
-            if b >= 0:
-                vr -= vp[b] + _cross(wp[b], rb[c])
             target = beta * max(depth[c] - slop, 0.0) / dt
-            dl = (target - vr @ n[c]) / kn[c]
+            dl = (target - _rel(vp, wp, a, b, D, RA, RB, c, 0)) / Kc[c, 0]
             new = max(lam_p[c] + dl, 0.0)
             dl = new - lam_p[c]
             lam_p[c] = new
-            P = n[c] * dl
-            if a >= 0:
-                vp[a] += inv_m[a] * P
-                wp[a] += inv_I[a] @ _cross(ra[c], P)
-            if b >= 0:
-                vp[b] -= inv_m[b] * P
-                wp[b] -= inv_I[b] @ _cross(rb[c], P)
+            _push(vp, wp, inv_m, a, b, D, IA, IB, c, 0, dl)
     return lam_n, lam_t, jl, jang
 
 
@@ -519,6 +551,9 @@ class RigidWorld:
         self.g = float(gravity)
         self.iters, self.max_dt, self.beta = int(iters), float(max_dt), float(beta)
         self.slop = 0.02 * self.h
+        # below the speed of a fall through one cell, a contact is resting, not an impact: the grid cannot resolve the
+        # bounce (flush faces touch at whole-cell corners), and elastic restitution there only feeds jitter round a pile
+        self.v_bounce = math.sqrt(2 * self.g * self.h)
         self.bodies, self.joints = [], []
         self.static_material = static_material
         self.set_static(static)
@@ -526,6 +561,7 @@ class RigidWorld:
                        "fractures": 0}
         self.heat = []                        # (body or None, cell index or grid cell, joules) since last collected
         self.flags = set()
+        self.gone = []                       # bodies that left the world (collected by the caller)
         self._mu = {}
         self._impulse = {}                   # id(body) -> (N,3) impulse per cell this tick
         self._warm = {}                      # contact key -> last step's (normal, tangential) impulses
@@ -538,7 +574,7 @@ class RigidWorld:
             return
         self._static_key = key
         self.static = static
-        pad = np.pad(static, 1, constant_values=True)          # outside the grid is a wall
+        pad = np.pad(static, 1, constant_values=False)         # outside the grid is open: a body can leave the world
         self.occ_static = pad
         self.phi_static = signed_distance(pad)
 
@@ -558,7 +594,7 @@ class RigidWorld:
         shells = [b.world(b.shell) for b in self.bodies]
         for i, b in enumerate(self.bodies):
             P = shells[i]
-            hit, d, nrm = voxel_penetration(self.occ_static, self.phi_static, P / h + 1)
+            hit, d, nrm = voxel_penetration(self.occ_static, self.phi_static, P / h + 1, -(b.shell_normal @ b.R.T))
             if hit.any():
                 p = P[hit]
                 wc = np.clip(np.floor(p / h - 0.5 * nrm[hit]).astype(int), 0, np.array(self.shape) - 1)
@@ -570,8 +606,9 @@ class RigidWorld:
                 if np.linalg.norm(A.x - B.x) > A.radius + B.radius + h:
                     continue
                 for (s, o, P, own) in ((i, j, shells[i], A.shell_owner), (j, i, shells[j], B.shell_owner)):
-                    O = self.bodies[o]
-                    hit, d, nrm = voxel_penetration(O.occ, O.phi, O.to_local_index(P) + 0.5)
+                    S, O = self.bodies[s], self.bodies[o]
+                    inward = -(S.shell_normal @ S.R.T) @ O.R            # the point's own inward normal, in O's frame
+                    hit, d, nrm = voxel_penetration(O.occ, O.phi, O.to_local_index(P) + 0.5, inward)
                     if not hit.any():
                         continue
                     p = P[hit]
@@ -592,10 +629,25 @@ class RigidWorld:
         """Advance ``dt``: gravity (and ``external[i]`` = (force, torque) on body i, e.g. a liquid's pressure), contact
         and the hinges, in sub-steps of at most ``max_dt`` and a quarter cell of motion."""
         left = float(dt)
-        while left > 1e-12:
+        while left > 1e-12 and self.bodies:
             sub = min(left, self.max_dt, 0.25 * self.h / max(self.max_speed(), 1e-9))
             self._substep(sub, external)
             left -= sub
+            self._leave(external)
+
+    def _leave(self, external=None):
+        """A body any of whose cells has crossed the grid's edge leaves the world (``self.gone``: the caller books its
+        mass, heat and momentum out)."""
+        hi = np.array(self.shape) * self.h
+        for i in range(len(self.bodies) - 1, -1, -1):
+            b = self.bodies[i]
+            C = b.centres()
+            if (C < 0).any() or (C >= hi).any():
+                self.joints = [J for J in self.joints if J["a"] is not b and J["b"] is not b]
+                self.bodies.pop(i)
+                self.gone.append(b)
+                if external is not None and i < len(external):
+                    external.pop(i)
 
     def _substep(self, dt, external):
         bodies = self.bodies
@@ -640,20 +692,28 @@ class RigidWorld:
         t1 /= np.maximum(np.linalg.norm(t1, axis=1, keepdims=True), 1e-12) if nc else 1
         t2 = np.cross(n, t1)
         mu_s, mu_k, e_bias, slip0 = np.zeros(nc), np.zeros(nc), np.zeros(nc), np.zeros(nc)
-        for c in range(nc):
-            a, b = ca[c], cb[c]
-            ma = bodies[a].material
-            mb = bodies[b].material if b >= 0 else self.static_material(cell_b[c])
-            mu_s[c], mu_k[c] = self._friction(ma, mb)
-            vr = v[a] + np.cross(w[a], ra[c])
-            if b >= 0:
-                vr = vr - (v[b] + np.cross(w[b], rb[c]))
-            vn = float(vr @ n[c])
-            slip0[c] = float(np.linalg.norm(vr - vn * n[c]))
-            if vn < -2 * self.g * dt:                       # an impact, not resting contact: it bounces
-                e = restitution(ma, mb, -vn, 0.5 * self.h)
-                e_bias[c] = -e * vn
-        # joints
+        if nc:
+            # each contact's pair of materials (a wall's from its cell), its approach speed and its slip
+            mat_a = np.array([bodies[a].material for a in range(nb)], dtype=object)[ca]
+            mat_b = np.empty(nc, dtype=object)
+            other = cb >= 0
+            mat_b[other] = np.array([b.material for b in bodies], dtype=object)[cb[other]]
+            walls = np.nonzero(~other)[0]
+            if len(walls):
+                uc, inv = np.unique(cell_b[walls], return_inverse=True)
+                mat_b[walls] = np.array([self.static_material(int(c)) for c in uc], dtype=object)[inv.ravel()]
+            for pair in set(zip(mat_a, mat_b)):
+                sel = (mat_a == pair[0]) & (mat_b == pair[1])
+                mu_s[sel], mu_k[sel] = self._friction(*pair)
+            vr = v[ca] + np.cross(w[ca], ra)
+            vr[other] -= v[cb[other]] + np.cross(w[cb[other]], rb[other])
+            vn = (vr * n).sum(1)
+            slip0 = np.linalg.norm(vr - vn[:, None] * n, axis=1)
+            for c in np.nonzero(vn < -self.v_bounce)[0]:     # an impact, not resting contact: it bounces
+                e_bias[c] = -restitution(mat_a[c], mat_b[c], -vn[c], 0.5 * self.h) * vn[c]
+        # joints (a hinge whose piece is gone, split across new pieces or out of the world, holds nothing)
+        live = set(map(id, bodies))
+        self.joints = [J for J in self.joints if id(J["a"]) in live and id(J["b"]) in live]
         nj = len(self.joints)
         ja = np.array([bodies.index(J["a"]) for J in self.joints], dtype=np.int64)
         jb = np.array([bodies.index(J["b"]) for J in self.joints], dtype=np.int64)
@@ -685,10 +745,12 @@ class RigidWorld:
             b.q /= np.linalg.norm(b.q)
         # where the impulses landed (for the strength check) and where the lost energy goes (heat)
         J = n * lam_n[:, None] + t1 * lam_t[:, :1] + t2 * lam_t[:, 1:] if nc else np.zeros((0, 3))
-        for c in range(nc):
-            self._impulse.setdefault(id(bodies[ca[c]]), np.zeros((len(bodies[ca[c]].r), 3)))[cell_a[c]] += J[c]
-            if cb[c] >= 0:
-                self._impulse.setdefault(id(bodies[cb[c]]), np.zeros((len(bodies[cb[c]].r), 3)))[cell_b[c]] -= J[c]
+        for i, b in enumerate(bodies):
+            on_a, on_b = ca == i, cb == i
+            if on_a.any() or on_b.any():
+                imp = self._impulse.setdefault(id(b), np.zeros((len(b.r), 3)))
+                np.add.at(imp, cell_a[on_a], J[on_a])
+                np.add.at(imp, cell_b[on_b], -J[on_b])
         for k, Jt in enumerate(self.joints):
             for side, sign in (("a", 1.0), ("b", -1.0)):
                 B = Jt[side]
@@ -703,9 +765,9 @@ class RigidWorld:
             work = abs(float(jang[k] @ wr))
             if work > 0:
                 plastic += work
-                half = 0.5 * work
-                self.heat.append((Jt["a"], Jt["cells_a"], half))
-                self.heat.append((Jt["b"], Jt["cells_b"], half))
+                for side in ("a", "b"):
+                    cells = Jt["cells_" + side]
+                    self.heat.append((Jt[side], cells, np.full(len(cells), 0.5 * work / len(cells))))
         self.ledger["plastic_heat_J"] += plastic
         lost = E0 - self.mechanical_J() - plastic
         if lost > 0:
@@ -713,15 +775,15 @@ class RigidWorld:
             if nc:
                 wgt = lam_n + np.linalg.norm(lam_t, axis=1)
                 wgt = wgt / wgt.sum() if wgt.sum() > 0 else np.full(nc, 1.0 / nc)
-                for c in range(nc):
-                    if wgt[c] <= 0:
-                        continue
-                    share = lost * wgt[c]
-                    self.heat.append((bodies[ca[c]], np.array([cell_a[c]]), 0.5 * share))
-                    if cb[c] >= 0:
-                        self.heat.append((bodies[cb[c]], np.array([cell_b[c]]), 0.5 * share))
-                    else:
-                        self.heat.append((None, np.array([cell_b[c]]), 0.5 * share))
+                half = 0.5 * lost * wgt                          # each side of a contact takes half its share
+                for i, b in enumerate(bodies):
+                    on_a, on_b = ca == i, cb == i
+                    if on_a.any() or on_b.any():
+                        self.heat.append((b, np.concatenate([cell_a[on_a], cell_b[on_b]]),
+                                          np.concatenate([half[on_a], half[on_b]])))
+                wall = cb < 0
+                if wall.any():
+                    self.heat.append((None, cell_b[wall], half[wall]))
             else:
                 self.ledger["contact_heat_J"] -= lost         # nothing touched: the integrator's own error, not heat
                 self.ledger["integration_J"] += lost
@@ -731,35 +793,63 @@ class RigidWorld:
             Jt["bend"] = quat_angle(quat_mul(Jt["q0"], quat_mul(_conj(Jt["b"].q), Jt["a"].q)))
 
     def collect_heat(self):
+        """``[(body or None for a wall, cells (body cell indices, or flat grid indices for walls), joules per entry)]``
+        since the last call (a cell may appear more than once)."""
         out, self.heat = self.heat, []
         return out
 
     # drawing ------------------------------------------------------------------------------------------------------
     def raster(self, blocked):
-        """Each body's cells onto the grid, one grid cell per body cell (its centre's cell; a collision goes to the
-        nearest free neighbour), so the drawing holds exactly each body's mass. ``blocked``: cells already taken."""
+        """Each body's cells onto the grid, one grid cell per body cell, so the drawing holds exactly each body's mass
+        and every body cell has a grid cell for its heat. Inverse rasterisation: every free grid cell whose centre lies
+        inside the rotated body takes the body cell it falls in (the one whose centre is nearest, when two fall in one);
+        a body cell left without one takes the nearest free grid cell. ``blocked``: cells already taken."""
+        from scipy.spatial import cKDTree
         taken = np.asarray(blocked, bool).copy()
         hi = np.array(self.shape) - 1
-        nbr = np.array([[a, b, c] for a in (-1, 0, 1) for b in (-1, 0, 1) for c in (-1, 0, 1) if (a, b, c) != (0, 0, 0)])
         for b in self.bodies:
-            C = b.centres() / self.h
-            idx = np.clip(np.floor(C).astype(int), 0, hi)
-            flat = np.ravel_multi_index(idx.T, self.shape)
-            order = np.argsort(np.linalg.norm(C - idx - 0.5, axis=1))     # cells nearest their centre's cell first
-            grid = idx.copy()
-            _, first = np.unique(flat[order], return_index=True)
-            clean = np.zeros(len(flat), bool)
-            clean[order[first]] = True
-            clean &= ~taken.ravel()[flat]
-            taken.ravel()[flat[clean]] = True
-            for k in order[~clean[order]]:                                # the few that collide
-                cand = np.clip(idx[k] + nbr, 0, hi)
-                free = ~taken[tuple(cand.T)]
-                if free.any():
-                    cand = cand[free]
-                    grid[k] = cand[np.argmin(np.linalg.norm(cand + 0.5 - C[k], axis=1))]
-                taken[tuple(grid[k])] = True                              # nowhere free: overlap (rare, transient)
+            C = b.centres()
+            n = len(C)
+            lo = np.clip(np.floor(C.min(0) / self.h).astype(int) - 1, 0, hi)
+            up = np.clip(np.floor(C.max(0) / self.h).astype(int) + 2, 0, hi + 1)
+            g = np.stack(np.meshgrid(*[np.arange(a, z) for a, z in zip(lo, up)], indexing="ij"), -1).reshape(-1, 3)
+            g = g[~taken[tuple(g.T)]]
+            gc = (g + 0.5) * self.h
+            local = (gc - b.x) @ b.R + b.r0                                  # into the body's offsets frame
+            cell = np.floor(local / self.h).astype(int) + 1
+            ok = np.all((cell >= 0) & (cell < np.array(b.occ.shape)), axis=1)
+            owner = np.full(len(g), -1)
+            owner[ok] = b.ids[tuple(cell[ok].T)]
+            inside = owner >= 0
+            grid = np.full((n, 3), -1)
+            used = np.zeros(len(g), bool)
+            if inside.any():
+                gi = np.nonzero(inside)[0]
+                dist = np.linalg.norm(gc[gi] - C[owner[gi]], axis=1)
+                order = gi[np.argsort(dist)]
+                _, first = np.unique(owner[order], return_index=True)
+                pick = order[first]
+                grid[owner[pick]] = g[pick]
+                used[pick] = True
+            missing = np.nonzero(grid[:, 0] < 0)[0]
+            if len(missing):
+                free = np.nonzero(~used)[0]
+                if len(free) < len(missing):
+                    raise RuntimeError("no free grid cells to draw a body in")
+                tree = cKDTree(gc[free])
+                k = min(len(free), 27)
+                for m in missing[np.argsort(-np.linalg.norm(C[missing] - b.x, axis=1))]:
+                    _, nn = tree.query(C[m], k=k)
+                    nn = np.atleast_1d(nn)
+                    cand = [q for q in nn if not used[free[q]]]
+                    if not cand:
+                        _, nn = tree.query(C[m], k=len(free))
+                        cand = [q for q in np.atleast_1d(nn) if not used[free[q]]]
+                    q = free[cand[0]]
+                    grid[m] = g[q]
+                    used[q] = True
             b.grid = grid
+            taken[tuple(grid.T)] = True
         return taken
 
     # strength -----------------------------------------------------------------------------------------------------

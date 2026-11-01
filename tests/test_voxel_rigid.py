@@ -42,7 +42,7 @@ def test_a_dropped_block_comes_to_rest_on_the_floor_and_its_energy_is_heat():
     L = w.ledger
     assert L["contact_heat_J"] + L["integration_J"] == pytest.approx(lost, rel=1e-9)
     assert L["contact_heat_J"] == pytest.approx(lost, rel=0.1)   # nearly all of it went into the contact as heat
-    heat = sum(J for _, _, J in w.collect_heat())
+    heat = sum(float(np.sum(J)) for _, _, J in w.collect_heat())
     assert heat == pytest.approx(L["contact_heat_J"], rel=1e-12)
 
 

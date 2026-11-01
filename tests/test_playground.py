@@ -11,9 +11,9 @@ from sigma_ground.materia.playground import PlaygroundWorld
 
 def _books(w, M0, E0):
     L = w.ledger
-    assert w.mass_kg() == pytest.approx(M0, rel=1e-12)
-    assert (w.thermal_J() + L["radiated_J"] + L["vented_J"] + L["to_surroundings_J"] - L["heat_from_motion_J"]
-            == pytest.approx(E0, rel=1e-9))
+    assert w.mass_kg() + L["left_kg"] + L["ejected_kg"] == pytest.approx(M0, rel=1e-12)
+    assert (w.thermal_J() + L["radiated_J"] + L["vented_J"] + L["to_surroundings_J"] + L["left_J"] + L["ejected_J"]
+            - L["heat_from_motion_J"] - L["impact_heat_J"] == pytest.approx(E0, rel=1e-9))
 
 
 @pytest.fixture(scope="module")
@@ -110,3 +110,71 @@ def test_live_cards_drive_the_heat():
     sigma_T4 = (2500.0 / 1000.0) ** 4
     ratio = hot.ledger["radiated_J"] / cold.ledger["radiated_J"]
     assert ratio == pytest.approx(sigma_T4 * emissivity("tungsten", 2500.0) / emissivity("tungsten", 1000.0), rel=0.02)
+
+
+# ── P4: a shot as an event in the world ─────────────────────────────────────────────────────────────────────────────
+def _wall_and_block():
+    """A granite floor, a static granite wall, and a free steel block in front of it, 1 cm cells."""
+    field, _ = field_from_voxel_exec('box(0,0,0,29,0,29,"granite"); box(0,1,24,29,12,27,"granite"); '
+                                     'box(10,1,10,19,10,19,"steel")', block_m=0.01)
+    w = PlaygroundWorld(field, liquid="steel_mild", bodies=("steel_mild",), env="STP")
+    return w
+
+
+def _fixed_solve(depth_m, dp, dE, penetrated=False):
+    """A stand-in for the game: every layer the shot reaches loses ``dp``, ``dE`` and is reached ``depth_m`` deep."""
+    def solve(layers):
+        out = []
+        for L in layers:
+            if L.get("gap"):
+                out.append({"gap": True})
+                continue
+            out.append({"penetrated": penetrated, "depth_m": min(depth_m, L["thickness_m"]), "dp_Ns": dp, "dE_J": dE,
+                        "temperature_k": 900.0, "notes": "fixed"})
+            if not penetrated:
+                break
+        return out
+    return solve
+
+
+def test_a_shot_pushes_the_block_with_the_solves_momentum_and_heats_it_with_the_rest():
+    w = _wall_and_block()
+    b = w.bodies[0]
+    M0, E0 = w.mass_kg(), w.thermal_J()
+    start = np.array([b.x[0], w.label.shape[1] * w.pitch - 1e-4, b.x[2]])
+    rec = w.impact(start, (0, -1, 0), _fixed_solve(0.03, 4.0, 5000.0), radius_m=0.004)
+    assert len(rec) == 1 and rec[0]["owner"] == "body" and not rec[0]["penetrated"]
+    hit = w.bodies[0]
+    assert hit.mass * hit.v == pytest.approx(np.array([0.0, -4.0, 0.0]), abs=1e-9)    # momentum, along the shot
+    assert rec[0]["heat_J"] == pytest.approx(5000.0 - 0.5 * 4.0 ** 2 / hit.mass, rel=1e-9)
+    assert rec[0]["cells_out"] == 3                                     # a 1-cell bore, 3 cm deep
+    L = w.ledger
+    assert w.mass_kg() + L["ejected_kg"] == pytest.approx(M0, rel=1e-12)
+    assert (w.thermal_J() + L["ejected_J"] - L["impact_heat_J"] == pytest.approx(E0, rel=1e-12))
+    w.run(10, 0.05)                                                     # into the wall and still: the books hold
+    _books(w, M0, E0)
+
+
+def test_a_shot_into_a_wall_puts_its_momentum_into_the_ground():
+    w = _wall_and_block()
+    start = np.array([0.025, w.label.shape[1] * w.pitch - 1e-4, 0.08])     # past the block, onto the wall
+    rec = w.impact(start, (0, -1, 0), _fixed_solve(0.02, 4.0, 5000.0), radius_m=0.004)
+    assert rec[0]["owner"] == "wall" and rec[0]["heat_J"] == pytest.approx(5000.0)
+    assert all(np.allclose(b.v, 0) for b in w.bodies)
+
+
+def test_the_bore_is_as_hot_as_the_game_says():
+    """The heated volume is the game's own (its bore, as deep as the round got): with the real solve, the hottest
+    cell's rise matches the game's within the difference between its 300 K card and the live one."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "stage" / "skippycraft"))
+    import shooting_range
+    w = _wall_and_block()
+    b = w.bodies[0]
+    start = np.array([b.x[0], w.label.shape[1] * w.pitch - 1e-4, b.x[2]])
+    rec = w.impact(start, (0, -1, 0), shooting_range.layer_solver("m2_browning"), shooting_range.hole_radius_m("m2_browning"))
+    r = rec[0]
+    assert r["dp_Ns"] == pytest.approx(0.046 * 895, rel=0.02)          # a .50 BMG round stopped: all its momentum
+    hot = float(w.bodies[0].T.max())
+    assert (hot - 293.15) == pytest.approx(r["game_T_K"] - 300.0, rel=0.35)

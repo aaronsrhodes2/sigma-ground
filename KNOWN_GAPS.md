@@ -632,3 +632,21 @@ Johnson-Cook's softening left steel 41% of its yield at 900 C, the measured valu
 - **Contact:** penetration removed by split impulses; perfect thermal contact between touching cells; the energy contact
   and bending take is heat at the contact cells (exact in the books), but its split between the two sides is by halves.
 - Sentinels: `tests/test_voxel_rigid.py`, the strength theater test in `tests/test_skippycraft_theater.py`.
+
+## PHYSICS_GAP: impacts in the playground (2026-10-31)
+
+`PlaygroundWorld.impact` (SkippyCraft P4) runs the Weapon vs. Armor game's per-layer solve on the layers a shot's path
+crosses and puts the result into the world: the bore knocked out, the lost momentum into the piece hit, the rest as heat
+in the game's own bore volume. Still approximate:
+
+- **The solve is the game's:** Poncelet/Birkhoff against a rigid half-space per layer (its calibrated factors as they are);
+  it does not know the layer is a free body, so a block that flies off still stopped the round as if it were fixed.
+- **Where the energy goes:** all of it that the body does not take as motion is heat in the bore's volume (none to
+  fracture, spall or the ejecta's speed); the knocked-out cells leave the world as ejecta, they do not fly as debris; the
+  round itself is not drawn or kept. Heat is through the live cards, so a bore reads cooler than the game's own figure
+  (which uses the 300 K heat capacity): .50 BMG into steel, 793 K against the game's 924 K.
+- **Contact heat zone:** the energy contact takes is spread over the touching cells and their neighbours two cells out
+  (`playground.CONTACT_ZONE_CELLS`, a choice: no plastic-zone or crushing law). At one cell, a block that landed
+  corner-first at ~44 m/s heated three granite cells to 4800 K.
+- **Shaped charges and the game's sigma-field weapons:** not offered (no jet mass, no momentum in the game).
+- Sentinels: the impact tests in `tests/test_playground.py`, the impact theater test in `tests/test_skippycraft_theater.py`.
