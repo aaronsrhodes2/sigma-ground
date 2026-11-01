@@ -219,6 +219,15 @@ def scene_field(name):
     return field_from_voxel_exec(code, block_m=block_m, resolution=SCENE_RESOLUTION.get(name, RESOLUTION))[0]
 
 
+def _body_name(b):
+    return b["material"] if isinstance(b, dict) else b.material
+
+
+def _body_cell(b):
+    """A body's lowest corner cell: the slosh tank's dict bodies, or a rigid voxel body (``dynamics.voxel_rigid``)."""
+    return b["cell"] if isinstance(b, dict) else b.grid.min(0)
+
+
 def build(name):
     """``(field, world)`` for a scene."""
     import numpy as np
@@ -572,7 +581,7 @@ def serve(player="aaronsrhodes"):
     send = rcon.commands
     blocks = block_writer()
     print("block writer:", "plugin" if blocks else "none (RCON fills)", flush=True)
-    send(["forceload add -16 0 191 207", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
+    send(["forceload add -16 0 191 303", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
           "scoreboard players set #request skippycraft 0"])
     # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
     spots = [st[k] for st in STAGES.values() for k in ("origin", "desk")]
@@ -661,7 +670,7 @@ def serve(player="aaronsrhodes"):
                 world.step(dt)
                 text = th.readout(th.draw())
                 if tick % 25 == 0:                                        # the service's log: what it last drew, and where
-                    where = " ".join(f"{b['material']}@{th.mc(*b['cell'])}" for b in getattr(world, "bodies", ()))
+                    where = " ".join(f"{_body_name(b)}@{th.mc(*_body_cell(b))}" for b in getattr(world, "bodies", ()))
                     print(f"{name} tick {tick}: {text} {where}", flush=True)
                 time.sleep(max(0.0, 1.0 / st["rate"] - (time.monotonic() - t0)))
             else:
