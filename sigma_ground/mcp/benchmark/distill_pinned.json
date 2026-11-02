@@ -466,7 +466,79 @@
     "units": "J",
     "oracle": "tool"
    }
+  },
+  {
+   "id": "distill-2026-11-01-020",
+   "day": "2026-11-01",
+   "reason": "new_combination",
+   "question": "Momentum on impact of a 62.7 kg ball dropped from 184 m?",
+   "domain": "physics",
+   "signature": [
+    "free_fall_velocity",
+    "momentum"
+   ],
+   "expected": {
+    "tool": "momentum",
+    "args": {
+     "mass_kg": 62.7,
+     "velocity_m_s": 60.07368142539626
+    },
+    "plan": [
+     {
+      "tool": "free_fall_velocity",
+      "args": {
+       "height_m": 184.0
+      }
+     },
+     {
+      "tool": "momentum",
+      "args": {
+       "mass_kg": 62.7,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "result": 3766.6198253723455,
+    "units": "kg m/s",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-11-01-037",
+   "day": "2026-11-01",
+   "reason": "new_combination",
+   "question": "What is the Hawking temperature of a black hole of 3.11 solar masses?",
+   "domain": "astronomy",
+   "signature": [
+    "hawking_temperature"
+   ],
+   "expected": {
+    "tool": "hawking_temperature",
+    "args": {
+     "mass_kg": 6.18395469787e+30
+    },
+    "plan": [
+     {
+      "tool": "hawking_temperature",
+      "args": {
+       "mass_kg": 6.18395469787e+30
+      }
+     }
+    ],
+    "result": 1.9840065617959086e-08,
+    "units": "K",
+    "oracle": "tool"
+   }
   }
  ],
- "open_misses": []
+ "open_misses": [
+  {
+   "id": "distill-2026-11-01-015",
+   "day": "2026-11-01",
+   "question": "Fourier transform of exp(-2*t^2)",
+   "cause": "wrong_value",
+   "tool": "fourier_transform",
+   "got": "0"
+  }
+ ]
 }
