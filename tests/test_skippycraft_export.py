@@ -88,7 +88,8 @@ def test_derived_looks_repaint_carriers_from_sigma_ground(tmp_path):
     legend = export_mc.write_resourcepack(looks, appearances, tmp_path)
     tex = tmp_path / "skippycraft" / "assets" / "minecraft" / "textures" / "block"
     glass = Image.open(tex / f"{looks['glass']}.png").getpixel((0, 0))
-    assert glass[3] == legend["glass"]["rgba"][3] < 64                # alpha from opacity through one block
+    assert glass[3] == legend["glass"]["rgba"][3] == pytest.approx(255 * export_mc.VISIBLE_OPACITY, abs=1)   # one pane, shown
+    assert legend["glass"]["drawn_at_m"] > 0.05 and appearances["glass"]["opacity"] < 0.15   # its physical opacity, per block
     spec = Image.open(tex / f"{looks['iron']}_s.png").getpixel((0, 0))
     assert spec[1] == 255                                             # LabPBR: metal, albedo is F0
     # granite: ECOSTRESS's measured grey, stored sRGB-encoded (linear 0.17 would be 43/255: far too dark)
@@ -96,6 +97,22 @@ def test_derived_looks_repaint_carriers_from_sigma_ground(tmp_path):
     assert "reflectance_spectra" in g["sources"]["color_rgb"] and 100 < g["rgba"][0] < 135 and "no colour model" not in g["gaps"]
     place, _, _ = export_mc.field_to_commands(field, looks)
     assert any(looks["mercury"] in c for c in place)
+
+
+def test_a_clear_volume_is_drawn_as_one_visible_pane_with_its_own_tint():
+    """Minecraft draws a volume of one translucent block as a single pane, so water honest to its 1.25 cm cell (a 4% veil)
+    is invisible. The same Beer-Lambert model is evaluated at the depth where the pane holds VISIBLE_OPACITY: the tint stays
+    the material's own (water loses red first: cyan) and the exposure is named in the gaps."""
+    from sigma_ground.field.interface.block import appearance
+    cell = appearance("water", 0.0125)
+    a, depth = export_mc.legible(cell)
+    assert cell["opacity"] < 0.05 and a["opacity"] == pytest.approx(export_mc.VISIBLE_OPACITY, abs=1e-3)
+    assert depth > 0.0125 and a["color_rgb"][0] < a["color_rgb"][2]      # red lost first
+    assert any("display exposure" in g for g in a["gaps"]) and not any("display exposure" in g for g in cell["gaps"])
+    same, none = export_mc.legible(appearance("gold", 0.01))           # opaque: untouched
+    assert none is None and same["opacity"] == 1.0
+    already, none = export_mc.legible(appearance("water", 5.0))        # a deep pool is already visible: untouched
+    assert none is None and already["opacity"] >= export_mc.VISIBLE_OPACITY
 
 
 def test_a_material_with_no_colour_is_flat_grey_and_flagged(tmp_path):

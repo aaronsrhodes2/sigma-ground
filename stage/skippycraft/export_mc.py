@@ -10,7 +10,8 @@ Minecraft only SHOWS the theater; each material's real identity, temperature and
   - derived (the default, the Captain's rule): ``field.interface.block.appearance`` gives each material its colour, its
     opacity through ONE block of this theater's size, its reflectance and smoothness. ``write_resourcepack`` repaints one
     "carrier" block per material with that: a concrete colour for an opaque material, a stained-glass colour for a see-through
-    one (stained glass draws with the texture's alpha), plus a LabPBR specular map (smoothness, F0, metal) that shader packs
+    one (stained glass draws with the texture's alpha; a volume of it is one pane, so ``legible`` deepens a faint one to
+    ``VISIBLE_OPACITY``, flagged), plus a LabPBR specular map (smoothness, F0, metal) that shader packs
     read for real reflections; vanilla Minecraft draws no reflections at all. A material sigma-ground has no colour for is
     drawn neutral grey and named in the report.
   - vanilla (``LOOKS``): a hand-picked stock block per material, no resource pack.
@@ -61,6 +62,31 @@ def derive_looks(field, temperature_k=293.15):
     return looks, appearances
 
 
+VISIBLE_OPACITY = 0.30       # display exposure (a screen, not physics): the least a see-through material is drawn at
+
+
+def legible(a):
+    """``(appearance, depth_m)`` of a see-through material as the screen should draw it. Minecraft draws a whole volume of one
+    translucent block as a single pane (the faces between neighbours are culled), so water 15 cm deep, honest to the cell,
+    is a 4% veil nobody can see. Rather than a hand-picked blue, the SAME Beer-Lambert model is evaluated at the least depth
+    where the pane holds ``VISIBLE_OPACITY``, so the tint is still the material's own (water loses red first, so it goes
+    cyan). ``depth_m`` is None when the physical look already holds that, or when no depth does (named in the gaps)."""
+    from sigma_ground.field.interface.block import appearance
+
+    if not 0.0 < a["opacity"] < VISIBLE_OPACITY:
+        return a, None
+    lo, hi = float(a["thickness_m"]), 100.0
+    top = appearance(a["material"], hi)
+    if top["opacity"] < VISIBLE_OPACITY:
+        return dict(a, gaps=[*a["gaps"], f"stays fainter than {VISIBLE_OPACITY:.0%} even 100 m deep: drawn at its physical look"]), None
+    for _ in range(40):                                        # opacity grows with depth: bisect for the least that holds it
+        mid = (lo * hi) ** 0.5
+        lo, hi = (mid, hi) if appearance(a["material"], mid)["opacity"] < VISIBLE_OPACITY else (lo, mid)
+    b = appearance(a["material"], hi)
+    b["gaps"] = [*b["gaps"], f"drawn as if seen through {hi:.3g} m of it so a pane of one block shows (display exposure, not physics)"]
+    return b, hi
+
+
 def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
     """Repaint each carrier with its material's derived look. Returns ``{material: {carrier, rgba, ...}}``."""
     from PIL import Image
@@ -73,7 +99,7 @@ def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
                   "description": "SkippyCraft: looks derived by sigma-ground"}}, indent=2), encoding="utf-8")
     legend = {}
     for m, carrier in looks.items():
-        a = appearances[m]
+        a, drawn_at = legible(appearances[m])
         rgb = a["color_rgb"] or NO_COLOUR
         alpha = 1.0 if a["opacity"] >= CLEAR_BELOW else a["opacity"]
         # appearance's colour is linear reflectance; a texture is stored sRGB-encoded (as glow_display already does)
@@ -85,7 +111,7 @@ def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
         r = round(255 * a["smoothness"]) if a["smoothness"] is not None else 0
         Image.new("RGBA", (16, 16), (r, g, 0, 255)).save(tex / f"{carrier}_s.png")
         key = f"{m[0]}@{m[1]:g}m" if isinstance(m, tuple) else m   # (material, block size) when theaters share a pack
-        legend[key] = {"carrier": carrier, "rgba": rgba, "opacity": round(a["opacity"], 4), "metal": a["metal"],
+        legend[key] = {"carrier": carrier, "rgba": rgba, "opacity": round(a["opacity"], 4), "drawn_at_m": drawn_at, "metal": a["metal"],
                      "reflectance_f0": f0, "smoothness": a["smoothness"], "gaps": a["gaps"], "sources": a["sources"]}
     (root / "skippycraft_looks.json").write_text(json.dumps(legend, indent=2, default=str), encoding="utf-8")
     return legend

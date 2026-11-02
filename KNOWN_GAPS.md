@@ -668,3 +668,15 @@ least; wood and rubber are molecular). Still approximate:
   separated out (`no reflectance` stays on the readout); the smoothness is `texture.microfacet_roughness`'s as before.
 - **No temperature dependence:** the colour is the room-temperature one at every temperature (the glow is separate).
 - Sentinels: `sigma_ground/field/interface/test_reflectance_spectra.py`, `tests/test_skippycraft_export.py`.
+
+## See-through blocks are drawn deeper than they are (SkippyCraft, 2026-11-02)
+
+`stage/skippycraft/export_mc.py` `legible`: Minecraft draws a volume of one translucent block as a single pane (the faces
+between same blocks are culled), so water honest to its 1.25 cm cell (opacity 4%) or a glass wall (9%) was invisible: the
+slosh tank showed a gold and an oak block moving in nothing.
+- **Display exposure, not physics:** a see-through material whose pane is fainter than `VISIBLE_OPACITY` (30%) is drawn
+  with the same `field.interface.block.appearance` Beer-Lambert model evaluated at the least depth that holds it (water
+  2.8 m: cyan, as red is absorbed first; glass 0.53 m: grey). The 30% is a screen constant like the glow's exposure.
+- **Named per material:** `drawn_at_m` and a "display exposure" gap in `skippycraft_looks.json`; `appearance` itself is unchanged.
+- **No refraction or reflection** in vanilla Minecraft (shader packs read the LabPBR smoothness/F0 and do draw them).
+- Sentinel: `tests/test_skippycraft_export.py::test_a_clear_volume_is_drawn_as_one_visible_pane_with_its_own_tint`.
