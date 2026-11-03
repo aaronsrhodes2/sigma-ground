@@ -608,6 +608,10 @@ def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
               "restated_geo + the header J2, J3, J4 of the Sun, Earth and Moon (L1 + L2)"),
              ("restated_geo_hdr_em", dict(zon, zonal_overrides=_MEASURED_ZONALS + _field_radii(("Sun",)) + _header_field_overrides(("Earth", "Moon")), pole_epoch="start"),
               "restated_geo + the header J2, J3, J4 of the Earth and Moon, the table's Sun J2 (L1 + L2 without the Sun's J2)"),
+             # the three parts of restated_geo, one at a time (the 2015 start showed geo cutting the Moon 0.336 -> 0.146 km at +5 yr, far more than the Moon's own radius could; which part?)
+             ("restated_fieldr_earth", dict(zon, zonal_overrides=_MEASURED_ZONALS + _field_radii(("Earth",))), "restated_zon with the Earth's zonals on RE = 6378.1366 km (the one change)"),
+             ("restated_fieldr_moon", dict(zon, zonal_overrides=_MEASURED_ZONALS + _field_radii(("Moon",))), "restated_zon with the Moon's zonals on AM = 1738.0 km (the one change)"),
+             ("restated_pole", dict(zon, zonal_overrides=_MEASURED_ZONALS, pole_epoch="start"), "restated_zon with the IAU poles at the run's start date (the one change)"),
              ("restated_tide", dict(zon, zonal_overrides=_MEASURED_ZONALS, de_tide=True),
               "restated_zon with DE430's time-delayed three-band Earth tide on the Moon (header k2/tau) in place of the static Earth tide (L3)"),
              ("restated_gmdot", dict(zon, zonal_overrides=_MEASURED_ZONALS, gm_rate=True),
