@@ -169,6 +169,53 @@ def horizons_names() -> dict[str, int]:
     return out
 
 
+YARKOVSKY_LAW = {"alpha": 1.0, "r0": 1.0, "m": 2.0, "n": 1.0, "k": 0.0}     # marsden_g = alpha (r/r0)^-m (1 + (r/r0)^n)^-k -> (1 au / r)^2: JPL's asteroid non-grav form (SBDB, Farnocchia et al. 2013)
+
+
+@functools.lru_cache(maxsize=1)
+def _nongrav():
+    """JPL SBDB's fitted non-gravitational parameters for asteroids (fixtures/sbdb_nongrav_asteroids.json: every asteroid whose orbit solution carries A2): number -> {A1, A2, A3, DT, source}."""
+    f = _FIX / "sbdb_nongrav_asteroids.json"
+    if not f.is_file():
+        return {}, None
+    d = json.loads(f.read_text(encoding="utf-8"))
+    i = {k: d["fields"].index(k) for k in ("pdes", "full_name", "A1", "A2", "A3", "DT", "A1_sigma", "A2_sigma", "A3_sigma")}
+    out = {}
+    for r in d["data"]:
+        if r[i["pdes"]] and str(r[i["pdes"]]).isdigit():
+            out[int(r[i["pdes"]])] = {"A1": float(r[i["A1"]] or 0.0), "A2": float(r[i["A2"]] or 0.0), "A3": float(r[i["A3"]] or 0.0), "DT": float(r[i["DT"]] or 0.0), "full_name": r[i["full_name"]].strip(),
+                                      "sigma": tuple(float(r[i[k]]) if r[i[k]] else None for k in ("A1_sigma", "A2_sigma", "A3_sigma"))}
+    return out, d["metadata"]
+
+
+DETECTION_SIGMAS = 3.0        # a fitted parameter is applied only when |value| > 3 sigma (C31 verdict: Apophis's A1 = 5e-13 +- 4.9e-13, a 1-sigma number, cancelled the measured A2's drift)
+
+
+def yarkovsky_for(number: int | None) -> dict | None:
+    """The Yarkovsky entry for a numbered asteroid, or None: A = (A1, A2, A3) au/day^2 on the (1 au / r)^2 law with each component applied only where JPL's fit detects it
+    (|value| > DETECTION_SIGMAS of its formal sigma; the rest are set to zero and listed as dropped), DT, and the source sentence (C31)."""
+    if number is None:
+        return None
+    table, meta = _nongrav()
+    e = table.get(int(number))
+    if not e:
+        return None
+    vals, applied, dropped = [], [], []
+    for name, v, s in zip(("A1", "A2", "A3"), (e["A1"], e["A2"], e["A3"]), e["sigma"]):
+        if v and (s is None or abs(v) > DETECTION_SIGMAS * s):
+            vals.append(v); applied.append(f"{name} = {v:.4g} +- {s if s is not None else 'n/a'} au/d^2")
+        else:
+            vals.append(0.0)
+            if v:
+                dropped.append(f"{name} = {v:.4g} +- {s:.3g} au/d^2 ({abs(v) / s:.1f} sigma: not a detection, set to 0)")
+    if not any(vals):
+        return None
+    return {"A_au_day2": tuple(vals), "DT_days": e["DT"], "law": dict(YARKOVSKY_LAW), "applied": applied, "dropped": dropped,
+            "source": f"JPL SBDB non-gravitational parameters of {e['full_name']} (fitted by JPL to the astrometry; catalogue of {str(meta.get('created_utc', '?'))[:10]}), on the (1 au / r)^2 law: "
+                      + "; ".join(applied) + (f"; dropped: {'; '.join(dropped)}" if dropped else ""),
+            "what": f"Yarkovsky: the thermal recoil drift, written as JPL writes it, a transverse acceleration A2 (1 au / r)^2 (A1 radial and A3 normal where the solution detects them above {DETECTION_SIGMAS:g} sigma)"}
+
+
 @functools.lru_cache(maxsize=1)
 def _sbdb():
     d = json.loads((_FIX / "sbdb_asteroids_named_mba.json").read_text(encoding="utf-8"))
@@ -230,7 +277,18 @@ def lookup(name: str) -> dict | None:
 
 
 def resolve(name: str, kernel) -> Start:
-    """The start state for a small body by name or number, from the highest tier that has it; SmallBodyError (with the near misses) when none does."""
+    """The start state for a small body by name or number, from the highest tier that has it, with JPL's Yarkovsky parameters attached where its solution carries them (C31);
+    SmallBodyError (with the near misses) when none does."""
+    import dataclasses
+    st = _resolve_bare(name, kernel)
+    if st.kind == "asteroid" and st.nongrav is None:
+        y = yarkovsky_for(st.number)
+        if y and any(y["A_au_day2"]):
+            st = dataclasses.replace(st, nongrav=tuple(y["A_au_day2"]), nongrav_dt_days=y["DT_days"], law=y["law"], extra={**(st.extra or {}), "yarkovsky": y})
+    return st
+
+
+def _resolve_bare(name: str, kernel) -> Start:
     from sigma_ground.field.interface import small_body_data as sbd
     from sigma_ground.field.interface import where_when as ww
     num = _number_of(name)
@@ -392,12 +450,14 @@ def position_at(name: str, jd: float, center: str, kernel, kname: str, budget_s:
     pert, _, gm_all = _perturbers()
     out.update(status="computed", method="our own test-particle integration, computed now, from the stated start",
                basis=(f"a live calculation: {st.name} as a test particle in the field of the Sun and nine planet systems ({kname} kernel), the Sun's 1PN term, DE440's {len(pert)} asteroids as prescribed sources"
-                      + (" (its own entry zeroed)" if st.number is not None and st.number in set(int(x.name) for x in pert) else "") + (", the Marsden non-gravitational terms" if st.nongrav else "")
+                      + (" (its own entry zeroed)" if st.number is not None and st.number in set(int(x.name) for x in pert) else "")
+                      + ((", Yarkovsky drift from JPL's fitted A2 on the (1 au / r)^2 law" if (st.extra or {}).get("yarkovsky") else ", the Marsden non-gravitational terms") if st.nongrav else "")
                       + f"; dopri5 at rtol 1e-13, {abs(lead):.3f} yr {out['start']['direction']} from the start, {secs:.1f} s"),
                receipt={"machine": ww.machine(), "wall_seconds_this_call": secs, "of_which_perturber_paths_s": t_paths, "integrator": {"name": "dopri5", "scheme": "Dormand-Prince 5(4), adaptive, dense output", "rtol": 1e-13, "atol_km": 1e-6},
                         "planet_field": {"kernel": kname, "bodies": "Sun + Mercury, Venus, Earth-Moon, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto (system barycentres)", "gm_source": "DE440 header constants (fixtures/de440_state_vectors_v2physics.json)"},
                         "prescribed_sources": {"count": len(pert), "what": "DE440's asteroid perturbers on their own two-body-plus-planets paths (perturber_paths.asteroid_window_paths)", "window_jd": [nodes["w0"], nodes["w0"] + nodes["horizon"]], "built_in_s": nodes["seconds"], "memo_used": t_paths < 0.5},
-                        "relativity": "Sun's 1PN (EIH one-body) term", "non_gravitational": ({"A_au_day2": st.nongrav, "DT_days": st.nongrav_dt_days, "law": st.law or "standard Marsden"} if st.nongrav else None),
+                        "relativity": "Sun's 1PN (EIH one-body) term",
+                        "non_gravitational": ({"A_au_day2": st.nongrav, "DT_days": st.nongrav_dt_days, "law": st.law or "standard Marsden", **({k: (st.extra or {})["yarkovsky"][k] for k in ("what", "source")} if (st.extra or {}).get("yarkovsky") else {})} if st.nongrav else None),
                         "start": out["start"], "engine": "the C24 engine (comet_orbits.propagate), the one the daily MPC scoreboard (C27) and the Eros orbit fit (C28) run"})
     sb = scoreboard_row(st.number)
     out["measured_against_the_sky"] = sb if sb else {"what": "no scoreboard measurement for this body: it is not in the daily MPC set; the engine's measured accuracy on the tracked bodies is in fixtures/mpc_live/scoreboard_portal.json"}
