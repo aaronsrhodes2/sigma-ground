@@ -382,6 +382,15 @@ def main() -> int:
     while queue or running:
         while queue and len(running) < a.workers:
             item = queue.pop(0)
+            if item[2].exists():                                     # a worker of an earlier driver finished this job after that driver was replaced: take its result, do not rerun it
+                r = json.loads(item[2].read_text())
+                results.append(r)
+                with open(part, "a") as fh:
+                    fh.write(json.dumps(r) + "
+")
+                finished += 1
+                print(f"[{time.time() - t0:6.0f}s] taken {item[0][0]}/{item[0][2]} from an earlier worker's result ({finished}/{len(todo)})", flush=True)
+                continue
             item[3] += 1
             proc = subprocess.Popen([sys.executable, "-X", "utf8", str(Path(__file__).resolve()), "--worker", str(item[1]), str(item[2])],
                                     stdout=subprocess.DEVNULL, stderr=open(str(item[1]) + ".err", "a"))
