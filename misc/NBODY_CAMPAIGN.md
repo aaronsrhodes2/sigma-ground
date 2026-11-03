@@ -50,6 +50,9 @@ python -X utf8 scripts/fair_jpl_contest.py --predictor <label> --dt-days 0.0125 
 python -X utf8 scripts/fair_contest_report.py D:/datasets/sigma_runs/contest_v2/fair_contest_contest.jsonl
 # the portal page's data (SkippyTel), then commit and push main to the house git: Cloud Run CD deploys
 python scripts/nbody_blankets_build.py D:/datasets/sigma_runs/contest_v2/fair_contest_contest.jsonl
+# the live arena (C27): ours and JPL's against the newest MPC sky positions of 32 asteroids; runs daily at 04:30 (Windows task 'sigma-ground mpc live daily'), by hand:
+python -X utf8 scripts/mpc_live_driver.py --date YYYY-MM-DD          # scoreboard D:/datasets/mpc_live/scoreboard.jsonl, day mirror fixtures/mpc_live/<date>.json
+python -X utf8 scripts/mpc_live_report.py                            # misc/MPC_LIVE_SCOREBOARD.md and fixtures/mpc_live/scoreboard_portal.json (the portal reads this; not built yet)
 ```
 
 ## 5. The fold-in (after `restated_math` is measured)
