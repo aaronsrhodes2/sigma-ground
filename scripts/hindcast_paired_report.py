@@ -64,11 +64,13 @@ def main() -> int:
         control = json.loads(a.control_table.read_text(encoding="utf-8"))
     dts = {json.loads(f.read_text(encoding="utf-8"))["metadata"]["dt_days"] for f in a.new_dir.glob(f"{a.new}_*.json")}
     step = ", ".join(f"{d:g}" for d in sorted(dts))
+    truths = {json.loads(f.read_text(encoding="utf-8"))["metadata"].get("truth", "DE440") for f in a.new_dir.glob(f"{a.new}_*.json")}
+    truth = ", ".join(sorted(truths))                                 # the kernel the hindcast was scored against (DE442 since 2026-11-02; older files say DE440)
     starts = sorted(set(control["per_start"]) & set(new))
     rows = compare(control["per_start"], new)
     lines = [f"# Hindcast, `{a.new}` against `{control['metadata']['predictor']}` ({len(starts)} starts: {', '.join(starts)})", "",
-             f"Same code, step ({step} d), fixture snapshot (j2010) and DE440 answer key; only the predictor's configuration differs. Median heliocentric position error over the starts that reach the lead, km. "
-             "Ratio below 1 means the new configuration is closer to DE440.", "",
+             f"Same code, step ({step} d), fixture snapshot (j2010) and {truth} answer key; only the predictor's configuration differs. Median heliocentric position error over the starts that reach the lead, km. "
+             f"Ratio below 1 means the new configuration is closer to {truth}.", "",
              "| body | lead | control | new | ratio | starts better |", "|---|---|---|---|---|---|"]
     for r in sorted(rows, key=lambda r: (r["body"], r["lead"])):
         lines.append(f"| {r['body']} | +{r['lead']} yr | {fmt(r['control_km'])} | {fmt(r['new_km'])} | {r['ratio']:.3f} | {r['starts_better']}/{r['starts']} |")

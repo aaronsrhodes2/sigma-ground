@@ -1,6 +1,6 @@
 # Hindcast, `restated_hdr_moon` against `restated_zon` (4 starts: 2000, 2005, 2010, 2015)
 
-Same code, step (0.0125 d), fixture snapshot (j2010) and DE440 answer key; only the predictor's configuration differs. Median heliocentric position error over the starts that reach the lead, km. Ratio below 1 means the new configuration is closer to DE440.
+Same code, step (0.0125 d), fixture snapshot (j2010) and DE442 answer key; only the predictor's configuration differs. Median heliocentric position error over the starts that reach the lead, km. Ratio below 1 means the new configuration is closer to DE442.
 
 | body | lead | control | new | ratio | starts better |
 |---|---|---|---|---|---|

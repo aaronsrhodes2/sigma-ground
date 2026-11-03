@@ -608,3 +608,13 @@ Paired against the DE442 control over the starts 2000/2005/2010/2015 (`misc/HIND
 * **M-A, the Moon: met** by L2 alone, 0.245 -> 0.113 km at +5 yr (target 0.122), better in every start, 54 % of the error gone with one sourced constant applied on its own reference radius (the attribution arm says the Earth's RE 6378.1366 km is the whole of it; its four-start report follows from skippy-core). Mercury pays 1.9 % (0/4 better), which the attribution arms trace to the pole epoch, not the radius; the candidate for `restated_math` is therefore the Earth's reference radius WITHOUT the pole change (`restated_fieldr_earth`), pending its four starts.
 * **L1 hdr_moon: null** (ratio 0.98, 2/4), the prediction of 20:00 was a miss and stays recorded as one. Mercury, Venus, Earth, Mars: within 2 % under both arms, as predicted.
 * Still running: `restated_tide` (L3) on this PC, 1 of 4 starts; the three attribution arms on skippy-core, 1 of 4 each.
+
+### C26 attribution on four starts (2026-11-02, 22:20, skippy-core): the Earth's zonal reference radius is the whole of the Moon gain; the pole epoch is null over four starts
+Paired against the DE442 control (`misc/HINDCAST_RESTATED_FIELDR_EARTH_DE442.md` and siblings), +5 yr, km:
+| one change | Moon | ratio | better | Mercury | Venus | Earth | Mars |
+|---|---|---|---|---|---|---|---|
+| `restated_fieldr_earth` (Earth J2-J4 on RE 6378.1366 km) | **0.113** | **0.460** | **4/4** | 0.0901 (1.005) | 0.0753 (1.000) | 0.112 (0.993) | 0.119 (1.000) |
+| `restated_fieldr_moon` (Moon J2-J4 on AM 1738.0 km) | 0.241 | 0.985 | 2/4 | 1.003 | 0.999 | 0.999 | 1.000 |
+| `restated_pole` (IAU poles at the start date) | 0.244 | 0.997 | 1/4 | 1.001 | 1.000 | 1.003 | 1.000 |
+* The predictions of 20:00 ("fieldr_earth carries most; fieldr_moon under 0.03 km; pole under 0.02 km") all hold on four starts; the 2015 start's 13 % pole penalty was one start's scatter (the four-start ratio is 0.997).
+* **`restated_fieldr_earth` is the cleanest Moon lever: one sourced constant applied on the radius it was defined on, 54 % of the Moon's five-year error gone, nothing else moved beyond 0.7 %.** It, not `restated_geo`, is the base of `restated_math` (geo's 1.9 % Mercury cost is not in fieldr_earth). What was wrong was never a physics constant: the Earth's J2 was being applied on the 6371 km mean radius, and J2 is defined on 6378.1366 km (DE440 header RE); the +0.22 % in J2 R^2 on the Moon's orbit was the Moon's missing 0.13 km.
