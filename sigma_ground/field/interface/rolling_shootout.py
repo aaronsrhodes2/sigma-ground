@@ -392,6 +392,8 @@ class Predictor:
     perturber_sets:      tuple[str, ...] = ()          # "asteroids" (DE440's 343) and/or "ring" (DE440's 36-point Kuiper-belt ring), as prescribed massive sources
     pole_epoch:          str    = "snapshot"           # reduced_model.build_system: "snapshot" = the IAU poles of the fixture snapshot it reads parameters from (j2010 for every start, as the stored
                                                        # tables were built); "start" = the poles at the run's own start date (C26 lever L2, 2026-11-02)
+    de_tide:             bool   = False                # C26 lever L3: DE430's time-delayed three-band Earth tide on the Moon with the DE440 header's k2/tau (replaces the static Earth tide)
+    gm_rate:             bool   = False                # C26 lever L4: the Sun's GM changing at the header's GMSDOT (per year)
 
 
 # Common toggle bundles for the existing predictor lineup.
@@ -605,7 +607,11 @@ def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
              ("restated_geo_hdr", dict(zon, zonal_overrides=_MEASURED_ZONALS + _header_field_overrides(("Sun", "Earth", "Moon")), pole_epoch="start"),
               "restated_geo + the header J2, J3, J4 of the Sun, Earth and Moon (L1 + L2)"),
              ("restated_geo_hdr_em", dict(zon, zonal_overrides=_MEASURED_ZONALS + _field_radii(("Sun",)) + _header_field_overrides(("Earth", "Moon")), pole_epoch="start"),
-              "restated_geo + the header J2, J3, J4 of the Earth and Moon, the table's Sun J2 (L1 + L2 without the Sun's J2)")]
+              "restated_geo + the header J2, J3, J4 of the Earth and Moon, the table's Sun J2 (L1 + L2 without the Sun's J2)"),
+             ("restated_tide", dict(zon, zonal_overrides=_MEASURED_ZONALS, de_tide=True),
+              "restated_zon with DE430's time-delayed three-band Earth tide on the Moon (header k2/tau) in place of the static Earth tide (L3)"),
+             ("restated_gmdot", dict(zon, zonal_overrides=_MEASURED_ZONALS, gm_rate=True),
+              "restated_zon with the Sun's GM decreasing at the header's GMSDOT (L4)")]
     return [_dc.replace(base, name=n, description=d, **kw) for n, kw, d in rows]
 
 
@@ -794,7 +800,25 @@ def _candidate_layers(predictor: Predictor, bodies: list, body_names: list[str],
             parts.append(pp.to_prescribed_sources(nodes, np.array([k["gm_km3_s2"] for k in placed]), 1.0))
         toggles = dataclasses.replace(toggles, prescribed_sources=True)
         kwargs["prescribed_sources"] = pp.concat_sources(*parts)
+    if predictor.de_tide:                                       # L3: DE430 eq. 31-32 with the DE440 header's constants; the static Earth tide (Love-number bulge) is switched off for the Earth
+        from sigma_ground.field.interface import de440_constants
+        c = de440_constants.load()["raw"]
+        iE, iM, iS = body_names.index("Earth"), body_names.index("Moon"), body_names.index("Sun")
+        bodies[iE] = bodies[iE].replace(love_number_k2=0.0)
+        toggles = dataclasses.replace(toggles, earth_tide_de=True)
+        kwargs["de_tide"] = {"earth": iE, "moon": iM, "sun": iS, "k2": (c["K2E0"], c["K2E1"], c["K2E2"]),
+                             "tau_orbit_s": tuple(86400.0 * c[k] for k in ("TAUE0", "TAUE1", "TAUE2")),
+                             "tau_rot_s": (0.0, 86400.0 * c["TAUER1"], 86400.0 * c["TAUER2"]),
+                             "radius_m": 1000.0 * c["RE"], "theta_dot": EARTH_ROTATION_RATE_RAD_S}
+    if predictor.gm_rate:                                       # L4: GMSDOT from the header (the memo gives it per year)
+        from sigma_ground.field.interface import de440_constants
+        toggles = dataclasses.replace(toggles, gm_rate=True)
+        kwargs["gm_rates_per_yr"] = {body_names.index("Sun"): float(de440_constants.load()["raw"]["GMSDOT"])}
     return bodies, toggles, kwargs
+
+
+# The Earth's mean rotation rate (IERS Conventions 2010, Table 1.1): 7.292115e-5 rad/s. Not in the DE440 header; used only by the DE tide's rotational delays.
+EARTH_ROTATION_RATE_RAD_S = 7.292115e-5
 
 
 def _integrate_nbody(

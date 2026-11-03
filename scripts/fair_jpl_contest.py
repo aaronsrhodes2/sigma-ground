@@ -83,6 +83,44 @@ def build_masses(de: dict, key: str):
     return out
 
 
+def _run_one_predictor(args, vname, key, e_jd, dt_days, leads, kv, kt, predictor_name):
+    """Contest v2: `reduced_model.build_system` with a named predictor (restated_zon, restated_geo_hdr_em, ...; its own integrator), the start state read from the
+    vintage kernel, the asteroid/ring/KBO paths from DE440 as always, scored against the truth kernel. Same output schema as run_one plus eT (the vintage against the
+    START kernel, DE440: how far JPL's own later model moved from the vintage, for the reality band)."""
+    from jplephem.spk import SPK
+    from sigma_ground.field.interface import reduced_model as rm
+    horizon = max(leads) * 365.25
+    system, order = rm.build_system(kv, e_jd, predictor_name, dt_days=dt_days, horizon_days=horizon + 10.0, fixture_key=key)
+    advance = rm.step_function(system)
+    sun_i = order.index("Sun")
+    e0 = {n: float(np.linalg.norm(rm.kernel_state(kv, n, e_jd)[0] - rm.kernel_state(kt, n, e_jd)[0])) for n in order if n != "Sun"}
+    out = {n: {} for n in order if n != "Sun"}
+    kend = min(kv[0, 3].end_jd, kt[0, 3].end_jd)
+    k440 = SPK.open(str(START)) if START.is_file() and TRUTH != START else None
+    t_now = e_jd
+    for k in leads:
+        target = e_jd + k * 365.25
+        if target > kend:
+            break
+        n_steps = max(1, int(round((target - t_now) / dt_days)))
+        dts = (target - t_now) * DAY / n_steps
+        for _ in range(n_steps):
+            advance(dts)
+        t_now = target
+        sun_p = system.bodies[sun_i].position_m / KM
+        for i, n in enumerate(order):
+            if n == "Sun":
+                continue
+            ours = system.bodies[i].position_m / KM - sun_p
+            v_own = rm.kernel_state(kv, n, target)[0] - rm.kernel_state(kv, "Sun", target)[0]
+            truth = rm.kernel_state(kt, n, target)[0] - rm.kernel_state(kt, "Sun", target)[0]
+            row = {"eO": float(np.linalg.norm(ours - truth)), "eV": float(np.linalg.norm(v_own - truth)), "dyn": float(np.linalg.norm(ours - v_own)), "e0": e0[n]}
+            if k440 is not None:
+                row["eT"] = float(np.linalg.norm((rm.kernel_state(k440, n, target)[0] - rm.kernel_state(k440, "Sun", target)[0]) - truth))
+            out[n][k] = row
+    return {"vintage": vname, "start": key, "jd": e_jd, "bodies": out, "predictor": predictor_name, "truth": TRUTH_NAME}
+
+
 def run_one(args):
     """One propagation: returns {body: {lead_years: error numbers}}. Runs in a worker process."""
     vname, vfile, key, e_jd, dt_days, leads = args[:6]
@@ -96,6 +134,9 @@ def run_one(args):
     de = {"snapshots": {key: snap_small}} if snap_small is not None else json.loads(FIXTURE.read_text())   # workers get one snapshot, not the whole fixture
     kv = SPK.open(str(V_DIR / vfile)) if vfile else SPK.open(str(START))
     kt = SPK.open(str(TRUTH))
+    predictor_name = args[15] if len(args) > 15 else None
+    if predictor_name:                                          # contest v2 (C26, M-B): the reduced model with a named predictor, started from the vintage's own state
+        return _run_one_predictor(args, vname, key, e_jd, dt_days, leads, kv, kt, predictor_name)
     gm = build_masses(de, key)
     snap = de["snapshots"][key]
     full, names, sun_idx, _ = rs._build_bodies_at_snapshot(key, de, [p for p in rs.canonical_predictors(dt_days) if p.name == "de440_stack"][0])
@@ -257,6 +298,9 @@ def main() -> int:
     ap.add_argument("--checkpoint", action="store_true", help="save each job's state after every lead and resume from it")
     ap.add_argument("--plan", type=Path, default=None, help="JSON list of DE440-start jobs {label,start,horizon,asteroids,c22}: one driver, mixed configurations, longest first (the shoot-out restatement)")
     ap.add_argument("--starts", nargs="*", default=None, help="restrict start snapshots, e.g. j2005 j2010")
+    ap.add_argument("--predictor", default=None, help="contest v2 (C26): run the reduced model with this predictor label (restated_zon, restated_geo_hdr_em, ...; its own integrator) from the "
+                                                         "vintage's own state; the asteroid/ring/KBO paths still come from DE440; scored against datasets.truth_kernel() (DE442). "
+                                                         "Without it the original headline-stack path runs (the 2026-10-12 contest).")
     a = ap.parse_args()
     if a.worker:
         spec = json.loads(Path(a.worker[0]).read_text())
@@ -318,7 +362,7 @@ def main() -> int:
     queue = []
     for j in todo:
         tagname = re.sub(r'[<>:"/\|?*()\s]', "", f"{j[0]}_{j[2]}")          # a label may carry characters Windows forbids in file names
-        (jobdir / f"{tagname}.job.json").write_text(json.dumps({"args": list(j) + [str(jobdir / f"{tagname}.ckpt.json") if a.checkpoint else None, perturb_of.get((j[0], j[2]))]}))
+        (jobdir / f"{tagname}.job.json").write_text(json.dumps({"args": list(j) + [str(jobdir / f"{tagname}.ckpt.json") if a.checkpoint else None, perturb_of.get((j[0], j[2])), a.predictor]}))
         queue.append([j, jobdir / f"{tagname}.job.json", jobdir / f"{tagname}.result.json", 0])
     running, finished = [], 0
     while queue or running:

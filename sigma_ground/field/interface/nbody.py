@@ -133,6 +133,8 @@ class PhysicsToggles:
     sectoral_c22: bool = False  # triaxial figure (C22) of each body with body.c22 != 0; its long axis comes from system.rotation_models (MacCullagh quadrupole, figure_forces.py)
     prescribed_sources: bool = False  # Newtonian pull of tabulated massive sources (asteroid perturbers) on every body; needs the prescribed_sources= argument (prescribed_sources.py)
     gw_damping:  bool = False   # GW energy loss (Peters 1964, binaries only -- BORROWED)
+    earth_tide_de: bool = False # DE430's time-delayed Earth tide on the Moon, three frequency bands (Folkner et al. 2014, IPN 42-196 eq. 31-32 -- BORROWED); needs de_tide= (C26 L3)
+    gm_rate:     bool = False   # a body's GM changing linearly in time (the Sun's mass loss, DE440 GMSDOT); needs gm_rates_per_yr= (C26 L4)
     # Future toggles to be added when their physics is implemented:
     #   yarkovsky:        bool = False    # NEA thermal recoil
     #   retarded_gravity: bool = False    # full speed-of-light propagation
@@ -362,8 +364,16 @@ class NBodySystem:
         rotation_models:    dict | None = None,
         # Tabulated massive sources (toggles.prescribed_sources): a PrescribedSources instance whose time axis is seconds since the system's start
         prescribed_sources = None,
+        # DE430's Earth-tide model (toggles.earth_tide_de): {"earth": i, "moon": i, "sun": i, "k2": (k20, k21, k22), "tau_orbit_s": (t0, t1, t2), "tau_rot_s": (0, tR1, tR2),
+        # "radius_m": R_E of the Love numbers, "theta_dot": the Earth's rotation rate (rad/s)}
+        de_tide:            dict | None = None,
+        # Linear GM rates (toggles.gm_rate): {body index: relative rate per year}, applied as GM(t) = GM(0) (1 + rate t) at the force-evaluation time
+        gm_rates_per_yr:    dict | None = None,
     ) -> None:
         self.bodies             = list(bodies)
+        self.de_tide            = de_tide
+        self.gm_rates_per_yr    = dict(gm_rates_per_yr or {})
+        self._mass0             = {i: self.bodies[i].mass_kg for i in self.gm_rates_per_yr}
         self.softening_m        = softening_m
         self.solar_luminosity_W = solar_luminosity_W
         self._time              = 0.0
@@ -409,6 +419,10 @@ class NBodySystem:
         self.prescribed_sources = prescribed_sources
         if toggles.prescribed_sources and prescribed_sources is None:
             raise ValueError("toggles.prescribed_sources is on but no prescribed_sources= was given")
+        if toggles.earth_tide_de and not de_tide:
+            raise ValueError("toggles.earth_tide_de is on but no de_tide= was given")
+        if toggles.gm_rate and not self.gm_rates_per_yr:
+            raise ValueError("toggles.gm_rate is on but no gm_rates_per_yr= was given")
         # Legacy attribute access (some callers / tests inspect .include_gr directly).
         self.include_gr = self.toggles.gr_1pn
 
@@ -446,6 +460,12 @@ class NBodySystem:
         n   = len(self.bodies)
         acc = np.zeros((n, 3), dtype=np.float64)
         t   = self.toggles
+
+        # ── Linear GM rates (C26 lever L4): GM(t) = GM(0) (1 + rate t), t the force-evaluation time in years ──
+        if t.gm_rate:
+            t_yr = self._t_eval / 31557600.0
+            for i, rate in self.gm_rates_per_yr.items():
+                self.bodies[i] = self.bodies[i].replace(mass_kg=self._mass0[i] * (1.0 + rate * t_yr))
 
         # ── EIH pre-pass: Newtonian a_j and potential Φ_i needed by EIH ──────
         # eih_cross is mutually exclusive with gr_1pn: both model the 1PN
@@ -792,6 +812,69 @@ class NBodySystem:
                                                                   - 2.0 * r_dot_n * n_hat_tidal)
                     acc[k] += a_k
                     acc[i] -= (self.bodies[k].mass_kg / M_i) * a_k
+
+        # ── DE430's time-delayed Earth tide on the Moon (C26 lever L3, 2026-11-02) ─────────────────────
+        # ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+        # │ BORROWED FROM THE DE430 MEMO: Folkner, Williams, Boggs, Park & Kuchynka 2014, IPN Progress   │
+        # │ Report 42-196, section III.C, equations (31)-(32). The Earth's degree-2 response is split   │
+        # │ into long-period (j=0), diurnal (j=1) and semi-diurnal (j=2) bands with Love numbers k2j and │
+        # │ time delays: the tide-raising body T (Moon, then Sun) is taken at its position at t - tau'_j │
+        # │ (orbital delay), rotated about the Earth's spin axis by -theta_dot tau_j (rotational delay); │
+        # │ r = rho + z splits the Moon's geocentric position into equatorial and polar parts. The       │
+        # │ result is the acceleration of the Moon RELATIVE to the Earth (the (mE+mM)/mE factor), so    │
+        # │ here the Moon gets mE/(mE+mM) of it and the Earth -mM/(mE+mM): the barycentre is untouched,  │
+        # │ as the memo states. The delayed position is r_T(t - tau) = r_T - tau v_T + tau^2 a_T / 2 with│
+        # │ the two-body a_T (third-order error over a 0.2 d delay).                                      │
+        # └──────────────────────────────────────────────────────────────────────────────────────────────┘
+        if t.earth_tide_de:
+            dt_ = self.de_tide
+            iE, iM = dt_["earth"], dt_["moon"]
+            bE, bM = self.bodies[iE], self.bodies[iM]
+            n_hat = np.asarray(bE.pole_axis_unit, dtype=np.float64)
+            n_hat = n_hat / np.linalg.norm(n_hat)
+            r = bM.position_m - bE.position_m
+            r2 = float(r @ r)
+            r1 = math.sqrt(r2)
+            z_s = float(r @ n_hat)                      # polar component (signed)
+            rho_v = r - z_s * n_hat                     # equatorial vector
+            rho_s = float(np.linalg.norm(rho_v))
+            R5 = dt_["radius_m"] ** 5
+            mE, mM = bE.mass_kg, bM.mass_kg
+            theta_dot = dt_["theta_dot"]
+            a_rel = np.zeros(3)
+            for iT in (iM, dt_.get("sun")):
+                if iT is None:
+                    continue
+                bT = self.bodies[iT]
+                rT = bT.position_m - bE.position_m
+                vT = bT.velocity_m_s - bE.velocity_m_s
+                aT = -(bE.gm_m3_s2 + bT.gm_m3_s2) * rT / float(rT @ rT) ** 1.5
+                pref = 1.5 * ((mE + mM) / mE) * bT.gm_m3_s2 * R5 / (r2 * r2 * r1)
+                for j in range(3):
+                    tau_o, tau_r = dt_["tau_orbit_s"][j], dt_["tau_rot_s"][j]
+                    rs = rT - tau_o * vT + 0.5 * tau_o * tau_o * aT            # r_T(t - tau'_j)
+                    if tau_r != 0.0:                                           # R_z(-theta_dot tau_j) of the memo, read as the memo's text says: the bulge LEADS the tide-raiser by theta_dot tau_j,
+                        ang = theta_dot * tau_r                                # so the vector turns prograde (the matrix of eq. 13 is the passive convention; test_de_tide checks the sense)
+                        c, s_ = math.cos(ang), math.sin(ang)
+                        rs = rs * c + np.cross(n_hat, rs) * s_ + n_hat * float(n_hat @ rs) * (1.0 - c)
+                    rs2 = float(rs @ rs)
+                    rs5 = rs2 ** 2.5
+                    zs = float(rs @ n_hat)
+                    rhos_v = rs - zs * n_hat
+                    rhos = float(np.linalg.norm(rhos_v))
+                    k2 = dt_["k2"][j]
+                    if j == 0:
+                        term = (2.0 * zs * zs * (z_s * n_hat) + rhos * rhos * rho_v) \
+                            - 5.0 * ((z_s * zs) ** 2 + 0.5 * (rho_s * rhos) ** 2) * r / r2 + rs2 * r
+                    elif j == 1:
+                        pd = float(rho_v @ rhos_v)
+                        term = 2.0 * (pd * (zs * n_hat) + z_s * zs * rhos_v) - 10.0 * z_s * zs * pd * r / r2
+                    else:
+                        pd = float(rho_v @ rhos_v)
+                        term = (2.0 * pd * rhos_v - rhos * rhos * rho_v) - 5.0 * (pd * pd - 0.5 * (rho_s * rhos) ** 2) * r / r2
+                    a_rel += pref * k2 / rs5 * term
+            acc[iM] += a_rel * (mE / (mE + mM))
+            acc[iE] -= a_rel * (mM / (mE + mM))
 
         # ── Sectoral (C22) figure of a body, long axis from its rotation model ─────────────────────────
         # DERIVED: MacCullagh quadrupole of T = 2 C22 M R² (ŷŷᵀ − x̂x̂ᵀ) (figure_forces.py); the reaction on the body is included, so momentum is conserved.
