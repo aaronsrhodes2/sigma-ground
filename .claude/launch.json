@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "sigma_ground.radiance.web.serve"],
       "port": 8765
+    },
+    {
+      "name": "nbody-blankets-harness",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8771", "--directory", "C:/Users/aaron/AppData/Local/Temp/claude/D--Aaron-development-sigma-ground/996945ae-1e05-422e-ba15-a29fb569f8bc/scratchpad/harness"],
+      "port": 8771
     }
   ]
 }

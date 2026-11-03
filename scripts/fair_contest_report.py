@@ -1,14 +1,11 @@
-"""Report for the fair JPL contest (scripts/fair_jpl_contest.py): tables, a sign test per body, and a figure.
+"""The fair contest's report (v2, C26 M-B): per body and lead, ours against reality, JPL's prediction at the time against reality, the dynamics gap between the two, and the
+sign test of who was closer; plus the blanket arrays (issue year x target year) saved explicitly this time (the 2026-10-11 mesh kept only summaries).
 
-For every (vintage, start epoch, body, lead) the contest stored four heliocentric position distances in km:
-  eO   our propagation of the vintage's own initial state vs DE440,
-  eV   the vintage's own continuation of that state vs DE440,
-  dyn  our propagation vs the vintage's own continuation (disagreement of the two dynamics given identical initial conditions),
-  e0   the initial offset (recomputed here HELIOCENTRICALLY from the kernels; the worker stored it in the barycentric frame).
-Reading: if eO < eV in about half the runs and dyn << eV, the two dynamics are equivalent and the error is the initial state's (the data of the day);
-a clear majority eO < eV (sign-test p small) would mean our dynamics beat JPL's old ones on the same input; a clear majority eO > eV, the reverse.
+Reads the contest's jsonl (one run per line: {vintage, start, jd, bodies: {body: {lead: {eO, eV, dyn, e0[, eT]}}}, [predictor, truth]}). Writes <out>.md and <out>.json.
+The pre-registered M-B targets (ledger C26) are printed beside the numbers: dynamics gap at +5 yr at or below half of the 2026-10-12 contest's (Moon 3.40, Mars 2.11, Earth 0.90,
+Mercury 1.20 km), and Venus to Pluto indistinguishable from JPL-at-the-time (sign test p > 0.05).
 
-usage: python scripts/fair_contest_report.py JSONL --out DIR
+usage: python scripts/fair_contest_report.py RUNS.jsonl [--out fixtures/vintages/FAIR_CONTEST_v2] [--label "contest v2"]
 """
 from __future__ import annotations
 
@@ -17,102 +14,103 @@ import json
 import math
 import statistics
 import sys
-from collections import defaultdict
 from pathlib import Path
 
-import numpy as np
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-V_DIR = Path("D:/datasets/jpl/vintages")
-TRUTH = Path("D:/datasets/jpl/de440s.bsp")
-FILES = {"DE403": "de403s.bsp", "DE405": "de405.bsp", "DE410": "de410s.bsp", "DE413": "de413.bsp", "DE418": "de418.bsp", "DE421": "de421.bsp", "DE432": "de432s.bsp"}
-CHAINS = {"Mercury": ((0, 1), (1, 199)), "Venus": ((0, 2), (2, 299)), "Earth": ((0, 3), (3, 399)), "Moon": ((0, 3), (3, 301)), "Mars": ((0, 4),),
-          "Jupiter": ((0, 5),), "Saturn": ((0, 6),), "Uranus": ((0, 7),), "Neptune": ((0, 8),), "Pluto": ((0, 9),)}
-BODIES = list(CHAINS)
+_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_ROOT))
+sys.path.insert(0, str(_ROOT / "scripts"))
+BODIES = ["Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]
+BASELINE_GAP_5YR = {"Moon": 3.40, "Mars": 2.11, "Earth": 0.90, "Mercury": 1.20}          # the 2026-10-12 contest (FAIR_CONTEST.md), old model at 0.05 d
 
 
 def sign_test_p(wins: int, n: int) -> float:
-    """Two-sided exact binomial p-value for wins out of n at p = 0.5 (ties already excluded)."""
+    """Two-sided binomial sign test, p = 0.5."""
     if n == 0:
         return float("nan")
     k = min(wins, n - wins)
     tail = sum(math.comb(n, i) for i in range(0, k + 1)) / 2 ** n
-    return min(1.0, 2 * tail)
-
-
-def pos(k, name, jd):
-    p = 0.0
-    for c, t in CHAINS[name]:
-        p = p + k[c, t].compute(jd)
-    return np.asarray(p, dtype=float)
+    return min(1.0, 2.0 * tail)
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("jsonl", type=Path)
-    ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("runs", type=Path)
+    ap.add_argument("--out", type=Path, default=_ROOT / "sigma_ground/field/interface/fixtures/vintages/FAIR_CONTEST_v2")
+    ap.add_argument("--label", default="fair contest v2")
     a = ap.parse_args()
-    from jplephem.spk import SPK
-    rows = [json.loads(ln) for ln in a.jsonl.read_text().splitlines() if ln.strip()]
-    kt = SPK.open(str(TRUTH))
-    kv = {n: SPK.open(str(V_DIR / f)) for n, f in FILES.items()}
-    sun = lambda k, jd: np.asarray(k[0, 10].compute(jd), dtype=float)
-    cells = defaultdict(list)                                     # (body, lead) -> list of dict
-    by_vintage = defaultdict(list)
-    for r in rows:
-        k = kv[r["vintage"]]
-        for b in BODIES:
-            e0 = float(np.linalg.norm((pos(k, b, r["jd"]) - sun(k, r["jd"])) - (pos(kt, b, r["jd"]) - sun(kt, r["jd"]))))
-            for lead, x in r["bodies"][b].items():
-                d = dict(x, e0=e0, vintage=r["vintage"], start=r["start"])
-                cells[(b, int(lead))].append(d)
-                by_vintage[(r["vintage"], b, int(lead))].append(d)
-    summary = {}
-    md = ["# Fair JPL contest: same initial state, different dynamics", "",
-          f"{len(rows)} propagations (vintage x start epoch), 5 yr each, our headline-stack engine at 0.05 d against each JPL vintage's own continuation, "
-          "all measured against DE440 (heliocentric position, km). Medians over runs.", "",
-          "| body | lead | ours vs DE440 (eO) | vintage vs DE440 (eV) | ours vs vintage (dynamics gap) | initial offset (e0) | eO < eV | sign-test p | runs |", "|---|---|---|---|---|---|---|---|---|"]
-    for b in BODIES:
-        for lead in (1, 3, 5):
-            xs = cells.get((b, lead), [])
-            if not xs:
+    from vintage_deviance_mesh import VINTAGES
+    rel = {name: r.year + (r.timetuple().tm_yday - 1) / 365.25 for name, _, r in VINTAGES}
+    runs = [json.loads(ln) for ln in a.runs.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    truth = runs[0].get("truth", "DE440")
+    predictor = runs[0].get("predictor", "headline stack (2026-10-12 path)")
+    leads_all = sorted({int(round(float(k))) for r in runs for b in r["bodies"].values() for k in b})
+    table = {}
+    for n in BODIES:
+        table[n] = {}
+        for L in leads_all:
+            rows = []
+            for r in runs:
+                d = r["bodies"].get(n, {})
+                x = d.get(str(L)) or d.get(L)
+                if x:
+                    rows.append(x)
+            if not rows:
                 continue
-            wins = sum(1 for x in xs if x["eO"] < x["eV"])
-            ties = sum(1 for x in xs if x["eO"] == x["eV"])
-            p = sign_test_p(wins, len(xs) - ties)
-            med = lambda key: statistics.median(x[key] for x in xs)
-            summary[f"{b}|{lead}"] = {"eO": med("eO"), "eV": med("eV"), "dyn": med("dyn"), "e0": med("e0"), "wins": wins, "n": len(xs), "p": p}
-            md.append(f"| {b} | +{lead} yr | {med('eO'):.2f} | {med('eV'):.2f} | {med('dyn'):.2f} | {med('e0'):.1f} | {wins}/{len(xs)} | {p:.3f} | {len(xs)} |")
-    md += ["", "## By vintage (+5 yr, median km)", "", "| vintage | body | ours eO | vintage eV | dynamics gap | runs |", "|---|---|---|---|---|---|"]
-    for v in FILES:
-        for b in ("Mercury", "Earth", "Mars", "Jupiter", "Saturn", "Neptune"):
-            xs = by_vintage.get((v, b, 5), [])
-            if xs:
-                md.append(f"| {v} | {b} | {statistics.median(x['eO'] for x in xs):.2f} | {statistics.median(x['eV'] for x in xs):.2f} | {statistics.median(x['dyn'] for x in xs):.2f} | {len(xs)} |")
-    a.out.mkdir(parents=True, exist_ok=True)
-    (a.out / "FAIR_CONTEST.md").write_text("\n".join(md))
-    (a.out / "FAIR_CONTEST.json").write_text(json.dumps({"n_runs": len(rows), "summary": summary}, indent=1))
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(2, 5, figsize=(17, 7))
-    for ax, b in zip(axes.ravel(), BODIES):
-        xs = [x for lead in (1, 2, 3, 4, 5) for x in cells.get((b, lead), [])]
-        ev = np.array([x["eV"] for x in xs]) + 1e-3
-        eo = np.array([x["eO"] for x in xs]) + 1e-3
-        ax.scatter(ev, eo, s=6, alpha=0.5)
-        lo, hi = min(ev.min(), eo.min()), max(ev.max(), eo.max())
-        ax.plot([lo, hi], [lo, hi], "k--", lw=0.8)
-        ax.set_xscale("log")
-        ax.set_yscale("log")
-        ax.set_title(b, fontsize=10)
-        ax.set_xlabel("vintage's own continuation vs DE440 (km)")
-        ax.set_ylabel("ours from the same state vs DE440 (km)")
-    fig.suptitle("Fair contest: each dot = one body at one lead of one run; on the diagonal = our dynamics and JPL's old dynamics are equivalent", fontsize=11)
-    fig.tight_layout()
-    fig.savefig(a.out / "FAIR_CONTEST_scatter.png", dpi=105)
-    plt.close(fig)
-    print("\n".join(md[:60]))
+            wins = sum(1 for x in rows if x["eO"] < x["eV"])
+            cell = {"eO_med": statistics.median(x["eO"] for x in rows), "eV_med": statistics.median(x["eV"] for x in rows), "dyn_med": statistics.median(x["dyn"] for x in rows),
+                    "e0_med": statistics.median(x["e0"] for x in rows), "ours_wins": wins, "n": len(rows), "p_sign": sign_test_p(wins, len(rows))}
+            if any("eT" in x for x in rows):
+                cell["eT_med"] = statistics.median(x["eT"] for x in rows if "eT" in x)
+            table[n][str(L)] = cell
+    # the blankets: issue year (vintage) x target year, median over the runs whose lead lands there
+    vintages = sorted({r["vintage"] for r in runs if r["vintage"] in rel}, key=lambda v: rel[v])
+    cells: dict = {}
+    for r in runs:
+        if r["vintage"] not in rel:
+            continue
+        y0 = 2000 + round((r["jd"] - 2451545.0) / 365.25)
+        for n, d in r["bodies"].items():
+            for L, x in d.items():
+                c = cells.setdefault((n, r["vintage"], y0 + int(round(float(L)))), {"eO": [], "eV": [], "eT": []})
+                c["eO"].append(x["eO"]); c["eV"].append(x["eV"])
+                if "eT" in x:
+                    c["eT"].append(x["eT"])
+    targets = sorted({k[2] for k in cells})
+    blankets = {}
+    for n in BODIES:
+        if not any(k[0] == n for k in cells):
+            continue
+        g = lambda key: [[(statistics.median(cells[(n, v, t)][key]) if (n, v, t) in cells and cells[(n, v, t)][key] else None) for t in targets] for v in vintages]
+        blankets[n] = {"ours": g("eO"), "jpl": g("eV"), "band": g("eT")}
+    verdict = {}
+    for n, base in BASELINE_GAP_5YR.items():
+        c = table.get(n, {}).get("5")
+        if c:
+            verdict[n] = {"gap_5yr_km": c["dyn_med"], "baseline_km": base, "target_km": base / 2, "met": c["dyn_med"] <= base / 2}
+    parity = {n: {"p_sign_5yr": table[n]["5"]["p_sign"], "met": table[n]["5"]["p_sign"] > 0.05} for n in ("Venus", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto") if table.get(n, {}).get("5")}
+    doc = {"metadata": {"what": a.label, "runs": len(runs), "truth": truth, "predictor": predictor, "source": a.runs.name, "vintages": vintages, "issue_years": [rel[v] for v in vintages],
+                        "targets": targets, "generator": "scripts/fair_contest_report.py"},
+           "table": table, "verdict_M_B": {"gap_halved": verdict, "parity_outer": parity}, "blankets": blankets}
+    a.out.with_suffix(".json").write_text(json.dumps(doc, indent=1), encoding="utf-8")
+    lines = [f"# {a.label}: {len(runs)} propagations, predictor `{predictor}`, scored against {truth}", "",
+             "Each run starts from a JPL ephemeris's OWN state at a yearly date after its release and is compared with that ephemeris's own continuation (JPL's prediction at the time) and with "
+             f"{truth} (reality). Median km over runs. `eT` is DE440 against {truth}: the width of reality's own spread. `p` is the two-sided sign test of ours-closer-than-JPL.", "",
+             "| body | lead | ours vs reality | JPL-at-the-time vs reality | ours vs JPL (dynamics gap) | start offset | reality spread | ours closer | p | runs |", "|---|---|---|---|---|---|---|---|---|---|"]
+    for n in BODIES:
+        for L in ("1", "3", "5", "10", "20"):
+            c = table.get(n, {}).get(L)
+            if c:
+                lines.append(f"| {n} | +{L} yr | {c['eO_med']:.3f} | {c['eV_med']:.3f} | {c['dyn_med']:.3f} | {c['e0_med']:.2f} | {c.get('eT_med', float('nan')):.3f} | {c['ours_wins']}/{c['n']} | {c['p_sign']:.3f} | {c['n']} |")
+    lines += ["", "## The pre-registered M-B targets (ledger C26)", "", "| body | dynamics gap +5 yr | 2026-10-12 baseline | target (half) | met |", "|---|---|---|---|---|"]
+    for n, v in verdict.items():
+        lines.append(f"| {n} | {v['gap_5yr_km']:.3f} | {v['baseline_km']:.2f} | {v['target_km']:.2f} | {'YES' if v['met'] else 'no'} |")
+    lines += ["", "| body | sign test p at +5 yr | indistinguishable (p > 0.05) |", "|---|---|---|"]
+    for n, v in parity.items():
+        lines.append(f"| {n} | {v['p_sign_5yr']:.3f} | {'YES' if v['met'] else 'no'} |")
+    a.out.with_suffix(".md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("wrote", a.out.with_suffix(".md"))
+    for n, v in verdict.items():
+        print(f"  {n}: gap {v['gap_5yr_km']:.3f} km (target {v['target_km']:.2f}) {'MET' if v['met'] else 'not met'}")
     return 0
 
 

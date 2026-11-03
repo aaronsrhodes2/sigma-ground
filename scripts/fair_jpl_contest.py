@@ -93,7 +93,8 @@ def _run_one_predictor(args, vname, key, e_jd, dt_days, leads, kv, kt, predictor
     system, order = rm.build_system(kv, e_jd, predictor_name, dt_days=dt_days, horizon_days=horizon + 10.0, fixture_key=key)
     advance = rm.step_function(system)
     sun_i = order.index("Sun")
-    e0 = {n: float(np.linalg.norm(rm.kernel_state(kv, n, e_jd)[0] - rm.kernel_state(kt, n, e_jd)[0])) for n in order if n != "Sun"}
+    e0 = {n: float(np.linalg.norm((rm.kernel_state(kv, n, e_jd)[0] - rm.kernel_state(kv, "Sun", e_jd)[0]) - (rm.kernel_state(kt, n, e_jd)[0] - rm.kernel_state(kt, "Sun", e_jd)[0])))
+          for n in order if n != "Sun"}                           # heliocentric, like every other number in the report (the old path stored the barycentric offset)
     out = {n: {} for n in order if n != "Sun"}
     kend = min(kv[0, 3].end_jd, kt[0, 3].end_jd)
     k440 = SPK.open(str(START)) if START.is_file() and TRUTH != START else None
