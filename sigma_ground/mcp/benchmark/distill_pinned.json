@@ -529,6 +529,43 @@
     "units": "K",
     "oracle": "tool"
    }
+  },
+  {
+   "id": "distill-2026-11-02-027",
+   "day": "2026-11-02",
+   "reason": "new_combination",
+   "question": "A 80.8 kΩ heating element runs on 19 V. How many watts is that?",
+   "domain": "physics",
+   "signature": [
+    "electrical_power",
+    "ohms_law_current"
+   ],
+   "expected": {
+    "tool": "electrical_power",
+    "args": {
+     "voltage_v": 19.0,
+     "current_a": 0.00023514851485148514
+    },
+    "plan": [
+     {
+      "tool": "ohms_law_current",
+      "args": {
+       "voltage_v": 19.0,
+       "resistance_ohm": 80800.0
+      }
+     },
+     {
+      "tool": "electrical_power",
+      "args": {
+       "voltage_v": 19.0,
+       "current_a": "$1"
+      }
+     }
+    ],
+    "result": 0.0044678217821782175,
+    "units": "W",
+    "oracle": "tool"
+   }
   }
  ],
  "open_misses": [
