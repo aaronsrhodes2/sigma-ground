@@ -81,7 +81,7 @@ def build_system(kernel, jd: float, predictor_name: str = "restated_zon", dt_day
     return system, list(ORDER)
 
 
-def step_function(system, integrator: str | None = None):
+def _step_function(system, integrator: str | None = None):
     """The fixed-step advance of `system` for an integrator name: fr4 = Forest-Ruth (the stored predictors), y6 / y8 = Yoshida's 6th / 8th-order compositions."""
     name = integrator or getattr(system, "integrator", "fr4")
     if name == "fr4":
@@ -95,7 +95,7 @@ def step_function(system, integrator: str | None = None):
 def propagate_dense(system, jd_start: float, jd_end: float, dt_days: float, every: int = 1, integrator: str | None = None) -> dict:
     """Integrate with a fixed step from jd_start to jd_end and store the state every `every` steps. Returns {jd, pos_km (T,N,3), vel_km_s (T,N,3)}; row 0 is the start.
     The integrator is the system's (set by build_system from the predictor) unless named here."""
-    advance = step_function(system, integrator)
+    advance = _step_function(system, integrator)
     n_steps = max(1, int(round((jd_end - jd_start) / dt_days)))
     dts = (jd_end - jd_start) * DAY / n_steps
     jd = np.empty(n_steps // every + 2)

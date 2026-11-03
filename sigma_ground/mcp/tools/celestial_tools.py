@@ -109,6 +109,21 @@ def layer_effect(body_name: str) -> ToolResult:
     return ToolResult(value=d, units="ratio of errors (without the layer over with every layer), km", source=src, provenance_tag="DERIVED", notes=d["summary"], inputs=inputs)
 
 
+def prediction_contest(body_name: str, lead_years: int = 5) -> ToolResult:
+    """Our prediction against JPL's prediction at the time, both scored against reality (JPL's latest fit, DE442), for a body at a lead of 1 to 20 years: the fair contest (C26 M-B).
+
+    Each run starts from a past JPL ephemeris's OWN state at a date after it was issued, so the two differ only in dynamics. Medians over the runs, heliocentric km, with the sign test of which was closer and reality's own spread (DE440 against DE442).
+    """
+    from sigma_ground.field.interface import contest as C
+    inputs = {"body_name": body_name, "lead_years": lead_years}
+    src = "sigma-ground fair contest (fixtures/vintages/FAIR_CONTEST_v2.json): our integrator and each past JPL ephemeris from the same start, both against DE442; scripts/fair_jpl_contest.py, scripts/fair_contest_report.py"
+    try:
+        d = C.prediction_contest(body_name, lead_years)
+    except C.ContestError as e:
+        return ToolResult(value=None, source=src, notes=str(e), inputs=inputs)
+    return ToolResult(value=d, units="km (heliocentric position error against DE442)", source=src, provenance_tag="DERIVED", notes=d["summary"], inputs=inputs)
+
+
 def body_skill(body_name: str) -> ToolResult:
     """How well can this model predict a body, and can it at all? The class (predictable, loses orbital phase within a year, measurements disagree, not scored), the measured error against JPL DE440 at +1, +3, +5, +10 and +20 years, and the converged error for fast moons.
 

@@ -1055,6 +1055,11 @@ def main() -> int:
         return t_cel.layer_effect(body_name).to_dict()
 
     @server.tool()
+    def prediction_contest(body_name: str, lead_years: int = 5) -> dict[str, Any]:
+        """Our N-body prediction against JPL's prediction at the time, both against reality (DE442), e.g. prediction_contest('mars', 5): did we or JPL's old ephemeris land closer, by how much, and how well is reality itself known there."""
+        return t_cel.prediction_contest(body_name, lead_years).to_dict()
+
+    @server.tool()
     def body_skill(body_name: str) -> dict[str, Any]:
         """How well this model predicts a body against JPL DE440, and whether it can at all (predictable, loses its orbital phase, measurements disagree), e.g. body_skill('io'), body_skill('mercury')."""
         return t_cel.body_skill(body_name).to_dict()

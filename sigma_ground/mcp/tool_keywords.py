@@ -804,6 +804,7 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
     "extreme_in_group": ["element with the highest first ionization energy in a group", "heaviest alkali metal", "lightest halogen", "lowest density noble gas"],
     "layer_effect": ["how much does relativity matter for Mercury", "which physics layer matters most for a planet's position", "what happens to the orbit if you remove the asteroids", "size of each force in the N-body model"],
     "body_skill": ["how well can sigma-ground predict Io", "can you predict the position of Pan", "accuracy of the N-body forecast for Mercury", "which moons can not be predicted"],
+    "prediction_contest": ["did JPL get Mars right", "our prediction versus JPL's prediction", "compare the N-body model with JPL's old ephemeris", "who predicted the Moon better, us or JPL", "how far was JPL's forecast from reality"],
     "chandrasekhar_limit": ["Chandrasekhar limit", "maximum mass of a white dwarf", "mass limit for electron degeneracy", "1.4 solar masses limit"],
     "white_dwarf": ["radius of a white dwarf", "white dwarf mass and radius", "how big is a white dwarf", "degenerate electron star structure"],
     "small_body": [
@@ -1093,6 +1094,7 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "extreme_in_group": ["which alkali metal has the highest ionization energy", "what is the heaviest noble gas"],
     "layer_effect": ["how much does general relativity change mercury's orbit in the model", "which effects matter most for jupiter's position"],
     "body_skill": ["how accurately can you predict io", "can you predict where pan is", "how good is the forecast for the moon"],
+    "prediction_contest": ["did jpl predict mars correctly five years ahead", "is our prediction of the moon better than jpl's old one", "compare us with jpl for jupiter"],
     "chandrasekhar_limit": ["what is the chandrasekhar limit", "what is the maximum mass of a white dwarf"],
     "white_dwarf": ["how big is a white dwarf with a central density of 1e9", "what is the radius of a white dwarf"],
     "small_body": ["how long is a year on halley's comet", "when does the comet come back", "how far does ceres get from the sun", "orbit of eris",
