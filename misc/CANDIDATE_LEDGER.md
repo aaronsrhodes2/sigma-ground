@@ -534,3 +534,19 @@ One year of the reduced model from 2015-01-01, `restated_zon`, against DE442 (`D
 | Yoshida-8 0.2 d | 109,560 | 0.62 | 0.0241 | 0.0615 |
 * **The claim ("Yoshida-8 at 0.2 d within 1 % of Forest-Ruth at 0.0125 d at a third of the evaluations or fewer") fails on cost:** 0.62 of the evaluations, not 0.33. The reason was found on the way: with the relativistic layer on, merged kicks break the order (test_yoshida_order), so every stage keeps both implicit kicks and a 15-stage step costs about 30 force evaluations, not 16. Accuracy-wise the three coarse compositions and the fine Forest-Ruth agree on the Moon to 5 % and on Mercury to 3 % against DE442 (the exact same-answer distance is the vs-control number, lost to the bug; rerun queued).
 * **What stands:** Yoshida-6 at 0.1 d or Yoshida-8 at 0.2 d gives the converged answer for about 60 % of the force evaluations of the fine Forest-Ruth step. That is the low-computation setting to carry forward (the contest, the forecast rebuild) once the vs-control rerun confirms the same-answer distance; a 3-4x saving needs a different idea (a Wisdom-Holman split or a Gauss-Radau scheme), recorded as open.
+
+### C26 M-A baseline against DE442 (2026-11-02, 21:08): `restated_zon`, four starts, 0.0125 d, finished
+Median heliocentric error, km, over the starts 2000/2005/2010/2015 (leads to +10 yr where the targets stay at or before 2020.99); the targets of M-A, half of each inner value, follow:
+| body | +1 yr | +5 yr | +10 yr | M-A target (+5 yr) |
+|---|---|---|---|---|
+| Mercury | 0.0192 | 0.0896 | 0.1639 | 0.045 |
+| Venus | 0.0199 | 0.0753 | 0.1483 | 0.038 |
+| Earth | 0.0277 | 0.1128 | 0.2075 | 0.056 |
+| Moon | 0.0713 | 0.2448 | 0.4433 | 0.122 |
+| Mars | 0.0281 | 0.1188 | 0.2783 | 0.059 |
+| Jupiter | 6.64 | 12.21 | 13.93 | (inside reality's spread) |
+| Saturn | 0.0905 | 0.1309 | 0.3526 | |
+| Uranus | 485.0 | 520.5 | 542.7 | (inside reality's spread) |
+| Neptune | 120.1 | 156.1 | 180.6 | (inside reality's spread) |
+| Pluto | 0.79 | 0.73 | 0.65 | |
+Against DE440 the same control read Mercury 0.085, Venus 0.069, Earth 0.103, Moon 0.247, Mars 0.108 at +5 yr: the inner system moves by 4-10 % when reality is DE442 instead of DE440 (DE442 itself differs from DE440 by 0.01-0.08 km there), the Moon not at all. Jupiter, Uranus and Neptune now read 12, 520 and 156 km: that is DE440 (our start state) against DE442, i.e. reality's own spread, not our dynamics, exactly as the kernel comparison predicted; for those bodies the contest's eT column is the floor and no dynamics claim is made. `D:/datasets/sigma_runs/base_de442/`.
