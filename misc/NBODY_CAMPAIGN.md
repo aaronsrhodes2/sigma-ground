@@ -71,4 +71,4 @@ python -X utf8 scripts/mpc_live_report.py                            # misc/MPC_
 * Nereid, Helene, Phoebe, Phobos/Deimos, the Uranus 5 mm/s offset: unchanged from NBODY_HANDOFF.md §7.
 * Mentat defects met in this campaign (fix the tool, not the question): `ask` misroutes compound tide questions; `evaluate_quantity` returns kg^2 for kg/kg, refuses nested powers, has
   no `sin`, and parses `a / b c` as a/b*c.
-* Our own orbit fit to observations (the real "beat JPL" step): not started; needs the MPC/raw-sky path of C24 generalised.
+* Our own orbit fit to observations (the real "beat JPL" step): built and measured on Eros (C28, `scripts/orbit_fit.py`, `misc/ORBIT_FIT_EROS.md`): from 2015-2019 optical data alone, post-fit RMS 0.369 arcsec, the fitted state 33 km / 2.4 mm/s from JPL's, and the forward prediction matches JPL's for about four years, 1.6 times worse by year six. Next levers: per-station weights, a longer arc, radar, Yarkovsky; Ceres not yet fitted.
