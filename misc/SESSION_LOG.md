@@ -4281,3 +4281,31 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
 ### Next
 - The portal page that draws `scoreboard_portal.json` (SkippyTel, not touched); Ceres fit; per-station weights (unit-weight variance 0.27 says 0.5" is twice too loose);
   Horizons has no site C40 (ask JPL or map the station by coordinates, a decision for the Captain); watch the daily task's first unattended run on 2026-11-03 04:30 (`misc/mpc_live_job.log`).
+
+
+## 2026-11-02 (night) — body_position live: the vectorised force routine, the integration on demand, the receipt (C29)
+
+**Time:** 2026-11-02 20:20 to 2026-11-03 05:30 UTC. **Status:** complete, committed on master, not pushed; the Mentat container not redeployed.
+
+### Changes
+- `sigma_ground/field/interface/nbody.py` — `force_backend` ("vector" default, "loop" = the old per-pair loops, env `SIGMA_NBODY_FORCE_BACKEND`); `_accelerations_vector` (Newton, EIH, 1PN, 2PN, J2/J3/J4 with reactions, the static tide, all pairs at once); the shared tail `_add_time_and_source_layers`; `CelestialBody.moved()` for the integrators' drifts and kicks.
+- `figure_forces.py` (C22 figure vectorised), `lunar_figure.py` (the prime-meridian sum and the cross products without numpy overhead).
+- `where_when.py` — rewritten: known = DE442 up to 2024-01-01; after it `live_states` integrates from the edge (SERVED = restated_zon, y6, 0.1 d) under `LIVE_BUDGET_S`, with a declared per-process memo; `receipt`, `layers_applied`, `machine`, a progress callback; the sealed table only through `_forecast()` for audits.
+- `mcp/tools/astronomy.py`, `mcp/server.py` (progress through the FastMCP `Context`, `budget_s`), `mcp/manifest.py` (receipt fields), `scripts/make_forecast_table.py` docstring (a sealed record, not the served answer).
+- Tests: `test_nbody_vector.py` (new, 11), `tests/test_where_when.py` (live, memo, budget, receipt, record), `tests/test_reduced_model.py` (bound 1 mm -> 5 mm, measured), `mcp/test_coverage_ledger.py`, `mcp/test_param_names.py`, `misc/contract_budget.json` (299 / 2, with the note on `lead_years`).
+- Ledger C29; scene 27; memory `feedback_live_calculation`.
+
+### Why
+The Captain's rule: a position past the edge of reality is our calculation computed then; stored data only for known fact. Then: the time it takes is the exhibit, so the answer shows its work (receipt, layers with sources and measured sizes, progress).
+
+### Verification
+- Vector = loop to 6e-16 relative per evaluation on six predictors; 171 N-body tests pass on each backend; 208 tests in the where_when / MCP / contract round.
+- Speed under 97-100 % CPU load from other sessions' runs: one year of the reduced model 98-104 s (Yoshida-6 0.1 d), was about 10 min; Forest-Ruth 0.0125 d 180 s, was 15-25 min; 30 days 8.5x.
+- Yoshida-6 0.1 d vs Forest-Ruth 0.0125 d after a year: at most 1.3 m (Mercury), Mars 3 cm. Live vs the sealed table from the same start: Mars 16 cm at +5 yr; Moon 0.35 km and Mercury 0.075 km, the table's step error (C19).
+- First real-edge answers: Mars now 282 s, 0.016 km from DE442's extrapolation; Moon 2027-01-01 22 s from the memo, 0.208 km.
+
+### Next
+- Re-stamp the error table and the sealed manifest (`scripts/stamp_model_fingerprint.py`): the fingerprint moved with the speed edits; the records' owner session.
+- Idle-CPU timing; a compiled kernel (numba on the PC) or a Wisdom-Holman split for "well under a minute"; a warm memo at server start if the Captain wants the first question fast.
+- Describe `prediction_contest`'s `lead_years` (c0c9366) and lower the contract ratchets back.
+- Deploy: commit+push is the Mentat deploy (not pushed tonight by instruction).

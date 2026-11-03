@@ -116,4 +116,5 @@ def test_the_vocabulary_shrank(server):
     # 297 since 2026-10-31: the sloshing and single-slit tools add TWO genuinely new concepts, `depth_m` (the depth of liquid in a tank; `height_m` is a height, not a depth) and
     # `screen_position_m` (where on the screen, from the centre line; `screen_distance_m` is how far the screen is). Their other names (length_m, order, temperature_k, wavelength_m,
     # slit_width_m, screen_distance_m) are existing ones.
-    assert len(names) <= 297
+    # 299 since 2026-11-02: body_position adds `budget_s` (a time budget for a live calculation, a new concept) and prediction_contest (commit c0c9366) adds `lead_years` (a lead, a new concept).
+    assert len(names) <= 299

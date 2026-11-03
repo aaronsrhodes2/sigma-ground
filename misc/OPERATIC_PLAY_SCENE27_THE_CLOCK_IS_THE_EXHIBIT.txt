@@ -1,0 +1,59 @@
+OPERATIC PLAY, SCENE 27: THE CLOCK IS THE EXHIBIT
+(sigma-ground, the night of 2026-11-02 into 2026-11-03)
+
+Status: RESOLVED. Related: the session log entry of the same night (live body_position, C29).
+
+## The Problem
+
+Mentat's body_position had two faces. For a date in the past it read JPL's kernel, which is right: a kernel is a measured fact. For a date in the
+future it read a table we had sealed on 2026-10-27, thirty years of our own integration stored on the data volume, and interpolated. The table was
+honest about what it was, carried a fingerprint of the physics that built it and refused to serve if a byte had changed, but it was still a copy of
+an old calculation. The Captain's rule that afternoon ended the second face: when sigma-ground is asked where a body is, the answer is our own
+calculation computed then. Stored data is allowed only for what is known fact, the JPL kernels. The sealed table stays as a record to be judged later.
+
+The obstacle was time. A year of the reduced model, eleven bodies and 386 prescribed sources with relativity, zonals, tides and the Moon's figure, cost
+fifteen to twenty-five minutes at the fine Forest-Ruth step, and the question "where is Mars now" is already 2.8 years past the edge of DE442's data.
+A chat tool that hangs for an hour is not a tool.
+
+## The Investigation
+
+The force routine was the Python it had always been: double loops over the bodies for Newton, the Einstein-Infeld-Hoffmann cross terms, the three
+zonals with their reactions and the static tide. Measured under tonight's load (the contest and the lever arms had every core busy), one evaluation
+cost 6.5 ms, of which the EIH loops were 4.7 ms and the already vectorised prescribed sources 0.13 ms. Yoshida-6 at 0.1 d needs 28 evaluations a step
+(fourteen implicit kicks of two evaluations each, since the relativistic layer forbids merging them: C26 Phase 3), so a year is 102,270 evaluations.
+
+The vectorised routine computes every pair at once with numpy, the same formulas term for term, and masks the pairs the loop skips. Agreement with the
+loops was 6e-16 relative on the first try, on all four served predictors, and stayed there through the rewrites that followed: the loop's Python
+overhead was gone, but so much of what remained was numpy call overhead on eleven bodies that each saving had to be found by profiling. The
+Moon's rotation model called np.cross twice per evaluation at 90 us each; the C22 figure looped over bodies in Python; the integrators rebuilt every
+body as a frozen dataclass at every drift and kick, 35 us a body, a third of a force evaluation. Each of those was replaced by the same arithmetic in
+cheaper form, and the evaluation came down to about 1 ms, the year to about 100 s under full load, the loops' 10 minutes. On an idle CPU it should be
+near a minute; that was not measurable tonight and is recorded as not measured.
+
+One real mistake on the way: the first live memo ran Forest-Ruth, not Yoshida-6, because the helper that picks the integrator falls back to the
+predictor's own, and the served predictor's own is fr4. The receipt's evaluation count exposed it (six per step instead of twenty-eight).
+
+## The Solution
+
+body_position now reads the truth kernel (DE442) up to the edge of its fit data, taken as 2024-01-01, and for any later date integrates from the
+kernel's state at that edge with the served predictor, Yoshida-6 at 0.1 d, under a time budget. If the budget runs out it says how far it got, what the
+rest would cost, and that asking again continues; the one thing kept is a memo in the process, keyed by the physics fingerprint and the start, and
+the answer says when it was used. Then the Captain added the part that turned a speed job into an exhibit: the time the calculation takes is to be
+shown, not hidden. "You get to see it took ten minutes, and not a supercomputer's timeshare." So every live answer carries a receipt: the machine,
+the wall time, the integrator and step, the force evaluations, the bodies and sources, the start and the lead, the memo, and the list of physics
+layers with their sources and, where the C23b ablations measured it, the size of each layer for that body. Progress is reported to the client while
+it runs. The sealed table was compared with the live path from the table's own start: Mars agrees to 16 cm at +5 yr, the Moon differs by 0.35 km in
+the direction C19 predicted (the table's 0.025 d step carried a quarter of its Moon error as integration error; the live answer is nearer both DE440
+and DE442).
+
+## Key Learning
+
+A served table is a cache of an old calculation; the live code is the thing to serve, and when it is slow the slowness is part of the answer, shown
+with the work. And: a count of force evaluations in the receipt is a better test of which integrator ran than any label.
+
+## References
+
+- sigma_ground/field/interface/nbody.py (force_backend, _accelerations_vector), figure_forces.py, lunar_figure.py, where_when.py (live_states, receipt, layers_applied)
+- sigma_ground/mcp/tools/astronomy.py, server.py (progress through the MCP context), manifest.py
+- tests: sigma_ground/field/interface/test_nbody_vector.py, tests/test_where_when.py
+- misc/CANDIDATE_LEDGER.md C29

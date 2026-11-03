@@ -21,6 +21,8 @@ PHYSICS_GAP: the torque of the Earth on the Moon's figure is not integrated (the
 """
 from __future__ import annotations
 
+import math
+
 import numpy as np
 
 from sigma_ground.field.interface.figure_forces import axisymmetric_T, c22_T, quadrupole_acceleration, sectoral_extra_accelerations  # noqa: F401  (re-exported)
@@ -38,14 +40,14 @@ _E_ARGS = [(125.045, -0.0529921), (250.089, -0.1059842), (260.008, 13.0120009), 
            (276.617, 0.3287146), (34.226, 1.7484877), (15.134, -0.1589763), (119.743, 0.0036096), (239.961, 0.1643573), (25.053, 12.9590088)]
 _W_TERMS = [3.5610, 0.1208, -0.0642, 0.0158, 0.0252, -0.0066, -0.0047, -0.0046, 0.0028, 0.0052, 0.0040, 0.0019, -0.0044]
 _JD_J2000 = 2451545.0
+_W_AMP = np.array(_W_TERMS)
+_E0, _E1 = (np.array(v) for v in zip(*_E_ARGS))
 
 
 def moon_prime_meridian_deg(jd_tdb: float) -> float:
     d = jd_tdb - _JD_J2000
     w = 38.3213 + 13.17635815 * d - 1.4e-12 * d * d
-    for amp, (e0, e1) in zip(_W_TERMS, _E_ARGS):
-        w += amp * np.sin(np.radians(e0 + e1 * d))
-    return w
+    return float(w + np.dot(_W_AMP, np.sin(np.radians(_E0 + _E1 * d))))        # the 13 terms in one array (the same sum, 2026-11-02)
 
 
 def moon_axes(jd_tdb: float) -> tuple:
@@ -53,11 +55,17 @@ def moon_axes(jd_tdb: float) -> tuple:
     from sigma_ground.field.interface.rolling_shootout import _iau_pole_radec
     ra, dec = (np.radians(v) for v in _iau_pole_radec("Moon", jd_tdb))
     w = np.radians(moon_prime_meridian_deg(jd_tdb))
-    z = np.array([np.cos(dec) * np.cos(ra), np.cos(dec) * np.sin(ra), np.sin(dec)])
-    node = np.array([-np.sin(ra), np.cos(ra), 0.0])                     # the ascending node of the Moon's equator on the ICRF equator
-    x = np.cos(w) * node + np.sin(w) * np.cross(z, node)
-    y = np.cross(z, x)
+    cd, sd, cr, sr = math.cos(dec), math.sin(dec), math.cos(ra), math.sin(ra)
+    z = np.array([cd * cr, cd * sr, sd])
+    node = np.array([-sr, cr, 0.0])                                       # the ascending node of the Moon's equator on the ICRF equator
+    x = math.cos(w) * node + math.sin(w) * _cross3(z, node)
+    y = _cross3(z, x)
     return x, y, z
+
+
+def _cross3(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """a x b for 3-vectors, the same products as np.cross without its 90 us of axis handling (2026-11-02; moon_axes runs once per force evaluation)."""
+    return np.array([a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]])
 
 
 def c22_extra_accelerations(bodies, moon_index: int, earth_index: int, c22: float = C22_MOON, ref_radius_m: float = R_REF_MOON_M, jd_tdb: float | None = None) -> np.ndarray:

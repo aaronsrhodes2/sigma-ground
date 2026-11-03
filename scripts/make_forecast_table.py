@@ -1,6 +1,8 @@
-"""Build the dense forecast table that Mentat's body_position serves for future dates: our own N-body integration of the Sun, Mercury, Venus, Earth, Moon, Mars and the giants and Pluto (as system barycentres)
-from DE440's state at the start epoch, with the layers of the `restated_zon` predictor (asteroids, ring, Kuiper-belt objects, the Moon's C22, measured Jupiter and Saturn zonals), stored every step so a query is a cubic
-Hermite interpolation of positions and velocities.
+"""Build a SEALED forecast table: our own N-body integration of the Sun, Mercury, Venus, Earth, Moon, Mars and the giants and Pluto (as system barycentres) from DE440's state at the start epoch, with the layers of the
+`restated_zon` predictor (asteroids, ring, Kuiper-belt objects, the Moon's C22, measured Jupiter and Saturn zonals), stored every step.
+
+What the table is for (the Captain, 2026-11-02): a prediction made and sealed on a date, to be JUDGED later against what JPL and the sky show. It is a record, not the served answer: Mentat's body_position no longer reads it
+(field/interface/where_when.py integrates live from the truth kernel's edge when asked). The table of 2026-10-27 stays in fixtures/forecast_manifest.json and on the data volume as that record; never delete it.
 
 This is a PREDICTION made on the date it is run, from JPL's own start state: it is not a measurement and not a claim to beat JPL. The file is sealed: its sha256, the creation time, the git commit, the predictor and the start
 epoch go into fixtures/forecast_manifest.json (small, kept in git), and the table itself goes to the data volume (D:/datasets/forecast/, mirrored to skippy-core by SkippyTel/tools/sync_datasets.sh). A new run writes a NEW dated file;

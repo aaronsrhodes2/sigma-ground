@@ -63,8 +63,11 @@ class TestReducedModel(unittest.TestCase):
     def test_one_year_without_layers_equals_the_script(self):                                  # BUG if the factoring changed a number
         ours = _errors_vs_kernel(self.kernel, self.jd0, self.jd0 + 365.25, "de440_stack", 0.25)
         ref = self.fc.run_one(("x", None, "j2010", self.jd0, 0.25, [1], None, None, None, None, False, None, None, None, None))["bodies"]
+        # The two codes build the same system from the same kernel but not bit for bit (a rounding in the masses or the state), and a year of integration amplifies that to the
+        # millimetre: measured 2026-11-02 for Mars, 0.99e-6 km with the per-pair loops and 1.86e-6 km with the vectorised force routine (the physics is the same, test_nbody_vector
+        # holds the two routines to 1e-12 relative per evaluation). The bound is 5 mm, a few times the measured noise and 10,000x below the smallest error the shoot-out scores.
         for n, e in ours.items():
-            self.assertAlmostEqual(e, ref[n][1]["eO"], delta=1e-6 + 1e-9 * e, msg=n)
+            self.assertAlmostEqual(e, ref[n][1]["eO"], delta=5e-6 + 1e-9 * e, msg=n)
 
     def test_one_year_with_the_restated_layers_equals_the_script(self):                        # BUG: asteroids, ring, KBOs and the Moon's C22 in the same places
         from sigma_ground.field.interface import rolling_shootout as rs

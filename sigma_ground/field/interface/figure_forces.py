@@ -42,15 +42,14 @@ def c22_T(mass_kg: float, radius_m: float, c22: float, x_hat: np.ndarray, y_hat:
 
 def sectoral_extra_accelerations(positions_m: np.ndarray, masses_kg: np.ndarray, body_index: int, T_inertial: np.ndarray) -> np.ndarray:
     """Accelerations (n, 3) that the quadrupole T of body ``body_index`` adds to every body, including the reaction on that body (sum m_i a_i = 0 to round-off)."""
-    n = len(masses_kg)
-    extra = np.zeros((n, 3))
-    reaction = np.zeros(3)
-    centre = positions_m[body_index]
-    for i in range(n):
-        if i == body_index:
-            continue
-        a_i = quadrupole_acceleration(positions_m[i] - centre, T_inertial)
-        extra[i] = a_i
-        reaction -= masses_kg[i] * a_i
-    extra[body_index] = reaction / masses_kg[body_index]
+    # quadrupole_acceleration for every body at once (same formula, 2026-11-02: the per-body loop cost 0.3 ms of a 1.5 ms force evaluation)
+    rv = positions_m - positions_m[body_index]                       # (n, 3), zero for the body itself
+    r2 = np.einsum("ij,ij->i", rv, rv)
+    r2 = np.where(r2 > 0.0, r2, 1.0)                                  # the body's own row is masked below
+    r = np.sqrt(r2)
+    Tr = rv @ T_inertial.T                                            # (T r)_i, T symmetric
+    q = np.einsum("ij,ij->i", rv, Tr)
+    extra = 3.0 * G * ((2.5 * q / (r2 * r2 * r2 * r))[:, None] * rv - Tr / (r2 * r2 * r)[:, None])
+    extra[body_index] = 0.0
+    extra[body_index] = -(masses_kg[:, None] * extra).sum(axis=0) / masses_kg[body_index]
     return extra

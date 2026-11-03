@@ -501,8 +501,12 @@ _PRIMARY_TOOLS = [
      "summary": "GM (exact), mass (GM/G, with G's uncertainty), radii, gravity field, orbit and physical data of a planet, moon, asteroid or Kuiper-belt object, each with its source.",
      "inputs": {"body_name": "str (earth, io, ceres, '4 vesta', eris ...)"}, "returns": "dict of values, sources and notes"},
     {"name": "body_position", "tier": "PRIMARY", "domain": "astronomy",
-     "summary": "Where a planet, the Sun or the Moon is at a time: a known value from JPL DE440 for dates up to today, a labelled prediction (our N-body integration, with JPL's value, the difference and the measured error at that lead) after.",
-     "inputs": {"body_name": "str", "when": "str (ISO date/time UTC, 'JD 2462000.5', or 'now')", "central_body": "str (sun | ssb | earth), default sun"}, "returns": "dict with position_km, velocity_km_s, kind, basis"},
+     "summary": "Where a planet, the Sun or the Moon is at a time: a known value from JPL DE442 up to the edge of its data (2024-01-01), after it our own N-body integration from the kernel's state at the edge computed when asked (with JPL's value, the difference and the measured error at that lead), within a time budget.",
+     "inputs": {"body_name": "str", "when": "str (ISO date/time UTC, 'JD 2462000.5', or 'now')", "central_body": "str (sun | ssb | earth), default sun", "budget_s": "float seconds, default 60"},
+     "returns": ("dict with position_km, velocity_km_s, kind, status, basis, jpl_same_instant, cross_check, expected_distance_from_de440 and, for a date past the edge, a receipt: machine (host, processor, cores, load), "
+                 "wall_seconds_this_call, wall_seconds_whole_integration, integrator (name, scheme, step_days, force_backend), steps_this_call, force_evaluations_this_call, force_evaluations_whole_integration, "
+                 "bodies_integrated, prescribed_sources, start (kernel, jd_tdb, date, what_it_is), lead_years, predictor, model_fingerprint, memo (used, started_utc, rows_stored), layers (each: layer, applied, source, measured_size)"),
+     "progress": "reported through the MCP context while the integration runs (years integrated, force evaluations, seconds)"},
     {"name": "small_body", "tier": "PRIMARY", "domain": "astronomy",
      "summary": "Orbit (elements, with perihelion, aphelion and period calculated from them), physical data and, for comets, the Marsden non-gravitational terms of an asteroid, Kuiper-belt object or comet.",
      "inputs": {"body_name": "str (Ceres, '4 Vesta', Eris, 1P, Halley, 67P ...)"}, "returns": "dict of orbit, physical data, sources and notes"},

@@ -1,7 +1,7 @@
-"""body_position: known values from DE440, labelled predictions, honest refusals.
+"""body_position: known values from the truth kernel (DE442), live predictions computed when asked, honest refusals and budgets.
 
-Ground truth that is not the code under test: the DE440 fixture's own states (same kernel, read independently), the leap-second arithmetic (TT-UTC = 64.184 s at 2000-01-01: 32 leap seconds + 32.184 s),
-and the physical range of the Moon's distance (356,400 to 406,700 km).
+Ground truth that is not the code under test: the kernel's own states read independently with jplephem, the leap-second arithmetic (TT-UTC = 64.184 s at 2000-01-01: 32 leap seconds + 32.184 s),
+and the physical range of the Moon's distance (356,400 to 406,700 km). The live tests integrate a day or two past the edge (seconds), never a year.
 """
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -21,6 +22,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 FIX = ROOT / "sigma_ground/field/interface/fixtures"
 KERNEL = Path("D:/datasets/jpl/de440s.bsp")
+TRUTH = Path("D:/datasets/jpl/de442/de442.bsp")
+NOW = datetime.datetime(2026, 11, 2, tzinfo=datetime.timezone.utc)
 
 
 class TestTime(unittest.TestCase):
@@ -98,22 +101,26 @@ class TestKnown(unittest.TestCase):
         from sigma_ground.field.interface import where_when
         self.ww = where_when
 
-    def test_earth_at_a_fixture_epoch_equals_the_fixture(self):                                  # BUG: same kernel, independent read of the state
+    def test_earth_at_a_fixture_epoch_equals_the_truth_kernel_read_independently(self):          # BUG: same kernel, independent read of the state
+        from jplephem.spk import SPK
         fx = json.loads((FIX / "de440_state_vectors_v2physics.json").read_text())["snapshots"]["j2010"]
         jd = fx["epoch"]["jd_tdb"]
-        by = {b["name"]: b["state_vector"] for b in fx["bodies"]}
-        want = np.array([by["Earth"][c] - by["Sun"][c] for c in ("x_km", "y_km", "z_km")])
-        r = self.ww.position_at("Earth", f"JD {jd}", "sun", now=datetime.datetime(2026, 10, 26, tzinfo=datetime.timezone.utc))
+        k = SPK.open(str(TRUTH if TRUTH.exists() else KERNEL))
+        want = (k[0, 3].compute(jd) + k[3, 399].compute(jd)) - k[0, 10].compute(jd)
+        r = self.ww.position_at("Earth", f"JD {jd}", "sun", now=NOW)
         self.assertEqual(r["kind"], "known")
-        self.assertLess(np.linalg.norm(np.array(r["position_km"]) - want), 1e-3)
+        self.assertLess(np.linalg.norm(np.array(r["position_km"]) - want), 1e-6)
         self.assertFalse(r["beyond_fit_data"])
+        self.assertIn(r["reality_edge"]["kernel"], ("DE442", "DE440 (fallback: DE442 not installed)"))
         self.assertAlmostEqual(r["distance_au"], 0.983, delta=0.01)                              # January perihelion
 
-    def test_a_date_after_the_fit_data_is_known_but_flagged(self):                               # BUG if 2023 were presented as an observation
-        r = self.ww.position_at("Mars", "2023-03-01", now=datetime.datetime(2026, 10, 26, tzinfo=datetime.timezone.utc))
+    def test_a_date_inside_the_truth_kernels_data_is_known_and_a_date_after_its_edge_is_not(self):   # BUG if 2025 were presented as known
+        r = self.ww.position_at("Mars", "2023-03-01", now=NOW)
         self.assertEqual(r["kind"], "known")
-        self.assertTrue(r["beyond_fit_data"])
-        self.assertIn("not a new observation", r["basis"])
+        self.assertTrue(r["method"].startswith("JPL"))
+        if TRUTH.exists():
+            self.assertEqual(r["reality_edge"]["date"], "2024-01-01")
+            self.assertEqual(self.ww.position_at("Mars", "2025-06-01", now=NOW, budget_s=0.0)["kind"], "prediction")   # budget 0: the build only, no year of integration
 
     def test_moon_from_the_earth_has_a_physical_distance_ra_and_dec(self):
         r = self.ww.position_at("Moon", "2019-07-02T19:24:00", "earth", now=datetime.datetime(2026, 10, 26, tzinfo=datetime.timezone.utc))   # the total eclipse of 2019-07-02: new Moon
@@ -129,15 +136,91 @@ class TestKnown(unittest.TestCase):
 
     def test_outside_the_kernel_span_is_refused(self):                                           # BY CONSTRUCTION
         with self.assertRaises(self.ww.WhereWhenError) as cm:
-            self.ww.position_at("Venus", "1700-01-01", now=datetime.datetime(2026, 10, 26, tzinfo=datetime.timezone.utc))
-        self.assertIn("1849", str(cm.exception))
+            self.ww.position_at("Venus", "1400-01-01", now=NOW)
+        self.assertIn("outside", str(cm.exception))
 
-    def test_a_prediction_without_our_table_falls_back_to_jpl_and_says_so(self):                 # BUG if JPL's value were passed off as ours
-        with mock.patch.object(self.ww, "_forecast", return_value=(None, "no forecast has been built")):
-            r = self.ww.position_at("Venus", "2033-01-01", now=datetime.datetime(2026, 10, 26, tzinfo=datetime.timezone.utc))
-        self.assertEqual(r["kind"], "prediction")
-        self.assertIn("JPL DE440 extrapolation", r["method"])
-        self.assertIn("JPL's own prediction, not ours", " ".join(r["notes"]))
+
+@unittest.skipUnless(KERNEL.exists(), "DE440s kernel not available")
+class TestLive(unittest.TestCase):
+    """A date after the edge is OUR calculation made now (the Captain, 2026-11-02): no table is read, the memo is declared, the budget is honoured."""
+    def setUp(self):
+        from sigma_ground.field.interface import where_when
+        self.ww = where_when
+        self.ww.forget_live()
+        self.edge = self.ww._truth()[2]
+
+    def test_a_day_past_the_edge_is_computed_now_and_lands_on_jpls_extrapolation(self):          # BUG if the live path drifted from JPL by more than a day of this model's error
+        with mock.patch.object(self.ww, "_forecast", side_effect=AssertionError("the sealed table must not be read for a position")):
+            r = self.ww.position_at("Mars", f"JD {self.edge + 1.0}", "sun", now=NOW, budget_s=60)
+        self.assertEqual((r["kind"], r["status"]), ("prediction", "computed"))
+        self.assertIn("computed now", r["method"])
+        self.assertLess(r["cross_check"]["difference_km"], 1e-3)                                  # measured 1.2e-5 km after one day (2026-11-02)
+        self.assertEqual(r["live"]["predictor"], self.ww.SERVED["predictor"])
+        self.assertEqual(r["live"]["integrator"], self.ww.SERVED["integrator"])
+        self.assertFalse(r["live"]["memo"]["used"])
+        self.assertEqual(r["live"]["model_fingerprint"], self.ww._current_fingerprint(self.ww.SERVED["predictor"]))
+        self.assertIsNotNone(r["jpl_same_instant"]["position_km"])
+        self.assertAlmostEqual(r["lead_years_from_edge"], 1.0 / 365.25, delta=1e-9)
+
+    def test_the_answer_shows_its_work_in_a_receipt_with_the_layers_and_their_sources(self):     # the Captain, 2026-11-02: the time it took is the exhibit; a bare number is not done
+        seen = []
+        r = self.ww.position_at("Mars", f"JD {self.edge + 3.0}", "sun", now=NOW, budget_s=60, progress=seen.append)
+        rc = r["receipt"]
+        for key in ("machine", "wall_seconds_this_call", "wall_seconds_whole_integration", "integrator", "steps_this_call", "force_evaluations_this_call", "force_evaluations_whole_integration",
+                    "bodies_integrated", "prescribed_sources", "start", "lead_years", "predictor", "model_fingerprint", "memo", "layers"):
+            self.assertIn(key, rc)
+        self.assertTrue(rc["machine"]["host"])
+        self.assertEqual(rc["integrator"]["name"], self.ww.SERVED["integrator"])
+        self.assertEqual(rc["integrator"]["step_days"], self.ww.SERVED["dt_days"])
+        self.assertEqual(rc["bodies_integrated"], 11)
+        self.assertEqual(rc["prescribed_sources"], 386)                                        # 343 asteroids + the 36-point ring + 7 Kuiper-belt objects
+        self.assertEqual(rc["force_evaluations_this_call"], 30 * 28)                            # 30 steps of 0.1 d, Yoshida-6 with the relativistic layer: 14 implicit kicks of 2 evaluations
+        self.assertEqual(rc["start"]["kernel"], r["reality_edge"]["kernel"])
+        self.assertIn("JPL's measured state", rc["start"]["what_it_is"])
+        self.assertFalse(rc["memo"]["used"])
+        on = {l["layer"] for l in rc["layers"] if l["applied"]}
+        self.assertEqual(on, {"newton", "eih", "zonals", "tides", "c22", "srp", "asteroids", "ring", "kbo"})
+        self.assertFalse(any(l["applied"] for l in rc["layers"] if l["layer"] in ("de_tide", "gm_rate")))
+        for l in rc["layers"]:
+            self.assertTrue(l["source"])
+        sizes = {l["layer"]: l["measured_size"] for l in rc["layers"] if "measured_size" in l}
+        self.assertIn("eih", sizes)                                                             # the ledger measured the layers for Mars (C23b)
+        self.assertGreater(sizes["eih"]["error_ratio_without_it"], 1.0)
+        self.assertTrue(seen and seen[-1]["force_evaluations"] > 0 and seen[-1]["years_asked"] > 0)   # progress was reported while it ran
+        from sigma_ground.mcp.tools import astronomy
+        t = astronomy.body_position("mars", f"JD {self.edge + 3.5}", budget_s=60).to_dict()
+        self.assertIn("RECEIPT:", t["notes"])
+        self.assertIn("memo used", t["notes"])
+
+    def test_a_second_question_inside_the_memo_is_instant_and_says_so(self):                    # BY CONSTRUCTION: the memo is keyed by fingerprint and start, and declared
+        self.ww.position_at("Earth", f"JD {self.edge + 2.0}", "sun", now=NOW, budget_s=60)
+        t0 = time.perf_counter()
+        r = self.ww.position_at("Moon", f"JD {self.edge + 1.5}", "earth", now=NOW, budget_s=60)
+        self.assertLess(time.perf_counter() - t0, 1.0)
+        self.assertTrue(r["live"]["memo"]["used"])
+        self.assertIn("memo", r["basis"])
+        self.assertTrue(356000 < r["distance_km"] < 407000)
+        self.assertLess(r["cross_check"]["difference_km"], 0.01)
+
+    def test_over_budget_says_how_far_it_got_and_gives_no_position_of_ours(self):               # BUG if the chat hung or JPL's value were passed off as ours
+        r = self.ww.position_at("Mars", f"JD {self.edge + 30 * 365.25}", "sun", now=NOW, budget_s=0.5)
+        self.assertEqual(r["status"], "over_budget")
+        self.assertIsNone(r["position_km"])
+        self.assertGreater(r["offer"]["reached_lead_years"], 0.0)
+        self.assertLess(r["offer"]["reached_lead_years"], 1.0)
+        self.assertGreater(r["offer"]["seconds_to_finish_estimate"], 0.0)
+        self.assertIn("ask again", r["offer"]["how"])
+        self.assertIn("not ours", " ".join(r["notes"]))
+        from sigma_ground.mcp.tools import astronomy
+        t = astronomy.body_position("mars", f"JD {self.edge + 30 * 365.25}", budget_s=0.5).to_dict()
+        self.assertTrue(t["notes"].startswith("NOT COMPUTED YET"))
+
+    def test_the_memo_continues_the_same_integration(self):                                      # BY CONSTRUCTION: a second call adds steps, it does not restart
+        r1 = self.ww.live_states(self.edge + 1.0, budget_s=60)
+        r2 = self.ww.live_states(self.edge + 2.0, budget_s=60)
+        self.assertTrue(r1["reached"] and r2["reached"])
+        self.assertFalse(r2["memo"]["fresh_this_call"])
+        self.assertEqual(r2["memo"]["rows"], r1["memo"]["rows"] + r2["steps_this_call"])
 
 
 class TestFreshness(unittest.TestCase):
@@ -193,23 +276,29 @@ class TestSealedTable(unittest.TestCase):
 
 @unittest.skipUnless(KERNEL.exists() and (FIX / "forecast_manifest.json").exists(), "DE440s kernel or sealed forecast table not available")
 class TestRealForecast(unittest.TestCase):
-    """The sealed 30-year table built on 2026-10-26 (its start state is DE440's, 2026-01-01)."""
+    """The sealed 30-year table built on 2026-10-27 is a RECORD (its start state is DE440's, 2026-01-01): still readable for audits, no longer served."""
     def setUp(self):
         from sigma_ground.field.interface import where_when
         self.ww = where_when
-        if self.ww._forecast()[0] is None:
+        self.ww.forget_live()
+        self.table, self.info = self.ww._forecast()
+        if self.table is None:
             self.skipTest("the forecast table file is not installed on this machine")
 
-    def test_a_future_date_is_a_labelled_prediction_that_agrees_with_jpls_extrapolation(self):  # BUG if the table were off by more than the hindcast says
-        r = self.ww.position_at("Mars", "2030-06-15", "sun", now=datetime.datetime(2026, 10, 27, tzinfo=datetime.timezone.utc))
-        self.assertEqual(r["kind"], "prediction")
-        self.assertLess(r["cross_check"]["difference_km"], 5.0)                                  # measured 0.06 km on 2026-10-27; 5 km would mean the table or the extrapolation broke
-        self.assertGreater(r["expected_distance_from_de440"]["typical_km"], 0.0)
+    def test_the_record_stays_readable_and_carries_a_fingerprint(self):                          # BY CONSTRUCTION: the record is kept, its freshness is checkable
+        self.assertEqual(self.info["predictor"], self.ww.SERVED["predictor"])
+        self.assertTrue(self.ww.freshness(self.info.get("model_fingerprint"), self.info["predictor"])["checked"])
 
-    def test_the_table_and_the_error_table_carry_the_current_physics_fingerprint(self):         # BUG if the physics changes and the stored tables keep being served unmarked
-        r = self.ww.position_at("Mars", "2030-06-15", "sun", now=datetime.datetime(2026, 10, 27, tzinfo=datetime.timezone.utc))
-        self.assertTrue(r["table_freshness"]["checked"])
-        self.assertFalse(r["table_freshness"]["stale"])
+    def test_the_live_path_from_the_tables_own_start_reproduces_its_first_days(self):             # BUG if the live integration and the sealed record were different calculations
+        from jplephem.spk import SPK
+        k = SPK.open(str(KERNEL))
+        jd0 = float(self.info["start_jd_tdb"])
+        r = self.ww.live_states(jd0 + 2.0, budget_s=60, start_jd=jd0, start_kernel=k, start_kernel_name="DE440")
+        self.assertTrue(r["reached"])
+        for body in ("Mars", "Moon", "Mercury"):
+            ours = r["state"][body][0] - r["state"]["Sun"][0]
+            tab = self.ww._table_state(self.table, body, jd0 + 2.0)[0] - self.ww._table_state(self.table, "Sun", jd0 + 2.0)[0]
+            self.assertLess(float(np.linalg.norm(ours - tab)), 1e-4, body)                     # 10 cm after two days: Yoshida-6 0.1 d against the record's Forest-Ruth 0.025 d
 
 
 class TestTool(unittest.TestCase):

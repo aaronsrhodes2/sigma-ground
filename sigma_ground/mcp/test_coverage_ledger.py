@@ -143,7 +143,7 @@ def _compute_uncovered():
                 call()
             except Exception:
                 pass
-        for args in (("mars", "2015-06-15"), ("moon", "2031-06-15", "earth")):          # a known and a predicted position (they answer or say what data is missing)
+        for args in (("mars", "2015-06-15"), ("moon", "2024-01-02", "earth")):          # a known and a predicted position (a day past DE442's edge: the live integration takes seconds, not a budget)
             try:
                 _A.body_position(*args)
             except Exception:

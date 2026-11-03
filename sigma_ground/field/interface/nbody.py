@@ -43,6 +43,7 @@ References
 
 from __future__ import annotations
 
+import copy as _copy
 import math
 import warnings
 from dataclasses import dataclass, replace as _replace
@@ -89,6 +90,10 @@ del _k, _w
 # Wanner, Solving ODEs II, §IV.8) is below a few ulps of the largest speed. Numerical choices, not physics.
 _IMPLICIT_KICK_RTOL     = 4.0 * float(np.finfo(np.float64).eps)
 _IMPLICIT_KICK_MAX_ITER = 25
+
+# The force backend at import: SIGMA_NBODY_FORCE_BACKEND=loop runs the per-pair Python loops (the vectorised routine is the default, 2026-11-02).
+import os as _os
+_FORCE_BACKEND_ENV = _os.environ.get("SIGMA_NBODY_FORCE_BACKEND", "vector").strip().lower()
 
 # Fluid-satellite Roche limit coefficient, d ≈ 2.44 R_p (ρ_p/ρ_s)^(1/3): Roche (1849), Mémoires de l'Académie des
 # sciences de Montpellier 1, p. 258. (A refined Roche-ellipsoid solution gives 2.423 for a point-mass primary.)
@@ -295,6 +300,17 @@ class CelestialBody:
     def replace(self, **kw) -> "CelestialBody":
         return _replace(self, **kw)
 
+    def moved(self, position_m: NDArray[np.float64] | None = None, velocity_m_s: NDArray[np.float64] | None = None) -> "CelestialBody":
+        """The same body at another state: a shallow copy with only the state fields set, skipping dataclasses.replace and __post_init__
+        (whose checks concern the other fields, unchanged here). Used by the integrators' drifts and kicks, where replace() cost 35 us
+        per body per sub-step, a third of a force evaluation (2026-11-02)."""
+        b = _copy.copy(self)
+        if position_m is not None:
+            object.__setattr__(b, "position_m", position_m)
+        if velocity_m_s is not None:
+            object.__setattr__(b, "velocity_m_s", velocity_m_s)
+        return b
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # § 3. N-BODY SYSTEM
@@ -433,8 +449,137 @@ class NBodySystem:
 
     # ── accelerations ─────────────────────────────────────────────────────
 
+    # Which force routine computes the N-body layers (Newton, 1PN EIH / Schwarzschild, static 2PN, J2/J3/J4 with the reaction, the static
+    # tide): "vector" (numpy over all pairs at once, 2026-11-02) or "loop" (the per-pair Python loops every stored predictor was measured with).
+    # The two are the same physics: test_nbody_vector.py holds them to 1e-12 relative on the 11-body reduced model and on the unit systems,
+    # and the environment variable SIGMA_NBODY_FORCE_BACKEND=loop (read at import) or system.force_backend = "loop" selects the loops.
+    FORCE_BACKENDS = ("vector", "loop")
+    force_backend: str = _FORCE_BACKEND_ENV
+
     def compute_accelerations(self) -> NDArray[np.float64]:
-        """Pairwise gravitational accelerations, shape (N, 3) in m/s².
+        """Pairwise gravitational accelerations, shape (N, 3) in m/s², from the backend named by force_backend (see _accelerations_loop for the layers)."""
+        if self.force_backend == "loop":
+            return self._accelerations_loop()
+        if self.force_backend != "vector":
+            raise ValueError(f"unknown force_backend {self.force_backend!r}: one of {self.FORCE_BACKENDS}")
+        return self._accelerations_vector()
+
+    def _accelerations_vector(self) -> NDArray[np.float64]:
+        """The layers of _accelerations_loop computed with numpy over all (i, j) pairs at once; the same formulas term for term, so that
+        each pair's value is the loop's to rounding and only the order of the sums over j differs (1e-15 relative, held to 1e-12 by the tests).
+        D[i, j] = x_j - x_i is the loop's r_ij; the zonal and tidal blocks use x_i - x_j = -D as the loop does. Pairs that the loop skips
+        (i == j, coincident bodies) are masked to zero."""
+        n   = len(self.bodies)
+        t   = self.toggles
+
+        if t.gm_rate:                                                   # C26 lever L4, as in the loop: GM(t) = GM(0) (1 + rate t)
+            t_yr = self._t_eval / 31557600.0
+            for i, rate in self.gm_rates_per_yr.items():
+                self.bodies[i] = self.bodies[i].replace(mass_kg=self._mass0[i] * (1.0 + rate * t_yr))
+
+        pos  = np.array([b.position_m for b in self.bodies], dtype=np.float64)
+        vel  = np.array([b.velocity_m_s for b in self.bodies], dtype=np.float64)
+        mass = np.array([b.mass_kg for b in self.bodies], dtype=np.float64)
+        gm   = np.array([b.gm_m3_s2 for b in self.bodies], dtype=np.float64)
+        D    = pos[None, :, :] - pos[:, None, :]                        # D[i, j] = x_j - x_i
+        r2_0 = np.einsum("ijk,ijk->ij", D, D)                           # without softening (the tide's perturber search uses it)
+        r2   = r2_0 + self.softening_m ** 2
+        off  = ~np.eye(n, dtype=bool) & (r2 > 0.0)                      # the pairs the loop computes
+        offf = off.astype(np.float64)
+        r2s  = np.where(off, r2, 1.0)                                   # safe denominators on the masked pairs
+        r    = np.sqrt(r2s)
+        r3   = r2s * r                                                  # r_sq * r, the loop's denominator
+        W    = gm[None, :] / r3 * offf                                  # gm_j / (r_sq r) on the computed pairs
+
+        # ── Newtonian (always on): a_i = sum_j gm_j r_ij / (r_sq r) ──────────────────────────────────────────────
+        acc = np.einsum("ij,ijk->ik", W, D)
+
+        if t.eih_cross:
+            # Will 1993 Box 6.2 (the loop's cited form), with a_j^N the Newtonian acceleration and Φ_i = sum_k gm_k / r_ik
+            a_newton = acc
+            phi  = (gm[None, :] / r * offf).sum(axis=1)
+            vi2  = np.einsum("ik,ik->i", vel, vel)
+            vivj = vel @ vel.T
+            Dvj  = np.einsum("ijk,jk->ij", D, vel)                      # r_ij · v_j
+            DaN  = np.einsum("ijk,jk->ij", D, a_newton)                 # r_ij · a_j^N
+            A = (- (4.0 / _c2) * phi[:, None] - (1.0 / _c2) * phi[None, :] + vi2[:, None] / _c2 + 2.0 * vi2[None, :] / _c2
+                 - (4.0 / _c2) * vivj - (3.0 / (2.0 * _c2)) * (Dvj / r) ** 2 + (1.0 / (2.0 * _c2)) * DaN)
+            B = 4.0 * vel[:, None, :] - 3.0 * vel[None, :, :]           # 4 v_i - 3 v_j
+            cross = np.einsum("ijk,ijk->ij", -D, B) / _c2               # -(r_ij · (4 v_i - 3 v_j)) / c^2
+            dv = vel[:, None, :] - vel[None, :, :]
+            acc = acc + (np.einsum("ij,ijk->ik", W * A, D) + np.einsum("ij,ijk->ik", W * cross, dv)
+                         + np.einsum("ij,jk->ik", (7.0 / (2.0 * _c2)) * gm[None, :] / r * offf, a_newton))
+        elif t.gr_1pn:
+            # Soffel et al. 2003 eq. 10.12 with the outward unit vector n = (x_i - x_j) / r (the loop's fixed form)
+            vi2   = np.einsum("ik,ik->i", vel, vel)
+            n_out = -D / r[:, :, None]
+            ndotv = np.einsum("ijk,ik->ij", n_out, vel)
+            factor = gm[None, :] / (r2s * _c2) * offf
+            acc = acc + (factor[:, :, None] * ((4.0 * gm[None, :] / r - vi2[:, None])[:, :, None] * n_out + 4.0 * ndotv[:, :, None] * vel[:, None, :])).sum(axis=1)
+
+        if t.gr_2pn:
+            gmi = gm[:, None]
+            static = (9.0 * gm[None, :] ** 3 + 14.25 * gmi ** 2 * gm[None, :] + 34.5 * gmi * gm[None, :] ** 2) / (_c4 * r2s * r2s) * offf
+            acc = acc + (static[:, :, None] * (D / r[:, :, None])).sum(axis=1)
+
+        # ── J2, J3, J4 zonals of body j on body i, with the reaction on j (Newton III) ───────────────────────────
+        if t.j2_zonal or t.j3_zonal or t.j4_zonal:
+            E     = -D                                                  # x_i - x_j, the loop's r_vec
+            R     = np.array([b.zonal_radius_m for b in self.bodies], dtype=np.float64)
+            P     = np.array([b.pole_axis_unit for b in self.bodies], dtype=np.float64)
+            rdn   = np.einsum("ijk,jk->ij", E, P)                       # r_vec · n_hat_j
+            s     = rdn / r
+            minv  = np.where(mass > 0.0, 1.0 / np.where(mass > 0.0, mass, 1.0), 0.0)
+            mrat  = mass[:, None] * minv[None, :]                       # m_i / m_j
+            r5    = r2s * r2s * r
+            # each zonal is c_E(i, j) E + c_P(i, j) P_j; the three are summed per pair, then applied once with the reaction
+            cE = np.zeros((n, n))
+            cP = np.zeros((n, n))
+            if t.j2_zonal:
+                j2 = np.array([b.j2 for b in self.bodies], dtype=np.float64)
+                coef = 1.5 * gm[None, :] * j2[None, :] * (R * R)[None, :] / r5 * (offf * ((j2 != 0.0) & (R != 0.0))[None, :])
+                cE += coef * (5.0 * s * s - 1.0)
+                cP += coef * (-2.0 * rdn)
+            if t.j3_zonal:
+                j3 = np.array([b.j3 for b in self.bodies], dtype=np.float64)
+                coef = 0.5 * gm[None, :] * j3[None, :] * (R ** 3)[None, :] / r5 * (offf * ((j3 != 0.0) & (R != 0.0))[None, :])
+                cP += coef * (3.0 - 15.0 * s * s)
+                cE += coef * (5.0 * s * (7.0 * s * s - 3.0)) / r                      # the loop's r_factor * (r_vec / r)
+            if t.j4_zonal:
+                j4 = np.array([b.j4 for b in self.bodies], dtype=np.float64)
+                coef = 0.625 * gm[None, :] * j4[None, :] * (R ** 4)[None, :] / (r2s * r2s * r2s) * (offf * ((j4 != 0.0) & (R != 0.0))[None, :])
+                cE += coef * (3.0 * (21.0 * s ** 4 - 14.0 * s ** 2 + 1.0)) / r
+                cP += coef * (4.0 * s * (3.0 - 7.0 * s * s))
+            a_z = cE[:, :, None] * E + cP[:, :, None] * P[None, :, :]   # (i, j, 3): the zonal pull of j on i
+            acc = acc + a_z.sum(axis=1) - np.einsum("ij,ijk->jk", mrat, a_z)       # on i, and the reaction -(m_i/m_j) a_z on j
+
+        # ── Static tide: body i's k2 bulge raised by its dominant perturber (max m_j / d^3), felt by every k, reaction on i ──
+        if t.tidal_force:
+            k2   = np.array([b.love_number_k2 for b in self.bodies], dtype=np.float64)
+            Rad  = np.array([b.radius_m for b in self.bodies], dtype=np.float64)
+            offd = ~np.eye(n, dtype=bool) & (r2_0 > 0.0)
+            d2s  = np.where(offd, r2_0, 1.0)
+            metric = np.where(offd, mass[None, :] / (d2s * np.sqrt(d2s)), 0.0)
+            best = np.argmax(metric, axis=1)
+            idx  = np.arange(n)
+            tidal = (k2 != 0.0) & (Rad != 0.0) & (mass != 0.0) & (metric[idx, best] > 0.0)
+            if np.any(tidal):
+                d_vec = D[idx, best]                                    # x_j - x_i for the dominant j
+                d2    = d2s[idx, best]
+                d     = np.sqrt(d2)
+                nh    = d_vec / d[:, None]
+                amp   = np.where(tidal, k2 * gm[best] * Rad ** 5 / (d2 * d), 0.0)      # A, m^5/s^2
+                rdn   = np.einsum("ikc,ic->ik", D, nh)                  # (x_k - x_i) · n_hat_i
+                cos2  = (rdn * rdn) / r2s
+                a_k   = ((-1.5 * amp[:, None] / (r2s * r2s * r)) * offf)[:, :, None] * ((5.0 * cos2 - 1.0)[:, :, None] * D - 2.0 * rdn[:, :, None] * nh[:, None, :])
+                acc = acc + a_k.sum(axis=0)                             # on every k
+                minv = np.where(tidal, 1.0 / np.where(tidal, mass, 1.0), 0.0)
+                acc = acc - np.einsum("ik,ikc->ic", minv[:, None] * mass[None, :], a_k)   # -(m_k / M_i) a_k on i
+
+        return self._add_time_and_source_layers(acc)
+
+    def _accelerations_loop(self) -> NDArray[np.float64]:
+        """Pairwise gravitational accelerations, shape (N, 3) in m/s² (the per-pair Python loops; force_backend = "loop").
 
         Each force layer is gated by an entry in self.toggles. Per-body
         parameters (j2, j3, j4, love_number_k2, area_m2) further determine
@@ -813,6 +958,14 @@ class NBodySystem:
                     acc[k] += a_k
                     acc[i] -= (self.bodies[k].mass_kg / M_i) * a_k
 
+        return self._add_time_and_source_layers(acc)
+
+    def _add_time_and_source_layers(self, acc: NDArray[np.float64]) -> NDArray[np.float64]:
+        """The layers both backends share, added to acc in place of the loop's tail: the DE430 Earth tide, the C22 figure, the prescribed
+        sources (already array code) and solar radiation pressure."""
+        n = len(self.bodies)
+        t = self.toggles
+
         # ── DE430's time-delayed Earth tide on the Moon (C26 lever L3, 2026-11-02) ─────────────────────
         # ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
         # │ BORROWED FROM THE DE430 MEMO: Folkner, Williams, Boggs, Park & Kuchynka 2014, IPN Progress   │
@@ -922,7 +1075,7 @@ class NBodySystem:
         return bool(self.toggles.gr_1pn or self.toggles.eih_cross)
 
     def _set_velocities(self, vel: NDArray[np.float64]) -> None:
-        self.bodies = [b.replace(velocity_m_s=vel[i].copy()) for i, b in enumerate(self.bodies)]
+        self.bodies = [b.moved(velocity_m_s=vel[i].copy()) for i, b in enumerate(self.bodies)]
 
     def _implicit_kick(
         self,
@@ -1059,7 +1212,7 @@ class NBodySystem:
 
         def _drift(frac: float) -> None:
             self.bodies = [
-                b.replace(position_m=b.position_m + frac * dt * b.velocity_m_s)
+                b.moved(position_m=b.position_m + frac * dt * b.velocity_m_s)
                 for b in self.bodies
             ]
             elapsed[0] += frac * dt
@@ -1073,7 +1226,7 @@ class NBodySystem:
                 self._implicit_kick(v0 + h_half * acc, h_half, self.compute_accelerations, u0=v0, a_u0=acc)
                 return
             self.bodies = [
-                b.replace(velocity_m_s=b.velocity_m_s + frac * dt * acc[i])
+                b.moved(velocity_m_s=b.velocity_m_s + frac * dt * acc[i])
                 for i, b in enumerate(self.bodies)
             ]
 
@@ -1105,7 +1258,7 @@ class NBodySystem:
         elapsed = [0.0]
 
         def _drift(frac: float) -> None:
-            self.bodies = [b.replace(position_m=b.position_m + frac * dt * b.velocity_m_s) for b in self.bodies]
+            self.bodies = [b.moved(position_m=b.position_m + frac * dt * b.velocity_m_s) for b in self.bodies]
             elapsed[0] += frac * dt
 
         def _kick(frac: float) -> None:
@@ -1116,7 +1269,7 @@ class NBodySystem:
                 v0 = np.array([b.velocity_m_s for b in self.bodies], dtype=np.float64).reshape(-1, 3)
                 self._implicit_kick(v0 + h_half * acc, h_half, self.compute_accelerations, u0=v0, a_u0=acc)
                 return
-            self.bodies = [b.replace(velocity_m_s=b.velocity_m_s + frac * dt * acc[i]) for i, b in enumerate(self.bodies)]
+            self.bodies = [b.moved(velocity_m_s=b.velocity_m_s + frac * dt * acc[i]) for i, b in enumerate(self.bodies)]
 
         # each stage s is the Verlet map kick(s/2) drift(s) kick(s/2). With position-only forces the kicks between stages add,
         # giving kick(s1/2) drift(s1) kick((s1+s2)/2) ... drift(sm) kick(sm/2) at m + 1 force evaluations. With a velocity-dependent

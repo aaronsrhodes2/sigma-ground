@@ -19,6 +19,11 @@ from typing import Any
 
 from sigma_ground.mcp.provenance import ToolResult
 
+try:                                                     # the request context FastMCP injects into a tool that declares it (body_position reports progress through it); the annotation must resolve at module level
+    from mcp.server.fastmcp import Context
+except Exception:                                        # without the mcp package the server cannot run anyway; the name only has to exist for the annotation
+    Context = Any
+
 
 SYSTEM_INSTRUCTIONS = """\
 You are a physics assistant backed by sigma-ground, a curated physics
@@ -976,12 +981,23 @@ def main() -> int:
         return t_astr.body_constants(body_name).to_dict()
 
     @server.tool()
-    def body_position(body_name: str, when: str, central_body: str = "sun") -> dict[str, Any]:
+    def body_position(body_name: str, when: str, central_body: str = "sun", budget_s: float = 60.0, ctx: Context | None = None) -> dict[str, Any]:
         """Where a planet, the Sun or the Moon is at a time, e.g. body_position('mars', '2031-06-15'). `when` is an ISO date or date-time (UTC), 'JD 2462000.5' (TDB) or 'now'; `central_body` is 'sun' (default), 'ssb' or 'earth'.
 
-        Up to today the value is JPL's DE440 (known); after today it is our N-body prediction with JPL's value beside it and the measured error at that lead.
+        Up to the edge of JPL DE442's data (2024-01-01) the value is the kernel's (known); after it, our own N-body integration from the kernel's state at the edge, computed now, with JPL's value beside it, the measured
+        error at that lead and a receipt (machine, wall time, integrator, force evaluations, layers with sources). `budget_s` caps the computation (raise it for a long lead); an unfinished integration says how far it
+        got and continues when asked again. Progress (years integrated, evaluations) is reported to the client while it runs.
         """
-        return t_astr.body_position(body_name, when, central_body).to_dict()
+        def progress(info: dict) -> None:
+            msg = f"{info['years_integrated']:.2f} of {info['years_asked']:.2f} yr integrated, {info['force_evaluations']:,} force evaluations, {info['seconds']:.0f} s"
+            if ctx is not None:
+                try:
+                    import anyio
+                    anyio.from_thread.run(ctx.report_progress, info["percent"], 100.0, msg)
+                except Exception:
+                    pass
+            print(f"body_position: {msg}", file=sys.stderr, flush=True)
+        return t_astr.body_position(body_name, when, central_body, budget_s, progress=progress).to_dict()
 
     @server.tool()
     def small_body(body_name: str) -> dict[str, Any]:
