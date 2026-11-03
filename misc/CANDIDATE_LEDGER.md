@@ -595,3 +595,16 @@ Start 2015-01-01, 0.0125 d, against DE442, Moon at +1 / +5 yr, km (the control `
 | `restated_fieldr_moon` (Moon's J2-J4 on AM 1738.0 km) | 0.0651 | 0.3384 | 0.0845 | 0.1214 | under 0.03 km | held (0.002 km) |
 | `restated_pole` (IAU poles at the run's start date) | 0.0747 | **0.3799** | 0.0841 | 0.1214 | under 0.02 km | **miss: 0.044 km WORSE (13 %)** |
 So `restated_geo`'s 0.146 is the Earth-radius gain (0.126) partly undone by the pole change (+0.02 of the +0.044 it costs alone). The Earth's reference radius alone takes the Moon from 0.336 to 0.126 km at +5 yr on this start, past the M-A target (0.122) by 3 %, one start of four. Why the poles at the start date are worse than the j2010 snapshot's is not understood: the IAU pole series evaluated at 2015 against 2010 moves the Earth's axis 0.04 deg and the Moon's up to 1.5 deg (the 18.6-yr wobble); one of those, applied as a FIXED axis for the whole window, lands further from DE440's integrated figure than the 2010 one did. A pole updated along the run (the C2 machinery, `--pole-update-days`) is the test, not done tonight. The remaining three starts of all three arms are running on skippy-core (`~/sigma-nbody/runs/`).
+
+### C26 verdicts on four starts (2026-11-02, 22:15): L2 `restated_geo` MEETS the Moon target; L1 `restated_hdr_moon` is null
+Paired against the DE442 control over the starts 2000/2005/2010/2015 (`misc/HINDCAST_GEO_DE442.md`, `misc/HINDCAST_HDRMOON_DE442.md`; ratio = new / control, "starts better" of 4):
+| body, +5 yr | control | `restated_geo` | ratio | better | `restated_hdr_moon` | ratio | better |
+|---|---|---|---|---|---|---|---|
+| Moon | 0.245 | **0.113** | **0.463** | **4/4** | 0.241 | 0.983 | 2/4 |
+| Mercury | 0.0896 | 0.0913 | 1.019 | 0/4 | 0.0896 | ~1 | |
+| Venus | 0.0753 | 0.0746 | 0.990 | 4/4 | 0.0751 | 0.998 | 4/4 |
+| Earth | 0.113 | 0.112 | 0.997 | 3/4 | 0.113 | ~1 | |
+| Mars | 0.119 | 0.119 | 1.000 | 1/4 | 0.119 | ~1 | |
+* **M-A, the Moon: met** by L2 alone, 0.245 -> 0.113 km at +5 yr (target 0.122), better in every start, 54 % of the error gone with one sourced constant applied on its own reference radius (the attribution arm says the Earth's RE 6378.1366 km is the whole of it; its four-start report follows from skippy-core). Mercury pays 1.9 % (0/4 better), which the attribution arms trace to the pole epoch, not the radius; the candidate for `restated_math` is therefore the Earth's reference radius WITHOUT the pole change (`restated_fieldr_earth`), pending its four starts.
+* **L1 hdr_moon: null** (ratio 0.98, 2/4), the prediction of 20:00 was a miss and stays recorded as one. Mercury, Venus, Earth, Mars: within 2 % under both arms, as predicted.
+* Still running: `restated_tide` (L3) on this PC, 1 of 4 starts; the three attribution arms on skippy-core, 1 of 4 each.
