@@ -223,7 +223,7 @@ def start_state(number: int, day_dir: Path, log) -> tuple[float, np.ndarray, str
 class Engine:
     """The C24 engine: DE440s planets, the Sun's 1PN term, DE440's 343 asteroids as prescribed sources (the body's own entry zeroed per run)."""
 
-    def __init__(self, log):
+    def __init__(self, log, w0: float = W0, horizon_days: float = HORIZON_DAYS, asteroids: bool = True):
         from jplephem.spk import SPK
         from comet_ladder import gm_planets
         from sigma_ground.field.interface import perturber_paths as pp
@@ -233,26 +233,35 @@ class Engine:
         self.numbers = np.array([x["number"] for x in cat])
         self.gm_all = np.array([x["gm_km3_s2"] for x in cat])
         self.gmp = gm_planets()
-        cache = ROOT / f"perturber_nodes_{W0:.1f}_{int(HORIZON_DAYS)}d.npy"
-        if cache.exists():
-            self.nodes = np.load(cache)
-        else:
-            pert = [Perturber(str(x["number"]), x["gm_km3_s2"], 0.0, *[x["elements"][k] for k in ("epoch_jd_tdb", "a_au", "e", "i_deg", "om_deg", "w_deg", "ma_deg")]) for x in cat]
-            t0 = time.time()
-            self.nodes = pp.asteroid_window_paths(pert, self.kernel, np.array(self.gmp), W0, HORIZON_DAYS, 1.0)
-            np.save(cache, self.nodes)
-            log(f"perturber paths {self.nodes.shape} in {time.time() - t0:.0f} s -> {cache}")
+        self.w0, self.asteroids = w0, asteroids
+        self.nodes = None
+        if asteroids:
+            cache = ROOT / f"perturber_nodes_{w0:.1f}_{int(horizon_days)}d.npy"
+            if cache.exists():
+                self.nodes = np.load(cache)
+            else:
+                pert = [Perturber(str(x["number"]), x["gm_km3_s2"], 0.0, *[x["elements"][k] for k in ("epoch_jd_tdb", "a_au", "e", "i_deg", "om_deg", "w_deg", "ma_deg")]) for x in cat]
+                t0 = time.time()
+                self.nodes = pp.asteroid_window_paths(pert, self.kernel, np.array(self.gmp), w0, horizon_days, 1.0)
+                cache.parent.mkdir(parents=True, exist_ok=True)
+                np.save(cache, self.nodes)
+                log(f"perturber paths {self.nodes.shape} in {time.time() - t0:.0f} s -> {cache}")
         self.pp = pp
+        self._src_cache: dict[int, object] = {}
 
     def sources(self, number: int):
-        from sigma_ground.field.interface.prescribed_sources import PrescribedSources
-        gm = np.where(self.numbers == number, 0.0, self.gm_all)             # the target cannot pull on itself (as C24 and asteroid_ladder.py)
-        t = self.pp.to_prescribed_sources(self.nodes, gm, 1.0)
-        return PrescribedSources(t.gm, t.t0, t.h, t.pos, t.vel)
+        if not self.asteroids:
+            return None
+        if number not in self._src_cache:
+            from sigma_ground.field.interface.prescribed_sources import PrescribedSources
+            gm = np.where(self.numbers == number, 0.0, self.gm_all)             # the target cannot pull on itself (as C24 and asteroid_ladder.py)
+            t = self.pp.to_prescribed_sources(self.nodes, gm, 1.0)
+            self._src_cache[number] = PrescribedSources(t.gm, t.t0, t.h, t.pos, t.vel)
+        return self._src_cache[number]
 
     def positions(self, number: int, jd0: float, y0: np.ndarray, targets: np.ndarray) -> np.ndarray:
         from sigma_ground.field.interface import comet_orbits as co
-        out = co.propagate(list(y0), jd0, [float(t) for t in targets], self.kernel, self.gmp, gr=True, sources=self.sources(number), sources_epoch_jd=W0)
+        out = co.propagate(list(y0), jd0, [float(t) for t in targets], self.kernel, self.gmp, gr=True, sources=self.sources(number), sources_epoch_jd=self.w0)
         return np.array([out[float(t)][:3] for t in targets])
 
 
