@@ -11,7 +11,7 @@ import functools
 import json
 from pathlib import Path
 
-_FILE = Path(__file__).parent / "fixtures" / "vintages" / "FAIR_CONTEST_v2.json"
+_FILE = Path(__file__).parent / "fixtures" / "vintages" / "FAIR_CONTEST_v3.json"      # the ledger-grade contest (restated_math_tide, 0.0125 d, DE442); v2 (restated_zon, 0.025 d) is kept beside it
 BODIES = ("Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto")
 _ALIASES = {"luna": "Moon", "the moon": "Moon", "earth-moon barycentre": "Earth", "emb": "Earth"}
 
