@@ -4309,3 +4309,27 @@ The Captain's rule: a position past the edge of reality is our calculation compu
 - Idle-CPU timing; a compiled kernel (numba on the PC) or a Wisdom-Holman split for "well under a minute"; a warm memo at server start if the Captain wants the first question fast.
 - Describe `prediction_contest`'s `lead_years` (c0c9366) and lower the contract ratchets back.
 - Deploy: commit+push is the Mentat deploy (not pushed tonight by instruction).
+
+## Session — 2026-11-02 — The N-body campaign: reality is DE442, the levers, the three blankets, the live calculation, skippy-core as the runner
+**Time:** 2026-11-02 16:30 to 2026-11-03 07:10 UTC (the Captain's session; two sessions started from it: the MPC scoreboard and orbit fit, C27-C28; the live body_position, C29). **Status:** complete for tonight; the ledger-grade contest (restated_math_tide, 0.0125 d) still running on skippy-core; Mentat pin 4fbd0db deploying.
+
+### Changes (sigma-ground, master, pushed to the trunk through 4fbd0db)
+- `field/datasets.py` truth_kernel() = DE442; DE430/435/438 as vintages; no D: paths left in the N-body code (`rolling_shootout._de440_kernel_path`, the contest, the mesh).
+- `nbody.py` field_radius_m (the zonal reference radius as its own field), yoshida_step(6|8) with unmerged implicit kicks under relativity, earth_tide_de (Folkner 2014 eq. 31-32) and gm_rate toggles; `prescribed_sources.py` continues its end cubic one node outside the table.
+- `rolling_shootout.py` Predictor.pole_epoch / de_tide / gm_rate; labels restated_hdr_sun/earth/moon, restated_geo, restated_geo_hdr(_em), restated_fieldr_earth/moon, restated_pole, restated_tide, restated_gmdot, restated_math, restated_math_tide.
+- `reduced_model.py` integrators y6/y8; `where_when.py` SERVED = restated_math_tide (the live session built the live path); `fixtures/prediction_error_table.json` = restated_math_tide, four starts, 0.0125 d, DE442 (the previous table kept beside it).
+- Scripts: fair_jpl_contest --predictor/--last-target/release-year starts/orphan adoption, fair_contest_report (M-B verdict, blankets), jpl_vintages_vs_reality, integrator_convergence, tide_secular_check, merge_hindcast_starts; Mentat tool prediction_contest.
+- Docs: ledger C26 (metrics, mass budget, every lever's prediction before its run, the verdicts), NBODY_CAMPAIGN.md (the brief), NBODY_MATH_REPORT.md, DAPHNIS_WAVE.md, COVERAGE_LEDGER.
+- SkippyTel (main, pushed, deployed): the N-body page's three blankets (builder `scripts/nbody_blankets_build.py`, plates in `nbody-flipbook.js`), the night shift's lazy jobs include the MPC scoreboard task, the Mentat pin.
+
+### Why
+The Captain asked for the best model-free, token-free, low-computation predictor, half the error gone by straight maths, folded into Mentat, the experiment shown as our prediction / JPL's prediction at the time / reality, every number calculated live and shown with its work.
+
+### Verification (the numbers are in the ledger)
+- M-A: the Moon 0.245 -> 0.097 km at +5 yr against DE442 on four starts (the Earth's J2 on RE 6378.1366 km, then the DE tide); Mercury, Venus, Earth, Mars unchanged by every lever (open).
+- M-B: contest v2 (147 propagations from eleven JPL ephemerides' own states): the four pre-registered gaps halved (Moon 3.40 -> 0.97, Mars 2.11 -> 0.27, Earth 0.90 -> 0.33, Mercury 1.20 -> 0.36 km); parity for Venus, Uranus, Pluto.
+- Misses recorded: hdr_moon null; the tide alone worse; the pole epoch null; Yoshida saves 40 % not 67 %.
+- Live Mentat body_position verified on the deployed container (11.8 s, receipt); the page live at /experiments/nbody with the complete contest.
+
+### Next
+- Read the ledger-grade contest (restated_math_tide, 0.0125 d) and rebuild the page's "ours" from it; the +20 yr arm; the inner-planet 0.08-0.12 km deficits (growth-law diagnostic first); Saturn's 0.34 km gap; re-stamp the sealed manifest; the Mentat router rows for the new tools and a before/after on the live suites.
