@@ -346,9 +346,11 @@ def main() -> int:
             if wanted is None and a.only_vintage and name not in a.only_vintage:
                 continue
             if a.predictor and not wanted:                              # contest v2: yearly starts from the release year (1 January after it) to --max-start-year, leads cut at --last-target
+                from jplephem.spk import SPK                                 # and at the vintage kernel's own end (DE403s stops in 2011): a start past it cannot be read
+                _kv = SPK.open(str(V_DIR / f)); kend_v = _kv[0, 3].end_jd; _kv.close()
                 for y in range(max(rel.year + 1, 1996), a.max_start_year + 1):
                     jd = jd_of(y, 1, 1)
-                    lead_y = [k for k in leads if y + k <= a.last_target]
+                    lead_y = [k for k in leads if y + k <= a.last_target and jd + k * 365.25 <= kend_v]
                     if lead_y:
                         jobs.append((name, f, f"j{y}", jd, a.dt_days, lead_y, None, None, None, None, False, None, a.lunar_orientation))
                 continue
