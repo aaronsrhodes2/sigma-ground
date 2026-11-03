@@ -41,8 +41,8 @@
     "Pluto": 0.00245134381901911
    },
    "wall_seconds": 11708.068465948105,
-   "model_fingerprint_note": "stamped 2026-10-27T05:03:46Z after the build. commits touched the physics files since the build started, so the current code was RUN again from the same start state for 1 yr at the same step: it reproduces every stored sample (all bodies) to within 0 km (tolerance 0.0001 km)",
-   "model_fingerprint": "b53a5b5e410b8da6b795b003350150af3bb7fb4f4b7669f2f2552652cc8104dd"
+   "model_fingerprint_note": "stamped 2026-11-03T01:06:44Z after the build. commits touched the physics files since the build started, so the current code was RUN again from the same start state for 1 yr at the same step: it reproduces every stored sample (all bodies) to within 0 km (tolerance 0.0001 km)",
+   "model_fingerprint": "b927a35bd42653a9af7c4b951daf1e2f917266b5071f6291c8e3aa65ad0363f7"
   }
  ]
 }

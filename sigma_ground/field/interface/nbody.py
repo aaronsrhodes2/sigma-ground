@@ -73,6 +73,16 @@ _FR_D     = [_FR_THETA,                      # d₁ = d₃
              1.0 - 2.0 * _FR_THETA,          # d₂  (NEGATIVE — unavoidable at 4th order)
              _FR_THETA]
 
+# Yoshida (1990) composition coefficients, Table 1, "solution A" of each order: w[0] is w0 = 1 - 2 sum(w1..wm), the rest w1..wm.
+# Copied digit for digit from the paper's table (15 significant figures); test_yoshida_order.py checks the order they give, which a wrong digit destroys.
+_YOSHIDA_W = {
+    6: (None, -1.17767998417887e0, 2.35573213359357e-1, 7.84513610477560e-1),
+    8: (None, -1.61582374150097e0, -2.44699182370524e0, -7.16989419708120e-3, 2.44002732616735e0, 1.57739928123617e-1, 1.82020630970714e0, 1.04242620869991e0),
+}
+for _k, _w in _YOSHIDA_W.items():
+    _YOSHIDA_W[_k] = (1.0 - 2.0 * sum(_w[1:]),) + _w[1:]
+del _k, _w
+
 # Implicit velocity kick for velocity-dependent forces (gr_1pn, eih_cross): v = v_base + h·a(x, v) is solved by
 # fixed-point iteration. The map contracts by θ ≈ h·|∂a/∂v| ~ h·ω·(v/c)² (≈ 4e-10 for Mercury at dt = 0.1 d), so it
 # converges in one or two extra force evaluations. Stop when the estimated remaining error θ/(1−θ)·|Δv| (Hairer &
@@ -234,6 +244,11 @@ class CelestialBody:
     love_number_h2: float | None = None   # displacement Love number; None → 1 + k₂ (hydrostatic)
     c22:            float = 0.0   # sectoral quadrupole coefficient (B - A)/(4 M R²); needs toggles.sectoral_c22 and a rotation model for this body
     figure_ref_radius_m: float = 0.0   # reference radius the c22 coefficient belongs to; 0 → radius_m
+    field_radius_m: float = 0.0   # reference radius the zonal J2/J3/J4 belong to (Earth 6378.1366 km, not the 6371 km mean radius); 0 → radius_m, which every stored predictor used (2026-11-02)
+
+    @property
+    def zonal_radius_m(self) -> float:
+        return self.field_radius_m if self.field_radius_m > 0.0 else self.radius_m
 
     def __post_init__(self) -> None:
         if self.position_m.shape != (3,):
@@ -594,10 +609,10 @@ class NBodySystem:
             # └──────────────────────────────────────────────────────────────┘
             for j in range(n):
                 bj = self.bodies[j]
-                if bj.j2 == 0.0 or bj.radius_m == 0.0:
+                if bj.j2 == 0.0 or bj.zonal_radius_m == 0.0:
                     continue
                 gm_j   = bj.gm_m3_s2
-                R_j_sq = bj.radius_m * bj.radius_m
+                R_j_sq = bj.zonal_radius_m * bj.zonal_radius_m
                 j2_j   = bj.j2
                 n_hat  = bj.pole_axis_unit
 
@@ -640,10 +655,10 @@ class NBodySystem:
             # └──────────────────────────────────────────────────────────────┘
             for j in range(n):
                 bj = self.bodies[j]
-                if bj.j3 == 0.0 or bj.radius_m == 0.0:
+                if bj.j3 == 0.0 or bj.zonal_radius_m == 0.0:
                     continue
                 gm_j  = bj.gm_m3_s2
-                R3    = bj.radius_m ** 3
+                R3    = bj.zonal_radius_m ** 3
                 j3_j  = bj.j3
                 n_hat = bj.pole_axis_unit
 
@@ -684,10 +699,10 @@ class NBodySystem:
             # └──────────────────────────────────────────────────────────────┘
             for j in range(n):
                 bj = self.bodies[j]
-                if bj.j4 == 0.0 or bj.radius_m == 0.0:
+                if bj.j4 == 0.0 or bj.zonal_radius_m == 0.0:
                     continue
                 gm_j  = bj.gm_m3_s2
-                R4    = bj.radius_m ** 4
+                R4    = bj.zonal_radius_m ** 4
                 j4_j  = bj.j4
                 n_hat = bj.pole_axis_unit
 
@@ -986,6 +1001,54 @@ class NBodySystem:
         _drift(c[2])  # drift (1−θ)/2
         _kick(d[2])   # kick θ
         _drift(c[3])  # drift θ/2
+
+        self._time += dt
+        self._t_eval = self._time
+
+    # ── Yoshida higher-order compositions (6th and 8th order) ─────────────
+
+    def yoshida_step(self, dt: float, order: int = 6) -> None:
+        """Advance dt with Yoshida's (1990, Phys. Lett. A 150, 262) symmetric composition of velocity-Verlet stages: order 6 uses
+        his 7-stage "solution A" (w1..w3), order 8 his 15-stage solution A (w1..w7); w0 = 1 - 2 sum(w_k). With position-only
+        forces adjacent half-kicks are merged, so a step costs m + 1 force evaluations for m stages (8 or 16) against Forest-Ruth's 3;
+        with a velocity-dependent layer (gr_1pn, eih_cross) every stage keeps both implicit kicks (2m solves, each one or two
+        evaluations). Symplectic and time-symmetric like forest_ruth_step; the same implicit trapezoidal kick serves the
+        velocity-dependent layers, and _t_eval tracks the sub-step time for the time-dependent ones. Added 2026-11-02 (C26, Phase 3)
+        for the low-computation goal: the coefficients are the only new mathematics; the drift and kick are the Forest-Ruth ones.
+        """
+        w = _YOSHIDA_W[order]
+        stages = list(w[1:][::-1]) + [w[0]] + list(w[1:])                 # w_m ... w_1 w_0 w_1 ... w_m, symmetric
+        velocity_dependent = self._has_velocity_dependent_forces()
+        elapsed = [0.0]
+
+        def _drift(frac: float) -> None:
+            self.bodies = [b.replace(position_m=b.position_m + frac * dt * b.velocity_m_s) for b in self.bodies]
+            elapsed[0] += frac * dt
+
+        def _kick(frac: float) -> None:
+            self._t_eval = self._time + elapsed[0]
+            acc = self.compute_accelerations()
+            if velocity_dependent:
+                h_half = 0.5 * frac * dt
+                v0 = np.array([b.velocity_m_s for b in self.bodies], dtype=np.float64).reshape(-1, 3)
+                self._implicit_kick(v0 + h_half * acc, h_half, self.compute_accelerations, u0=v0, a_u0=acc)
+                return
+            self.bodies = [b.replace(velocity_m_s=b.velocity_m_s + frac * dt * acc[i]) for i, b in enumerate(self.bodies)]
+
+        # each stage s is the Verlet map kick(s/2) drift(s) kick(s/2). With position-only forces the kicks between stages add,
+        # giving kick(s1/2) drift(s1) kick((s1+s2)/2) ... drift(sm) kick(sm/2) at m + 1 force evaluations. With a velocity-dependent
+        # layer two implicit kicks in a row are NOT one implicit kick of the summed size (measured 2026-11-02: merged, the 1PN
+        # error floors at 6e-7 and the order falls to 2; unmerged, 6th order holds to 6e-12), so each stage keeps both its kicks.
+        if velocity_dependent:
+            for s in stages:
+                _kick(0.5 * s)
+                _drift(s)
+                _kick(0.5 * s)
+        else:
+            _kick(0.5 * stages[0])
+            for k, s in enumerate(stages):
+                _drift(s)
+                _kick(0.5 * (s + stages[k + 1]) if k + 1 < len(stages) else 0.5 * s)
 
         self._time += dt
         self._t_eval = self._time

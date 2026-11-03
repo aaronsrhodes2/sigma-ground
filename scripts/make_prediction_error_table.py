@@ -35,18 +35,26 @@ def main() -> int:
     ap.add_argument("--predictor", default="restated_zon")
     ap.add_argument("--dt-days", type=float, default=0.025, help="the same step as the forecast table (0.25 d is too coarse for Mercury and the Moon)")
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--truth", default=None, help="kernel the hindcast is SCORED against (default: datasets.truth_kernel(), DE442); the start state always comes from DE440")
+    ap.add_argument("--targets-end", type=float, default=DATA_END_YEAR, help="latest target year (decimal); keep 2020.99 for tables paired with the DE440-era ones")
     a = ap.parse_args()
     from jplephem.spk import SPK
     from sigma_ground.field import datasets
     from sigma_ground.field.interface import reduced_model as rm
     kernel = SPK.open(str(datasets.de440_kernel()))
+    if a.truth:
+        truth_file, truth_name = Path(a.truth), Path(a.truth).stem.upper()
+    else:
+        truth_file, truth_name = datasets.truth_kernel()
+    truth_k = SPK.open(str(truth_file))
+    DATA_END = a.targets_end
     fingerprint = rm.model_fingerprint(a.predictor)                      # of the physics as it is when the build STARTS
     cells: dict[str, dict[int, list[float]]] = {}
     per_start = {}
     for y in a.starts:
         t0 = time.time()
         jd0 = jd_jan1(y)
-        leads = [k for k in range(1, a.max_lead + 1) if y + k <= DATA_END_YEAR]
+        leads = [k for k in range(1, a.max_lead + 1) if y + k <= DATA_END]
         if not leads:
             continue
         jd1 = jd0 + leads[-1] * 365.25
@@ -62,14 +70,14 @@ def main() -> int:
             for i, n in enumerate(order):
                 if n == "Sun":
                     continue
-                truth = rm.kernel_state(kernel, n, jd)[0] - rm.kernel_state(kernel, "Sun", jd)[0]
+                truth = rm.kernel_state(truth_k, n, jd)[0] - rm.kernel_state(truth_k, "Sun", jd)[0]
                 e = float(np.linalg.norm((d["pos_km"][row, i] - d["pos_km"][row, sun_i]) - truth))
                 cells.setdefault(n, {}).setdefault(k, []).append(e)
                 per_start[y].setdefault(n, {})[k] = e
         print(f"start {y}: leads 1..{leads[-1]} in {time.time() - t0:.0f} s", flush=True)
     table = {n: {str(k): {"median_km": statistics.median(v), "max_km": max(v), "n_starts": len(v)} for k, v in sorted(c.items())} for n, c in cells.items()}
-    doc = {"metadata": {"what": "hindcast error of the forecast model against DE440 by lead, heliocentric position, km", "predictor": a.predictor, "dt_days": a.dt_days, "starts": list(per_start),
-                        "targets_end": DATA_END_YEAR, "model_fingerprint": fingerprint, "reference_points": "Mercury, Venus, Earth, Moon: centres; Mars..Pluto: system barycentres",
+    doc = {"metadata": {"what": f"hindcast error of the forecast model against {truth_name} by lead, heliocentric position, km (start state from DE440)", "predictor": a.predictor, "dt_days": a.dt_days,
+                        "starts": list(per_start), "truth": truth_name, "truth_file": str(truth_file), "targets_end": DATA_END, "model_fingerprint": fingerprint, "reference_points": "Mercury, Venus, Earth, Moon: centres; Mars..Pluto: system barycentres",
                         "generator": "scripts/make_prediction_error_table.py"}, "table": table, "per_start": per_start}
     a.out.write_text(json.dumps(doc, indent=1), encoding="utf-8")
     print("wrote", a.out)

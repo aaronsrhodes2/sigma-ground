@@ -24,6 +24,8 @@ def main() -> int:
     ap.add_argument("--max-lead", type=int, default=20)
     ap.add_argument("--dt-days", type=float, default=0.025)
     ap.add_argument("--tries", type=int, default=3)
+    ap.add_argument("--truth", default=None, help="passed through to make_prediction_error_table.py (default there: DE442)")
+    ap.add_argument("--targets-end", default=None, help="passed through")
     a = ap.parse_args()
     a.outdir.mkdir(parents=True, exist_ok=True)
     dlog = a.outdir / "driver.log"
@@ -34,7 +36,8 @@ def main() -> int:
 
     def cmd(y: int) -> list[str]:
         return [sys.executable, "-X", "utf8", str(_ROOT / "scripts/make_prediction_error_table.py"), "--starts", str(y), "--max-lead", str(a.max_lead),
-                "--predictor", a.predictor, "--dt-days", str(a.dt_days), "--out", str(a.outdir / f"{a.predictor}_{y}.json")]
+                "--predictor", a.predictor, "--dt-days", str(a.dt_days), "--out", str(a.outdir / f"{a.predictor}_{y}.json")] \
+            + (["--truth", a.truth] if a.truth else []) + (["--targets-end", a.targets_end] if a.targets_end else [])
 
     running: dict[int, subprocess.Popen] = {}
     tries = {y: 0 for y in a.starts}

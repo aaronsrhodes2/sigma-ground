@@ -63,22 +63,39 @@ def build_system(kernel, jd: float, predictor_name: str = "restated_zon", dt_day
     for n in ORDER:
         p, v = kernel_state(kernel, n, jd)
         base = byname[n]
+        pole = base.pole_axis_unit                             # the snapshot's pole (j2010 for every start: how the stored tables were built)
+        if pred.pole_epoch == "start" and n in rs._IAU_POLE_MODELS:
+            pole = rs._iau_pole_unit(n, jd)                    # L2: the pole of the run's own start date
         if n in SYSTEMS:                                       # a barycentre carries no oblateness or tides of its own
             bodies.append(CelestialBody(mass_kg=gm[n] / G, position_m=p * KM, velocity_m_s=v * KM, radius_m=base.radius_m, love_number_k2=0.0, area_m2=base.area_m2,
-                                        reflectivity=base.reflectivity, j2=0.0, j3=0.0, j4=0.0, pole_axis_unit=base.pole_axis_unit))
+                                        reflectivity=base.reflectivity, j2=0.0, j3=0.0, j4=0.0, pole_axis_unit=pole))
         else:
             bodies.append(CelestialBody(mass_kg=gm[n] / G, position_m=p * KM, velocity_m_s=v * KM, radius_m=base.radius_m, love_number_k2=base.love_number_k2, area_m2=base.area_m2,
-                                        reflectivity=base.reflectivity, j2=base.j2, j3=base.j3, j4=base.j4, pole_axis_unit=base.pole_axis_unit))
+                                        reflectivity=base.reflectivity, j2=base.j2, j3=base.j3, j4=base.j4, pole_axis_unit=pole, field_radius_m=base.field_radius_m))
     if pred.lunar_c22 or pred.perturber_sets:
         bodies, toggles, kw = rs._candidate_layers(pred, bodies, list(ORDER), None, jd, horizon_days)
     else:
         toggles, kw = pred.toggles, {}
     system = NBodySystem(bodies, toggles=toggles, solar_luminosity_W=rs._L_SUN_W if toggles.srp else 0.0, parent_attractor_indices=None, **kw)
+    system.integrator = pred.integrator                        # "fr4" (every stored predictor), "y6" or "y8" (C26 Phase 3); propagate_dense reads it
     return system, list(ORDER)
 
 
-def propagate_dense(system, jd_start: float, jd_end: float, dt_days: float, every: int = 1) -> dict:
-    """Integrate with fixed-step Forest-Ruth from jd_start to jd_end and store the state every `every` steps. Returns {jd, pos_km (T,N,3), vel_km_s (T,N,3)}; row 0 is the start."""
+def step_function(system, integrator: str | None = None):
+    """The fixed-step advance of `system` for an integrator name: fr4 = Forest-Ruth (the stored predictors), y6 / y8 = Yoshida's 6th / 8th-order compositions."""
+    name = integrator or getattr(system, "integrator", "fr4")
+    if name == "fr4":
+        return system.forest_ruth_step
+    if name in ("y6", "y8"):
+        order = int(name[1])
+        return lambda dt: system.yoshida_step(dt, order)
+    raise ValueError(f"unknown integrator {name!r} (fr4, y6, y8)")
+
+
+def propagate_dense(system, jd_start: float, jd_end: float, dt_days: float, every: int = 1, integrator: str | None = None) -> dict:
+    """Integrate with a fixed step from jd_start to jd_end and store the state every `every` steps. Returns {jd, pos_km (T,N,3), vel_km_s (T,N,3)}; row 0 is the start.
+    The integrator is the system's (set by build_system from the predictor) unless named here."""
+    advance = step_function(system, integrator)
     n_steps = max(1, int(round((jd_end - jd_start) / dt_days)))
     dts = (jd_end - jd_start) * DAY / n_steps
     jd = np.empty(n_steps // every + 2)
@@ -93,7 +110,7 @@ def propagate_dense(system, jd_start: float, jd_end: float, dt_days: float, ever
     k = 0
     store(k, jd_start)
     for s in range(1, n_steps + 1):
-        system.forest_ruth_step(dts)
+        advance(dts)
         if s % every == 0 or s == n_steps:
             k += 1
             store(k, jd_start + s * dts / DAY)

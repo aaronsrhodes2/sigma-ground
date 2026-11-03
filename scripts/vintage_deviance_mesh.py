@@ -32,7 +32,9 @@ from pathlib import Path
 import numpy as np
 
 V_DIR = Path("D:/datasets/jpl/vintages")
-TRUTH = Path("D:/datasets/jpl/de440s.bsp")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from sigma_ground.field import datasets as _ds  # noqa: E402
+TRUTH, TRUTH_NAME = _ds.truth_kernel()          # DE442 since 2026-11-02 (SIGMA_TRUTH_KERNEL overrides); the earlier mesh was against DE440
 J2000 = 2451545.0
 # (name, file, release date as stated in the kernel's own comments)
 VINTAGES = [
@@ -43,6 +45,11 @@ VINTAGES = [
     ("DE418", "de418.bsp", dt.date(2007, 8, 3)),
     ("DE421", "de421.bsp", dt.date(2008, 2, 13)),
     ("DE432", "de432s.bsp", dt.date(2014, 4, 30)),
+    # added 2026-11-02 (NAIF, checksums verified): release dates from each kernel's own comments (DE430: NAIF's note of 2013-09-03; the others say "Integrated")
+    ("DE430", "de430.bsp", dt.date(2013, 9, 3)),
+    ("DE435", "de435.bsp", dt.date(2016, 1, 26)),
+    ("DE438", "de438.bsp", dt.date(2018, 3, 30)),
+    ("DE440", "../de440s.bsp", dt.date(2020, 12, 21)),   # JPL's prediction for targets after its own fit; scored against DE442 like the rest
 ]
 BODIES = {"Mercury": ((0, 1), (1, 199)), "Venus": ((0, 2), (2, 299)), "Mars": ((0, 4),), "Jupiter": ((0, 5),),
           "Saturn": ((0, 6),), "Uranus": ((0, 7),), "Neptune": ((0, 8),), "Earth": ((0, 3), (3, 399))}

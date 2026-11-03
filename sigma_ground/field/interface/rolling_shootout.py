@@ -261,6 +261,7 @@ class BodyParams:
     j4:             float                       = 0.0
     love_number_k2: float                       = 0.0
     pole_axis_unit: np.ndarray | None           = None  # None → ICRS +z default
+    field_radius_km: float                      = 0.0   # reference radius of j2/j3/j4 (DE440: Earth RE 6378.1366, Moon AM 1738.0, Sun ASUN 696000); 0 → radius_km, as every stored predictor had it
 
 
 # IAU WGCCRE poles at J2000.0 (see _IAU_POLE_MODELS above); the pole at the
@@ -387,8 +388,10 @@ class Predictor:
     kepler_forecast:     bool   = False
     # Candidate layers (misc/CANDIDATE_LEDGER.md), all off by default so every stored predictor is unchanged:
     lunar_c22:           float  = 0.0                  # the Moon's sectoral C22 (reference radius 1738 km) with the IAU rotation model; 0 = off
-    zonal_overrides:     tuple[tuple[str, str, float], ...] = ()   # (body, attribute, value) replacing _BODY_PARAMS entries, e.g. ("Jupiter", "j2", 14696.514e-6); attributes: j2, j3, j4, radius_km
+    zonal_overrides:     tuple[tuple[str, str, float], ...] = ()   # (body, attribute, value) replacing _BODY_PARAMS entries, e.g. ("Jupiter", "j2", 14696.514e-6); attributes: j2, j3, j4, radius_km, field_radius_km
     perturber_sets:      tuple[str, ...] = ()          # "asteroids" (DE440's 343) and/or "ring" (DE440's 36-point Kuiper-belt ring), as prescribed massive sources
+    pole_epoch:          str    = "snapshot"           # reduced_model.build_system: "snapshot" = the IAU poles of the fixture snapshot it reads parameters from (j2010 for every start, as the stored
+                                                       # tables were built); "start" = the poles at the run's own start date (C26 lever L2, 2026-11-02)
 
 
 # Common toggle bundles for the existing predictor lineup.
@@ -567,6 +570,19 @@ def _header_zonals() -> tuple:
     return de440_constants.predictor_zonal_overrides(("Sun", "Earth", "Moon", "Jupiter", "Saturn"))
 
 
+def _header_field_overrides(bodies: tuple[str, ...]) -> tuple:
+    """DE440's header J2/J3/J4 for these bodies on the header's own reference radius, as `field_radius_km` (the zonal radius ALONE: the mean radius that sizes the tide and the
+    radiation-pressure disc is left as the table has it). `restated_hdr` set `radius_km`, which moved all three at once (C26 lever L1, 2026-11-02)."""
+    from sigma_ground.field.interface import de440_constants
+    return tuple((n, "field_radius_km" if a == "radius_km" else a, v) for n, a, v in de440_constants.predictor_zonal_overrides(bodies))
+
+
+def _field_radii(bodies: tuple[str, ...] = ("Sun", "Earth", "Moon")) -> tuple:
+    """Only the header reference radii of the zonals, keeping the table's J2/J3/J4 values (C26 lever L2: the table's coefficients belong to these radii, not to the mean radii they were applied on)."""
+    from sigma_ground.field.interface import de440_constants
+    return tuple((n, "field_radius_km", float(de440_constants.body(n)["reference_radius_km"])) for n in bodies)
+
+
 def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
     """Candidate predictors: the headline stack plus the layers of misc/CANDIDATE_LEDGER.md (C1 asteroids, C3a lunar C22, C5 Kuiper-belt ring). Not part of the canonical set."""
     import dataclasses as _dc
@@ -579,6 +595,17 @@ def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
              "restated_ast_ring_kbo_c22 + Jupiter's J2 from Juno and Saturn's J2, J4 from the Cassini Grand Finale"),
             ("restated_hdr", dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring", "kbo"), zonal_overrides=_header_zonals()),
              "restated_zon + the Sun, Earth and Moon radii and J2, J3, J4 from DE440's own header (fixtures/de440_header_constants.json)")]
+    # C26 (2026-11-02), the maths levers L1 and L2, each one change on restated_zon. L1 splits restated_hdr by body, on the zonal radius alone; L2 fixes the zonal reference radii and the pole epoch.
+    zon = dict(lunar_c22=_DE440_C22M, perturber_sets=("asteroids", "ring", "kbo"))
+    for one in ("Sun", "Earth", "Moon"):
+        rows.append((f"restated_hdr_{one.lower()}", dict(zon, zonal_overrides=_MEASURED_ZONALS + _header_field_overrides((one,))),
+                     f"restated_zon + DE440's header J2, J3, J4 and reference radius for the {one} only (L1)"))
+    rows += [("restated_geo", dict(zon, zonal_overrides=_MEASURED_ZONALS + _field_radii(), pole_epoch="start"),
+              "restated_zon with the table's Sun/Earth/Moon zonals on their own reference radii and the IAU poles at the run's start date (L2)"),
+             ("restated_geo_hdr", dict(zon, zonal_overrides=_MEASURED_ZONALS + _header_field_overrides(("Sun", "Earth", "Moon")), pole_epoch="start"),
+              "restated_geo + the header J2, J3, J4 of the Sun, Earth and Moon (L1 + L2)"),
+             ("restated_geo_hdr_em", dict(zon, zonal_overrides=_MEASURED_ZONALS + _field_radii(("Sun",)) + _header_field_overrides(("Earth", "Moon")), pole_epoch="start"),
+              "restated_geo + the header J2, J3, J4 of the Earth and Moon, the table's Sun J2 (L1 + L2 without the Sun's J2)")]
     return [_dc.replace(base, name=n, description=d, **kw) for n, kw, d in rows]
 
 
@@ -677,6 +704,7 @@ def _build_bodies_at_snapshot(
             j3=params.j3,
             j4=params.j4,
             pole_axis_unit=pole,
+            field_radius_m=params.field_radius_km * KM_TO_M,
         )
         bodies.append(body)
         names.append(name)
@@ -842,6 +870,9 @@ def _integrate_nbody(
             )
         else:
             step_fn = lambda dt: system.forest_ruth_step(dt)
+    elif predictor.integrator in ("y6", "y8"):                   # Yoshida compositions (C26 Phase 3)
+        _order = int(predictor.integrator[1])
+        step_fn = lambda dt: system.yoshida_step(dt, _order)
     else:
         step_fn = lambda dt: system.step(dt)
 

@@ -59,7 +59,7 @@ class TestPredictors(unittest.TestCase):
         import dataclasses
         base = [p for p in rs.canonical_predictors(0.025) if p.name == "de440_stack"][0]
         for p in rs.restated_predictors(0.025):
-            same = dataclasses.replace(p, name=base.name, description=base.description, lunar_c22=0.0, perturber_sets=(), zonal_overrides=())
+            same = dataclasses.replace(p, name=base.name, description=base.description, lunar_c22=0.0, perturber_sets=(), zonal_overrides=(), pole_epoch="snapshot")
             self.assertEqual(same, base)
         by = {p.name: p for p in rs.restated_predictors(0.025)}
         self.assertEqual(by["restated_ast_ring_c22"].perturber_sets, ("asteroids", "ring"))

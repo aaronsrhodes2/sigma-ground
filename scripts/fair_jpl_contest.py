@@ -36,7 +36,9 @@ sys.path.insert(0, str(_ROOT))
 sys.path.insert(0, str(_ROOT / "scripts"))
 
 V_DIR = Path("D:/datasets/jpl/vintages")
-TRUTH = Path("D:/datasets/jpl/de440s.bsp")
+START = Path("D:/datasets/jpl/de440s.bsp")      # the DE440 start state of the control/plan jobs (the fixtures were built from it)
+from sigma_ground.field import datasets as _ds  # noqa: E402  (sys.path is set above)
+TRUTH, TRUTH_NAME = _ds.truth_kernel()          # what every run is SCORED against: DE442 since 2026-11-02 (SIGMA_TRUTH_KERNEL overrides)
 FIXTURE = _ROOT / "sigma_ground/field/interface/fixtures/de440_state_vectors_v2physics.json"
 KM = 1e3
 DAY = 86400.0
@@ -92,7 +94,7 @@ def run_one(args):
     from sigma_ground.field.constants import G
     snap_small = args[7] if len(args) > 7 else None
     de = {"snapshots": {key: snap_small}} if snap_small is not None else json.loads(FIXTURE.read_text())   # workers get one snapshot, not the whole fixture
-    kv = SPK.open(str(V_DIR / vfile)) if vfile else SPK.open(str(TRUTH))
+    kv = SPK.open(str(V_DIR / vfile)) if vfile else SPK.open(str(START))
     kt = SPK.open(str(TRUTH))
     gm = build_masses(de, key)
     snap = de["snapshots"][key]

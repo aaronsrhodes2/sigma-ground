@@ -40,6 +40,7 @@ class TestReducedModel(unittest.TestCase):
         import fair_jpl_contest as fc
         cls.kernel = SPK.open(str(KERNEL))
         cls.fc = fc
+        fc.TRUTH, fc.TRUTH_NAME = KERNEL, "DE440"     # this test compares two codes against the SAME kernel; the contest's default truth is DE442 since 2026-11-02 (3 mm apart on Mercury)
         cls.jd0 = fc.jd_of(2010, 1, 1)
 
     def test_kernel_state_matches_the_scripts_helper(self):                                    # BY CONSTRUCTION: km/s here, km/day there
