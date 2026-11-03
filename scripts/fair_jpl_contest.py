@@ -90,7 +90,9 @@ def _run_one_predictor(args, vname, key, e_jd, dt_days, leads, kv, kt, predictor
     from jplephem.spk import SPK
     from sigma_ground.field.interface import reduced_model as rm
     horizon = max(leads) * 365.25
-    system, order = rm.build_system(kv, e_jd, predictor_name, dt_days=dt_days, horizon_days=horizon + 10.0, fixture_key=key)
+    fx = json.loads(FIXTURE.read_text())["snapshots"]
+    fixture_key = key if key in fx else "j2010"                       # the snapshot only supplies masses and body parameters; a start outside the fixture's years uses j2010's
+    system, order = rm.build_system(kv, e_jd, predictor_name, dt_days=dt_days, horizon_days=horizon + 10.0, fixture_key=fixture_key)
     advance = rm._step_function(system)
     sun_i = order.index("Sun")
     e0 = {n: float(np.linalg.norm((rm.kernel_state(kv, n, e_jd)[0] - rm.kernel_state(kv, "Sun", e_jd)[0]) - (rm.kernel_state(kt, n, e_jd)[0] - rm.kernel_state(kt, "Sun", e_jd)[0])))
@@ -299,6 +301,7 @@ def main() -> int:
     ap.add_argument("--checkpoint", action="store_true", help="save each job's state after every lead and resume from it")
     ap.add_argument("--plan", type=Path, default=None, help="JSON list of DE440-start jobs {label,start,horizon,asteroids,c22}: one driver, mixed configurations, longest first (the shoot-out restatement)")
     ap.add_argument("--starts", nargs="*", default=None, help="restrict start snapshots, e.g. j2005 j2010")
+    ap.add_argument("--last-target", type=int, default=2025, help="contest v2: no lead lands after this year (DE442's fit data end about 2024)")
     ap.add_argument("--predictor", default=None, help="contest v2 (C26): run the reduced model with this predictor label (restated_zon, restated_geo_hdr_em, ...; its own integrator) from the "
                                                          "vintage's own state; the asteroid/ring/KBO paths still come from DE440; scored against datasets.truth_kernel() (DE442). "
                                                          "Without it the original headline-stack path runs (the 2026-10-12 contest).")
@@ -340,6 +343,13 @@ def main() -> int:
         wanted = {tuple(c.split(":")) for c in a.cases} if a.cases else None
         for name, f, rel in VINTAGES:
             if wanted is None and a.only_vintage and name not in a.only_vintage:
+                continue
+            if a.predictor and not wanted:                              # contest v2: yearly starts from the release year (1 January after it) to --max-start-year, leads cut at --last-target
+                for y in range(max(rel.year + 1, 1996), a.max_start_year + 1):
+                    jd = jd_of(y, 1, 1)
+                    lead_y = [k for k in leads if y + k <= a.last_target]
+                    if lead_y:
+                        jobs.append((name, f, f"j{y}", jd, a.dt_days, lead_y, None, None, None, None, False, None, a.lunar_orientation))
                 continue
             for k in (sorted({kk for v, kk in wanted if v == name}) if wanted else keys):
                 if wanted and (name, k) not in wanted:
