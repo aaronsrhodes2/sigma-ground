@@ -4253,3 +4253,31 @@ have corrupted it badly"; "Audit Mentat in its current state"; "go ahead and fix
   from the age-of-universe cue), bananas 49160 (Everest 8848.86 m / 0.18 m), heartbeats 2.945e9; false premise, impossible, nonsense 3/3.
   Left: the 3 open-ended knowledge rows (adv_open_001..003). Physics and maths not re-run for this pin. The waiter matched one exact ref and
   timed out after the box moved past it: match "contains the fix" (git merge-base --is-ancestor), not equality.
+
+## 2026-11-02 (night) — the MPC live scoreboard (C27) and our own orbit fit of Eros (C28)
+
+**Time:** 2026-11-02 19:00 to 2026-11-03 04:40 UTC. **Status:** complete; first scored day on the board, daily task registered, nothing pushed.
+
+### Changes
+- `scripts/mpc_live_score.py`, `scripts/mpc_live_report.py`, `scripts/mpc_live_driver.py`, `scripts/run_mpc_live.bat` — the daily scoreboard: MPC get-obs (whole file, 20 s apart,
+  no date filter exists), per-body watermark in `D:/datasets/mpc_live/state.json`, 30-day backfill windows from 2026-01-01, OUR arm = the C24 engine from a fixed start state per body
+  (heavies 2026-01-01 Horizons state, Eros C24's 2020-01-01, Apophis fetched), JPL's arm = Horizons OBSERVER quantity 1 at the observation instants (topocentric by MPC code),
+  robust stats, rows to `D:/datasets/mpc_live/scoreboard.jsonl`, mirror `fixtures/mpc_live/<date>.json`, portal JSON `fixtures/mpc_live/scoreboard_portal.json`.
+- Windows task `sigma-ground mpc live daily` at 04:30 (schtasks), beside the benchmark (05:00) and distill (06:30) tasks.
+- `scripts/orbit_fit.py` — least-squares differential correction of a state to MPC observations with our propagation; three curves (fitted, borrowed start, JPL) on the later observations;
+  `misc/ORBIT_FIT_EROS.md`.
+- `tests/test_mpc_live.py` (C24 arm J reproduced to 1e-9, bookkeeping, request URLs, parsers), `tests/test_orbit_fit.py` (synthetic recovery to the noise, partials vs half-step, elements).
+- Ledger: C27 and C28 pre-registered before the runs, results written after; `misc/NBODY_CAMPAIGN.md` §4 commands and the §6 orbit-fit sentence.
+
+### Results
+- C27 day one: 154 rows, 31 bodies, 5,706 observations; ours minus JPL median at most 0.0015 arcsec; P0, P1 passed, P3 FAILED (25 of 30 heavies had 20+ observations, not <= 10),
+  P2 open. 558 Eros observations from station C40 have no JPL prediction (Horizons returns HTML for that site); Apophis unobserved since 2021.
+- C28: Eros from 2015-2019 optical data alone: RMS 0.369 arcsec, 1,544/1,563 kept, state 32.6 km / 2.4 mm/s from JPL's (max 1.9 scaled sigma); forward prediction matches JPL's
+  for about four years, 1.6x worse by year six; all four predictions passed.
+- Bugs found on the way: C24's Eros vectors are km/s while the asteroid group is km/day (units line now parsed and the speed sanity-checked); C24's 0.005 km/day finite-difference
+  step is 10 % integrator noise on a short arc (now 0.1 km/day, partials agree with half-step to 0.05 %).
+- Mentat: `ask` timed out at 90 s on a small-angle question; `lookup_constant('au')` fine.
+
+### Next
+- The portal page that draws `scoreboard_portal.json` (SkippyTel, not touched); Ceres fit; per-station weights (unit-weight variance 0.27 says 0.5" is twice too loose);
+  Horizons has no site C40 (ask JPL or map the station by coordinates, a decision for the Captain); watch the daily task's first unattended run on 2026-11-03 04:30 (`misc/mpc_live_job.log`).

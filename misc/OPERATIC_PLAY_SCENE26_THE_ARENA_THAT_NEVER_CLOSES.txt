@@ -1,0 +1,45 @@
+OPERATIC PLAY, SCENE 26: THE ARENA THAT NEVER CLOSES
+(sigma-ground, the night of 2026-11-02 into 2026-11-03)
+
+The planets had run out of future. Reality for them was DE442, JPL's latest fit, and it ended in 2024; the next one would come in some years, and
+until then every comparison of our N-body prediction with the planets was a comparison with the past. The Captain had drawn the conclusion that
+afternoon: the live arena is the small bodies. Telescopes measure asteroids every night, the Minor Planet Center publishes the raw positions the same
+week, and JPL's own solutions move with them. If the prediction was to go on being tested, it would be tested there, daily, against positions nobody
+had seen when the prediction was made.
+
+So the session built a scoreboard. Thirty-two bodies: the thirty heaviest asteroids in DE440, Eros (the one body already tested this way, in C24),
+and Apophis. For each, the rules were fixed before any number was read: our arm would be the C24 engine from a start state that never moves, so the
+prediction ages in public; JPL's arm would be Horizons' own topocentric answer at the exact instants of the observations, none of our pipeline in it;
+and a body with nothing new in the sky would be written down as a row of zeros, never guessed at. The ledger got the expected sizes first: both arms
+inside the telescopes' own 0.3-0.5 arcsec, ours within 0.02 arcsec of JPL's on day one, and a guess, from the two brightest bodies in an older fetch,
+that at most ten of the thirty heavies would have twenty observations this year.
+
+The first probe request went to Horizons alone, for two Eros observations from a Chilean station, and came back 0.1 arcsec from what the telescope
+had recorded. Then the dry run on Eros found the first bug: the propagation flew off to 10^37 km. C24's Eros vectors are in km per second and the
+asteroid group's are in km per day, and the scorer had read both the same way. The units line is now parsed and a speed that is not a solar-system
+speed is refused. The second dry run gave Eros's ten monthly windows of 2026 at 0.08 to 0.19 arcsec, and the real run began at 03:43 UTC under the
+watchdog.
+
+Thirty-seven minutes later the board had 154 rows and 5,706 observations on it. Ours and JPL's agreed to 0.0015 arcsec at worst, on Eros at a lead
+of six and a half years, and to 0.0002 arcsec on the heavies. The guess about coverage was wrong in the good direction: twenty-five of the thirty
+heavies had twenty or more observations in 2026, Bertha alone 519. The surveys skip the giants that saturate their detectors and track everything
+fainter every month. P3 is recorded as failed, and the arena is richer than the entry expected. One honest hole: Horizons answered every request for station C40,
+the Kuban observatory that made 558 of Eros's 1,160 observations this year, with a 502 error page. Sent again after the run, eighty-seven instants
+got the same error and two instants got an ephemeris: the server chokes on long requests for that site. Those 558 observations have our residual and
+no JPL one and sit outside both arms on the first day's rows; the scorer now splits a refused request in halves so the next day does not lose them.
+
+While the board was filling, a message came from the session upstairs: the Captain wanted the other thing gone, the line that said every arm starts
+from JPL's state. A prediction from a borrowed start shows parity of dynamics; it is not an ephemeris of our own. So the session wrote the fit:
+six numbers at 2020-01-01, corrected by least squares to five years of Eros observations with our propagation as the model, finite-difference partials,
+equal weights, outliers out at three sigma. The synthetic test caught the second bug of the night before the real data saw it: C24's velocity step of
+five metres per day was so small that the integrator's own noise was a tenth of the partial; at a hundred metres per day the partials agree with their
+half-step to a twentieth of a percent, and the synthetic orbit came back inside three sigma in two iterations.
+
+The real fit took three iterations and six minutes. Post-fit scatter 0.369 arcsec, nineteen of 1,563 observations rejected, and the fitted state 33 km
+and 2.4 millimetres per second from JPL's, every component within two scaled sigma. Then the three curves on the 4,435 observations that came after:
+from our fitted state, from JPL's state, and JPL's own. For four years the fitted orbit predicted the sky as well as JPL did; by year six it was 1.6
+times worse, 0.18 arcsec from JPL's curve, and the reason is visible in the fit itself: the velocity along the direction a five-year optical arc
+constrains least. All four pre-registered predictions held, one of them narrowly. The next lever is not in the dynamics. It is in the weights (the fit
+said the assumed half-arcsecond is twice too loose), in the length of the arc, in radar, and in the Yarkovsky drift that JPL carries and we do not.
+
+At 04:30 every morning from now on the task scheduler runs the board again. The prediction ages; the telescopes keep looking; the ledger keeps score.

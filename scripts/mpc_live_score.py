@@ -281,6 +281,32 @@ def utc_jd(rows) -> np.ndarray:
     return out
 
 
+def fetch_part(number: int, code: str, part: list[int], times, jd_utc: np.ndarray, ra_j: np.ndarray, dec_j: np.ndarray, files: list, day_dir: Path, log, dry_run: bool = False) -> list[int]:
+    """One Horizons OBSERVER request for the observation indices `part` of station `code`, filling ra_j/dec_j (deg). On failure the part is split in two and each half tried, down to
+    single instants (Horizons answered 502 to every 81-120-instant request for station C40 on 2026-11-02 and 200 to a 2-instant one: the limit is request size per site, not the site).
+    Returns the indices that got no answer."""
+    f = day_dir / "horizons" / f"obs_{number}_{code}_{times[part[0]].strftime('%Y%m%dT%H%M%S')}_{len(part)}.json"
+    url = horizons_observer_url(number, code, [float(jd_utc[i]) for i in part])
+    if dry_run:
+        log(f"  DRY RUN would send: {url[:160]}... ({len(part)} instants)"); return []
+    d = fetch_url(url, f, log, lambda res: parse_horizons_observer(res, number))
+    ok_rows = False
+    if d is not None:
+        jd, ra, dec = parse_horizons_observer(d["result"], number)
+        ok_rows = len(jd) == len(part) and np.abs(jd - jd_utc[part]).max() <= 2.0 / DAY
+        if not ok_rows:
+            log(f"  horizons {f.name}: {len(jd)} rows for {len(part)} instants or times differ; skipped")
+    if ok_rows:
+        ra_j[part] = ra; dec_j[part] = dec
+        files.append(str(f))
+        return []
+    if len(part) >= 2:
+        h = len(part) // 2
+        log(f"  horizons {code}: {len(part)} instants refused, splitting into {h} + {len(part) - h}")
+        return fetch_part(number, code, part[:h], times, jd_utc, ra_j, dec_j, files, day_dir, log) + fetch_part(number, code, part[h:], times, jd_utc, ra_j, dec_j, files, day_dir, log)
+    return list(part)
+
+
 def score_window(number: int, name: str, rows, times, engine: Engine, start, codes, day_dir: Path, log, dry_run: bool) -> dict:
     jd0, y0, start_src = start
     obs = esr.Obs(rows, codes, engine.kernel)
@@ -304,20 +330,9 @@ def score_window(number: int, name: str, rows, times, engine: Engine, start, cod
         by_code.setdefault(c, []).append(i)
     for code, idx in sorted(by_code.items()):
         for k in range(0, len(idx), CHUNK):
-            part = idx[k:k + CHUNK]
-            f = day_dir / "horizons" / f"obs_{number}_{code}_{times[part[0]].strftime('%Y%m%dT%H%M%S')}_{len(part)}.json"
-            url = horizons_observer_url(number, code, [float(jd_utc[i]) for i in part])
-            if dry_run:
-                log(f"  DRY RUN would send: {url[:160]}... ({len(part)} instants)"); continue
-            d = fetch_url(url, f, log, lambda res: parse_horizons_observer(res, number))
-            if d is None:
-                failed_sites[code] = failed_sites.get(code, 0) + len(part); continue
-            jd, ra, dec = parse_horizons_observer(d["result"], number)
-            if len(jd) != len(part) or np.abs(jd - jd_utc[part]).max() > 2.0 / DAY:
-                log(f"  horizons {f.name}: {len(jd)} rows for {len(part)} instants or times differ; skipped")
-                failed_sites[code] = failed_sites.get(code, 0) + len(part); continue
-            ra_j[part] = ra; dec_j[part] = dec
-            files.append(str(f))
+            lost = fetch_part(number, code, idx[k:k + CHUNK], times, jd_utc, ra_j, dec_j, files, day_dir, log, dry_run)
+            if lost:
+                failed_sites[code] = failed_sites.get(code, 0) + len(lost)
     have = ~np.isnan(ra_j)
     row["files"] = {"horizons": files}
     row["n_no_jpl"] = int((~have).sum())

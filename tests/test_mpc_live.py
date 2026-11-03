@@ -147,6 +147,36 @@ class TestHorizonsRequests(unittest.TestCase):
         with self.assertRaises(ValueError):
             m.parse_horizons_vector_row(fake, 1, 2461041.5)
 
+    def test_refused_request_is_split_down_to_the_instants_that_work(self):
+        """A stand-in for the day-one C40 case: Horizons refuses any request with more than 3 instants; the scorer must still obtain every instant through halving."""
+        import types
+        from datetime import datetime, timezone
+        n = 10
+        times = [datetime(2026, 1, 1, i, tzinfo=timezone.utc) for i in range(n)]
+        jd_utc = np.array([2461041.5 + i / 24 for i in range(n)])
+        calls = []
+
+        def fake_fetch(url, out, log, check):
+            k = url.count("%20") + 1                                            # instants in the TLIST
+            calls.append(k)
+            if k > 3:
+                return None
+            tl = url.split("TLIST=%27")[1].split("%27")[0].split("%20")
+            res = "Target body name: 433 Eros (A898 PA)  {source: x}\nDate_________JDUT, , , R.A.___(ICRF), DEC____(ICRF),\n$$SOE\n" + "".join(f"{float(t):.9f}, , , 10.0, 20.0,\n" for t in tl) + "$$EOE\n"
+            return {"result": res}
+
+        ra_j = np.full(n, np.nan); dec_j = np.full(n, np.nan); files = []
+        saved = m.fetch_url
+        m.fetch_url = fake_fetch
+        try:
+            lost = m.fetch_part(433, "C40", list(range(n)), times, jd_utc, ra_j, dec_j, files, Path("D:/datasets/mpc_live/_test"), lambda s: None)
+        finally:
+            m.fetch_url = saved
+        self.assertEqual(lost, [])
+        self.assertTrue(np.all(~np.isnan(ra_j)) and np.all(ra_j == 10.0))
+        self.assertEqual(calls, [10, 5, 2, 3, 5, 2, 3])                          # 10 refused -> 5 + 5; each 5 refused -> 2 + 3, which are answered
+        self.assertEqual(len(files), 4)
+
     def test_apparent_table_is_refused(self):
         fake = "Target body name: 433 Eros (A898 PA)  {source: x}\nDate_________JDUT, , , R.A._(a-app), DEC_(a-app),\n$$SOE\n2461302.5, , , 1.0, 2.0,\n$$EOE\n"
         with self.assertRaises(ValueError):

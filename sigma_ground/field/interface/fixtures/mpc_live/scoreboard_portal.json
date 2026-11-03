@@ -1,0 +1,3605 @@
+{
+ "generated_utc": "2026-11-03T04:20:35+00:00",
+ "ledger": "misc/CANDIDATE_LEDGER.md C27",
+ "units": {
+  "residuals": "arcsec, total = sqrt((dRA cos Dec)^2 + dDec^2), O minus C",
+  "lead": "days from the body's fixed start epoch to the newest observation in the window"
+ },
+ "arms": {
+  "ours": "sigma-ground C24 engine from the fixed start state (scripts/eros_sky_residuals.py pipeline)",
+  "jpl": "JPL Horizons topocentric astrometric RA/Dec at the observation instants"
+ },
+ "bodies": [
+  {
+   "body": 433,
+   "name": "Eros",
+   "start_epoch_jd_tdb": 2458849.5,
+   "start_source": "JPL Horizons barycentric state at JD 2458849.5 (2020-01-01 TDB), C24's start, D:\\datasets\\mpc\\eros\\vec_2019-12-31_2022-01-02.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 2221.2286687493324,
+     "lead_days_first": 2192.7160607404076,
+     "window_utc": [
+      "2026-01-01T17:09:58.464000+00:00",
+      "2026-01-30T05:28:07.795200+00:00"
+     ],
+     "n_scored": 65,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 87,
+     "backfill": true,
+     "ours_median_arcsec": 0.18746081353605976,
+     "ours_sigma_arcsec": 0.14615298692395615,
+     "jpl_median_arcsec": 0.18671878070734746,
+     "jpl_sigma_arcsec": 0.14657909836722016,
+     "ours_minus_jpl_median_arcsec": 0.0013549520273078762,
+     "ours_minus_jpl_dra": 0.001155613948085485,
+     "ours_minus_jpl_ddec": 0.0007031770194002376,
+     "stations": 12
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 2252.8368197572418,
+     "lead_days_first": 2222.939573749434,
+     "window_utc": [
+      "2026-01-31T22:31:49.987200+00:00",
+      "2026-03-02T20:03:52.041600+00:00"
+     ],
+     "n_scored": 105,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 81,
+     "backfill": true,
+     "ours_median_arcsec": 0.15909558701091348,
+     "ours_sigma_arcsec": 0.14532823609588055,
+     "jpl_median_arcsec": 0.1595042411275526,
+     "jpl_sigma_arcsec": 0.14453764761489765,
+     "ours_minus_jpl_median_arcsec": 0.0013729744102562132,
+     "ours_minus_jpl_dra": 0.0013514911045996447,
+     "ours_minus_jpl_ddec": -0.00015926475028026034,
+     "stations": 16
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 2283.893703759648,
+     "lead_days_first": 2253.8988677570596,
+     "window_utc": [
+      "2026-03-03T21:33:12.988800+00:00",
+      "2026-04-02T21:25:46.819200+00:00"
+     ],
+     "n_scored": 106,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 106,
+     "backfill": true,
+     "ours_median_arcsec": 0.11481846691972368,
+     "ours_sigma_arcsec": 0.11663265219918094,
+     "jpl_median_arcsec": 0.11504633371701858,
+     "jpl_sigma_arcsec": 0.11762905850784343,
+     "ours_minus_jpl_median_arcsec": 0.0014691775907929151,
+     "ours_minus_jpl_dra": 0.0013346169755747836,
+     "ours_minus_jpl_ddec": -0.0006358543469521111,
+     "stations": 13
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 2313.9025537581183,
+     "lead_days_first": 2283.906519759912,
+     "window_utc": [
+      "2026-04-02T21:44:14.121600+00:00",
+      "2026-05-02T21:38:31.459200+00:00"
+     ],
+     "n_scored": 84,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 120,
+     "backfill": true,
+     "ours_median_arcsec": 0.07702136785117966,
+     "ours_sigma_arcsec": 0.05656425278651441,
+     "jpl_median_arcsec": 0.07808185503880369,
+     "jpl_sigma_arcsec": 0.0589498217898627,
+     "ours_minus_jpl_median_arcsec": 0.001355093178296389,
+     "ours_minus_jpl_dra": 0.0010935902550247636,
+     "ours_minus_jpl_ddec": -0.0008031681673577942,
+     "stations": 11
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 2343.028538751416,
+     "lead_days_first": 2313.9166807578877,
+     "window_utc": [
+      "2026-05-02T21:58:52.032000+00:00",
+      "2026-06-01T00:39:56.563200+00:00"
+     ],
+     "n_scored": 83,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 82,
+     "backfill": true,
+     "ours_median_arcsec": 0.14403859358663154,
+     "ours_sigma_arcsec": 0.0879968785093642,
+     "jpl_median_arcsec": 0.14462983235346563,
+     "jpl_sigma_arcsec": 0.08555600068512997,
+     "ours_minus_jpl_median_arcsec": 0.001115662365314193,
+     "ours_minus_jpl_dra": 0.0008601652057125958,
+     "ours_minus_jpl_ddec": -0.0007012399218138399,
+     "stations": 8
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 2374.096151741687,
+     "lead_days_first": 2344.756529750768,
+     "window_utc": [
+      "2026-06-02T18:08:14.985600+00:00",
+      "2026-07-02T02:17:18.326400+00:00"
+     ],
+     "n_scored": 66,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 82,
+     "backfill": true,
+     "ours_median_arcsec": 0.1029323257259645,
+     "ours_sigma_arcsec": 0.05120661560746891,
+     "jpl_median_arcsec": 0.10246845017226043,
+     "jpl_sigma_arcsec": 0.05123152080585061,
+     "ours_minus_jpl_median_arcsec": 0.0008402190579877371,
+     "ours_minus_jpl_dra": 0.0006635331366128469,
+     "ours_minus_jpl_ddec": -0.0005148541608183382,
+     "stations": 7
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 2403.806598732248,
+     "lead_days_first": 2376.0079597411677,
+     "window_utc": [
+      "2026-07-04T00:10:18.537600+00:00",
+      "2026-07-31T19:20:20.947200+00:00"
+     ],
+     "n_scored": 34,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1291015114350702,
+     "ours_sigma_arcsec": 0.07377177049330386,
+     "jpl_median_arcsec": 0.1287961595448629,
+     "jpl_sigma_arcsec": 0.07338322433364405,
+     "ours_minus_jpl_median_arcsec": 0.0006653456906334031,
+     "ours_minus_jpl_dra": 0.0005555057890669103,
+     "ours_minus_jpl_ddec": -0.00036400869341175757,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 2436.2373817246407,
+     "lead_days_first": 2406.2450277316384,
+     "window_utc": [
+      "2026-08-03T05:51:41.212800+00:00",
+      "2026-09-02T05:40:40.598400+00:00"
+     ],
+     "n_scored": 37,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1435228092110723,
+     "ours_sigma_arcsec": 0.07825317855685793,
+     "jpl_median_arcsec": 0.14320735917879293,
+     "jpl_sigma_arcsec": 0.07803825336993064,
+     "ours_minus_jpl_median_arcsec": 0.0005030694913645717,
+     "ours_minus_jpl_dra": 0.00044712608270232324,
+     "ours_minus_jpl_ddec": -0.00023150614672660767,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 2453.039592721965,
+     "lead_days_first": 2436.251571724657,
+     "window_utc": [
+      "2026-09-02T06:01:06.614400+00:00",
+      "2026-09-19T00:55:51.628800+00:00"
+     ],
+     "n_scored": 22,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.10438209108239514,
+     "ours_sigma_arcsec": 0.04938097823965626,
+     "jpl_median_arcsec": 0.10432703798406442,
+     "jpl_sigma_arcsec": 0.049557524969961075,
+     "ours_minus_jpl_median_arcsec": 0.000427516050351314,
+     "ours_minus_jpl_dra": 0.0003924793545603683,
+     "ours_minus_jpl_ddec": -0.0001626525696242073,
+     "stations": 3
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 602,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 1,
+   "name": "Ceres",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_1.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 2.0459857401438057,
+     "lead_days_first": 2.04244474042207,
+     "window_utc": [
+      "2026-01-03T00:59:58.041600+00:00",
+      "2026-01-03T01:05:03.984000+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.13029518883748933,
+     "ours_sigma_arcsec": 0.031944589789045706,
+     "jpl_median_arcsec": 0.13028861834943806,
+     "jpl_sigma_arcsec": 0.03193345920679131,
+     "ours_minus_jpl_median_arcsec": 2.7548394269445825e-05,
+     "ours_minus_jpl_dra": -2.4805757016924113e-05,
+     "ours_minus_jpl_ddec": -1.1420347086413263e-05,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 264.0871777222492,
+     "lead_days_first": 262.10066172201186,
+     "window_utc": [
+      "2026-09-20T02:23:47.990400+00:00",
+      "2026-09-22T02:04:22.972800+00:00"
+     ],
+     "n_scored": 6,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.18927471999341122,
+     "ours_sigma_arcsec": 0.05409082379863023,
+     "jpl_median_arcsec": 0.18928196186988597,
+     "jpl_sigma_arcsec": 0.05403097066439905,
+     "ours_minus_jpl_median_arcsec": 6.940605454868422e-05,
+     "ours_minus_jpl_dra": -5.5035521518864705e-05,
+     "ours_minus_jpl_ddec": -4.1945872672283224e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 9,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 2,
+   "name": "Pallas",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_2.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 198.11687473673373,
+     "lead_days_first": 198.11191673669964,
+     "window_utc": [
+      "2026-07-18T02:40:00.422400+00:00",
+      "2026-07-18T02:47:08.793600+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1620363275736022,
+     "ours_sigma_arcsec": 0.011989204306025448,
+     "jpl_median_arcsec": 0.16200491014827156,
+     "jpl_sigma_arcsec": 0.011982739693028942,
+     "ours_minus_jpl_median_arcsec": 4.6391086167406e-05,
+     "ours_minus_jpl_dra": -4.5510870130840986e-05,
+     "ours_minus_jpl_ddec": 8.994085596958357e-06,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 231.96621872670949,
+     "lead_days_first": 231.9463607268408,
+     "window_utc": [
+      "2026-08-20T22:41:36.384000+00:00",
+      "2026-08-20T23:10:12.115200+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.2526862771891477,
+     "ours_sigma_arcsec": 0.144227514784232,
+     "jpl_median_arcsec": 0.2526198937951804,
+     "jpl_sigma_arcsec": 0.14411816245343764,
+     "ours_minus_jpl_median_arcsec": 6.666780178455438e-05,
+     "ours_minus_jpl_dra": -6.538374283007742e-05,
+     "ours_minus_jpl_ddec": 1.3021596227610899e-05,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 289.8814807222225,
+     "lead_days_first": 284.10179572179914,
+     "window_utc": [
+      "2026-10-12T02:25:25.968000+00:00",
+      "2026-10-17T21:08:10.752000+00:00"
+     ],
+     "n_scored": 6,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.4620625126730278,
+     "ours_sigma_arcsec": 0.34086459591840634,
+     "jpl_median_arcsec": 0.46201851030428065,
+     "jpl_sigma_arcsec": 0.3409044238763258,
+     "ours_minus_jpl_median_arcsec": 9.72960204384503e-05,
+     "ours_minus_jpl_dra": -9.33252798032691e-05,
+     "ours_minus_jpl_ddec": 2.7445911532225642e-05,
+     "stations": 2
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 12,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 3,
+   "name": "Juno",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_3.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 102.39131275983527,
+     "lead_days_first": 81.39061075914651,
+     "window_utc": [
+      "2026-03-23T09:21:19.584000+00:00",
+      "2026-04-13T09:22:20.236800+00:00"
+     ],
+     "n_scored": 6,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.10208573055426187,
+     "ours_sigma_arcsec": 0.04314298588588037,
+     "jpl_median_arcsec": 0.10208599143587765,
+     "jpl_sigma_arcsec": 0.0431470606122912,
+     "ours_minus_jpl_median_arcsec": 7.3136864166343165e-06,
+     "ours_minus_jpl_dra": 5.481623214996425e-06,
+     "ours_minus_jpl_ddec": -4.257480954936166e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 147.15309575246647,
+     "lead_days_first": 123.2094727572985,
+     "window_utc": [
+      "2026-05-04T05:00:29.260800+00:00",
+      "2026-05-28T03:39:18.288000+00:00"
+     ],
+     "n_scored": 11,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11959483446801406,
+     "ours_sigma_arcsec": 0.041867268030590495,
+     "jpl_median_arcsec": 0.11958740771677698,
+     "jpl_sigma_arcsec": 0.04185630917101971,
+     "ours_minus_jpl_median_arcsec": 5.698683049902487e-06,
+     "ours_minus_jpl_dra": 5.58038020076479e-06,
+     "ours_minus_jpl_ddec": 2.5581554344566992e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 205.08887973427773,
+     "lead_days_first": 205.08533773431554,
+     "window_utc": [
+      "2026-07-25T02:01:43.996800+00:00",
+      "2026-07-25T02:06:50.025600+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11764418538171688,
+     "ours_sigma_arcsec": 0.0010387394711259194,
+     "jpl_median_arcsec": 0.11765712619132358,
+     "jpl_sigma_arcsec": 0.0010415602246582935,
+     "ours_minus_jpl_median_arcsec": 1.1116048392179351e-05,
+     "ours_minus_jpl_dra": 1.1094727430521756e-05,
+     "ours_minus_jpl_ddec": 6.88153398379493e-07,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 254.6404677229002,
+     "lead_days_first": 239.5677337255329,
+     "window_utc": [
+      "2026-08-28T13:36:23.011200+00:00",
+      "2026-09-12T15:21:07.228800+00:00"
+     ],
+     "n_scored": 24,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.3475933002631898,
+     "ours_sigma_arcsec": 0.1845410812195634,
+     "jpl_median_arcsec": 0.34756827132820994,
+     "jpl_sigma_arcsec": 0.18456903250992313,
+     "ours_minus_jpl_median_arcsec": 3.0866143755305944e-05,
+     "ours_minus_jpl_dra": 1.8177892229593456e-05,
+     "ours_minus_jpl_ddec": 2.434976654559773e-05,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 272.5523207215592,
+     "lead_days_first": 272.47430972149596,
+     "window_utc": [
+      "2026-09-30T11:21:51.177600+00:00",
+      "2026-09-30T13:14:11.328000+00:00"
+     ],
+     "n_scored": 6,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.5809728402260672,
+     "ours_sigma_arcsec": 0.1276883646620774,
+     "jpl_median_arcsec": 0.5810064037259929,
+     "jpl_sigma_arcsec": 0.12768706632517998,
+     "ours_minus_jpl_median_arcsec": 3.54285398614385e-05,
+     "ours_minus_jpl_dra": 2.5619092923367948e-05,
+     "ours_minus_jpl_ddec": 2.4468397100504968e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 50,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 4,
+   "name": "Vesta",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_4.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 295.047768722754,
+     "lead_days_first": 295.04407572280616,
+     "window_utc": [
+      "2026-10-23T01:02:18.960000+00:00",
+      "2026-10-23T01:07:38.035200+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.2784448358325689,
+     "ours_sigma_arcsec": 0.1556052348793121,
+     "jpl_median_arcsec": 0.2784006699514121,
+     "jpl_sigma_arcsec": 0.15573449406118606,
+     "ours_minus_jpl_median_arcsec": 6.553330634848493e-05,
+     "ours_minus_jpl_dra": -4.598636992642416e-05,
+     "ours_minus_jpl_ddec": -4.670166035277215e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 3,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 6,
+   "name": "Hebe",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_6.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 30.10993674956262,
+     "lead_days_first": 15.118467744905502,
+     "window_utc": [
+      "2026-01-16T02:49:26.428800+00:00",
+      "2026-01-31T02:37:09.350400+00:00"
+     ],
+     "n_scored": 12,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.891830283156698,
+     "ours_sigma_arcsec": 0.6046099313722411,
+     "jpl_median_arcsec": 0.8918341454055414,
+     "jpl_sigma_arcsec": 0.6046128047244422,
+     "ours_minus_jpl_median_arcsec": 5.2156250601575705e-06,
+     "ours_minus_jpl_dra": -3.649686995940704e-06,
+     "ours_minus_jpl_ddec": -3.309263778061844e-06,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 46.09656675392762,
+     "lead_days_first": 46.08970875386149,
+     "window_utc": [
+      "2026-02-16T02:08:01.651200+00:00",
+      "2026-02-16T02:17:54.182400+00:00"
+     ],
+     "n_scored": 4,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 1.090225641411531,
+     "ours_sigma_arcsec": 0.13223642355964937,
+     "jpl_median_arcsec": 1.0902311605646937,
+     "jpl_sigma_arcsec": 0.13223802488539352,
+     "ours_minus_jpl_median_arcsec": 6.121033001102444e-06,
+     "ours_minus_jpl_dra": -3.890078282817178e-06,
+     "ours_minus_jpl_ddec": -4.7572575739285305e-06,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 16,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 7,
+   "name": "Iris",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_7.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 32.86235575005412,
+     "lead_days_first": 8.827189742587507,
+     "window_utc": [
+      "2026-01-09T19:50:00.009600+00:00",
+      "2026-02-02T20:40:38.352000+00:00"
+     ],
+     "n_scored": 12,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.42365756528198056,
+     "ours_sigma_arcsec": 0.299546712297853,
+     "jpl_median_arcsec": 0.4236165838594888,
+     "jpl_sigma_arcsec": 0.299467728755116,
+     "ours_minus_jpl_median_arcsec": 4.1683264563668635e-05,
+     "ours_minus_jpl_dra": -3.917151032089422e-05,
+     "ours_minus_jpl_ddec": 1.6323435398308064e-05,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 58.02063875645399,
+     "lead_days_first": 42.78595575271174,
+     "window_utc": [
+      "2026-02-12T18:50:37.392000+00:00",
+      "2026-02-28T00:28:34.003200+00:00"
+     ],
+     "n_scored": 9,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.5728756185651876,
+     "ours_sigma_arcsec": 0.2979566541609209,
+     "jpl_median_arcsec": 0.5729051564418738,
+     "jpl_sigma_arcsec": 0.29793859871945255,
+     "ours_minus_jpl_median_arcsec": 4.325283518459414e-05,
+     "ours_minus_jpl_dra": -4.1488098032615994e-05,
+     "ours_minus_jpl_ddec": 1.2953573943152996e-05,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 100.62221375992522,
+     "lead_days_first": 82.81654075952247,
+     "window_utc": [
+      "2026-03-24T19:34:39.936000+00:00",
+      "2026-04-11T14:54:50.083200+00:00"
+     ],
+     "n_scored": 9,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09793767764482612,
+     "ours_sigma_arcsec": 0.03888547366582874,
+     "jpl_median_arcsec": 0.0979727819423686,
+     "jpl_sigma_arcsec": 0.038921848618737744,
+     "ours_minus_jpl_median_arcsec": 4.20099979557337e-05,
+     "ours_minus_jpl_dra": -4.095732815020958e-05,
+     "ours_minus_jpl_ddec": 9.572884369143247e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 143.16118275327608,
+     "lead_days_first": 118.5453597586602,
+     "window_utc": [
+      "2026-04-29T13:04:09.897600+00:00",
+      "2026-05-24T03:50:57.004800+00:00"
+     ],
+     "n_scored": 14,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.3716741416937553,
+     "ours_sigma_arcsec": 0.09794062415016803,
+     "jpl_median_arcsec": 0.37169053394003215,
+     "jpl_sigma_arcsec": 0.09797348793851114,
+     "ours_minus_jpl_median_arcsec": 3.0396295843835383e-05,
+     "ours_minus_jpl_dra": -2.9614214082485102e-05,
+     "ours_minus_jpl_ddec": 4.179367645157361e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 184.01340474141762,
+     "lead_days_first": 163.06040174793452,
+     "window_utc": [
+      "2026-06-13T01:25:49.526400+00:00",
+      "2026-07-04T00:18:08.985600+00:00"
+     ],
+     "n_scored": 7,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.17137525923034108,
+     "ours_sigma_arcsec": 0.060949353329870476,
+     "jpl_median_arcsec": 0.17135969768906698,
+     "jpl_sigma_arcsec": 0.06089514019415552,
+     "ours_minus_jpl_median_arcsec": 2.7855328145591574e-05,
+     "ours_minus_jpl_dra": -2.439280256449905e-05,
+     "ours_minus_jpl_ddec": -1.3026453888773104e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 51,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 9,
+   "name": "Metis",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_9.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 144.32862075325102,
+     "lead_days_first": 132.5616507558152,
+     "window_utc": [
+      "2026-05-13T13:27:37.440000+00:00",
+      "2026-05-25T07:52:03.648000+00:00"
+     ],
+     "n_scored": 7,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.3940885430810468,
+     "ours_sigma_arcsec": 0.4594578294655597,
+     "jpl_median_arcsec": 0.3940959713231675,
+     "jpl_sigma_arcsec": 0.4594591104790565,
+     "ours_minus_jpl_median_arcsec": 1.792306267457241e-05,
+     "ours_minus_jpl_dra": 1.73349150358465e-05,
+     "ours_minus_jpl_ddec": 1.8581169393405705e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 188.2912897397764,
+     "lead_days_first": 170.35810474585742,
+     "window_utc": [
+      "2026-06-20T08:34:31.065600+00:00",
+      "2026-07-08T06:58:18.249600+00:00"
+     ],
+     "n_scored": 11,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.159607981671627,
+     "ours_sigma_arcsec": 0.11525601647390808,
+     "jpl_median_arcsec": 0.15962113531030048,
+     "jpl_sigma_arcsec": 0.11529612082080445,
+     "ours_minus_jpl_median_arcsec": 3.216799761084267e-05,
+     "ours_minus_jpl_dra": 3.112602944849163e-05,
+     "ours_minus_jpl_ddec": -3.0665381572370087e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 248.56829772377387,
+     "lead_days_first": 241.03478172468022,
+     "window_utc": [
+      "2026-08-30T00:48:55.958400+00:00",
+      "2026-09-06T13:37:11.740800+00:00"
+     ],
+     "n_scored": 6,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.4321756614624134,
+     "ours_sigma_arcsec": 0.3859076991902135,
+     "jpl_median_arcsec": 0.43212595116310837,
+     "jpl_sigma_arcsec": 0.38586553675688495,
+     "ours_minus_jpl_median_arcsec": 6.0420549414892936e-05,
+     "ours_minus_jpl_dra": 5.680790897000243e-05,
+     "ours_minus_jpl_ddec": 1.1539810628440755e-05,
+     "stations": 2
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 24,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 10,
+   "name": "Hygiea",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_10.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 25.604566748254,
+     "lead_days_first": 3.0990067408420146,
+     "window_utc": [
+      "2026-01-04T02:21:24.998400+00:00",
+      "2026-01-26T14:29:25.382400+00:00"
+     ],
+     "n_scored": 19,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.3750824960002628,
+     "ours_sigma_arcsec": 0.21471787631703212,
+     "jpl_median_arcsec": 0.37510344473085716,
+     "jpl_sigma_arcsec": 0.21471614801913544,
+     "ours_minus_jpl_median_arcsec": 2.314871465217081e-05,
+     "ours_minus_jpl_dra": -2.2353331417007682e-05,
+     "ours_minus_jpl_ddec": 5.587140464530238e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 65.94348375732079,
+     "lead_days_first": 52.55215775500983,
+     "window_utc": [
+      "2026-02-22T13:13:57.244800+00:00",
+      "2026-03-07T22:37:27.811200+00:00"
+     ],
+     "n_scored": 14,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.13343985382912452,
+     "ours_sigma_arcsec": 0.07775572503095794,
+     "jpl_median_arcsec": 0.13344797001790898,
+     "jpl_sigma_arcsec": 0.07776969968238281,
+     "ours_minus_jpl_median_arcsec": 1.8457131726301338e-05,
+     "ours_minus_jpl_dra": -1.8187152961264552e-05,
+     "ours_minus_jpl_ddec": -2.7535124182691446e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 112.90849875891581,
+     "lead_days_first": 88.53714675968513,
+     "window_utc": [
+      "2026-03-30T12:52:20.294400+00:00",
+      "2026-04-23T21:47:05.107200+00:00"
+     ],
+     "n_scored": 23,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.07006035363630479,
+     "ours_sigma_arcsec": 0.020040051107978105,
+     "jpl_median_arcsec": 0.0700683513045554,
+     "jpl_sigma_arcsec": 0.02004025415944212,
+     "ours_minus_jpl_median_arcsec": 1.1041755125252585e-05,
+     "ours_minus_jpl_dra": -9.821078536122185e-06,
+     "ours_minus_jpl_ddec": -5.473029795881291e-06,
+     "stations": 3
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 56,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 15,
+   "name": "Eunomia",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_15.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 80.05889075947925,
+     "lead_days_first": 80.05536075914279,
+     "window_utc": [
+      "2026-03-22T01:18:33.984000+00:00",
+      "2026-03-22T01:23:38.976000+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.3322093840356803,
+     "ours_sigma_arcsec": 0.1110185929763669,
+     "jpl_median_arcsec": 0.3322340699465705,
+     "jpl_sigma_arcsec": 0.11101892589020727,
+     "ours_minus_jpl_median_arcsec": 2.5524154058300644e-05,
+     "ours_minus_jpl_dra": -2.240557957450262e-05,
+     "ours_minus_jpl_ddec": -1.2451367778068545e-05,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 161.26810674881563,
+     "lead_days_first": 134.88430775515735,
+     "window_utc": [
+      "2026-05-15T21:12:15.004800+00:00",
+      "2026-06-11T06:24:55.238400+00:00"
+     ],
+     "n_scored": 18,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.15029224865969099,
+     "ours_sigma_arcsec": 0.09980248621269358,
+     "jpl_median_arcsec": 0.1503037850736768,
+     "jpl_sigma_arcsec": 0.09980131769787955,
+     "ours_minus_jpl_median_arcsec": 1.670129902184889e-05,
+     "ours_minus_jpl_dra": -1.3698441232938563e-05,
+     "ours_minus_jpl_ddec": -7.249390895195523e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 197.73886373639107,
+     "lead_days_first": 184.00795974116772,
+     "window_utc": [
+      "2026-07-04T00:10:18.537600+00:00",
+      "2026-07-17T17:42:48.643200+00:00"
+     ],
+     "n_scored": 7,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.23386714434275824,
+     "ours_sigma_arcsec": 0.09108203288882523,
+     "jpl_median_arcsec": 0.23388348085461722,
+     "jpl_sigma_arcsec": 0.09108340760434382,
+     "ours_minus_jpl_median_arcsec": 1.7299082067294473e-05,
+     "ours_minus_jpl_dra": -1.0693653607118936e-05,
+     "ours_minus_jpl_ddec": -1.245666340160545e-05,
+     "stations": 2
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 28,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 16,
+   "name": "Psyche",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_16.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 34.613999750465155,
+     "lead_days_first": 6.82975074229762,
+     "window_utc": [
+      "2026-01-07T19:53:41.280000+00:00",
+      "2026-02-04T14:43:00.393600+00:00"
+     ],
+     "n_scored": 44,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.3147996578352302,
+     "ours_sigma_arcsec": 0.2948131319472201,
+     "jpl_median_arcsec": 0.3147978022192284,
+     "jpl_sigma_arcsec": 0.2948143237696234,
+     "ours_minus_jpl_median_arcsec": 9.110568174516204e-06,
+     "ours_minus_jpl_dra": -7.223250404198023e-06,
+     "ours_minus_jpl_ddec": 4.3912455431893704e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 65.89664175733924,
+     "lead_days_first": 37.517831751611084,
+     "window_utc": [
+      "2026-02-07T12:24:31.478400+00:00",
+      "2026-03-07T21:30:00.662400+00:00"
+     ],
+     "n_scored": 21,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12557725362985056,
+     "ours_sigma_arcsec": 0.1070806163539787,
+     "jpl_median_arcsec": 0.12558406102068004,
+     "jpl_sigma_arcsec": 0.10707804814378309,
+     "ours_minus_jpl_median_arcsec": 9.66243294784955e-06,
+     "ours_minus_jpl_dra": -7.708235822266596e-06,
+     "ours_minus_jpl_ddec": -7.554707923823623e-07,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 97.83716675965115,
+     "lead_days_first": 71.85530875856057,
+     "window_utc": [
+      "2026-03-13T20:30:29.491200+00:00",
+      "2026-04-08T20:04:22.022400+00:00"
+     ],
+     "n_scored": 13,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12223154580396661,
+     "ours_sigma_arcsec": 0.10845512287512753,
+     "jpl_median_arcsec": 0.12222870133978485,
+     "jpl_sigma_arcsec": 0.10843898433508974,
+     "ours_minus_jpl_median_arcsec": 4.009954719624963e-06,
+     "ours_minus_jpl_dra": -3.81424682693865e-06,
+     "ours_minus_jpl_ddec": -1.9786625062162555e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 108.65781475929543,
+     "lead_days_first": 101.86020475998521,
+     "window_utc": [
+      "2026-04-12T20:37:32.505600+00:00",
+      "2026-04-19T15:46:06.009600+00:00"
+     ],
+     "n_scored": 7,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.04996513267015233,
+     "ours_sigma_arcsec": 0.026008283508795617,
+     "jpl_median_arcsec": 0.049972437080229304,
+     "jpl_sigma_arcsec": 0.02602607718561779,
+     "ours_minus_jpl_median_arcsec": 5.423176759629358e-06,
+     "ours_minus_jpl_dra": -5.4187714265095666e-06,
+     "ours_minus_jpl_ddec": -2.185460899386399e-07,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 301.8703377232887,
+     "lead_days_first": 301.8494617235847,
+     "window_utc": [
+      "2026-10-29T20:22:04.310400+00:00",
+      "2026-10-29T20:52:07.996800+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.3297560830050719,
+     "ours_sigma_arcsec": 0.10664240035656662,
+     "jpl_median_arcsec": 0.32972513253023117,
+     "jpl_sigma_arcsec": 0.10664034831206111,
+     "ours_minus_jpl_median_arcsec": 3.160720644108588e-05,
+     "ours_minus_jpl_dra": 4.628948272696054e-06,
+     "ours_minus_jpl_ddec": 3.126640908224232e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 88,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 29,
+   "name": "Amphitrite",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_29.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 88.58806175971404,
+     "lead_days_first": 88.57312475983053,
+     "window_utc": [
+      "2026-03-30T13:44:08.793600+00:00",
+      "2026-03-30T14:05:39.350400+00:00"
+     ],
+     "n_scored": 4,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.07903666399648224,
+     "ours_sigma_arcsec": 0.012061505184361696,
+     "jpl_median_arcsec": 0.07905990452435702,
+     "jpl_sigma_arcsec": 0.012053219385874177,
+     "ours_minus_jpl_median_arcsec": 2.5236304458511052e-05,
+     "ours_minus_jpl_dra": -2.481116461296e-05,
+     "ours_minus_jpl_ddec": -4.761515541421013e-06,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 164.08870074758306,
+     "lead_days_first": 145.1621897527948,
+     "window_utc": [
+      "2026-05-26T03:52:24.009600+00:00",
+      "2026-06-14T02:06:34.560000+00:00"
+     ],
+     "n_scored": 6,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.693756140619755,
+     "ours_sigma_arcsec": 0.2883418468902098,
+     "jpl_median_arcsec": 0.6937896380830472,
+     "jpl_sigma_arcsec": 0.28834738651020864,
+     "ours_minus_jpl_median_arcsec": 4.4587394656185985e-05,
+     "ours_minus_jpl_dra": -3.862424212340565e-05,
+     "ours_minus_jpl_ddec": -2.217664015530252e-05,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 217.3110337308608,
+     "lead_days_first": 217.29179573105648,
+     "window_utc": [
+      "2026-08-06T06:59:01.968000+00:00",
+      "2026-08-06T07:26:44.131200+00:00"
+     ],
+     "n_scored": 4,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08283406684838286,
+     "ours_sigma_arcsec": 0.04244345769646127,
+     "jpl_median_arcsec": 0.08285999291866915,
+     "jpl_sigma_arcsec": 0.04244548272213494,
+     "ours_minus_jpl_median_arcsec": 3.9374972116666454e-05,
+     "ours_minus_jpl_dra": -3.5792138035067086e-05,
+     "ours_minus_jpl_ddec": -1.6746982947531738e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 14,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 31,
+   "name": "Euphrosyne",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_31.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 94.28044675989076,
+     "lead_days_first": 64.4054147573188,
+     "window_utc": [
+      "2026-03-06T09:42:38.649600+00:00",
+      "2026-04-05T06:42:41.414400+00:00"
+     ],
+     "n_scored": 66,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11554647943573595,
+     "ours_sigma_arcsec": 0.06225740271455226,
+     "jpl_median_arcsec": 0.11554881490220784,
+     "jpl_sigma_arcsec": 0.06226117370179067,
+     "ours_minus_jpl_median_arcsec": 1.4883421850235363e-05,
+     "ours_minus_jpl_dra": 1.301433900498944e-05,
+     "ours_minus_jpl_ddec": -7.475565545537327e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 123.27619675733149,
+     "lead_days_first": 95.21811875980347,
+     "window_utc": [
+      "2026-04-06T05:12:56.275200+00:00",
+      "2026-05-04T06:36:34.214400+00:00"
+     ],
+     "n_scored": 57,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11792394459683007,
+     "ours_sigma_arcsec": 0.03884619369566323,
+     "jpl_median_arcsec": 0.11793176673757898,
+     "jpl_sigma_arcsec": 0.03884755385279661,
+     "ours_minus_jpl_median_arcsec": 1.8987983908150737e-05,
+     "ours_minus_jpl_dra": 1.8218476954601215e-05,
+     "ours_minus_jpl_ddec": -3.8521682413361624e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 158.0459147496149,
+     "lead_days_first": 132.22040275624022,
+     "window_utc": [
+      "2026-05-13T05:16:13.612800+00:00",
+      "2026-06-08T01:04:57.849600+00:00"
+     ],
+     "n_scored": 41,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1692829217508462,
+     "ours_sigma_arcsec": 0.1048357228457444,
+     "jpl_median_arcsec": 0.16928417883810123,
+     "jpl_sigma_arcsec": 0.10482355853498201,
+     "ours_minus_jpl_median_arcsec": 2.6196820142092932e-05,
+     "ours_minus_jpl_dra": 2.5741650982541442e-05,
+     "ours_minus_jpl_ddec": -6.117733318683483e-07,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 195.91832173755392,
+     "lead_days_first": 166.20945074688643,
+     "window_utc": [
+      "2026-06-16T05:00:27.360000+00:00",
+      "2026-07-15T22:01:13.814400+00:00"
+     ],
+     "n_scored": 41,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11342563904163816,
+     "ours_sigma_arcsec": 0.0743543956716237,
+     "jpl_median_arcsec": 0.11340416949835197,
+     "jpl_sigma_arcsec": 0.07434519619008047,
+     "ours_minus_jpl_median_arcsec": 3.652249768485496e-05,
+     "ours_minus_jpl_dra": 3.629270662026257e-05,
+     "ours_minus_jpl_ddec": -3.793338157496995e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 224.85909172846004,
+     "lead_days_first": 196.89865673705935,
+     "window_utc": [
+      "2026-07-16T21:32:54.758400+00:00",
+      "2026-08-13T20:35:56.342400+00:00"
+     ],
+     "n_scored": 26,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08356662133522419,
+     "ours_sigma_arcsec": 0.0446773402689877,
+     "jpl_median_arcsec": 0.08355432642190802,
+     "jpl_sigma_arcsec": 0.04465972273810333,
+     "ours_minus_jpl_median_arcsec": 4.065760089533737e-05,
+     "ours_minus_jpl_dra": 3.9791131400470324e-05,
+     "ours_minus_jpl_ddec": -7.549189025304881e-06,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 259.06838172255084,
+     "lead_days_first": 230.83851672708988,
+     "window_utc": [
+      "2026-08-19T20:06:18.662400+00:00",
+      "2026-09-17T01:37:18.998400+00:00"
+     ],
+     "n_scored": 42,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.0851877582175384,
+     "ours_sigma_arcsec": 0.04640337478159011,
+     "jpl_median_arcsec": 0.08521210736294012,
+     "jpl_sigma_arcsec": 0.046421998796128676,
+     "ours_minus_jpl_median_arcsec": 4.185016083449583e-05,
+     "ours_minus_jpl_dra": 4.0457658010377776e-05,
+     "ours_minus_jpl_ddec": -1.0972589234468661e-05,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 288.1512867221609,
+     "lead_days_first": 263.0723327221349,
+     "window_utc": [
+      "2026-09-21T01:43:00.364800+00:00",
+      "2026-10-16T03:36:41.990400+00:00"
+     ],
+     "n_scored": 57,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12473293698458948,
+     "ours_sigma_arcsec": 0.07382933133102418,
+     "jpl_median_arcsec": 0.12470328097203785,
+     "jpl_sigma_arcsec": 0.07386341960239794,
+     "ours_minus_jpl_median_arcsec": 4.448137247510554e-05,
+     "ours_minus_jpl_dra": 4.2997002078326574e-05,
+     "ours_minus_jpl_ddec": -1.0925197697495698e-05,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 301.8406347236596,
+     "lead_days_first": 297.0042487224564,
+     "window_utc": [
+      "2026-10-25T00:04:57.907200+00:00",
+      "2026-10-29T20:09:21.657600+00:00"
+     ],
+     "n_scored": 16,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.14739676297509283,
+     "ours_sigma_arcsec": 0.07842994395492124,
+     "jpl_median_arcsec": 0.1473826197527357,
+     "jpl_sigma_arcsec": 0.07840467079572483,
+     "ours_minus_jpl_median_arcsec": 4.670414393435637e-05,
+     "ours_minus_jpl_dra": 4.542569979314789e-05,
+     "ours_minus_jpl_ddec": -9.34174328266757e-06,
+     "stations": 2
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 346,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 39,
+   "name": "Laetitia",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_39.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 49.640028754714876,
+     "lead_days_first": 23.689885747618973,
+     "window_utc": [
+      "2026-01-24T16:32:16.944000+00:00",
+      "2026-02-19T15:20:29.299200+00:00"
+     ],
+     "n_scored": 21,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.4364787501572371,
+     "ours_sigma_arcsec": 0.312799327500201,
+     "jpl_median_arcsec": 0.4364814623788789,
+     "jpl_sigma_arcsec": 0.31279443947640434,
+     "ours_minus_jpl_median_arcsec": 5.0243576456286044e-06,
+     "ours_minus_jpl_dra": -1.7565894849143338e-06,
+     "ours_minus_jpl_ddec": 3.4107708626329725e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 72.00384375825524,
+     "lead_days_first": 54.838300755713135,
+     "window_utc": [
+      "2026-02-24T20:06:00+00:00",
+      "2026-03-14T00:04:22.915200+00:00"
+     ],
+     "n_scored": 14,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1176350831521118,
+     "ours_sigma_arcsec": 0.058983553108069874,
+     "jpl_median_arcsec": 0.11763495663860847,
+     "jpl_sigma_arcsec": 0.058973810571804904,
+     "ours_minus_jpl_median_arcsec": 6.47078100592493e-06,
+     "ours_minus_jpl_dra": -4.61774509076876e-06,
+     "ours_minus_jpl_ddec": -4.200917970487161e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 119.91607675794512,
+     "lead_days_first": 98.8118427596055,
+     "window_utc": [
+      "2026-04-09T19:27:54.028800+00:00",
+      "2026-04-30T21:57:59.846400+00:00"
+     ],
+     "n_scored": 15,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08978762942924196,
+     "ours_sigma_arcsec": 0.06557444367591635,
+     "jpl_median_arcsec": 0.08979386933111352,
+     "jpl_sigma_arcsec": 0.06557354824572097,
+     "ours_minus_jpl_median_arcsec": 7.427842496145639e-06,
+     "ours_minus_jpl_dra": -2.203610866063129e-06,
+     "ours_minus_jpl_ddec": -7.3621762266967705e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 156.95911174966022,
+     "lead_days_first": 130.87995875626802,
+     "window_utc": [
+      "2026-05-11T21:05:59.251200+00:00",
+      "2026-06-06T22:59:58.070400+00:00"
+     ],
+     "n_scored": 22,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.10542964416834211,
+     "ours_sigma_arcsec": 0.037780486517321445,
+     "jpl_median_arcsec": 0.10543240406925822,
+     "jpl_sigma_arcsec": 0.037778924403004094,
+     "ours_minus_jpl_median_arcsec": 7.205804875851583e-06,
+     "ours_minus_jpl_dra": 5.481542958152286e-07,
+     "ours_minus_jpl_ddec": -6.872831986179384e-06,
+     "stations": 3
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 72,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 48,
+   "name": "Doris",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_48.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 43.61652875319123,
+     "lead_days_first": 13.6495207445696,
+     "window_utc": [
+      "2026-01-14T15:34:09.408000+00:00",
+      "2026-02-13T14:46:38.899200+00:00"
+     ],
+     "n_scored": 40,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12094519159459934,
+     "ours_sigma_arcsec": 0.05077521824087593,
+     "jpl_median_arcsec": 0.12094939252786188,
+     "jpl_sigma_arcsec": 0.05076528494748706,
+     "ours_minus_jpl_median_arcsec": 5.3958637382093085e-06,
+     "ours_minus_jpl_dra": 2.991073918035686e-06,
+     "ours_minus_jpl_ddec": -4.816046151434605e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 72.3723527584225,
+     "lead_days_first": 45.33934275386855,
+     "window_utc": [
+      "2026-02-15T08:07:30.028800+00:00",
+      "2026-03-14T08:55:02.092800+00:00"
+     ],
+     "n_scored": 51,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11096028766423392,
+     "ours_sigma_arcsec": 0.05623099891552248,
+     "jpl_median_arcsec": 0.11094854597098706,
+     "jpl_sigma_arcsec": 0.05619790320661634,
+     "ours_minus_jpl_median_arcsec": 6.3683665176035655e-06,
+     "ours_minus_jpl_dra": 5.31710283933895e-06,
+     "ours_minus_jpl_ddec": -3.287213946601142e-06,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 103.05718575976789,
+     "lead_days_first": 75.34983675880358,
+     "window_utc": [
+      "2026-03-17T08:22:36.710400+00:00",
+      "2026-04-14T01:21:11.664000+00:00"
+     ],
+     "n_scored": 76,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.14974157865486154,
+     "ours_sigma_arcsec": 0.10347735606424736,
+     "jpl_median_arcsec": 0.14973552218447456,
+     "jpl_sigma_arcsec": 0.10347268739443957,
+     "ours_minus_jpl_median_arcsec": 8.319515855656385e-06,
+     "ours_minus_jpl_dra": 7.370864606505781e-06,
+     "ours_minus_jpl_ddec": -3.1464018854232556e-07,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 136.31917875539511,
+     "lead_days_first": 108.30432275915518,
+     "window_utc": [
+      "2026-04-19T07:17:04.300800+00:00",
+      "2026-05-17T07:38:27.859200+00:00"
+     ],
+     "n_scored": 22,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12711384224660813,
+     "ours_sigma_arcsec": 0.08821755246533133,
+     "jpl_median_arcsec": 0.12711160816204367,
+     "jpl_sigma_arcsec": 0.08822108328063233,
+     "ours_minus_jpl_median_arcsec": 1.0430925034621681e-05,
+     "ours_minus_jpl_dra": 9.99228143386266e-06,
+     "ours_minus_jpl_ddec": 1.2990765679843364e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 166.16125074680895,
+     "lead_days_first": 138.41140375472605,
+     "window_utc": [
+      "2026-05-19T09:51:16.099200+00:00",
+      "2026-06-16T03:51:02.880000+00:00"
+     ],
+     "n_scored": 45,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.21690314722433618,
+     "ours_sigma_arcsec": 0.1572219897321217,
+     "jpl_median_arcsec": 0.21689910916066144,
+     "jpl_sigma_arcsec": 0.15723180302264264,
+     "ours_minus_jpl_median_arcsec": 1.598857161850234e-05,
+     "ours_minus_jpl_dra": 1.439001879199528e-05,
+     "ours_minus_jpl_ddec": 5.36608682527584e-06,
+     "stations": 7
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 197.87217073654756,
+     "lead_days_first": 169.9584737457335,
+     "window_utc": [
+      "2026-06-19T22:59:02.947200+00:00",
+      "2026-07-17T20:54:46.368000+00:00"
+     ],
+     "n_scored": 73,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.091147522272221,
+     "ours_sigma_arcsec": 0.045677003758373524,
+     "jpl_median_arcsec": 0.0911237895844772,
+     "jpl_sigma_arcsec": 0.045678893993274114,
+     "ours_minus_jpl_median_arcsec": 1.8187446765457356e-05,
+     "ours_minus_jpl_dra": 1.5564845128948623e-05,
+     "ours_minus_jpl_ddec": 1.0029109493762955e-05,
+     "stations": 6
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 229.8226557271555,
+     "lead_days_first": 200.89517673570663,
+     "window_utc": [
+      "2026-07-20T21:27:54.086400+00:00",
+      "2026-08-18T19:43:28.272000+00:00"
+     ],
+     "n_scored": 58,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09305124592877095,
+     "ours_sigma_arcsec": 0.05300891023580403,
+     "jpl_median_arcsec": 0.0930586685054208,
+     "jpl_sigma_arcsec": 0.053021864089808114,
+     "ours_minus_jpl_median_arcsec": 2.3879464653125793e-05,
+     "ours_minus_jpl_dra": 1.9340215993857417e-05,
+     "ours_minus_jpl_ddec": 1.4148543561652571e-05,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 264.25977972196415,
+     "lead_days_first": 235.8692857264541,
+     "window_utc": [
+      "2026-08-24T20:50:37.104000+00:00",
+      "2026-09-22T06:12:55.785600+00:00"
+     ],
+     "n_scored": 54,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1151951771100432,
+     "ours_sigma_arcsec": 0.060671500507779835,
+     "jpl_median_arcsec": 0.1151873427486078,
+     "jpl_sigma_arcsec": 0.06066733669455232,
+     "ours_minus_jpl_median_arcsec": 2.449160913344832e-05,
+     "ours_minus_jpl_dra": 1.6029878393553076e-05,
+     "ours_minus_jpl_ddec": 1.7672531993167227e-05,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 294.234355722554,
+     "lead_days_first": 266.9954787218012,
+     "window_utc": [
+      "2026-09-24T23:52:20.179200+00:00",
+      "2026-10-22T05:36:19.152000+00:00"
+     ],
+     "n_scored": 35,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11324943972227502,
+     "ours_sigma_arcsec": 0.0847496179939949,
+     "jpl_median_arcsec": 0.11323234057170473,
+     "jpl_sigma_arcsec": 0.08475770282945139,
+     "ours_minus_jpl_median_arcsec": 2.536589662140211e-05,
+     "ours_minus_jpl_dra": 1.1128804022160488e-05,
+     "ours_minus_jpl_ddec": 2.2375080050804352e-05,
+     "stations": 4
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 454,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 52,
+   "name": "Europa",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_52.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 29.926079749595374,
+     "lead_days_first": 1.572713740170002,
+     "window_utc": [
+      "2026-01-02T13:43:33.283200+00:00",
+      "2026-01-30T22:12:24.105600+00:00"
+     ],
+     "n_scored": 43,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12787447698675844,
+     "ours_sigma_arcsec": 0.08773133084050988,
+     "jpl_median_arcsec": 0.1278716573251442,
+     "jpl_sigma_arcsec": 0.08770901588961752,
+     "ours_minus_jpl_median_arcsec": 7.590745593996253e-06,
+     "ours_minus_jpl_dra": 6.10601595793514e-06,
+     "ours_minus_jpl_ddec": 6.021908295031353e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 50.886345754843205,
+     "lead_days_first": 33.34089275030419,
+     "window_utc": [
+      "2026-02-03T08:09:43.948800+00:00",
+      "2026-02-20T21:15:11.088000+00:00"
+     ],
+     "n_scored": 58,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.13191245705146326,
+     "ours_sigma_arcsec": 0.08746036523063244,
+     "jpl_median_arcsec": 0.13191166773071866,
+     "jpl_sigma_arcsec": 0.08745806304099706,
+     "ours_minus_jpl_median_arcsec": 2.5810448675527743e-06,
+     "ours_minus_jpl_dra": 1.801922857536109e-06,
+     "ours_minus_jpl_ddec": 3.548382649862236e-07,
+     "stations": 6
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 78.12356275925413,
+     "lead_days_first": 65.84578775754198,
+     "window_utc": [
+      "2026-03-07T20:16:46.876800+00:00",
+      "2026-03-20T02:56:46.636800+00:00"
+     ],
+     "n_scored": 23,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11433267179268845,
+     "ours_sigma_arcsec": 0.05331183215311122,
+     "jpl_median_arcsec": 0.11433613671144134,
+     "jpl_sigma_arcsec": 0.05331625955923136,
+     "ours_minus_jpl_median_arcsec": 3.911949637503453e-06,
+     "ours_minus_jpl_dra": 1.2405595080783316e-06,
+     "ours_minus_jpl_ddec": -3.23708586037752e-06,
+     "stations": 3
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 124,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 65,
+   "name": "65 Cybele (A861 EB)",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_65.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 30.964335749391466,
+     "lead_days_first": 1.0323997400701046,
+     "window_utc": [
+      "2026-01-02T00:45:30.153600+00:00",
+      "2026-01-31T23:07:29.424000+00:00"
+     ],
+     "n_scored": 50,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1518476405612848,
+     "ours_sigma_arcsec": 0.08431593095137756,
+     "jpl_median_arcsec": 0.15187141934730916,
+     "jpl_sigma_arcsec": 0.08432994145187149,
+     "ours_minus_jpl_median_arcsec": 3.9826318663304804e-05,
+     "ours_minus_jpl_dra": -3.871816355264417e-05,
+     "ours_minus_jpl_ddec": 1.002643091012334e-05,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 53.54847075557336,
+     "lead_days_first": 37.098237751517445,
+     "window_utc": [
+      "2026-02-07T02:20:18.556800+00:00",
+      "2026-02-23T13:08:38.688000+00:00"
+     ],
+     "n_scored": 60,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.18290857882515682,
+     "ours_sigma_arcsec": 0.11760611728720866,
+     "jpl_median_arcsec": 0.18295030506761562,
+     "jpl_sigma_arcsec": 0.11764023786340841,
+     "ours_minus_jpl_median_arcsec": 4.8195969066439055e-05,
+     "ours_minus_jpl_dra": -4.637920491985803e-05,
+     "ours_minus_jpl_ddec": 1.3815092996263822e-05,
+     "stations": 6
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 97.18354875966907,
+     "lead_days_first": 68.02299875812605,
+     "window_utc": [
+      "2026-03-10T00:31:57.907200+00:00",
+      "2026-04-08T04:23:09.427200+00:00"
+     ],
+     "n_scored": 32,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1571544442749211,
+     "ours_sigma_arcsec": 0.09639685503810355,
+     "jpl_median_arcsec": 0.15717393324288956,
+     "jpl_sigma_arcsec": 0.09645424364092363,
+     "ours_minus_jpl_median_arcsec": 5.143057601483664e-05,
+     "ours_minus_jpl_dra": -4.99809191739399e-05,
+     "ours_minus_jpl_ddec": 1.0913598850685602e-05,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 127.09508075704798,
+     "lead_days_first": 102.87682275986299,
+     "window_utc": [
+      "2026-04-13T21:01:28.300800+00:00",
+      "2026-05-08T02:15:45.792000+00:00"
+     ],
+     "n_scored": 42,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11960504010810225,
+     "ours_sigma_arcsec": 0.03141943503271132,
+     "jpl_median_arcsec": 0.11963112301800419,
+     "jpl_sigma_arcsec": 0.031431650346562236,
+     "ours_minus_jpl_median_arcsec": 4.106231121841552e-05,
+     "ours_minus_jpl_dra": -3.918042383535547e-05,
+     "ours_minus_jpl_ddec": 9.845156706812103e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 163.08180074766278,
+     "lead_days_first": 133.15956175560132,
+     "window_utc": [
+      "2026-05-14T03:48:36.950400+00:00",
+      "2026-06-13T01:56:38.400000+00:00"
+     ],
+     "n_scored": 67,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.16531009894808196,
+     "ours_sigma_arcsec": 0.06563335785938322,
+     "jpl_median_arcsec": 0.16530954846269288,
+     "jpl_sigma_arcsec": 0.06560424209778916,
+     "ours_minus_jpl_median_arcsec": 3.052743727590676e-05,
+     "ours_minus_jpl_dra": -2.951750125988685e-05,
+     "ours_minus_jpl_ddec": 7.591742938614643e-06,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 186.98744774004444,
+     "lead_days_first": 163.89563974784687,
+     "window_utc": [
+      "2026-06-13T21:28:34.089600+00:00",
+      "2026-07-06T23:40:46.300800+00:00"
+     ],
+     "n_scored": 38,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.14812337917755453,
+     "ours_sigma_arcsec": 0.05602035483904619,
+     "jpl_median_arcsec": 0.1481291552594659,
+     "jpl_sigma_arcsec": 0.05601522783695798,
+     "ours_minus_jpl_median_arcsec": 2.5083826195214487e-05,
+     "ours_minus_jpl_dra": -2.4603757821414773e-05,
+     "ours_minus_jpl_ddec": 5.536197997264847e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 213.72780173178762,
+     "lead_days_first": 207.7073697336018,
+     "window_utc": [
+      "2026-07-27T16:57:27.561600+00:00",
+      "2026-08-02T17:26:52.886400+00:00"
+     ],
+     "n_scored": 16,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1572432860529313,
+     "ours_sigma_arcsec": 0.04734681077824331,
+     "jpl_median_arcsec": 0.15725307554711154,
+     "jpl_sigma_arcsec": 0.04734910973927068,
+     "ours_minus_jpl_median_arcsec": 2.3491718208954703e-05,
+     "ours_minus_jpl_dra": -2.1094623690341707e-05,
+     "ours_minus_jpl_ddec": 1.0258133896247357e-05,
+     "stations": 2
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 305,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 87,
+   "name": "87 Sylvia (A866 KA)",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_87.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 34.3414487503469,
+     "lead_days_first": 5.058393741492182,
+     "window_utc": [
+      "2026-01-06T01:22:56.035200+00:00",
+      "2026-02-04T08:10:31.987200+00:00"
+     ],
+     "n_scored": 77,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09233859625158516,
+     "ours_sigma_arcsec": 0.06896588512990894,
+     "jpl_median_arcsec": 0.09235630513302363,
+     "jpl_sigma_arcsec": 0.06902806453382872,
+     "ours_minus_jpl_median_arcsec": 2.1679967327793032e-05,
+     "ours_minus_jpl_dra": -2.0827983368290615e-05,
+     "ours_minus_jpl_ddec": -4.366410500014628e-06,
+     "stations": 6
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 67.32415575813502,
+     "lead_days_first": 37.41563075128943,
+     "window_utc": [
+      "2026-02-07T09:57:21.312000+00:00",
+      "2026-03-09T07:45:37.872000+00:00"
+     ],
+     "n_scored": 55,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.06876379687235386,
+     "ours_sigma_arcsec": 0.04319295320973632,
+     "jpl_median_arcsec": 0.06874904434908673,
+     "jpl_sigma_arcsec": 0.0431846496692791,
+     "ours_minus_jpl_median_arcsec": 1.58015546899166e-05,
+     "ours_minus_jpl_dra": -1.4831683997851286e-05,
+     "ours_minus_jpl_ddec": -6.073696630803926e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 94.90297175990418,
+     "lead_days_first": 68.34135275799781,
+     "window_utc": [
+      "2026-03-10T08:10:23.692800+00:00",
+      "2026-04-05T21:39:07.574400+00:00"
+     ],
+     "n_scored": 45,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.06001090438626268,
+     "ours_sigma_arcsec": 0.04202658311882461,
+     "jpl_median_arcsec": 0.06002061139806135,
+     "jpl_sigma_arcsec": 0.042025491357345124,
+     "ours_minus_jpl_median_arcsec": 1.0606790044640968e-05,
+     "ours_minus_jpl_dra": -8.062015272921469e-06,
+     "ours_minus_jpl_ddec": -6.722613752466189e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 122.26075275754556,
+     "lead_days_first": 101.86419575987384,
+     "window_utc": [
+      "2026-04-12T20:43:17.328000+00:00",
+      "2026-05-03T06:14:19.852800+00:00"
+     ],
+     "n_scored": 33,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.060410276056396345,
+     "ours_sigma_arcsec": 0.046776923562560385,
+     "jpl_median_arcsec": 0.06042232334568734,
+     "jpl_sigma_arcsec": 0.046785979702629765,
+     "ours_minus_jpl_median_arcsec": 8.018295316712038e-06,
+     "ours_minus_jpl_dra": -5.827651504954068e-06,
+     "ours_minus_jpl_ddec": -5.890771481074919e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 291.64525172207505,
+     "lead_days_first": 279.60291972151026,
+     "window_utc": [
+      "2026-10-07T14:27:03.081600+00:00",
+      "2026-10-19T15:28:00.566400+00:00"
+     ],
+     "n_scored": 8,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12015776285919877,
+     "ours_sigma_arcsec": 0.042979219780607925,
+     "jpl_median_arcsec": 0.12016527743119285,
+     "jpl_sigma_arcsec": 0.04298610827686915,
+     "ours_minus_jpl_median_arcsec": 3.4525808872831385e-05,
+     "ours_minus_jpl_dra": -3.402041030985126e-05,
+     "ours_minus_jpl_ddec": 5.291364145808275e-06,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 218,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 88,
+   "name": "Thisbe",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_88.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 30.973484749440104,
+     "lead_days_first": 1.0296887401491404,
+     "window_utc": [
+      "2026-01-02T00:41:35.923200+00:00",
+      "2026-01-31T23:20:39.897600+00:00"
+     ],
+     "n_scored": 63,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12066335618611174,
+     "ours_sigma_arcsec": 0.047619330173365726,
+     "jpl_median_arcsec": 0.12068253522017805,
+     "jpl_sigma_arcsec": 0.04763327481097527,
+     "ours_minus_jpl_median_arcsec": 1.3400142358980699e-05,
+     "ours_minus_jpl_dra": -1.208020738475285e-05,
+     "ours_minus_jpl_ddec": -6.386335932306864e-07,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 53.5112777557224,
+     "lead_days_first": 31.03037174977362,
+     "window_utc": [
+      "2026-02-01T00:42:34.934400+00:00",
+      "2026-02-23T12:15:05.212800+00:00"
+     ],
+     "n_scored": 45,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1307221520702176,
+     "ours_sigma_arcsec": 0.07232543545533876,
+     "jpl_median_arcsec": 0.1307446641773227,
+     "jpl_sigma_arcsec": 0.07233959315724135,
+     "ours_minus_jpl_median_arcsec": 1.7808334449471247e-05,
+     "ours_minus_jpl_dra": -1.664902823561576e-05,
+     "ours_minus_jpl_ddec": -1.3687812863288906e-06,
+     "stations": 7
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 92.01660275971517,
+     "lead_days_first": 65.22858075750992,
+     "window_utc": [
+      "2026-03-07T05:28:00.192000+00:00",
+      "2026-04-03T00:22:45.292800+00:00"
+     ],
+     "n_scored": 35,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12626810793508794,
+     "ours_sigma_arcsec": 0.06746395501903729,
+     "jpl_median_arcsec": 0.1262873111145939,
+     "jpl_sigma_arcsec": 0.06748249144166284,
+     "ours_minus_jpl_median_arcsec": 2.2241631201139617e-05,
+     "ours_minus_jpl_dra": -2.013355301189179e-05,
+     "ours_minus_jpl_ddec": -3.198352667891681e-06,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 127.08678675722331,
+     "lead_days_first": 97.11730975983664,
+     "window_utc": [
+      "2026-04-08T02:47:46.377600+00:00",
+      "2026-05-08T02:03:49.190400+00:00"
+     ],
+     "n_scored": 61,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12627140613890211,
+     "ours_sigma_arcsec": 0.06066648612436425,
+     "jpl_median_arcsec": 0.1262885387579598,
+     "jpl_sigma_arcsec": 0.06064567858995346,
+     "ours_minus_jpl_median_arcsec": 1.7636582562117976e-05,
+     "ours_minus_jpl_dra": -1.527101136253317e-05,
+     "ours_minus_jpl_ddec": -4.306504116466381e-06,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 158.91972174914554,
+     "lead_days_first": 128.92929875664413,
+     "window_utc": [
+      "2026-05-09T22:17:02.227200+00:00",
+      "2026-06-08T22:03:14.774400+00:00"
+     ],
+     "n_scored": 68,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1469602446563931,
+     "ours_sigma_arcsec": 0.05051521424345293,
+     "jpl_median_arcsec": 0.14697180142387467,
+     "jpl_sigma_arcsec": 0.05051215073342861,
+     "ours_minus_jpl_median_arcsec": 1.602395058719838e-05,
+     "ours_minus_jpl_dra": -1.3899616429141615e-05,
+     "ours_minus_jpl_ddec": -5.89581949844077e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 185.80691074067727,
+     "lead_days_first": 158.93392174923792,
+     "window_utc": [
+      "2026-06-08T22:23:41.654400+00:00",
+      "2026-07-05T19:20:47.904000+00:00"
+     ],
+     "n_scored": 33,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.15348904011937425,
+     "ours_sigma_arcsec": 0.053112536966248756,
+     "jpl_median_arcsec": 0.15349950117725483,
+     "jpl_sigma_arcsec": 0.053110060482593445,
+     "ours_minus_jpl_median_arcsec": 1.7448098044521432e-05,
+     "ours_minus_jpl_dra": -1.4339700211640771e-05,
+     "ours_minus_jpl_ddec": -9.421783770044434e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 213.76035173190758,
+     "lead_days_first": 213.72419173177332,
+     "window_utc": [
+      "2026-08-02T17:21:40.982400+00:00",
+      "2026-08-02T18:13:45.206400+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.15779180266804074,
+     "ours_sigma_arcsec": 0.04288290731031959,
+     "jpl_median_arcsec": 0.15781069398598616,
+     "jpl_sigma_arcsec": 0.042884151246147265,
+     "ours_minus_jpl_median_arcsec": 2.0342272978126888e-05,
+     "ours_minus_jpl_dra": -1.970166657730421e-05,
+     "ours_minus_jpl_ddec": -5.064820233074974e-06,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 308,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 94,
+   "name": "Aurora",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_94.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 34.369466750416905,
+     "lead_days_first": 5.460196741856635,
+     "window_utc": [
+      "2026-01-06T11:01:31.814400+00:00",
+      "2026-02-04T08:50:52.742400+00:00"
+     ],
+     "n_scored": 73,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09927732901236809,
+     "ours_sigma_arcsec": 0.07838549068417537,
+     "jpl_median_arcsec": 0.09929141340326991,
+     "jpl_sigma_arcsec": 0.07844527592005891,
+     "ours_minus_jpl_median_arcsec": 2.1276779550196816e-05,
+     "ours_minus_jpl_dra": -1.9354334982180088e-05,
+     "ours_minus_jpl_ddec": -5.127285690895156e-06,
+     "stations": 6
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 67.30489375814795,
+     "lead_days_first": 37.39184875134379,
+     "window_utc": [
+      "2026-02-07T09:23:06.547200+00:00",
+      "2026-03-09T07:17:53.635200+00:00"
+     ],
+     "n_scored": 88,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.0914193263283505,
+     "ours_sigma_arcsec": 0.05204181063302617,
+     "jpl_median_arcsec": 0.09141850846549648,
+     "jpl_sigma_arcsec": 0.05201865831617857,
+     "ours_minus_jpl_median_arcsec": 1.805523721752311e-05,
+     "ours_minus_jpl_dra": -1.6024788589648342e-05,
+     "ours_minus_jpl_ddec": -6.646631573343879e-06,
+     "stations": 7
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 95.9043067600578,
+     "lead_days_first": 68.33909275801852,
+     "window_utc": [
+      "2026-03-10T08:07:08.428800+00:00",
+      "2026-04-06T21:41:02.918400+00:00"
+     ],
+     "n_scored": 60,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08032939578330317,
+     "ours_sigma_arcsec": 0.038459167246977496,
+     "jpl_median_arcsec": 0.08033698843048408,
+     "jpl_sigma_arcsec": 0.03846048298147421,
+     "ours_minus_jpl_median_arcsec": 1.1048002020878775e-05,
+     "ours_minus_jpl_dra": -8.592726600484182e-06,
+     "ours_minus_jpl_ddec": -7.049980612499479e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 124.26622875733301,
+     "lead_days_first": 101.8633017600514,
+     "window_utc": [
+      "2026-04-12T20:42:00.086400+00:00",
+      "2026-05-05T06:22:12.979200+00:00"
+     ],
+     "n_scored": 49,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.0642110712027318,
+     "ours_sigma_arcsec": 0.055135259087842045,
+     "jpl_median_arcsec": 0.0642219887445728,
+     "jpl_sigma_arcsec": 0.055139453139094054,
+     "ours_minus_jpl_median_arcsec": 7.743007473047827e-06,
+     "ours_minus_jpl_dra": -3.832080072811717e-06,
+     "ours_minus_jpl_ddec": -6.774070038323421e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 301.8716417234391,
+     "lead_days_first": 301.8507667235099,
+     "window_utc": [
+      "2026-10-29T20:23:57.062400+00:00",
+      "2026-10-29T20:54:00.662400+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09367850870762212,
+     "ours_sigma_arcsec": 0.0038439427346685733,
+     "jpl_median_arcsec": 0.09368836223962762,
+     "jpl_sigma_arcsec": 0.003853083073462661,
+     "ours_minus_jpl_median_arcsec": 3.0289283124506655e-05,
+     "ours_minus_jpl_dra": 2.4665814982963163e-05,
+     "ours_minus_jpl_ddec": -1.7579483593745115e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 273,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 107,
+   "name": "107 Camilla (A868 WA)",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_107.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 31.424957749433815,
+     "lead_days_first": 3.9466637410223484,
+     "window_utc": [
+      "2026-01-04T22:42:02.563200+00:00",
+      "2026-02-01T10:10:47.164800+00:00"
+     ],
+     "n_scored": 97,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08258430629473115,
+     "ours_sigma_arcsec": 0.05348016953166011,
+     "jpl_median_arcsec": 0.08256178700057097,
+     "jpl_sigma_arcsec": 0.05341539968379951,
+     "ours_minus_jpl_median_arcsec": 3.243560085574825e-05,
+     "ours_minus_jpl_dra": -3.192822142281809e-05,
+     "ours_minus_jpl_ddec": -1.7742285374003353e-06,
+     "stations": 8
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 65.29288075771183,
+     "lead_days_first": 35.3498207507655,
+     "window_utc": [
+      "2026-02-05T08:22:35.328000+00:00",
+      "2026-03-07T07:00:35.712000+00:00"
+     ],
+     "n_scored": 116,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.0676238471858781,
+     "ours_sigma_arcsec": 0.0457674831844432,
+     "jpl_median_arcsec": 0.06763793145346074,
+     "jpl_sigma_arcsec": 0.04582385817744964,
+     "ours_minus_jpl_median_arcsec": 2.5659958828870176e-05,
+     "ours_minus_jpl_dra": -2.4846315383852957e-05,
+     "ours_minus_jpl_ddec": -2.7992723306930964e-06,
+     "stations": 6
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 94.26752575999126,
+     "lead_days_first": 65.90500875748694,
+     "window_utc": [
+      "2026-03-07T21:42:03.571200+00:00",
+      "2026-04-05T06:24:05.040000+00:00"
+     ],
+     "n_scored": 89,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09085205938046306,
+     "ours_sigma_arcsec": 0.06427999721942082,
+     "jpl_median_arcsec": 0.09086047328285893,
+     "jpl_sigma_arcsec": 0.06425034993543578,
+     "ours_minus_jpl_median_arcsec": 2.169132305569241e-05,
+     "ours_minus_jpl_dra": -2.0837996951544868e-05,
+     "ours_minus_jpl_ddec": -5.350526279548906e-06,
+     "stations": 7
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 123.97814875748008,
+     "lead_days_first": 96.03410275978968,
+     "window_utc": [
+      "2026-04-07T00:47:57.292800+00:00",
+      "2026-05-04T23:27:22.867200+00:00"
+     ],
+     "n_scored": 46,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08303742668732644,
+     "ours_sigma_arcsec": 0.04049450494375674,
+     "jpl_median_arcsec": 0.08304048029608002,
+     "jpl_sigma_arcsec": 0.040507100854448905,
+     "ours_minus_jpl_median_arcsec": 1.5487038647360353e-05,
+     "ours_minus_jpl_dra": -1.4475184528323082e-05,
+     "ours_minus_jpl_ddec": -5.894320980099482e-06,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 302.371102723293,
+     "lead_days_first": 296.6214937227778,
+     "window_utc": [
+      "2026-10-24T14:53:47.875200+00:00",
+      "2026-10-30T08:53:14.092800+00:00"
+     ],
+     "n_scored": 16,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.24729943107779948,
+     "ours_sigma_arcsec": 0.11604375242895469,
+     "jpl_median_arcsec": 0.24732746203149625,
+     "jpl_sigma_arcsec": 0.11605658207116941,
+     "ours_minus_jpl_median_arcsec": 3.8172425032290166e-05,
+     "ours_minus_jpl_dra": -3.6759559477426984e-05,
+     "ours_minus_jpl_ddec": -1.2327510299607602e-05,
+     "stations": 3
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 364,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 154,
+   "name": "Bertha",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_154.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 30.337512749712914,
+     "lead_days_first": 0.6012967396527529,
+     "window_utc": [
+      "2026-01-01T14:24:42.854400+00:00",
+      "2026-01-31T08:04:51.916800+00:00"
+     ],
+     "n_scored": 63,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12403346588962277,
+     "ours_sigma_arcsec": 0.04502713848255806,
+     "jpl_median_arcsec": 0.12410705751054747,
+     "jpl_sigma_arcsec": 0.04513184411083135,
+     "ours_minus_jpl_median_arcsec": 0.00011584641273764799,
+     "ours_minus_jpl_dra": -9.116037453216902e-05,
+     "ours_minus_jpl_ddec": 7.049745601312579e-05,
+     "stations": 6
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 61.01176875689998,
+     "lead_days_first": 31.057836749590933,
+     "window_utc": [
+      "2026-02-01T01:22:07.910400+00:00",
+      "2026-03-03T00:15:47.635200+00:00"
+     ],
+     "n_scored": 85,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.14612022843217343,
+     "ours_sigma_arcsec": 0.09495997416057705,
+     "jpl_median_arcsec": 0.14611923759272794,
+     "jpl_sigma_arcsec": 0.09477511944521902,
+     "ours_minus_jpl_median_arcsec": 0.00013580291421896854,
+     "ours_minus_jpl_dra": -0.00010959846020714564,
+     "ours_minus_jpl_ddec": 8.242956357140674e-05,
+     "stations": 6
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 96.82021775981411,
+     "lead_days_first": 68.10055375797674,
+     "window_utc": [
+      "2026-03-10T02:23:38.659200+00:00",
+      "2026-04-07T19:39:57.628800+00:00"
+     ],
+     "n_scored": 86,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1182652622020664,
+     "ours_sigma_arcsec": 0.06960361401962961,
+     "jpl_median_arcsec": 0.11822933457339863,
+     "jpl_sigma_arcsec": 0.06979505732056064,
+     "ours_minus_jpl_median_arcsec": 0.00016291697719450493,
+     "ours_minus_jpl_dra": -0.00013060285175025936,
+     "ours_minus_jpl_ddec": 9.669634838804786e-05,
+     "stations": 8
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 128.08826575661078,
+     "lead_days_first": 98.22712075989693,
+     "window_utc": [
+      "2026-04-09T05:25:54.048000+00:00",
+      "2026-05-09T02:05:56.976000+00:00"
+     ],
+     "n_scored": 41,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12432296842239669,
+     "ours_sigma_arcsec": 0.0657657043606525,
+     "jpl_median_arcsec": 0.12432090747186947,
+     "jpl_sigma_arcsec": 0.0656096345131393,
+     "ours_minus_jpl_median_arcsec": 0.00018130207029683215,
+     "ours_minus_jpl_dra": -0.00014111895366281102,
+     "ours_minus_jpl_ddec": 0.00011224320277789662,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 158.9917977489531,
+     "lead_days_first": 128.99831275641918,
+     "window_utc": [
+      "2026-05-09T23:56:25.036800+00:00",
+      "2026-06-08T23:47:02.140800+00:00"
+     ],
+     "n_scored": 71,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.17500574956133713,
+     "ours_sigma_arcsec": 0.09979608802712892,
+     "jpl_median_arcsec": 0.17489982741189117,
+     "jpl_sigma_arcsec": 0.09981879013366121,
+     "ours_minus_jpl_median_arcsec": 0.00015869617073797592,
+     "ours_minus_jpl_dra": -0.00011909780863356145,
+     "ours_minus_jpl_ddec": 0.00010467676433233153,
+     "stations": 7
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 188.8264027396217,
+     "lead_days_first": 160.3456107485108,
+     "window_utc": [
+      "2026-06-10T08:16:31.584000+00:00",
+      "2026-07-08T19:48:52.012800+00:00"
+     ],
+     "n_scored": 69,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1465775994855844,
+     "ours_sigma_arcsec": 0.07925832420682621,
+     "jpl_median_arcsec": 0.14656908791032852,
+     "jpl_sigma_arcsec": 0.07909621634301682,
+     "ours_minus_jpl_median_arcsec": 0.0001356504311463132,
+     "ours_minus_jpl_dra": -9.608976767114252e-05,
+     "ours_minus_jpl_ddec": 9.33404659478193e-05,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 223.27053272910416,
+     "lead_days_first": 194.05491973785684,
+     "window_utc": [
+      "2026-07-14T01:17:55.881600+00:00",
+      "2026-08-12T06:28:24.844800+00:00"
+     ],
+     "n_scored": 72,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.13015483838979086,
+     "ours_sigma_arcsec": 0.06914723770267475,
+     "jpl_median_arcsec": 0.13019610453489644,
+     "jpl_sigma_arcsec": 0.06904371341798013,
+     "ours_minus_jpl_median_arcsec": 0.00011163603094271188,
+     "ours_minus_jpl_dra": -7.707165583259803e-05,
+     "ours_minus_jpl_ddec": 8.012386625505519e-05,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 254.99849372310564,
+     "lead_days_first": 226.75932372827083,
+     "window_utc": [
+      "2026-08-15T18:12:16.387200+00:00",
+      "2026-09-12T23:56:40.675200+00:00"
+     ],
+     "n_scored": 28,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.17203325381460965,
+     "ours_sigma_arcsec": 0.075194701347596,
+     "jpl_median_arcsec": 0.17203230637314368,
+     "jpl_sigma_arcsec": 0.07524024898396019,
+     "ours_minus_jpl_median_arcsec": 9.70657624513498e-05,
+     "ours_minus_jpl_dra": -7.295827741132105e-05,
+     "ours_minus_jpl_ddec": 6.536464856124469e-05,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 261.0345467221923,
+     "lead_days_first": 261.0141547219828,
+     "window_utc": [
+      "2026-09-19T00:19:13.785600+00:00",
+      "2026-09-19T00:48:35.654400+00:00"
+     ],
+     "n_scored": 4,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.171215137934143,
+     "ours_sigma_arcsec": 0.0857034428424646,
+     "jpl_median_arcsec": 0.1711980215984097,
+     "jpl_sigma_arcsec": 0.08566681734090721,
+     "ours_minus_jpl_median_arcsec": 9.071885200502183e-05,
+     "ours_minus_jpl_dra": -7.313401280584567e-05,
+     "ours_minus_jpl_ddec": 5.36760738485435e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 519,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 209,
+   "name": "Dido",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_209.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 34.381918750703335,
+     "lead_days_first": 5.745579741895199,
+     "window_utc": [
+      "2026-01-06T17:52:28.905600+00:00",
+      "2026-02-04T09:08:48.595200+00:00"
+     ],
+     "n_scored": 91,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09558922270804418,
+     "ours_sigma_arcsec": 0.06736663073478792,
+     "jpl_median_arcsec": 0.09557188152692014,
+     "jpl_sigma_arcsec": 0.06732667082714594,
+     "ours_minus_jpl_median_arcsec": 2.3430965429638086e-05,
+     "ours_minus_jpl_dra": -2.2273358825916634e-05,
+     "ours_minus_jpl_ddec": -3.7403704720578856e-06,
+     "stations": 7
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 67.30489375814795,
+     "lead_days_first": 37.39276175154373,
+     "window_utc": [
+      "2026-02-07T09:24:25.430400+00:00",
+      "2026-03-09T07:17:53.635200+00:00"
+     ],
+     "n_scored": 59,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08023066746629097,
+     "ours_sigma_arcsec": 0.04844466409915327,
+     "jpl_median_arcsec": 0.08024472959999773,
+     "jpl_sigma_arcsec": 0.048479657526474575,
+     "ours_minus_jpl_median_arcsec": 1.7623561514408528e-05,
+     "ours_minus_jpl_dra": -1.680523055799972e-05,
+     "ours_minus_jpl_ddec": -4.468590271922146e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 95.9043067600578,
+     "lead_days_first": 68.33909275801852,
+     "window_utc": [
+      "2026-03-10T08:07:08.428800+00:00",
+      "2026-04-06T21:41:02.918400+00:00"
+     ],
+     "n_scored": 56,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08252718645209675,
+     "ours_sigma_arcsec": 0.05190830196383403,
+     "jpl_median_arcsec": 0.08253696299513212,
+     "jpl_sigma_arcsec": 0.05191420095307073,
+     "ours_minus_jpl_median_arcsec": 1.012629526038914e-05,
+     "ours_minus_jpl_dra": -9.257953594413865e-06,
+     "ours_minus_jpl_ddec": -3.9314136695521584e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 122.26075275754556,
+     "lead_days_first": 103.86336275981739,
+     "window_utc": [
+      "2026-04-14T20:42:05.356800+00:00",
+      "2026-05-03T06:14:19.852800+00:00"
+     ],
+     "n_scored": 28,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.06937846290279429,
+     "ours_sigma_arcsec": 0.03320676055022066,
+     "jpl_median_arcsec": 0.06937736868828522,
+     "jpl_sigma_arcsec": 0.033206293923331985,
+     "ours_minus_jpl_median_arcsec": 7.706333961837246e-06,
+     "ours_minus_jpl_dra": -7.169321784999266e-06,
+     "ours_minus_jpl_ddec": -1.3181579877410976e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 301.8735997234471,
+     "lead_days_first": 283.6187307215296,
+     "window_utc": [
+      "2026-10-11T14:49:49.152000+00:00",
+      "2026-10-29T20:56:49.833600+00:00"
+     ],
+     "n_scored": 11,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1273956245616074,
+     "ours_sigma_arcsec": 0.030571758072449308,
+     "jpl_median_arcsec": 0.12737935324502983,
+     "jpl_sigma_arcsec": 0.030615601028339393,
+     "ours_minus_jpl_median_arcsec": 5.715538112825908e-05,
+     "ours_minus_jpl_dra": -4.161328145310672e-05,
+     "ours_minus_jpl_ddec": 3.9179999982402736e-05,
+     "stations": 3
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 245,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 324,
+   "name": "Bamberga",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_324.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 94.62054375978187,
+     "lead_days_first": 64.63948175730184,
+     "window_utc": [
+      "2026-03-06T15:19:42.038400+00:00",
+      "2026-04-05T14:52:25.795200+00:00"
+     ],
+     "n_scored": 49,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09565152425998509,
+     "ours_sigma_arcsec": 0.0423089171658733,
+     "jpl_median_arcsec": 0.09566198672016943,
+     "jpl_sigma_arcsec": 0.04229627748729319,
+     "ours_minus_jpl_median_arcsec": 1.553309172482712e-05,
+     "ours_minus_jpl_dra": 1.5126555732464242e-05,
+     "ours_minus_jpl_ddec": -7.594782912845321e-07,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 108.58691575936973,
+     "lead_days_first": 94.63981076003984,
+     "window_utc": [
+      "2026-04-05T15:20:10.464000+00:00",
+      "2026-04-19T14:04:00.336000+00:00"
+     ],
+     "n_scored": 6,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.13918402304661104,
+     "ours_sigma_arcsec": 0.07178341803161968,
+     "jpl_median_arcsec": 0.13918684435118844,
+     "jpl_sigma_arcsec": 0.07180165649249483,
+     "ours_minus_jpl_median_arcsec": 1.6618085564068393e-05,
+     "ours_minus_jpl_dra": 1.6608960411739274e-05,
+     "ours_minus_jpl_ddec": -5.26310555359899e-07,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 141.18672675359994,
+     "lead_days_first": 130.54451375594363,
+     "window_utc": [
+      "2026-05-11T13:02:56.803200+00:00",
+      "2026-05-22T04:27:44.006400+00:00"
+     ],
+     "n_scored": 14,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.13322197525476492,
+     "ours_sigma_arcsec": 0.061429154339201375,
+     "jpl_median_arcsec": 0.13323602307839022,
+     "jpl_sigma_arcsec": 0.06144538449014329,
+     "ours_minus_jpl_median_arcsec": 2.750449136984872e-05,
+     "ours_minus_jpl_dra": 2.7476321962642547e-05,
+     "ours_minus_jpl_ddec": 3.2520281063180834e-07,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 170.2868477459997,
+     "lead_days_first": 170.25992874568328,
+     "window_utc": [
+      "2026-06-20T06:13:08.659200+00:00",
+      "2026-06-20T06:51:54.460800+00:00"
+     ],
+     "n_scored": 5,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.3285488408722585,
+     "ours_sigma_arcsec": 0.16777104680395746,
+     "jpl_median_arcsec": 0.3285150055827421,
+     "jpl_sigma_arcsec": 0.1677665802954995,
+     "ours_minus_jpl_median_arcsec": 5.165485951450541e-05,
+     "ours_minus_jpl_dra": 4.76746688461982e-05,
+     "ours_minus_jpl_ddec": -1.9880984486228548e-05,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 215.00912273162976,
+     "lead_days_first": 215.0055927312933,
+     "window_utc": [
+      "2026-08-04T00:06:54.028800+00:00",
+      "2026-08-04T00:11:59.020800+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1865166635322011,
+     "ours_sigma_arcsec": 0.11529950333650059,
+     "jpl_median_arcsec": 0.1865603676444555,
+     "jpl_sigma_arcsec": 0.11526114408962027,
+     "ours_minus_jpl_median_arcsec": 6.842254743515151e-05,
+     "ours_minus_jpl_dra": 5.544933518006334e-05,
+     "ours_minus_jpl_ddec": -4.008760688298252e-05,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 249.94447572343051,
+     "lead_days_first": 249.92301972350106,
+     "window_utc": [
+      "2026-09-07T22:07:59.721600+00:00",
+      "2026-09-07T22:38:53.520000+00:00"
+     ],
+     "n_scored": 3,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 1.4213759055170019,
+     "ours_sigma_arcsec": 1.0651658429760638,
+     "jpl_median_arcsec": 1.421402629791898,
+     "jpl_sigma_arcsec": 1.065164796688063,
+     "ours_minus_jpl_median_arcsec": 6.053687755876659e-05,
+     "ours_minus_jpl_dra": 4.756049982826416e-05,
+     "ours_minus_jpl_ddec": -3.667357277126193e-05,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 80,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 375,
+   "name": "Ursula",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_375.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 187.61640073964372,
+     "lead_days_first": 158.5909877489321,
+     "window_utc": [
+      "2026-06-08T14:09:52.156800+00:00",
+      "2026-07-07T14:46:27.840000+00:00"
+     ],
+     "n_scored": 59,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1349402521433096,
+     "ours_sigma_arcsec": 0.06490456216911274,
+     "jpl_median_arcsec": 0.1349360798880766,
+     "jpl_sigma_arcsec": 0.06491641977655069,
+     "ours_minus_jpl_median_arcsec": 1.0855681876881341e-05,
+     "ours_minus_jpl_dra": 6.673947815475853e-06,
+     "ours_minus_jpl_ddec": 8.274042526096315e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 221.1482657296583,
+     "lead_days_first": 191.1602647388354,
+     "window_utc": [
+      "2026-07-11T03:49:37.689600+00:00",
+      "2026-08-10T03:32:20.976000+00:00"
+     ],
+     "n_scored": 116,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09512424577543457,
+     "ours_sigma_arcsec": 0.05602580681462419,
+     "jpl_median_arcsec": 0.09511959452870933,
+     "jpl_sigma_arcsec": 0.05601884414230784,
+     "ours_minus_jpl_median_arcsec": 1.0648264471008221e-05,
+     "ours_minus_jpl_dra": 4.861486686501965e-06,
+     "ours_minus_jpl_ddec": 9.418240711642212e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 253.55722872307524,
+     "lead_days_first": 223.56075272895396,
+     "window_utc": [
+      "2026-08-12T13:26:19.852800+00:00",
+      "2026-09-11T13:21:15.379200+00:00"
+     ],
+     "n_scored": 61,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08443974910296892,
+     "ours_sigma_arcsec": 0.032608737422195146,
+     "jpl_median_arcsec": 0.08443201213526173,
+     "jpl_sigma_arcsec": 0.03260706507087351,
+     "ours_minus_jpl_median_arcsec": 1.2148146081010223e-05,
+     "ours_minus_jpl_dra": 3.585883467827067e-06,
+     "ours_minus_jpl_ddec": 1.1773928714244042e-05,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 284.0927157215774,
+     "lead_days_first": 255.47356272302568,
+     "window_utc": [
+      "2026-09-13T11:20:46.636800+00:00",
+      "2026-10-12T02:12:21.456000+00:00"
+     ],
+     "n_scored": 46,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11700557367074074,
+     "ours_sigma_arcsec": 0.08290320163411748,
+     "jpl_median_arcsec": 0.11699794090417583,
+     "jpl_sigma_arcsec": 0.08290791660510147,
+     "ours_minus_jpl_median_arcsec": 1.4160811005034718e-05,
+     "ours_minus_jpl_dra": 6.752165138018337e-06,
+     "ours_minus_jpl_ddec": 1.2543551702728917e-05,
+     "stations": 5
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 282,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 386,
+   "name": "Siegena",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_386.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 37.89152375143021,
+     "lead_days_first": 7.90337674273178,
+     "window_utc": [
+      "2026-01-08T21:39:42.566400+00:00",
+      "2026-02-07T21:22:38.467200+00:00"
+     ],
+     "n_scored": 81,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.10304603622186709,
+     "ours_sigma_arcsec": 0.06286596224573696,
+     "jpl_median_arcsec": 0.10305309299780845,
+     "jpl_sigma_arcsec": 0.06286776779393355,
+     "ours_minus_jpl_median_arcsec": 1.1953464026964733e-05,
+     "ours_minus_jpl_dra": 9.29586460951537e-06,
+     "ours_minus_jpl_ddec": 1.244191008066206e-06,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 67.88819575775415,
+     "lead_days_first": 37.907419751398265,
+     "window_utc": [
+      "2026-02-07T21:45:31.881600+00:00",
+      "2026-03-09T21:17:50.928000+00:00"
+     ],
+     "n_scored": 78,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09318297708126534,
+     "ours_sigma_arcsec": 0.05391211560725533,
+     "jpl_median_arcsec": 0.09318965528113134,
+     "jpl_sigma_arcsec": 0.053906019231012715,
+     "ours_minus_jpl_median_arcsec": 1.0653992147244101e-05,
+     "ours_minus_jpl_dra": 9.741320158865308e-06,
+     "ours_minus_jpl_ddec": 1.7137541267163436e-07,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 93.73480775998905,
+     "lead_days_first": 68.84433575812727,
+     "window_utc": [
+      "2026-03-10T20:14:41.424000+00:00",
+      "2026-04-04T17:36:58.204800+00:00"
+     ],
+     "n_scored": 30,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09847687043959506,
+     "ours_sigma_arcsec": 0.06472621386123735,
+     "jpl_median_arcsec": 0.09847947203111482,
+     "jpl_sigma_arcsec": 0.06472918069601048,
+     "ours_minus_jpl_median_arcsec": 9.770742447431882e-06,
+     "ours_minus_jpl_dra": 8.974698998656942e-06,
+     "ours_minus_jpl_ddec": -1.230217002531897e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 113.73269375879318,
+     "lead_days_first": 101.97404075972736,
+     "window_utc": [
+      "2026-04-12T23:21:27.936000+00:00",
+      "2026-04-24T17:33:55.555200+00:00"
+     ],
+     "n_scored": 8,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12099211165136714,
+     "ours_sigma_arcsec": 0.06592320253853817,
+     "jpl_median_arcsec": 0.12099463880256286,
+     "jpl_sigma_arcsec": 0.06592230162408122,
+     "ours_minus_jpl_median_arcsec": 1.402307853812539e-05,
+     "ours_minus_jpl_dra": 1.124639601976507e-05,
+     "ours_minus_jpl_ddec": -5.710074786984681e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 296.63880472257733,
+     "lead_days_first": 273.1291907215491,
+     "window_utc": [
+      "2026-10-01T03:04:52.896000+00:00",
+      "2026-10-24T15:18:43.545600+00:00"
+     ],
+     "n_scored": 14,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.16985699488669176,
+     "ours_sigma_arcsec": 0.05897989943033521,
+     "jpl_median_arcsec": 0.16987517938653252,
+     "jpl_sigma_arcsec": 0.05899568037768397,
+     "ours_minus_jpl_median_arcsec": 2.1290025928245022e-05,
+     "ours_minus_jpl_dra": 4.52008416618882e-06,
+     "ours_minus_jpl_ddec": -2.0774485348484806e-05,
+     "stations": 2
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 211,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 511,
+   "name": "Davida",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_511.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 38.80490575172007,
+     "lead_days_first": 20.870065746828914,
+     "window_utc": [
+      "2026-01-21T20:51:44.496000+00:00",
+      "2026-02-08T19:17:54.672000+00:00"
+     ],
+     "n_scored": 39,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.34194052468408836,
+     "ours_sigma_arcsec": 0.14178715441442644,
+     "jpl_median_arcsec": 0.34194706763186933,
+     "jpl_sigma_arcsec": 0.1417624978908655,
+     "ours_minus_jpl_median_arcsec": 8.764736567579183e-06,
+     "ours_minus_jpl_dra": -7.486461844133374e-06,
+     "ours_minus_jpl_ddec": 4.251200631674723e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 84.17387975985184,
+     "lead_days_first": 55.13640075549483,
+     "window_utc": [
+      "2026-02-25T03:15:15.840000+00:00",
+      "2026-03-26T04:09:14.025600+00:00"
+     ],
+     "n_scored": 13,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.21130836731372857,
+     "ours_sigma_arcsec": 0.08448071043713197,
+     "jpl_median_arcsec": 0.2113134198912322,
+     "jpl_sigma_arcsec": 0.08447958042975526,
+     "ours_minus_jpl_median_arcsec": 8.376627166855395e-06,
+     "ours_minus_jpl_dra": -3.2909590394290117e-06,
+     "ours_minus_jpl_ddec": -4.007727898575064e-07,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 123.37482575746253,
+     "lead_days_first": 94.97460176004097,
+     "window_utc": [
+      "2026-04-05T23:22:16.406400+00:00",
+      "2026-05-04T08:58:35.760000+00:00"
+     ],
+     "n_scored": 36,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1551063777070366,
+     "ours_sigma_arcsec": 0.055480206650850676,
+     "jpl_median_arcsec": 0.1551098503161159,
+     "jpl_sigma_arcsec": 0.05548081921628681,
+     "ours_minus_jpl_median_arcsec": 6.498237569736772e-06,
+     "ours_minus_jpl_dra": -6.199455556368805e-06,
+     "ours_minus_jpl_ddec": 2.6956155091406586e-07,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 155.93762374995276,
+     "lead_days_first": 127.57188375713304,
+     "window_utc": [
+      "2026-05-08T13:42:21.571200+00:00",
+      "2026-06-05T22:29:01.507200+00:00"
+     ],
+     "n_scored": 55,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12743671094323372,
+     "ours_sigma_arcsec": 0.05781545446130767,
+     "jpl_median_arcsec": 0.12743508859402436,
+     "jpl_sigma_arcsec": 0.05781415066828143,
+     "ours_minus_jpl_median_arcsec": 4.500309224680335e-06,
+     "ours_minus_jpl_dra": -8.834130238166704e-07,
+     "ours_minus_jpl_ddec": 3.719268127859443e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 188.27422173973173,
+     "lead_days_first": 159.25900274934247,
+     "window_utc": [
+      "2026-06-09T06:11:48.652800+00:00",
+      "2026-07-08T06:33:43.574400+00:00"
+     ],
+     "n_scored": 76,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1288559591584546,
+     "ours_sigma_arcsec": 0.055226907358950146,
+     "jpl_median_arcsec": 0.1288533499484089,
+     "jpl_sigma_arcsec": 0.05522455992802938,
+     "ours_minus_jpl_median_arcsec": 8.545745732869506e-06,
+     "ours_minus_jpl_dra": 3.010357374568645e-06,
+     "ours_minus_jpl_ddec": 7.619514905979341e-06,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 196.27606373699382,
+     "lead_days_first": 189.2599087394774,
+     "window_utc": [
+      "2026-07-09T06:13:06.931200+00:00",
+      "2026-07-16T06:36:22.723200+00:00"
+     ],
+     "n_scored": 12,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.1221750469712227,
+     "ours_sigma_arcsec": 0.023870794045885917,
+     "jpl_median_arcsec": 0.12216742718153503,
+     "jpl_sigma_arcsec": 0.02385743301847891,
+     "ours_minus_jpl_median_arcsec": 1.037116910862316e-05,
+     "ours_minus_jpl_dra": 2.9071034042746358e-06,
+     "ours_minus_jpl_ddec": 9.605402360206988e-06,
+     "stations": 1
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 231,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 532,
+   "name": "Herculina",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_532.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 186.09736774023622,
+     "lead_days_first": 156.41115075023845,
+     "window_utc": [
+      "2026-06-06T09:50:54.240000+00:00",
+      "2026-07-06T02:19:03.388800+00:00"
+     ],
+     "n_scored": 10,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.159637813814677,
+     "ours_sigma_arcsec": 0.1110082993758241,
+     "jpl_median_arcsec": 0.15964330678881838,
+     "jpl_sigma_arcsec": 0.11101307891593741,
+     "ours_minus_jpl_median_arcsec": 1.001230159734812e-05,
+     "ours_minus_jpl_dra": 5.8072168068468155e-06,
+     "ours_minus_jpl_ddec": -8.695358041571621e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 212.21064773248509,
+     "lead_days_first": 194.2020437377505,
+     "window_utc": [
+      "2026-07-14T04:49:47.395200+00:00",
+      "2026-08-01T05:02:10.780800+00:00"
+     ],
+     "n_scored": 31,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11438102687230844,
+     "ours_sigma_arcsec": 0.028714774820528102,
+     "jpl_median_arcsec": 0.11438944314959268,
+     "jpl_sigma_arcsec": 0.02871366646468091,
+     "ours_minus_jpl_median_arcsec": 9.586464318225776e-06,
+     "ours_minus_jpl_dra": 5.011168231067176e-08,
+     "ours_minus_jpl_ddec": -8.817236101812953e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 261.11788672208786,
+     "lead_days_first": 231.20713172713295,
+     "window_utc": [
+      "2026-08-20T04:57:06.998400+00:00",
+      "2026-09-19T02:48:36.230400+00:00"
+     ],
+     "n_scored": 44,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12647423632867466,
+     "ours_sigma_arcsec": 0.03967079177776694,
+     "jpl_median_arcsec": 0.12647711268769626,
+     "jpl_sigma_arcsec": 0.03968051588505868,
+     "ours_minus_jpl_median_arcsec": 1.3412977361763888e-05,
+     "ours_minus_jpl_dra": -1.3714173093121174e-06,
+     "ours_minus_jpl_ddec": -1.3277296126087967e-05,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 285.129448721651,
+     "lead_days_first": 267.0177227216773,
+     "window_utc": [
+      "2026-09-25T00:24:22.060800+00:00",
+      "2026-10-13T03:05:15.187200+00:00"
+     ],
+     "n_scored": 10,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.19963558984515195,
+     "ours_sigma_arcsec": 0.12452595333256061,
+     "jpl_median_arcsec": 0.19964452733974802,
+     "jpl_sigma_arcsec": 0.12452885251166089,
+     "ours_minus_jpl_median_arcsec": 1.7413572159228088e-05,
+     "ours_minus_jpl_dra": 4.204297423399117e-06,
+     "ours_minus_jpl_ddec": -1.6572227370545423e-05,
+     "stations": 3
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 95,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 566,
+   "name": "566 Stereoskopia (A905 KA)",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_566.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 29.242504748981446,
+     "lead_days_first": 0.2768537397496402,
+     "window_utc": [
+      "2026-01-01T06:37:30.979200+00:00",
+      "2026-01-30T05:48:03.225600+00:00"
+     ],
+     "n_scored": 52,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12135664998034862,
+     "ours_sigma_arcsec": 0.06859782350049269,
+     "jpl_median_arcsec": 0.12135213664919153,
+     "jpl_sigma_arcsec": 0.06859166482691041,
+     "ours_minus_jpl_median_arcsec": 1.9426284895059285e-05,
+     "ours_minus_jpl_dra": -1.8465407633694005e-05,
+     "ours_minus_jpl_ddec": -5.100326494401897e-06,
+     "stations": 5
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 31.26616174960509,
+     "lead_days_first": 31.237959749531,
+     "window_utc": [
+      "2026-02-01T05:41:30.537600+00:00",
+      "2026-02-01T06:22:07.190400+00:00"
+     ],
+     "n_scored": 4,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.11987943012485981,
+     "ours_sigma_arcsec": 0.010231826821427542,
+     "jpl_median_arcsec": 0.11987188402800031,
+     "jpl_sigma_arcsec": 0.010233850956365954,
+     "ours_minus_jpl_median_arcsec": 1.4485195349118695e-05,
+     "ours_minus_jpl_dra": -1.3352482557342504e-05,
+     "ours_minus_jpl_ddec": -5.844239051679134e-06,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 245.20477172452956,
+     "lead_days_first": 221.208403729368,
+     "window_utc": [
+      "2026-08-10T04:58:56.899200+00:00",
+      "2026-09-03T04:53:43.094400+00:00"
+     ],
+     "n_scored": 40,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08707749465094855,
+     "ours_sigma_arcsec": 0.027462056475682957,
+     "jpl_median_arcsec": 0.08706342188109788,
+     "jpl_sigma_arcsec": 0.02740260731143839,
+     "ours_minus_jpl_median_arcsec": 4.5799094210330156e-05,
+     "ours_minus_jpl_dra": -3.1116414923270524e-05,
+     "ours_minus_jpl_ddec": -3.323937521502573e-05,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 284.2054617218673,
+     "lead_days_first": 255.5894607231021,
+     "window_utc": [
+      "2026-09-13T14:07:40.224000+00:00",
+      "2026-10-12T04:54:42.710400+00:00"
+     ],
+     "n_scored": 42,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.059342094183982605,
+     "ours_sigma_arcsec": 0.031506523533755625,
+     "jpl_median_arcsec": 0.05936798069429275,
+     "jpl_sigma_arcsec": 0.03156626557359826,
+     "ours_minus_jpl_median_arcsec": 6.359343991590902e-05,
+     "ours_minus_jpl_dra": -4.5422001405587276e-05,
+     "ours_minus_jpl_ddec": -4.5011368879799285e-05,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 293.6264407224953,
+     "lead_days_first": 287.56151572195813,
+     "window_utc": [
+      "2026-10-15T13:27:25.776000+00:00",
+      "2026-10-21T15:00:55.296000+00:00"
+     ],
+     "n_scored": 20,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08079271475347627,
+     "ours_sigma_arcsec": 0.02787360000322559,
+     "jpl_median_arcsec": 0.08083760490027611,
+     "jpl_sigma_arcsec": 0.027878447073156117,
+     "ours_minus_jpl_median_arcsec": 7.329703255184159e-05,
+     "ours_minus_jpl_dra": -5.1263080324032324e-05,
+     "ours_minus_jpl_ddec": -5.2912141508486363e-05,
+     "stations": 2
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 158,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 702,
+   "name": "Alauda",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_702.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 31.268785749562085,
+     "lead_days_first": 1.3454777402803302,
+     "window_utc": [
+      "2026-01-02T08:16:20.092800+00:00",
+      "2026-02-01T06:25:53.904000+00:00"
+     ],
+     "n_scored": 78,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.086612095221735,
+     "ours_sigma_arcsec": 0.044040868314809,
+     "jpl_median_arcsec": 0.08661941252276231,
+     "jpl_sigma_arcsec": 0.04405580800936819,
+     "ours_minus_jpl_median_arcsec": 1.7921615426676993e-05,
+     "ours_minus_jpl_dra": -1.5611984515344693e-05,
+     "ours_minus_jpl_ddec": -7.866519963082609e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 62.24278875719756,
+     "lead_days_first": 32.255769750103354,
+     "window_utc": [
+      "2026-02-02T06:07:09.321600+00:00",
+      "2026-03-04T05:48:27.763200+00:00"
+     ],
+     "n_scored": 52,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08427620484040982,
+     "ours_sigma_arcsec": 0.04036816980303298,
+     "jpl_median_arcsec": 0.08427295342515298,
+     "jpl_sigma_arcsec": 0.04037463978654762,
+     "ours_minus_jpl_median_arcsec": 1.440369161244184e-05,
+     "ours_minus_jpl_dra": -1.1999165575387986e-05,
+     "ours_minus_jpl_ddec": -7.484897292978077e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 67.24013375816867,
+     "lead_days_first": 63.225483757443726,
+     "window_utc": [
+      "2026-03-05T05:23:32.611200+00:00",
+      "2026-03-09T05:44:38.371200+00:00"
+     ],
+     "n_scored": 11,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09966021974255122,
+     "ours_sigma_arcsec": 0.0460793257388825,
+     "jpl_median_arcsec": 0.09966394490748401,
+     "jpl_sigma_arcsec": 0.04610123591904831,
+     "ours_minus_jpl_median_arcsec": 1.2458947613395965e-05,
+     "ours_minus_jpl_dra": -1.1111892619215802e-05,
+     "ours_minus_jpl_ddec": -5.887508231973426e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 246.22201872384176,
+     "lead_days_first": 223.46817072900012,
+     "window_utc": [
+      "2026-08-12T11:13:00.768000+00:00",
+      "2026-09-04T05:18:33.235200+00:00"
+     ],
+     "n_scored": 27,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.0799985992019502,
+     "ours_sigma_arcsec": 0.05221135038237311,
+     "jpl_median_arcsec": 0.07999131194028003,
+     "jpl_sigma_arcsec": 0.052230624445104616,
+     "ours_minus_jpl_median_arcsec": 2.115008300492898e-05,
+     "ours_minus_jpl_dra": -1.5574292113670896e-05,
+     "ours_minus_jpl_ddec": 1.422091899175304e-05,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 284.20509372185916,
+     "lead_days_first": 255.58719672309235,
+     "window_utc": [
+      "2026-09-13T14:04:24.614400+00:00",
+      "2026-10-12T04:54:10.915200+00:00"
+     ],
+     "n_scored": 25,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.08023605906874187,
+     "ours_sigma_arcsec": 0.02810724988038629,
+     "jpl_median_arcsec": 0.08025881047599365,
+     "jpl_sigma_arcsec": 0.02817167781015784,
+     "ours_minus_jpl_median_arcsec": 2.597857598177256e-05,
+     "ours_minus_jpl_dra": -1.7766634106228252e-05,
+     "ours_minus_jpl_ddec": 1.8222005892160054e-05,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 304.9902337240055,
+     "lead_days_first": 289.5880187219009,
+     "window_utc": [
+      "2026-10-17T14:05:35.635200+00:00",
+      "2026-11-01T23:44:47.011200+00:00"
+     ],
+     "n_scored": 11,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.10088123345481455,
+     "ours_sigma_arcsec": 0.08140495937891211,
+     "jpl_median_arcsec": 0.10085227055201203,
+     "jpl_sigma_arcsec": 0.08147536802742372,
+     "ours_minus_jpl_median_arcsec": 3.201418874430998e-05,
+     "ours_minus_jpl_dra": -2.2754108707251364e-05,
+     "ours_minus_jpl_ddec": 2.6538825606492455e-05,
+     "stations": 3
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 204,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 704,
+   "name": "Interamnia",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_704.json",
+   "series": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 30.584800749551505,
+     "lead_days_first": 0.6327347396872938,
+     "window_utc": [
+      "2026-01-01T15:09:59.097600+00:00",
+      "2026-01-31T14:00:57.600000+00:00"
+     ],
+     "n_scored": 94,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.12166756099210531,
+     "ours_sigma_arcsec": 0.049108068402758484,
+     "jpl_median_arcsec": 0.1216771309858245,
+     "jpl_sigma_arcsec": 0.04911434986098455,
+     "ours_minus_jpl_median_arcsec": 1.3038525813020033e-05,
+     "ours_minus_jpl_dra": -1.2278426880035775e-05,
+     "ours_minus_jpl_ddec": -2.797108281285543e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 62.020283757243305,
+     "lead_days_first": 33.31952975038439,
+     "window_utc": [
+      "2026-02-03T07:38:58.185600+00:00",
+      "2026-03-04T00:28:03.331200+00:00"
+     ],
+     "n_scored": 39,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.14888294117793152,
+     "ours_sigma_arcsec": 0.06466437102573623,
+     "jpl_median_arcsec": 0.14889120774540032,
+     "jpl_sigma_arcsec": 0.06466862682205111,
+     "ours_minus_jpl_median_arcsec": 1.7068053370810897e-05,
+     "ours_minus_jpl_dra": -1.5878073483382993e-05,
+     "ours_minus_jpl_ddec": -4.0959157743547525e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 75.28314775880426,
+     "lead_days_first": 68.26266575790942,
+     "window_utc": [
+      "2026-03-10T06:17:05.136000+00:00",
+      "2026-03-17T06:46:34.780800+00:00"
+     ],
+     "n_scored": 8,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.16646658086782765,
+     "ours_sigma_arcsec": 0.029619867159844496,
+     "jpl_median_arcsec": 0.16647712354669242,
+     "jpl_sigma_arcsec": 0.029631687630177643,
+     "ours_minus_jpl_median_arcsec": 2.018725475811717e-05,
+     "ours_minus_jpl_dra": -1.75252452634736e-05,
+     "ours_minus_jpl_ddec": -9.644080449587589e-06,
+     "stations": 1
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 166.35929074697196,
+     "lead_days_first": 144.07102075312287,
+     "window_utc": [
+      "2026-05-25T01:41:07.008000+00:00",
+      "2026-06-16T08:36:13.536000+00:00"
+     ],
+     "n_scored": 11,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.21071919284261834,
+     "ours_sigma_arcsec": 0.12006672736548143,
+     "jpl_median_arcsec": 0.21073200097337008,
+     "jpl_sigma_arcsec": 0.12006797167714278,
+     "ours_minus_jpl_median_arcsec": 1.3145042780433938e-05,
+     "ours_minus_jpl_dra": -1.2530133108562547e-05,
+     "ours_minus_jpl_ddec": -5.255411155688505e-06,
+     "stations": 2
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 214.27116373134777,
+     "lead_days_first": 184.29530374100432,
+     "window_utc": [
+      "2026-07-04T07:04:05.059200+00:00",
+      "2026-08-03T06:29:19.363200+00:00"
+     ],
+     "n_scored": 49,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.09429138525030624,
+     "ours_sigma_arcsec": 0.05277845560996921,
+     "jpl_median_arcsec": 0.09429746090848447,
+     "jpl_sigma_arcsec": 0.052769994199703574,
+     "ours_minus_jpl_median_arcsec": 1.3944901398902828e-05,
+     "ours_minus_jpl_dra": -1.2073867722436904e-05,
+     "ours_minus_jpl_ddec": -6.789413034113956e-06,
+     "stations": 4
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 244.74905972462147,
+     "lead_days_first": 214.84790173126385,
+     "window_utc": [
+      "2026-08-03T20:19:49.526400+00:00",
+      "2026-09-02T17:57:29.577600+00:00"
+     ],
+     "n_scored": 47,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.13577394080068664,
+     "ours_sigma_arcsec": 0.04532929512306764,
+     "jpl_median_arcsec": 0.1357582679470801,
+     "jpl_sigma_arcsec": 0.045362676234644295,
+     "ours_minus_jpl_median_arcsec": 1.6188302247434605e-05,
+     "ours_minus_jpl_dra": -1.2494786169908734e-05,
+     "ours_minus_jpl_ddec": -1.0256884281162337e-05,
+     "stations": 3
+    },
+    {
+     "date": "2026-11-02",
+     "lead_days": 261.0345467221923,
+     "lead_days_first": 248.97897972352803,
+     "window_utc": [
+      "2026-09-06T23:28:34.665600+00:00",
+      "2026-09-19T00:48:35.654400+00:00"
+     ],
+     "n_scored": 16,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": true,
+     "ours_median_arcsec": 0.18204227904912257,
+     "ours_sigma_arcsec": 0.059614577920356765,
+     "jpl_median_arcsec": 0.1820637143882163,
+     "jpl_sigma_arcsec": 0.059602705122622966,
+     "ours_minus_jpl_median_arcsec": 2.166001639062265e-05,
+     "ours_minus_jpl_dra": -1.4855357636248123e-05,
+     "ours_minus_jpl_ddec": -1.6011188974740824e-05,
+     "stations": 2
+    }
+   ],
+   "empty_runs": [],
+   "n_scored_total": 264,
+   "last_date": "2026-11-02"
+  },
+  {
+   "body": 99942,
+   "name": "Apophis",
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-03, D:\\datasets\\mpc_live\\start_states\\horizons_vec_99942.json",
+   "series": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-02",
+     "lead_days": 305.0,
+     "note": "no optical C/B observations after 2026-01-01 and before 2026-11-02"
+    }
+   ],
+   "n_scored_total": 0,
+   "last_date": "2026-11-02"
+  }
+ ]
+}
