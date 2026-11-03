@@ -41,10 +41,13 @@ class PrescribedSources:
         return self.t0 + (self.n_nodes - 1) * self.h
 
     def positions_at(self, t_s: float) -> np.ndarray:
-        """(n, 3) source positions at time t (cubic Hermite between the bracketing nodes). A time outside the table is an error, not an extrapolation."""
+        """(n, 3) source positions at time t (cubic Hermite between the bracketing nodes).
+
+        Up to one node spacing outside the table the end segment's cubic is continued (the Yoshida compositions' negative sub-steps evaluate forces a fraction of a step before
+        the start and after the end; Forest-Ruth never leaves [t0, t_end], so every stored result is unchanged). Further out is an error, not an extrapolation."""
         x = (t_s - self.t0) / self.h
-        if x < -1e-9 or x > self.n_nodes - 1 + 1e-9:
-            raise ValueError(f"PrescribedSources: time {t_s} s is outside the table [{self.t0}, {self.t_end}] s")
+        if x < -1.0 or x > self.n_nodes:
+            raise ValueError(f"PrescribedSources: time {t_s} s is outside the table [{self.t0}, {self.t_end}] s by more than one node spacing")
         k = min(max(int(np.floor(x)), 0), self.n_nodes - 2)
         s = x - k
         p0, p1 = self.pos[k], self.pos[k + 1]

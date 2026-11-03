@@ -41,6 +41,30 @@ class TestFieldRadius(unittest.TestCase):
         self.assertEqual(rs.BodyParams(6371.0, 0.3, 1e-3).field_radius_km, 0.0)
 
 
+class TestPrescribedSourceEdges(unittest.TestCase):
+    """The Yoshida steps evaluate forces a fraction of a step outside [start, end]; the prescribed-source table continues its end cubic for up to one node spacing."""
+
+    def _src(self):
+        from sigma_ground.field.interface.prescribed_sources import PrescribedSources
+        t = np.arange(4) * 86400.0
+        pos = np.stack([np.stack([t * 1000.0, np.zeros(4), np.zeros(4)], axis=1)], axis=1)      # one source moving at 1000 m/s along x
+        vel = np.zeros_like(pos); vel[:, :, 0] = 1000.0
+        return PrescribedSources(np.array([1.0]), 0.0, 86400.0, pos, vel)
+
+    def test_inside_is_exact_for_uniform_motion(self):
+        s = self._src()
+        np.testing.assert_allclose(s.positions_at(43200.0)[0, 0], 43200.0 * 1000.0)
+
+    def test_one_spacing_outside_continues_the_cubic(self):                           # BUG: a Yoshida sub-step at t < 0 raised; now it continues the end segment
+        s = self._src()
+        np.testing.assert_allclose(s.positions_at(-680.0)[0, 0], -680.0 * 1000.0)
+        np.testing.assert_allclose(s.positions_at(3 * 86400.0 + 5000.0)[0, 0], (3 * 86400.0 + 5000.0) * 1000.0)
+
+    def test_further_out_is_an_error(self):
+        with self.assertRaises(ValueError):
+            self._src().positions_at(-2 * 86400.0)
+
+
 class TestPredictors(unittest.TestCase):
     def names(self):
         return {p.name: p for p in rs.PREDICTORS}

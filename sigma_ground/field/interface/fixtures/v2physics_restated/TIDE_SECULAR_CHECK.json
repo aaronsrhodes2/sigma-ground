@@ -1,0 +1,15 @@
+{
+ "what": "secular effect of the DE tide against the static tide, Sun-Earth-Moon from DE440 at 2010-01-01",
+ "years": 8.0,
+ "dt_days": 0.025,
+ "mean_longitude_acceleration_arcsec_per_cy2": -24.108585904127306,
+ "de430_reference_arcsec_per_cy2": -25.82,
+ "radial_drift_mm_per_yr": 50.12007505183632,
+ "de430_reference_recession_mm_per_yr": 38.08,
+ "fit_along_track_m_coefficients": [
+  -2.246466711932588,
+  -1.1353636901564992,
+  1.1670434910936833
+ ],
+ "samples": 2922
+}
