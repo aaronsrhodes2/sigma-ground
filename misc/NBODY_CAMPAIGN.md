@@ -24,19 +24,23 @@ Ledger entries C26 onward in [CANDIDATE_LEDGER.md](CANDIDATE_LEDGER.md) are the 
   Venus to Pluto indistinguishable from JPL-at-the-time (sign test p > 0.05).
 * A lever counts if it beats the control in 3 of 4 starts at +5 yr.
 
-## 3. The levers and their state (fill the result column from the ledger as arms finish)
-| id | label | what | predicted (C26) | result |
+## 3. The levers and their state (2026-11-02, 23:00; the ledger C26 has the tables)
+| id | label | what | predicted | result (4 starts, +5 yr, against DE442) |
 |---|---|---|---|---|
-| L1 | `restated_hdr_sun` / `_earth` / `_moon` | DE440 header J2/J3/J4 + reference radius, one body at a time, zonal radius only | Moon <= 0.15 km from hdr_moon; hdr_sun costs Mercury 0.02-0.03 km; Earth nothing | hdr_moon RUN 2026-11-02 (`D:/datasets/sigma_runs/l1_hdr_moon`); sun, earth not run |
-| L2 | `restated_geo` | zonal radii per DE440 + IAU poles at the start date | Moon -0.08 km; else nothing | RUN (`l2_geo`) |
-| L1+L2 | `restated_geo_hdr`, `restated_geo_hdr_em` | both, with / without the Sun's header J2 | geo_hdr_em reaches the Moon target without the Mercury cost | not run |
-| L3 | `restated_tide` | DE430 eq. 31-32 time-delayed Earth tide (header k2/tau), static Earth tide off | Moon +5 yr -0.06 km, +20 yr -0.96 km (the +20 yr residual) | RUN (`l3_tide`); falsifier `scripts/tide_secular_check.py` (target -25.82"/cy^2) |
-| L4 | `restated_gmdot` | Sun GM(t) with GMSDOT | below floor | not run |
-| L5 | (to build) | Earth J5, Moon J3M/degree-3 | below floor | not built |
-| L6 | ablations Sun-J2-only / Mars-J2-only | the Mars zonal flag (C23b) | the Sun's J2 alone reproduces it | not built |
-| L7 | policy | served tables at the converged step | honest, not improved | with the fold-in |
-| P3 | `integrator="y6"/"y8"` | Yoshida 6th/8th-order steps (`NBodySystem.yoshida_step`) | Y8 at 0.2 d within 1 % of FR 0.0125 d at a third of the evaluations | `scripts/integrator_convergence.py` RUNNING (`D:/datasets/sigma_runs/integ_conv`) |
-Then `restated_math` = `restated_zon` + every arm that won, measured on M-A, then M-B, then the fold-in (section 5).
+| L1 | `restated_hdr_moon` | the Moon's header J2/J3/J4 + radius alone | Moon gain | **null** (0.983, 2/4): a recorded miss |
+| L1 | `restated_hdr_sun`, `restated_hdr_earth` | the Sun's, the Earth's header constants alone | Mercury cost; Earth nothing | not run (the Earth part is answered by L2's attribution) |
+| L2 | `restated_geo` | zonal reference radii + poles at the start date | Moon -0.08 km | Moon 0.245 -> 0.113 (0.463, 4/4), Mercury +1.9 % |
+| L2 | `restated_fieldr_earth` | the Earth's J2-J4 on RE 6378.1366 km, the one change | carries most | **Moon 0.245 -> 0.113 (0.460, 4/4), all else within 0.7 %: the lever** |
+| L2 | `restated_fieldr_moon`, `restated_pole` | the Moon's radius alone; the pole epoch alone | under 0.03 / 0.02 km | both null on four starts (0.985, 0.997) |
+| L3 | `restated_tide` | DE430's time-delayed Earth tide, on restated_zon | Moon -0.06 km | **miss alone: Moon 22 % worse (0/4)** on the wrong Earth radius |
+| L3 | `restated_math_tide` | the same tide on `restated_math` | | **Moon 0.116 -> 0.097 (4/4); +10 yr 0.283 -> 0.222**: the tide helps on the right radius |
+| L4 | `restated_gmdot` | the Sun's GMSDOT | below floor | not run (sized 0.0016 km at +5 yr) |
+| L5 | | Earth J5, lunar degree-3 | below floor | not built |
+| L6 | | the Mars zonal flag | the Sun's J2 | not built |
+| P3 | `y6`/`y8` | Yoshida steps | Y8 0.2 d at 1/3 the evaluations | **miss on cost** (0.62); what stands: Y6 0.1 d = fine Forest-Ruth to 1.3 m/yr at 60 % of the evaluations; it is the live tool's integrator |
+| M-A | | the design metric | each inner body halved | **Moon met** (`restated_math_tide` 0.097 against 0.122); Mercury, Venus, Earth, Mars unchanged by every lever (0.08-0.12 km): OPEN |
+| M-B | | the public proof (contest v2, `restated_zon`, 0.025 d, 147 propagations) | each gap halved | **all four met**: Moon 3.40 -> 0.97, Mars 2.11 -> 0.27, Earth 0.90 -> 0.33, Mercury 1.20 -> 0.36 km; parity Venus/Uranus/Pluto yes, Jupiter/Saturn/Neptune no by sign test (only Saturn's 0.34 km gap is above reality's spread) |
+`restated_math_tide` is the candidate served model; the ledger-grade contest with it at 0.0125 d is running on skippy-core (`~/sigma-nbody/runs/contest_v3_math_tide`).
 
 ## 4. The commands
 ```bash
