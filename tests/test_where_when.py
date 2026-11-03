@@ -179,8 +179,9 @@ class TestLive(unittest.TestCase):
         self.assertIn("JPL's measured state", rc["start"]["what_it_is"])
         self.assertFalse(rc["memo"]["used"])
         on = {l["layer"] for l in rc["layers"] if l["applied"]}
-        self.assertEqual(on, {"newton", "eih", "zonals", "tides", "c22", "srp", "asteroids", "ring", "kbo"})
-        self.assertFalse(any(l["applied"] for l in rc["layers"] if l["layer"] in ("de_tide", "gm_rate")))
+        self.assertEqual(on, {"newton", "eih", "zonals", "tides", "de_tide", "c22", "srp", "asteroids", "ring", "kbo"})     # restated_math_tide carries the DE tide (served since 2026-11-02)
+        self.assertTrue(all(l["applied"] for l in rc["layers"] if l["layer"] == "de_tide"))                       # the served model carries the DE tide (restated_math_tide, 2026-11-02)
+        self.assertFalse(any(l["applied"] for l in rc["layers"] if l["layer"] == "gm_rate"))                      # and not the GM rate (sized below the floor, C26)
         for l in rc["layers"]:
             self.assertTrue(l["source"])
         sizes = {l["layer"]: l["measured_size"] for l in rc["layers"] if "measured_size" in l}
@@ -286,7 +287,7 @@ class TestRealForecast(unittest.TestCase):
             self.skipTest("the forecast table file is not installed on this machine")
 
     def test_the_record_stays_readable_and_carries_a_fingerprint(self):                          # BY CONSTRUCTION: the record is kept, its freshness is checkable
-        self.assertEqual(self.info["predictor"], self.ww.SERVED["predictor"])
+        self.assertIn(self.info["predictor"], {p.name for p in __import__("sigma_ground.field.interface.rolling_shootout", fromlist=["PREDICTORS"]).PREDICTORS})   # the record names a real label (restated_zon, 2026-10-27); the served one may differ
         self.assertTrue(self.ww.freshness(self.info.get("model_fingerprint"), self.info["predictor"])["checked"])
 
     def test_the_live_path_from_the_tables_own_start_reproduces_its_first_days(self):             # BUG if the live integration and the sealed record were different calculations

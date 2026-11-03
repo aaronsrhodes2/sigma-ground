@@ -48,9 +48,11 @@ _BARYCENTRES = ("Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto")
 CENTERS = ("sun", "ssb", "earth")
 
 # The ONE place that says what body_position serves (read it, never copy it): the predictor label, the integrator and its step.
-# restated_zon is the forecast's model (misc/CANDIDATE_LEDGER.md C17); Yoshida-6 at 0.1 d gives the fine Forest-Ruth answer (0.0125 d) for
-# 58 % of its force evaluations (C26 Phase 3; the same-answer distance is measured in C29).
-SERVED = {"predictor": "restated_zon", "integrator": "y6", "dt_days": 0.1}
+# restated_math_tide (2026-11-02, misc/CANDIDATE_LEDGER.md C26 verdicts): restated_zon with the Earth's J2-J4 on their reference radius and DE430's
+# time-delayed Earth tide; the Moon 0.245 -> 0.097 km at +5 yr against DE442 on four starts, the other bodies unchanged. Yoshida-6 at 0.1 d gives
+# the fine Forest-Ruth answer (0.0125 d) for 58 % of its force evaluations (C26 Phase 3; the same-answer distance is measured in C29).
+# The error table served beside each answer (fixtures/prediction_error_table.json) is this predictor's, four starts, 0.0125 d, against DE442.
+SERVED = {"predictor": "restated_math_tide", "integrator": "y6", "dt_days": 0.1}
 LIVE_BUDGET_S = 60.0                             # the chat must not hang: Mentat's ask route times out at 90 s
 LIVE_MIN_HORIZON_DAYS = 5.0 * 365.25             # the perturber paths are built this far at least (lead + 1 yr beyond that); further leads rebuild
 
@@ -228,8 +230,10 @@ def expected_error(body: str, lead_years: float) -> dict | None:
     if fr.get("stale"):
         flag = (flag + "; " if flag else "") + "the error table itself is stale (" + fr["note"] + ")"
     n = t[str(min(ks, key=lambda k: abs(k - lead_years)))]["n_starts"]
-    return {"typical_km": m, "largest_seen_km": x, "lead_years": lead_years, "hindcast_starts_at_that_lead": n, "integration_step_days": meta.get("dt_days"), "step_caveat": _STEP_CAVEATS.get(body),
-            "basis": f"median and maximum distance from DE440 of this same model started from DE440's state at past epochs {meta.get('starts')} (targets inside DE440's fitted span), integrated with Forest-Ruth at {meta.get('dt_days')} d; a measurement of the calculation, not of this run's integrator",
+    truth = meta.get("truth", "DE440")
+    caveat = _STEP_CAVEATS.get(body) if meta.get("dt_days") == 0.025 else None          # the caveats describe the 0.025 d table; a converged-step table needs none
+    return {"typical_km": m, "largest_seen_km": x, "lead_years": lead_years, "hindcast_starts_at_that_lead": n, "integration_step_days": meta.get("dt_days"), "step_caveat": caveat,
+            "basis": f"median and maximum distance from {truth} of this same model started from DE440's state at past epochs {meta.get('starts')} (targets inside the fitted span), integrated with Forest-Ruth at {meta.get('dt_days')} d; a measurement of the calculation, not of this run's integrator",
             "note": flag}
 
 
