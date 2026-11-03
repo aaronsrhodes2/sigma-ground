@@ -784,6 +784,12 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "where is the planet", "position of Mars on a date", "where will Jupiter be", "ephemeris position",
         "heliocentric position", "distance from the Sun on a date", "right ascension and declination of the Moon",
         "JPL DE440 position", "N-body prediction of a planet's position",
+        "where is Eros", "position of an asteroid on a date", "where will Apophis be in 2029", "where is Ceres now", "where is the comet", "predict the position of an asteroid",
+        "RA and Dec of an asteroid tonight", "how far is Eros from the Earth", "N-body prediction of an asteroid's position", "track an asteroid",
+    ],
+    "solvable_bodies": [
+        "which bodies can you predict the position of", "what asteroids can you track", "list of bodies the N-body predictor can solve", "can you predict comets", "which bodies does body_position know",
+        "what can the predictor calculate", "roster of solvable bodies", "do you know about Eros",
     ],
     "orbital_elements": [
         "orbital elements of a planet", "semi-major axis of Mars", "eccentricity of Mercury's orbit", "inclination of Jupiter's orbit", "orbital period of a moon from its state", "osculating elements",
@@ -1076,7 +1082,9 @@ _COLLOQUIAL: dict[str, list[str]] = {
                        "mass of jupiter", "mass of ceres", "GM of", "gravitational parameter of",
                        "how heavy is io", "how massive is pluto", "what does the earth weigh"],
     "body_position": ["where is mars", "where will jupiter be", "where was the moon", "where is venus tonight",
-                      "how far is mars from the sun on", "how far is the moon right now", "where is saturn in the sky"],
+                      "how far is mars from the sun on", "how far is the moon right now", "where is saturn in the sky",
+                      "where is eros", "where is eros right now", "where will apophis be in 2029", "where is ceres tonight", "predict the position of eros", "where is halley's comet now", "how far away is vesta"],
+    "solvable_bodies": ["which bodies can you predict", "what asteroids can you track", "do you know about eros", "which bodies does the predictor know", "can you predict where a comet will be"],
     "orbital_elements": ["what is the semi-major axis of mars", "what are the orbital elements of jupiter", "how eccentric is the orbit of mercury", "what is the inclination of venus"],
     "hill_radius": ["what is the hill radius of the earth", "how big is jupiter's hill sphere"],
     "sphere_of_influence": ["what is the sphere of influence of mars", "sphere of influence of the earth"],

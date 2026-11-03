@@ -143,11 +143,18 @@ def _compute_uncovered():
                 call()
             except Exception:
                 pass
-        for args in (("mars", "2015-06-15"), ("moon", "2024-01-02", "earth")):          # a known and a predicted position (a day past DE442's edge: the live integration takes seconds, not a budget)
+        # a known and a predicted position (a day past DE442's edge: the live integration takes seconds, not a budget); then one small body per start tier (own fit, JPL state, catalogue elements, SBDB elements,
+        # a comet with Marsden terms), each a few weeks from its start so the test-particle integration takes a second or two
+        for args in (("mars", "2015-06-15"), ("moon", "2024-01-02", "earth"), ("eros", "2020-02-01", "earth"), ("ceres", "2026-02-01"), ("eris", "2026-07-01"), ("interamnia", "2026-01-15"), ("67P", "JD 2461230.5"), ("akepa", "2026-07-01"),
+                     ("bennu", "2026-07-01"), ("halley", "2061-07-28")):
             try:
                 _A.body_position(*args)
             except Exception:
                 pass
+        try:
+            _A.solvable_bodies()
+        except Exception:
+            pass
     finally:
         sys.settrace(old)
 

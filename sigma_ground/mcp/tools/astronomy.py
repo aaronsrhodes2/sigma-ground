@@ -359,6 +359,26 @@ def body_position(body_name: str, when: str, central_body: str = "sun", budget_s
         return ToolResult(value=None, source="sigma-ground body_position (JPL kernel; our live N-body integration)", notes=str(e), inputs=inputs)
     known = d["kind"] == "known"
     tag = "VERIFIED" if known and d["method"].startswith("JPL") else "DERIVED"
+    if "start" in d and "tier" in d["start"]:                                            # a small body: our test-particle integration from a stated start (small_body_position.py)
+        s = d["start"]
+        if d.get("status") == "over_budget":
+            return ToolResult(value=d, units="km (position), km/s (velocity)", source=d["method"], provenance_tag="DERIVED", inputs=inputs,
+                              notes=f"NOT COMPUTED: {d['basis']}. {d['offer']['how']}. Start: {s['what_it_is']}")
+        rc = d["receipt"]
+        sky = d.get("measured_against_the_sky") or {}
+        notes = (f"PREDICTION (our calculation). {d['basis']}. START ({s['tier']}, {s['date']}, {abs(s['lead_years_from_start']):.2f} yr {s['direction']}): {s['what_it_is']}"
+                 f" RECEIPT: {rc['integrator']['name']} rtol {rc['integrator']['rtol']}, planet field {rc['planet_field']['kernel']}, {rc['prescribed_sources']['count']} prescribed sources, {rc['relativity']}, "
+                 f"{rc['wall_seconds_this_call']:.1f} s on {rc['machine']['host']} ({rc['machine']['processor']}).")
+        if sky.get("ours_median_arcsec") is not None:
+            notes += (f" MEASURED AGAINST THE SKY (daily MPC scoreboard, window to {str(sky['window_utc'][1])[:10]}, {sky['observations_scored']} observations, {sky['lead_years_at_window']:.1f} yr lead): "
+                      f"ours {sky['ours_median_arcsec']:.3f} arcsec median, JPL {sky['jpl_median_arcsec']:.3f}, ours minus JPL {sky['ours_minus_jpl_median_arcsec']:+.4f} arcsec; the telescopes' own scatter {sky['telescope_scatter_sigma_arcsec']:.2f} arcsec.")
+        elif sky.get("what"):
+            notes += " " + sky["what"] + "."
+        if s.get("measured"):
+            m = s["measured"]
+            notes += f" The start's own test: {m['what']}: ours {m['ours_median_arcsec']:.3f} arcsec, JPL {m['jpl_median_arcsec']:.3f} over {m['n_predicted_observations']} observations."
+        notes += " " + " ".join(d["notes"])
+        return ToolResult(value=d, units="km (position), km/s (velocity)", source=d["method"], provenance_tag="DERIVED", notes=notes.strip(), inputs=inputs)
     if d.get("status") == "over_budget":
         o = d["offer"]
         notes = (f"NOT COMPUTED YET: {d['basis']}. Our integration reached {o['reached_date']} ({o['reached_lead_years']:.2f} yr after the edge); ask again for the same date to continue it, ask for a date up to "
@@ -378,6 +398,18 @@ def body_position(body_name: str, when: str, central_body: str = "sun", budget_s
                   f"Layers: {', '.join(on)} (sources and measured sizes in value['receipt']['layers']).")
     notes += " " + " ".join(d["notes"])
     return ToolResult(value=d, units="km (position), km/s (velocity)", source=d["method"], provenance_tag=tag, notes=notes.strip(), inputs=inputs)
+
+
+def solvable_bodies() -> ToolResult:
+    """Which bodies body_position can place, and from what: the 11 bodies of the live full N-body model, then the small bodies solved as test particles by tier (our own orbit fit; JPL's state at 2026-01-01 for the
+    daily-tracked set; the catalogue elements of DE440's asteroids, Kuiper-belt objects and 20 comets; every named main-belt asteroid), and what is not solved."""
+    from sigma_ground.field.interface import small_body_position as sbp
+    d = sbp.solvable_bodies()
+    t = d["small_bodies_as_test_particles"]["tiers_in_order"]
+    return ToolResult(value=d, source="sigma-ground body_position roster (where_when.SUPPORTED; small_body_position tiers)", provenance_tag="DERIVED",
+                      notes=(f"{d['full_n_body_live']['count']} bodies in the live full N-body model ({', '.join(d['full_n_body_live']['bodies'])}); small bodies as test particles: {t[0]['count']} from our own orbit fit ({', '.join(t[0]['bodies'])}), "
+                             f"{t[1]['count']} from JPL's 2026-01-01 state (the daily MPC scoreboard set), {t[2]['asteroids']} asteroids + {t[2]['kuiper_belt_objects']} Kuiper-belt objects + {t[2]['comets']} comets from catalogue elements, "
+                             f"{t[3]['count']} named main-belt asteroids from SBDB elements. Not solved: {'; '.join(d['small_bodies_as_test_particles']['not_solved'])}."))
 
 
 def small_body(body_name: str) -> ToolResult:

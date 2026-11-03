@@ -37,8 +37,9 @@ class TestTable(unittest.TestCase):
         t = _table()
         self.assertAlmostEqual(t["Jupiter"]["forecast_step_0.025d"]["5"]["median_km"], 5.79, delta=0.01)       # C16 "Jupiter 5.54 -> 5.79 km (+5 yr)"
         self.assertAlmostEqual(t["Callisto"]["forecast_step_0.025d"]["5"]["median_km"], 31.9, delta=0.1)       # C16 "Callisto 210 -> 31.9 km"
-        self.assertAlmostEqual(t["Mercury"]["hindcast"]["5"]["median_km"], 0.0252, delta=0.0005)                # C17 "Mercury +5 0.025"
-        self.assertAlmostEqual(t["Moon"]["hindcast"]["5"]["median_km"], 0.375, delta=0.005)                      # C17 "Moon ... +5 0.38"
+        self.assertAlmostEqual(t["Mercury"]["hindcast"]["5"]["median_km"], 0.0897, delta=0.0005)                # C26 verdicts: restated_math_tide, 0.0125 d, against DE442 (the 0.025 d table said 0.025: C19's cancellation)
+        self.assertAlmostEqual(t["Moon"]["hindcast"]["5"]["median_km"], 0.097, delta=0.001)                      # C26 verdicts "Moon 0.245 -> 0.097 km at +5 yr"
+        self.assertEqual((t["Moon"]["hindcast_meta"]["truth"], t["Moon"]["hindcast_meta"]["dt_days"]), ("DE442", 0.0125))
         self.assertAlmostEqual(t["Io"]["converged"]["error_km"]["5"], 159, delta=1)                              # C14 "Io 159"
         self.assertAlmostEqual(t["Enceladus"]["converged"]["error_km"]["5"], 358, delta=1)                       # C14 "Enceladus 358"
         self.assertEqual(len(t), 55)
@@ -88,7 +89,8 @@ class TestTools(unittest.TestCase):
         with mock.patch.object(skill, "_table", return_value=forced):                                              # the class still exists for a disagreement that survives; its wording is pinned here
             self.assertIn("Neither number is offered as the skill", T.body_skill("nereid").to_dict()["value"]["summary"])
         mercury = T.body_skill("mercury").to_dict()
-        self.assertIn("integration error cancelling", mercury["value"]["summary"])                                # the C19 caveat travels with the number
+        self.assertNotIn("integration error cancelling", mercury["value"]["summary"])                             # the C19 caveat described the 0.025 d table; the served hindcast is at 0.0125 d against DE442
+        self.assertIn("from JPL DE442 after 5 years", mercury["value"]["summary"])
         io = T.body_skill("io").to_dict()
         self.assertIn("converged step", io["value"]["summary"])
         self.assertIsNone(io["value"]["table_sources_changed_since_build"])

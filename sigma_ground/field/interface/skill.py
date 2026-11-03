@@ -57,7 +57,8 @@ def body_skill(name: str) -> dict:
     fs = b["forecast_step_0.025d"]
     lead_text = ", ".join(f"+{k} yr {_km(v['median_km'])}" for k, v in fs.items())
     if cls == "predictable":
-        s = (f"{key} is predictable: about {_km(b['best_estimate_5yr_km'])} from JPL DE440 after 5 years ({b['best_estimate_basis']}).")
+        truth = (b.get("hindcast_meta") or {}).get("truth", "DE440")
+        s = (f"{key} is predictable: about {_km(b['best_estimate_5yr_km'])} from JPL {truth} after 5 years ({b['best_estimate_basis']}).")
     elif cls == "loses_orbital_phase":
         c = b["converged"]
         s = (f"{key} loses its orbital phase within a year: even at the converged step its position is {_km(c['error_km']['1'])} off after 1 year, {c['error_at_1yr_over_orbital_radius']:.1f} times its orbital radius about {c['relative_to']}. "
@@ -66,7 +67,7 @@ def body_skill(name: str) -> dict:
         s = f"{key}: {b['note']}."
     else:
         s = f"{key} is not scored at a converged step: {b['note']}."
-    if key in ("Mercury", "Moon"):
+    if key in ("Mercury", "Moon") and (b.get("hindcast_meta") or {}).get("dt_days") == 0.025:        # the caveats describe the 0.025 d table; a converged-step hindcast needs none
         from . import where_when
         s += " " + where_when._STEP_CAVEATS[key]
     b.update({"body": key, "summary": s, "forecast_step_leads_text": f"at the forecast step of 0.025 d, median error: {lead_text}",

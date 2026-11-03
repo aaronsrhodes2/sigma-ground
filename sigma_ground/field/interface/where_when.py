@@ -441,12 +441,16 @@ def forget_live() -> None:
 def position_at(body: str, when: str, center: str = "sun", now: datetime.datetime | None = None, budget_s: float = LIVE_BUDGET_S, progress=None) -> dict:
     """The answer dict. For a date past the edge, `progress(info)` is called as the integration runs (percent, years integrated, force evaluations, seconds) and the answer carries a `receipt`."""
     now = now or _now()
-    b = canonical_body(body)
     c = center.strip().lower()
     c = {"sun": "sun", "heliocentric": "sun", "ssb": "ssb", "barycentre": "ssb", "barycenter": "ssb", "earth": "earth", "geocentric": "earth"}.get(c)
     if c is None:
         raise WhereWhenError(f"unknown center '{center}': use 'sun' (default), 'ssb' (solar-system barycentre) or 'earth'")
-    if c == "earth" and b == "Earth":
+    planet_miss = None
+    try:
+        b = canonical_body(body)
+    except WhereWhenError as e:
+        b, planet_miss = None, e
+    if b == "Earth" and c == "earth":
         raise WhereWhenError("the position of the Earth seen from the Earth is zero: pick another center ('sun' or 'ssb') or another body")
     jd, iso, how = parse_when(when, now)
     k, kname, edge = _truth()
@@ -455,6 +459,17 @@ def position_at(body: str, when: str, center: str = "sun", now: datetime.datetim
     lo, hi = k[0, 3].start_jd, k[0, 3].end_jd
     if not lo <= jd <= hi:
         raise WhereWhenError(f"the {kname} kernel covers JD {lo:.1f} to {hi:.1f} ({_jd_to_iso(lo)[:4]} to {_jd_to_iso(hi)[:4]}); that date is outside it")
+    if b is None:                                                                            # an asteroid, Kuiper-belt object or comet: our test-particle integration from a stated start
+        from sigma_ground.field.interface import small_body_position as sbp
+        try:
+            out = sbp.position_at(body, jd, c, k, kname, budget_s, progress=progress)
+        except sbp.SmallBodyError as e:
+            raise WhereWhenError(str(e)) from planet_miss
+        out.update(center={"sun": "Sun", "ssb": "solar-system barycentre", "earth": "Earth"}[c], when_read_as=how, when_utc=iso or None, when_jd_tdb=jd,
+                   reality_edge={"kernel": kname, "jd_tdb": edge, "date": _jd_to_iso(edge)[:10], "note": "the planet field is the kernel's; the small body itself has no kernel value here, so the answer is a calculation at every date"})
+        if out.get("position_km") is not None:
+            _finish_geometry(out, np.array(out["position_km"]), c)
+        return out
     kind = "known" if jd <= edge else "prediction"
     out: dict = {"body": b, "center": {"sun": "Sun", "ssb": "solar-system barycentre", "earth": "Earth"}[c], "when_read_as": how, "when_utc": iso or None, "when_jd_tdb": jd, "kind": kind, "frame": "ICRF (J2000 equatorial), km and km/s",
                  "reference_point": "planet-system barycentre (planet plus all its moons)" if b in _BARYCENTRES else "body centre", "reality_edge": {"kernel": kname, "jd_tdb": edge, "date": _jd_to_iso(edge)[:10]}, "notes": []}
@@ -506,6 +521,12 @@ def position_at(body: str, when: str, center: str = "sun", now: datetime.datetim
             out["notes"].append("The error table was measured with an earlier state of the physics code (its fingerprint differs); it is the last measurement there is until scripts/make_prediction_error_table.py is run again.")
     out["position_km"] = [float(x) for x in p]
     out["velocity_km_s"] = [float(x) for x in v]
+    _finish_geometry(out, p, c)
+    return out
+
+
+def _finish_geometry(out: dict, p: np.ndarray, c: str) -> None:
+    """Distance, light time and (from the Earth) geometric RA/Dec, added to a finished answer."""
     r_ = float(np.linalg.norm(p))
     out["distance_km"] = r_
     out["distance_au"] = r_ / AU_KM
@@ -514,4 +535,3 @@ def position_at(body: str, when: str, center: str = "sun", now: datetime.datetim
         out["ra_deg"] = float(math.degrees(math.atan2(p[1], p[0])) % 360.0)
         out["dec_deg"] = float(math.degrees(math.asin(p[2] / r_)))
         out["notes"].append("RA and Dec are geometric (no light-time or aberration correction), in ICRF.")
-    return out

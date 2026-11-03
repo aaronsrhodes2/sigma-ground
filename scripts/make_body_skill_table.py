@@ -113,8 +113,9 @@ def build() -> dict:
             b["best_estimate_basis"] = "full-system run at the forecast step"
         if name in hind["table"]:
             b["hindcast"] = hind["table"][name]
+            b["hindcast_meta"] = {k: hind["metadata"].get(k) for k in ("predictor", "dt_days", "truth", "starts")}
             b["best_estimate_5yr_km"] = hind["table"][name]["5"]["median_km"]
-            b["best_estimate_basis"] = "the forecast's own hindcast (what body_position quotes)"
+            b["best_estimate_basis"] = f"the served model's own hindcast against {hind['metadata'].get('truth', 'DE440')} at {hind['metadata'].get('dt_days')} d (what body_position quotes)"
         bodies[name] = b
     return {"metadata": {
         "what": "measured skill of the N-body model against JPL DE440 by body: class, the forecast-step errors, the converged errors for moons, and the forecast's hindcast error",

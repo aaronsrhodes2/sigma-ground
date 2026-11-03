@@ -4333,3 +4333,20 @@ The Captain asked for the best model-free, token-free, low-computation predictor
 
 ### Next
 - Read the ledger-grade contest (restated_math_tide, 0.0125 d) and rebuild the page's "ours" from it; the +20 yr arm; the inner-planet 0.08-0.12 km deficits (growth-law diagnostic first); Saturn's 0.34 km gap; re-stamp the sealed manifest; the Mentat router rows for the new tools and a before/after on the live suites.
+
+## Session — 2026-11-03 — Eros in body_position (C30): the small bodies, the roster tool, the telescope plates
+**Time:** 2026-11-03 13:00 to 15:30 UTC (continuation of the 2026-11-02 session). **Status:** complete; Mentat pin and portal push follow in this session.
+
+### Changes
+- sigma-ground: `small_body_position.py` (four start tiers, the C24 engine live, budget by measured rate, scoreboard line beside the answer), `where_when.position_at` routes non-planets to it, `_finish_geometry` shared; fixtures `small_body_starts/own_fit_433.json` (C28's state and curve), `horizons_vec_99942.json`, `sbdb_asteroids_named_mba.json` committed; `solvable_bodies` tool (astronomy.py, server, manifest, keywords, coverage harness); body_skill table rebuilt from the served error table with `hindcast_meta`, the C19 caveat only for a 0.025 d hindcast; tests `tests/test_small_body_position.py` (12), `test_body_skill_and_celestial_tools.py` and `test_where_when.py` updated; ledger C30, coverage ledger.
+- SkippyTel: `nbody_blankets_build.py --sky/--eros-fit` writes the telescope section from `scoreboard_portal.json` and the own-fit fixture; `nbody-flipbook.js` plates "Against the telescopes", "Eros against the telescopes", "Eros from our own orbit solution", "The tracked set against the telescopes"; the page test checks the sky section.
+
+### Why
+Skippy told the Captain that Mentat did not know Eros, while the engine had tracked Eros for a week (C24, C27, C28). The Captain: Mentat must know the predictor, how to call it and which bodies it can solve; the page must show Eros.
+
+### Verification
+- `position_at('Eros', '2026-12-01', 'earth')`: own_fit tier, 8-11 s, RA/Dec, the scoreboard line (0.104 vs 0.104 arcsec); our fit at 2026-01-01 is 115 km from JPL's state (C28's 0.12 arcsec). Each tier exercised (Ceres, Apophis by name and number, Eris, 67P with Marsden terms, Akepa); Io refused as a moon, 85 Io reachable; Bennu refused with the roster pointer; Halley over budget declined before running.
+- Suites: tests/test_where_when (25), tests/test_small_body_position (12), test_body_skill_and_celestial_tools (13), mcp/test_mcp + test_coverage_ledger + test_tool_keywords + test_contest_tool: 130 passed, 1 skipped. SkippyTel portal/tests/test_experiments_bridge: 7 passed. Page checked in the harness: the four plates draw; the set plate says the two coincide.
+
+### Next
+- Measure the live /ask routing for "where is Eros" and "which bodies can you predict" after the pin lands; refresh the SBDB catalogue in the nightly task; Yarkovsky for Apophis when it is observed again (2027).

@@ -501,14 +501,20 @@ _PRIMARY_TOOLS = [
      "summary": "GM (exact), mass (GM/G, with G's uncertainty), radii, gravity field, orbit and physical data of a planet, moon, asteroid or Kuiper-belt object, each with its source.",
      "inputs": {"body_name": "str (earth, io, ceres, '4 vesta', eris ...)"}, "returns": "dict of values, sources and notes"},
     {"name": "body_position", "tier": "PRIMARY", "domain": "astronomy",
-     "summary": "Where a planet, the Sun or the Moon is at a time: a known value from JPL DE442 up to the edge of its data (2024-01-01), after it our own N-body integration from the kernel's state at the edge computed when asked (with JPL's value, the difference and the measured error at that lead), within a time budget.",
-     "inputs": {"body_name": "str", "when": "str (ISO date/time UTC, 'JD 2462000.5', or 'now')", "central_body": "str (sun | ssb | earth), default sun", "budget_s": "float seconds, default 60"},
+     "summary": ("Where a planet, the Sun, the Moon, an asteroid, a Kuiper-belt object or a comet is at a time. Planets and the Moon: a known value from JPL DE442 up to the edge of its data (2024-01-01), after it our own N-body "
+                 "integration from the kernel's state at the edge computed when asked (with JPL's value, the difference and the measured error at that lead). Small bodies (Eros from our own orbit fit to telescope observations; "
+                 "the 30 heaviest asteroids and Apophis from JPL's 2026 state; DE440's 343 asteroids, 30 Kuiper-belt objects and 20 comets from their elements; every named main-belt asteroid): our test-particle integration "
+                 "in the planet field with relativity and the asteroid belt from the stated start, with the daily telescope scoreboard's measurement beside it where there is one. Within a time budget; solvable_bodies lists the roster."),
+     "inputs": {"body_name": "str (mars, moon, Eros, Apophis, Ceres, Eris, 67P, 'Interamnia' ...)", "when": "str (ISO date/time UTC, 'JD 2462000.5', or 'now')", "central_body": "str (sun | ssb | earth), default sun", "budget_s": "float seconds, default 60"},
      "returns": ("dict with position_km, velocity_km_s, kind, status, basis, jpl_same_instant, cross_check, expected_distance_from_de440 and, for a date past the edge, a receipt: machine (host, processor, cores, load), "
                  "wall_seconds_this_call, wall_seconds_whole_integration, integrator (name, scheme, step_days, force_backend), steps_this_call, force_evaluations_this_call, force_evaluations_whole_integration, "
                  "bodies_integrated, prescribed_sources, start (kernel, jd_tdb, date, what_it_is), lead_years, predictor, model_fingerprint, memo (used, started_utc, rows_stored), layers (each: layer, applied, source, measured_size)"),
      "progress": "reported through the MCP context while the integration runs (years integrated, force evaluations, seconds)"},
+    {"name": "solvable_bodies", "tier": "PRIMARY", "domain": "astronomy",
+     "summary": "Which bodies body_position can place and from what start: the 11 of the live full N-body model; small bodies as test particles by tier (our own orbit fit: Eros; JPL's 2026 state: the 30 heaviest asteroids and Apophis; catalogue elements: DE440's 343 asteroids, 30 Kuiper-belt objects, 20 comets; the 24,370 named main-belt asteroids); what is not solved.",
+     "inputs": {}, "returns": "dict: full_n_body_live (bodies, how), small_bodies_as_test_particles (how, tiers_in_order with counts and starts, not_solved), ask"},
     {"name": "small_body", "tier": "PRIMARY", "domain": "astronomy",
-     "summary": "Orbit (elements, with perihelion, aphelion and period calculated from them), physical data and, for comets, the Marsden non-gravitational terms of an asteroid, Kuiper-belt object or comet.",
+     "summary": "Orbit (elements, with perihelion, aphelion and period calculated from them), physical data and, for comets, the Marsden non-gravitational terms of an asteroid, Kuiper-belt object or comet. For where it is, body_position.",
      "inputs": {"body_name": "str (Ceres, '4 Vesta', Eris, 1P, Halley, 67P ...)"}, "returns": "dict of orbit, physical data, sources and notes"},
     {"name": "orbital_elements", "tier": "PRIMARY", "domain": "astronomy",
      "summary": "Osculating orbital elements of a planet or moon about a central body at a date (semi-major axis, eccentricity, inclination, period, periapsis, apoapsis), from JPL DE440.",

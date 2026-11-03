@@ -1,0 +1,126 @@
+{
+ "number": 433,
+ "name": "Eros",
+ "ledger": "misc/CANDIDATE_LEDGER.md C28 (2026-11-02)",
+ "what_it_is": "OUR OWN orbit solution for 433 Eros: the barycentric state at the epoch fitted by least squares to the Minor Planet Center's optical observations alone (no JPL state used), with our own propagation as the model (scripts/orbit_fit.py, the C24 engine: DE440s planets, the Sun's 1PN term, DE440's asteroids as prescribed sources, no non-gravitational terms).",
+ "epoch_jd_tdb": 2458849.5,
+ "state_km_kmday": [
+  161271673.05674964,
+  -194363117.89511794,
+  -81267542.90081911,
+  1301614.3561085162,
+  832264.211895534,
+  708144.6505829702
+ ],
+ "frame": "barycentric ICRF (J2000 equatorial), km and km/day",
+ "fit_window": [
+  "2015-01-01",
+  "2019-12-31"
+ ],
+ "observations_used": 1544,
+ "observations_rejected": 19,
+ "measured": {
+  "what": "the fit's prediction for 2020-2026 against the observations it never saw (C28 curve a) beside JPL's own prediction (curve c)",
+  "n_predicted_observations": 4435,
+  "ours_median_arcsec": 0.18681509952355416,
+  "jpl_median_arcsec": 0.1318969746877673,
+  "ours_minus_jpl_median_arcsec": 0.11824978647316554,
+  "curves": {
+   "a": "our fitted state propagated forward",
+   "b": "our propagation from JPL's state at the epoch",
+   "c": "JPL's Horizons vectors (C24 arm J)"
+  },
+  "per_year": [
+   {
+    "year": 2020,
+    "n": 240,
+    "lead_years_median": 0.729086299034181,
+    "own_fit_median_arcsec": 0.39242046623896387,
+    "from_jpl_state_median_arcsec": 0.38902823697419586,
+    "jpl_median_arcsec": 0.3890124990951831
+   },
+   {
+    "year": 2021,
+    "n": 294,
+    "lead_years_median": 1.6161168315635916,
+    "own_fit_median_arcsec": 0.11815901069729393,
+    "from_jpl_state_median_arcsec": 0.10047336926374434,
+    "jpl_median_arcsec": 0.10046826533676703
+   },
+   {
+    "year": 2023,
+    "n": 955,
+    "lead_years_median": 3.7367552654941365,
+    "own_fit_median_arcsec": 0.1390836728978863,
+    "from_jpl_state_median_arcsec": 0.12672748540794648,
+    "jpl_median_arcsec": 0.12656769505659046
+   },
+   {
+    "year": 2024,
+    "n": 207,
+    "lead_years_median": 4.063629056118597,
+    "own_fit_median_arcsec": 0.19024715179359794,
+    "from_jpl_state_median_arcsec": 0.17302993884911938,
+    "jpl_median_arcsec": 0.17287748973198386
+   },
+   {
+    "year": 2025,
+    "n": 1579,
+    "lead_years_median": 5.7056395639216015,
+    "own_fit_median_arcsec": 0.19452892179165623,
+    "from_jpl_state_median_arcsec": 0.12337080531622599,
+    "jpl_median_arcsec": 0.12367444671706665
+   },
+   {
+    "year": 2026,
+    "n": 1160,
+    "lead_years_median": 6.264367843284555,
+    "own_fit_median_arcsec": 0.21991402199359342,
+    "from_jpl_state_median_arcsec": 0.13747627763570489,
+    "jpl_median_arcsec": 0.13798799100972364
+   }
+  ]
+ },
+ "data": "D:/datasets/mpc/obs80_433.txt (MPC obs80, fetched 2026-10-30), D:/datasets/mpc_live/orbit_fit/433/",
+ "observations_total": 1563,
+ "fit_rms_arcsec": 0.36917391580528014,
+ "converged": true,
+ "sigma_scaled_km_kmday": [
+  23.462093425447282,
+  17.928330686891403,
+  13.760392166365106,
+  0.11225792587664453,
+  0.14329838375386889,
+  0.07350478474637018
+ ],
+ "difference_vs_jpl_state": {
+  "km": [
+   -11.895987659692764,
+   -20.41954705119133,
+   22.474033191800117
+  ],
+  "km_day": [
+   0.03519646008498967,
+   -0.15568622783757746,
+   0.13654405542183667
+  ],
+  "position_km": 32.612184718008585,
+  "speed_mm_s": 2.4311416679736806,
+  "in_formal_sigma": [
+   -0.26497327880555116,
+   -0.5952159832423825,
+   0.8535295103151208,
+   0.16385145676776305,
+   -0.5677762716488503,
+   0.9707905093274367
+  ],
+  "in_scaled_sigma": [
+   -0.5070301035793433,
+   -1.1389541730241188,
+   1.6332407477988888,
+   0.3135320718794107,
+   -1.0864478981492638,
+   1.8576213221082796
+  ]
+ }
+}

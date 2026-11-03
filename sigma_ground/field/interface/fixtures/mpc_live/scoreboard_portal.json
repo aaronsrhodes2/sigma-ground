@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-11-03T04:20:35+00:00",
+ "generated_utc": "2026-11-03T12:42:06+00:00",
  "ledger": "misc/CANDIDATE_LEDGER.md C27",
  "units": {
   "residuals": "arcsec, total = sqrt((dRA cos Dec)^2 + dDec^2), O minus C",
@@ -206,9 +206,15 @@
      "stations": 3
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 2498.0,
+     "note": "no optical C/B observations after 2026-09-19T00:55:51.628800+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 602,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 1,
@@ -259,9 +265,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-09-22T02:04:22.972800+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 9,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 2,
@@ -333,9 +345,15 @@
      "stations": 2
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-17T21:08:10.752000+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 12,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 3,
@@ -449,9 +467,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-09-30T13:14:11.328000+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 50,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 4,
@@ -481,9 +505,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-23T01:07:38.035200+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 3,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 6,
@@ -534,9 +564,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-02-16T02:17:54.182400+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 16,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 7,
@@ -650,9 +686,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-07-04T00:18:08.985600+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 51,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 9,
@@ -724,9 +766,15 @@
      "stations": 2
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-09-06T13:37:11.740800+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 24,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 10,
@@ -798,9 +846,15 @@
      "stations": 3
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-04-23T21:47:05.107200+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 56,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 15,
@@ -872,9 +926,15 @@
      "stations": 2
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-07-17T17:42:48.643200+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 28,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 16,
@@ -988,9 +1048,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-29T20:52:07.996800+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 88,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 29,
@@ -1062,9 +1128,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-08-06T07:26:44.131200+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 14,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 31,
@@ -1241,9 +1313,15 @@
      "stations": 2
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-29T20:09:21.657600+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 346,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 39,
@@ -1336,9 +1414,15 @@
      "stations": 3
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-06-06T22:59:58.070400+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 72,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 48,
@@ -1536,9 +1620,15 @@
      "stations": 4
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-22T05:36:19.152000+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 454,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 52,
@@ -1610,9 +1700,15 @@
      "stations": 3
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-03-20T02:56:46.636800+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 124,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 65,
@@ -1768,9 +1864,15 @@
      "stations": 2
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-08-02T17:26:52.886400+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 305,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 87,
@@ -1884,9 +1986,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-19T15:28:00.566400+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 218,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 88,
@@ -2042,9 +2150,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-08-02T18:13:45.206400+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 308,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 94,
@@ -2158,9 +2272,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-29T20:54:00.662400+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 273,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 107,
@@ -2272,11 +2392,32 @@
      "ours_minus_jpl_dra": -3.6759559477426984e-05,
      "ours_minus_jpl_ddec": -1.2327510299607602e-05,
      "stations": 3
+    },
+    {
+     "date": "2026-11-03",
+     "lead_days": 305.64915472408757,
+     "lead_days_first": 305.6197557239793,
+     "window_utc": [
+      "2026-11-02T14:51:17.712000+00:00",
+      "2026-11-02T15:33:37.785600+00:00"
+     ],
+     "n_scored": 4,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": false,
+     "ours_median_arcsec": 0.13306716801750812,
+     "ours_sigma_arcsec": 0.03726959169772917,
+     "jpl_median_arcsec": 0.13310121385044288,
+     "jpl_sigma_arcsec": 0.03727167717091893,
+     "ours_minus_jpl_median_arcsec": 4.0370425259838934e-05,
+     "ours_minus_jpl_dra": -3.884672788626725e-05,
+     "ours_minus_jpl_ddec": -1.0842522995224008e-05,
+     "stations": 1
     }
    ],
    "empty_runs": [],
-   "n_scored_total": 364,
-   "last_date": "2026-11-02"
+   "n_scored_total": 368,
+   "last_date": "2026-11-03"
   },
   {
    "body": 154,
@@ -2474,9 +2615,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-09-19T00:48:35.654400+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 519,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 209,
@@ -2590,9 +2737,15 @@
      "stations": 3
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-29T20:56:49.833600+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 245,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 324,
@@ -2727,9 +2880,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-09-07T22:38:53.520000+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 80,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 375,
@@ -2822,9 +2981,15 @@
      "stations": 5
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-12T02:12:21.456000+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 282,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 386,
@@ -2936,11 +3101,32 @@
      "ours_minus_jpl_dra": 4.52008416618882e-06,
      "ours_minus_jpl_ddec": -2.0774485348484806e-05,
      "stations": 2
+    },
+    {
+     "date": "2026-11-03",
+     "lead_days": 305.61356172384694,
+     "lead_days_first": 305.58330572396517,
+     "window_utc": [
+      "2026-11-02T13:58:48.432000+00:00",
+      "2026-11-02T14:42:22.550400+00:00"
+     ],
+     "n_scored": 4,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": false,
+     "ours_median_arcsec": 0.1402700181588917,
+     "ours_sigma_arcsec": 0.042739827425307665,
+     "jpl_median_arcsec": 0.14029028353860878,
+     "jpl_sigma_arcsec": 0.04273402177940702,
+     "ours_minus_jpl_median_arcsec": 2.397392876003416e-05,
+     "ours_minus_jpl_dra": 2.0970085312654874e-06,
+     "ours_minus_jpl_ddec": -2.384447711103327e-05,
+     "stations": 1
     }
    ],
    "empty_runs": [],
-   "n_scored_total": 211,
-   "last_date": "2026-11-02"
+   "n_scored_total": 215,
+   "last_date": "2026-11-03"
   },
   {
    "body": 511,
@@ -3075,9 +3261,15 @@
      "stations": 1
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-07-16T06:36:22.723200+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 231,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 532,
@@ -3170,9 +3362,15 @@
      "stations": 3
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-10-13T03:05:15.187200+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 95,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 566,
@@ -3284,11 +3482,32 @@
      "ours_minus_jpl_dra": -5.1263080324032324e-05,
      "ours_minus_jpl_ddec": -5.2912141508486363e-05,
      "stations": 2
+    },
+    {
+     "date": "2026-11-03",
+     "lead_days": 305.5122447242029,
+     "lead_days_first": 305.48397872410715,
+     "window_utc": [
+      "2026-11-02T11:35:46.579200+00:00",
+      "2026-11-02T12:16:28.761600+00:00"
+     ],
+     "n_scored": 4,
+     "n_dropped_outliers": 0,
+     "n_no_jpl": 0,
+     "backfill": false,
+     "ours_median_arcsec": 0.027462428598737695,
+     "ours_sigma_arcsec": 0.008956823657068042,
+     "jpl_median_arcsec": 0.027515452480500767,
+     "jpl_sigma_arcsec": 0.00895536451207465,
+     "ours_minus_jpl_median_arcsec": 8.901169320716569e-05,
+     "ours_minus_jpl_dra": -6.347580572364461e-05,
+     "ours_minus_jpl_ddec": -6.306921044208218e-05,
+     "stations": 1
     }
    ],
    "empty_runs": [],
-   "n_scored_total": 158,
-   "last_date": "2026-11-02"
+   "n_scored_total": 162,
+   "last_date": "2026-11-03"
   },
   {
    "body": 702,
@@ -3423,9 +3642,15 @@
      "stations": 3
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-11-01T23:44:47.011200+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 204,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 704,
@@ -3581,9 +3806,15 @@
      "stations": 2
     }
    ],
-   "empty_runs": [],
+   "empty_runs": [
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-09-19T00:48:35.654400+00:00 and before 2026-11-03"
+    }
+   ],
    "n_scored_total": 264,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   },
   {
    "body": 99942,
@@ -3596,10 +3827,15 @@
      "date": "2026-11-02",
      "lead_days": 305.0,
      "note": "no optical C/B observations after 2026-01-01 and before 2026-11-02"
+    },
+    {
+     "date": "2026-11-03",
+     "lead_days": 306.0,
+     "note": "no optical C/B observations after 2026-01-01 and before 2026-11-03"
     }
    ],
    "n_scored_total": 0,
-   "last_date": "2026-11-02"
+   "last_date": "2026-11-03"
   }
  ]
 }

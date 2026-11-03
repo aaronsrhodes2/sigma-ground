@@ -982,11 +982,14 @@ def main() -> int:
 
     @server.tool()
     def body_position(body_name: str, when: str, central_body: str = "sun", budget_s: float = 60.0, ctx: Context | None = None) -> dict[str, Any]:
-        """Where a planet, the Sun or the Moon is at a time, e.g. body_position('mars', '2031-06-15'). `when` is an ISO date or date-time (UTC), 'JD 2462000.5' (TDB) or 'now'; `central_body` is 'sun' (default), 'ssb' or 'earth'.
+        """Where a planet, the Sun, the Moon, an asteroid, a Kuiper-belt object or a comet is at a time, e.g. body_position('mars', '2031-06-15'), body_position('Eros', '2026-12-01', 'earth'), body_position('Apophis', '2029-04-13').
+        `when` is an ISO date or date-time (UTC), 'JD 2462000.5' (TDB) or 'now'; `central_body` is 'sun' (default), 'ssb' or 'earth' (from the Earth the answer adds RA and Dec).
 
-        Up to the edge of JPL DE442's data (2024-01-01) the value is the kernel's (known); after it, our own N-body integration from the kernel's state at the edge, computed now, with JPL's value beside it, the measured
-        error at that lead and a receipt (machine, wall time, integrator, force evaluations, layers with sources). `budget_s` caps the computation (raise it for a long lead); an unfinished integration says how far it
-        got and continues when asked again. Progress (years integrated, evaluations) is reported to the client while it runs.
+        Planets and the Moon: up to the edge of JPL DE442's data (2024-01-01) the value is the kernel's (known); after it, our own N-body integration from the kernel's state at the edge, computed now, with JPL's value
+        beside it, the measured error at that lead and a receipt (machine, wall time, integrator, force evaluations, layers with sources). Small bodies (Eros from OUR OWN orbit fit to telescope observations; the 30
+        heaviest asteroids and Apophis from JPL's 2026 state; DE440's 343 asteroids, 30 Kuiper-belt objects and 20 comets from their elements; every named main-belt asteroid): our test-particle integration in the
+        planet field with relativity and the asteroid belt, from the stated start, with the daily telescope scoreboard's measurement of this body beside it where there is one. solvable_bodies() lists the roster.
+        `budget_s` caps the computation (raise it for a long lead); an unfinished integration says how far it got and continues when asked again. Progress (years integrated, evaluations) is reported to the client while it runs.
         """
         def progress(info: dict) -> None:
             msg = f"{info['years_integrated']:.2f} of {info['years_asked']:.2f} yr integrated, {info['force_evaluations']:,} force evaluations, {info['seconds']:.0f} s"
@@ -1000,8 +1003,13 @@ def main() -> int:
         return t_astr.body_position(body_name, when, central_body, budget_s, progress=progress).to_dict()
 
     @server.tool()
+    def solvable_bodies() -> dict[str, Any]:
+        """Which bodies body_position can place and from what start: the 11 of the live full N-body model, then the small bodies solved as test particles by tier (our own orbit fit: Eros; JPL's 2026 state: the 30 heaviest asteroids and Apophis; catalogue elements: DE440's asteroids, Kuiper-belt objects, 20 comets; every named main-belt asteroid), and what is not solved."""
+        return t_astr.solvable_bodies().to_dict()
+
+    @server.tool()
     def small_body(body_name: str) -> dict[str, Any]:
-        """Orbit, physical data and non-gravitational terms of an asteroid, Kuiper-belt object or comet, e.g. small_body('Ceres'), small_body('1P'), small_body('67P'), small_body('Eris'). Period and perihelion are calculated from the elements."""
+        """Orbit, physical data and non-gravitational terms of an asteroid, Kuiper-belt object or comet, e.g. small_body('Ceres'), small_body('1P'), small_body('67P'), small_body('Eris'). Period and perihelion are calculated from the elements. For WHERE it is, use body_position."""
         return t_astr.small_body(body_name).to_dict()
 
     @server.tool()
