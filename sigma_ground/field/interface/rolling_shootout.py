@@ -615,7 +615,12 @@ def restated_predictors(dt_days: float = 0.025) -> list[Predictor]:
              ("restated_tide", dict(zon, zonal_overrides=_MEASURED_ZONALS, de_tide=True),
               "restated_zon with DE430's time-delayed three-band Earth tide on the Moon (header k2/tau) in place of the static Earth tide (L3)"),
              ("restated_gmdot", dict(zon, zonal_overrides=_MEASURED_ZONALS, gm_rate=True),
-              "restated_zon with the Sun's GM decreasing at the header's GMSDOT (L4)")]
+              "restated_zon with the Sun's GM decreasing at the header's GMSDOT (L4)"),
+             # the C26 candidates for the served model: the levers that won on four starts (2026-11-02 22:20: the Earth's zonal reference radius), with and without the DE tide (L3, pending)
+             ("restated_math", dict(zon, zonal_overrides=_MEASURED_ZONALS + _field_radii(("Earth",))),
+              "restated_zon with the Earth's J2-J4 on their reference radius RE = 6378.1366 km (C26: the Moon lever, 4/4 starts)"),
+             ("restated_math_tide", dict(zon, zonal_overrides=_MEASURED_ZONALS + _field_radii(("Earth",)), de_tide=True),
+              "restated_math + DE430's time-delayed three-band Earth tide on the Moon (L3)")]
     return [_dc.replace(base, name=n, description=d, **kw) for n, kw, d in rows]
 
 
