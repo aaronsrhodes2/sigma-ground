@@ -521,3 +521,16 @@ Median heliocentric error at +1 / +5 yr, km, start 2015-01-01, 0.0125 d:
 * **L2 geo: direction right, size under by two, attribution probably wrong.** Predicted about -0.08 km from the Moon's zonal radius; measured -0.19 km (0.336 -> 0.146, 57 %). The Earth's J2 acts on the Moon far more than the Moon's own does, so the Earth's reference radius (6371 -> 6378.1366 km, +0.22 % in J2 R^2) is the likely lever; the prediction counted that radius only for the Earth's own path (0.003 km) and forgot the Moon. Three one-change arms were added to settle it (`restated_fieldr_earth`, `restated_fieldr_moon`, `restated_pole`); they run when the CPU frees. Prediction for them, written now: **fieldr_earth carries most of the 0.19 km; fieldr_moon under 0.03 km; pole under 0.02 km.**
 * The other four bodies unchanged within 1 %, as predicted.
 Integrator comparison, further arms: Yoshida-6 at 0.1 d gives the same answer as Forest-Ruth at 0.0125 d (Mercury 0.0239 vs 0.0233, Moon 0.0630 vs 0.0647 km) for 102,256 evaluations against 175,320: **42 % fewer force evaluations at equal accuracy**, with the relativistic layer on. The 8th-order arms are still running.
+
+### C26 Phase 3 result (2026-11-02, 20:35): the pre-registered integrator claim is NOT met; the real gain is about 40 % fewer force evaluations
+One year of the reduced model from 2015-01-01, `restated_zon`, against DE442 (`D:/datasets/sigma_runs/integ_conv/run2.log`; the script's vs-control step crashed on a bookkeeping bug after all six arms had run, fixed, the vs-control rerun queued for a quiet CPU):
+| arm | force evaluations | relative to FR 0.0125 d | Mercury +1 yr km | Moon +1 yr km |
+|---|---|---|---|---|
+| Forest-Ruth 0.0125 d (control) | 175,320 | 1.00 | 0.0233 | 0.0647 |
+| Forest-Ruth 0.025 d | 87,660 | 0.50 | 0.0118 (cancelling errors, C19) | 0.0917 |
+| Yoshida-6 0.05 d | 204,540 | 1.17 | 0.0239 | 0.0624 |
+| Yoshida-6 0.1 d | 102,256 | 0.58 | 0.0239 | 0.0630 |
+| Yoshida-8 0.1 d | 219,120 | 1.25 | 0.0241 | 0.0623 |
+| Yoshida-8 0.2 d | 109,560 | 0.62 | 0.0241 | 0.0615 |
+* **The claim ("Yoshida-8 at 0.2 d within 1 % of Forest-Ruth at 0.0125 d at a third of the evaluations or fewer") fails on cost:** 0.62 of the evaluations, not 0.33. The reason was found on the way: with the relativistic layer on, merged kicks break the order (test_yoshida_order), so every stage keeps both implicit kicks and a 15-stage step costs about 30 force evaluations, not 16. Accuracy-wise the three coarse compositions and the fine Forest-Ruth agree on the Moon to 5 % and on Mercury to 3 % against DE442 (the exact same-answer distance is the vs-control number, lost to the bug; rerun queued).
+* **What stands:** Yoshida-6 at 0.1 d or Yoshida-8 at 0.2 d gives the converged answer for about 60 % of the force evaluations of the fine Forest-Ruth step. That is the low-computation setting to carry forward (the contest, the forecast rebuild) once the vs-control rerun confirms the same-answer distance; a 3-4x saving needs a different idea (a Wisdom-Holman split or a Gauss-Radau scheme), recorded as open.

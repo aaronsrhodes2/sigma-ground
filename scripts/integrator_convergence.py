@@ -70,9 +70,11 @@ def main() -> int:
         print(f"{integ} {step} d: {r['force_evaluations']} evaluations, {r['seconds']} s, Mercury {r['error_km']['Mercury']:.4f} Moon {r['error_km']['Moon']:.4f} km", flush=True)
         arms.append(r)
     control = next((r for r in arms if r["integrator"] == "fr4" and r["dt_days"] == 0.0125), arms[0])
+    ref = {n: np.array(v) for n, v in control["_hel"].items()}             # taken before any arm's positions are dropped (the control is one of the arms)
     for r in arms:
-        r["vs_control_km"] = {n: float(np.linalg.norm(np.array(r["_hel"][n]) - np.array(control["_hel"][n]))) for n in r["_hel"]}
+        r["vs_control_km"] = {n: float(np.linalg.norm(np.array(r["_hel"][n]) - ref[n])) for n in r["_hel"]}
         r["evaluations_vs_control"] = round(r["force_evaluations"] / control["force_evaluations"], 3)
+    for r in arms:
         del r["_hel"]
     doc = {"metadata": {"what": "one-year integrator comparison on the reduced model", "predictor": a.predictor, "start": a.start, "years": a.years, "truth": truth_name,
                         "control": "fr4 at 0.0125 d", "generator": "scripts/integrator_convergence.py", "date": dt.date.today().isoformat()}, "arms": arms}
