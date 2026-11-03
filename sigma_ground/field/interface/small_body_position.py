@@ -202,6 +202,33 @@ def planetary_moons() -> dict[str, str]:
     return {_norm(x["name"]): x["gravitational_anchor"] for x in bodies if x.get("gravitational_anchor") not in (None, "Sun") and x["name"] not in ("Sun", "Moon")}
 
 
+def lookup(name: str) -> dict | None:
+    """Name or number -> {number, name, kind, tier} for a small body body_position can place, without a kernel or any state (for callers that only need to know
+    whether a phrase names a solvable body, such as Mentat's position rule). None for a planet, a moon, or an unknown name. The order is resolve()'s."""
+    from sigma_ground.field.interface import small_body_data as sbd
+    s = name.strip()
+    if not s or _norm(s) in planetary_moons():
+        return None
+    num = _number_of(s)
+    entry, _ = sbd.resolve(s)
+    if num is None and entry is not None and entry.get("number") is not None:
+        num = int(entry["number"])
+    if num is None and entry is None:
+        num = horizons_names().get(_norm(s))
+    if num is not None and num in own_fits():
+        return {"number": num, "name": own_fits()[num]["name"], "kind": "asteroid", "tier": "own_fit"}
+    if num is not None and num in horizons_starts():
+        nm = entry["name"] if entry else next((n.title() for n, k in horizons_names().items() if k == num), s)
+        return {"number": num, "name": nm, "kind": entry["kind"] if entry else "asteroid", "tier": "horizons"}
+    if entry is not None and (entry.get("elements") or entry.get("kind") == "comet"):
+        return {"number": num, "name": entry["name"], "kind": entry["kind"], "tier": "catalogue"}
+    i, by_name, by_num, _ = _sbdb()
+    row = by_num.get(num) if num is not None else by_name.get(_norm(s))
+    if row is not None:
+        return {"number": int(row[i["pdes"]]), "name": row[i["name"]], "kind": "asteroid", "tier": "sbdb"}
+    return None
+
+
 def resolve(name: str, kernel) -> Start:
     """The start state for a small body by name or number, from the highest tier that has it; SmallBodyError (with the near misses) when none does."""
     from sigma_ground.field.interface import small_body_data as sbd

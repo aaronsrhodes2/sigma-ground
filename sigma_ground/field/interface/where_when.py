@@ -438,8 +438,17 @@ def forget_live() -> None:
         _LIVE.clear()
 
 
-def position_at(body: str, when: str, center: str = "sun", now: datetime.datetime | None = None, budget_s: float = LIVE_BUDGET_S, progress=None) -> dict:
-    """The answer dict. For a date past the edge, `progress(info)` is called as the integration runs (percent, years integrated, force evaluations, seconds) and the answer carries a `receipt`."""
+CALC_LEAD_YEARS = 0.5                            # calculate=True inside the kernel's data: start from the kernel's state this long before the asked date and integrate to it
+#                                                  (measured 2026-11-03: 67 s per year on the loaded PC, so half a year fits the 60 s budget with the build; a longer lead is asked for with calc_lead_years)
+
+
+def position_at(body: str, when: str, center: str = "sun", now: datetime.datetime | None = None, budget_s: float = LIVE_BUDGET_S, progress=None,
+                calculate: bool = False, calc_lead_years: float = CALC_LEAD_YEARS) -> dict:
+    """The answer dict. For a date past the edge, `progress(info)` is called as the integration runs (percent, years integrated, force evaluations, seconds) and the answer carries a `receipt`.
+
+    calculate=True (the Captain, 2026-11-03: "when I say calculate I want the full N-body calculation chain and the work shown, not a lookup"): for a date INSIDE the kernel's data, where the
+    default answer is the kernel's value, the served model is started from the kernel's state `calc_lead_years` before the asked date and integrated to it, with the receipt; the kernel's value is
+    then reality, and the difference is a measurement of the model over that lead. Past the edge, and for small bodies, every answer is already a calculation and the flag changes nothing."""
     now = now or _now()
     c = center.strip().lower()
     c = {"sun": "sun", "heliocentric": "sun", "ssb": "ssb", "barycentre": "ssb", "barycenter": "ssb", "earth": "earth", "geocentric": "earth"}.get(c)
@@ -485,25 +494,36 @@ def position_at(body: str, when: str, center: str = "sun", now: datetime.datetim
         return pb - pr, vb - vr
 
     jpl = combine(lambda n: _kernel_state(k, n, jd))
-    if kind == "known":
+    calc = bool(calculate) and kind == "known"                                              # the chain on request, inside the data (the Captain, 2026-11-03)
+    if kind == "known" and not calc:
         p, v = jpl
         out.update(method=f"JPL {kname} ephemeris (kernel)", basis=f"JPL's fit to observations; its data end about {_jd_to_iso(edge)[:4]}, and this date is inside them", beyond_fit_data=False)
     else:
-        lead = (jd - edge) / 365.25
-        r = live_states(jd, budget_s=budget_s, progress=progress)
+        start = edge if kind == "prediction" else jd - float(calc_lead_years) * 365.25
+        if start < lo:
+            raise WhereWhenError(f"calculate: the start {calc_lead_years:g} yr before the asked date falls before the {kname} kernel begins (JD {lo:.1f}); ask for a later date or a shorter calc_lead_years")
+        if calc:
+            out["kind"] = kind = "calculated"
+            out["notes"].append(f"Calculated on request: the kernel knows this date, so the kernel's value below is reality and the difference is this model's measured miss over {calc_lead_years:g} yr.")
+        lead = (jd - start) / 365.25
+        r = live_states(jd, budget_s=budget_s, progress=progress, **({} if start == edge else {"start_jd": start, "start_kernel": k, "start_kernel_name": kname}))
         m = r["memo"]
-        out["lead_years_from_edge"] = lead
-        out["receipt"] = receipt(r, b, lead, kname, edge, budget_s)
-        out["live"] = {"start": f"{kname}'s state at the edge, JD {edge} ({_jd_to_iso(edge)[:10]})", "predictor": m["predictor"], "integrator": m["integrator"], "dt_days": m["dt_days"], "force_backend": m["force_backend"],
+        out["lead_years_from_edge" if not calc else "lead_years_from_start"] = lead
+        out["receipt"] = receipt(r, b, lead, kname, start, budget_s)
+        start_words = f"{kname}'s state at the edge, JD {edge} ({_jd_to_iso(edge)[:10]})" if not calc else f"{kname}'s state {calc_lead_years:g} yr before the asked date, JD {start:.1f} ({_jd_to_iso(start)[:10]}), inside its fit data"
+        if calc:
+            out["receipt"]["start"]["what_it_is"] = f"JPL's measured state {calc_lead_years:g} yr before the asked date (calculate=True: the chain runs although the kernel knows the answer)"
+        out["live"] = {"start": start_words, "predictor": m["predictor"], "integrator": m["integrator"], "dt_days": m["dt_days"], "force_backend": m["force_backend"],
                        "model_fingerprint": m["model_fingerprint"], "seconds_this_call": r["seconds_this_call"], "steps_this_call": r["steps_this_call"], "measured_rate_s_per_year": r["rate_s_per_year"],
                        "memo": {"used": not m["fresh_this_call"], "started_utc": m["started_utc"], "rows": m["rows"], "force_evaluations_total": m["force_evaluations_total"], "seconds_total": m["seconds_total"], "kept": m["kept"]}}
         out["jpl_same_instant"] = {"kernel": kname, "position_km": [float(x) for x in jpl[0]], "velocity_km_s": [float(x) for x in jpl[1]],
-                                   "note": f"{kname} after the edge of its data is JPL's own extrapolation, so this is two calculations compared, not a calculation compared with a measurement"}
-        out["expected_distance_from_de440"] = expected_error(b, lead)
+                                   "note": (f"{kname} after the edge of its data is JPL's own extrapolation, so this is two calculations compared, not a calculation compared with a measurement" if not calc else
+                                            f"{kname} inside its fit data is reality here (JPL's fit to the observations): the difference is a measurement of this model over {lead:.3f} yr")}
+        out["expected_distance_from_de440"] = expected_error(b, lead) if not calc else None
         if not r["reached"]:
             reached_lead = r["lead_days"] / 365.25
             remaining = (jd - r["jd_end"]) / 365.25 * r["rate_s_per_year"]
-            out.update(status="over_budget", method="our own N-body integration, computed now, from the kernel's state at the edge of its data (not finished within the time budget)",
+            out.update(status="over_budget", method=f"our own N-body integration, computed now, from {start_words} (not finished within the time budget)",
                        basis=f"{reached_lead:.3f} yr of the {lead:.3f} yr lead integrated so far at {r['rate_s_per_year']:.0f} s per year ({r['seconds_this_call']:.0f} s this call, budget {budget_s:.0f} s); about {remaining:.0f} s more are needed",
                        position_km=None, velocity_km_s=None,
                        offer={"reached_jd_tdb": r["jd_end"], "reached_date": _jd_to_iso(r["jd_end"])[:10], "reached_lead_years": reached_lead, "seconds_to_finish_estimate": remaining,
@@ -511,8 +531,8 @@ def position_at(body: str, when: str, center: str = "sun", now: datetime.datetim
             out["notes"].append("No position of ours yet: the budget ran out. jpl_same_instant is JPL's value, not ours.")
             return out
         p, v = combine(lambda n: r["state"][n])
-        out.update(status="computed", method="our own N-body integration, computed now, from the kernel's state at the edge of its data",
-                   basis=(f"a live calculation: {m['predictor']} layers (asteroids, ring, Kuiper-belt objects, the Moon's C22, measured zonals; Sun, planets, Moon) started from {kname}'s state at the edge, "
+        out.update(status="computed", method=f"our own N-body integration, computed now, from {start_words}",
+                   basis=(f"a live calculation: {m['predictor']} layers (asteroids, ring, Kuiper-belt objects, the Moon's C22, measured zonals; Sun, planets, Moon) started from {start_words}, "
                           f"{m['integrator']} at {m['dt_days']} d, {lead:.3f} yr of lead; {r['steps_this_call']} steps in {r['seconds_this_call']:.1f} s this call"
                           + (f", the rest from this process's memo of the same integration (started {m['started_utc']})" if not m["fresh_this_call"] or r["steps_this_call"] < m["rows"] - 1 else "")
                           + "; the start state is JPL's, so this is a propagation from JPL's state, not an independent measurement of the sky"))

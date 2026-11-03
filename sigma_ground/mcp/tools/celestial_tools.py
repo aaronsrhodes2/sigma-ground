@@ -134,6 +134,26 @@ def body_skill(body_name: str) -> ToolResult:
     try:
         d = skill.body_skill(body_name)
     except skill.SkillError as e:
-        return ToolResult(value=None, source="sigma-ground body_skill_table (measured against JPL DE440)", notes=str(e), inputs=inputs)
+        from sigma_ground.field.interface import small_body_position as sbp
+        try:
+            hit = sbp.lookup(body_name)
+        except Exception:                                                              # noqa: BLE001 - the roster never breaks the table's own answer
+            hit = None
+        if hit is None:
+            return ToolResult(value=None, source="sigma-ground body_skill_table (measured against JPL DE440)", notes=str(e), inputs=inputs)
+        # A small body body_position places: its skill is measured on the sky by the daily MPC scoreboard where it is tracked (C27), else stated by tier (C30).
+        row = sbp.scoreboard_row(hit["number"])
+        label = f"{hit['number']} {hit['name']}" if hit.get("number") is not None else hit["name"]
+        if row:
+            summary = (f"{label} is predictable, and measured against the telescopes rather than against JPL: over the latest scoreboard window ({row['observations_scored']} Minor Planet Center observations to "
+                       f"{str(row['window_utc'][1])[:10]}, {row['lead_years_at_window']:.1f} yr after its fixed start) our median miss on the sky is {row['ours_median_arcsec']:.3f} arcsec, JPL's own prediction "
+                       f"{row['jpl_median_arcsec']:.3f} arcsec (ours minus JPL {row['ours_minus_jpl_median_arcsec']:+.4f}); the telescopes' scatter is {row['telescope_scatter_sigma_arcsec']:.2f} arcsec. "
+                       f"body_position places it (start tier: {hit['tier']}).")
+            return ToolResult(value={"body": label, "class": "predictable", "measured_against": "Minor Planet Center observations (the daily scoreboard, C27)", "scoreboard": row, "start_tier": hit["tier"], "summary": summary},
+                              units="arcsec (median miss on the sky)", source="sigma-ground mpc_live scoreboard (fixtures/mpc_live/scoreboard_portal.json, C27)", provenance_tag="DERIVED", notes=summary, inputs=inputs)
+        summary = (f"{label} is not on the daily telescope scoreboard and not in the DE440 skill table, so its skill is not measured; body_position still places it as a test particle from "
+                   f"{'JPL SBDB osculating elements at their epoch' if hit['tier'] in ('catalogue', 'sbdb') else 'its stated start'} (tier {hit['tier']}), with the engine whose tracked bodies sit at JPL's level on the sky.")
+        return ToolResult(value={"body": label, "class": "placed_not_scored", "start_tier": hit["tier"], "summary": summary}, units="", source="sigma-ground body_position roster (small_body_position.lookup)",
+                          provenance_tag="DERIVED", notes=summary, inputs=inputs)
     return ToolResult(value=d, units="km (position error against JPL DE440), days", source="sigma-ground body_skill_table: measured against JPL DE440 by scripts/make_body_skill_table.py; sources and hashes in its metadata",
                       provenance_tag="DERIVED", notes=d["summary"], inputs=inputs)

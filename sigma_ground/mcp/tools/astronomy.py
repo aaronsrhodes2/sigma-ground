@@ -341,7 +341,7 @@ def body_constants(body_name: str) -> ToolResult:
     )
 
 
-def body_position(body_name: str, when: str, central_body: str = "sun", budget_s: float = 60.0, progress=None) -> ToolResult:
+def body_position(body_name: str, when: str, central_body: str = "sun", budget_s: float = 60.0, progress=None, calculate: bool = False) -> ToolResult:
     """Where is a body at a given time? A known value from JPL's kernel, or our own calculation made now.
 
     Sun, planets and the Moon (Mars to Pluto as planet-system barycentres). `when` is an ISO date or date-time (UTC), "JD 2462000.5" (TDB) or "now". `central_body` is the body the position is measured from: "sun" (default), "ssb" (the solar-system barycentre) or "earth".
@@ -352,9 +352,9 @@ def body_position(body_name: str, when: str, central_body: str = "sun", budget_s
     layers applied with their sources and, where the ledger measured it, the size of each for this body. `progress` is an optional callback the integration reports through as it runs.
     """
     from sigma_ground.field.interface import where_when
-    inputs = {"body_name": body_name, "when": when, "central_body": central_body, "budget_s": budget_s}
+    inputs = {"body_name": body_name, "when": when, "central_body": central_body, "budget_s": budget_s, "calculate": bool(calculate)}
     try:
-        d = where_when.position_at(body_name, when, central_body, budget_s=budget_s, progress=progress)
+        d = where_when.position_at(body_name, when, central_body, budget_s=budget_s, progress=progress, calculate=bool(calculate))
     except where_when.WhereWhenError as e:
         return ToolResult(value=None, source="sigma-ground body_position (JPL kernel; our live N-body integration)", notes=str(e), inputs=inputs)
     known = d["kind"] == "known"
@@ -381,14 +381,14 @@ def body_position(body_name: str, when: str, central_body: str = "sun", budget_s
         return ToolResult(value=d, units="km (position), km/s (velocity)", source=d["method"], provenance_tag="DERIVED", notes=notes.strip(), inputs=inputs)
     if d.get("status") == "over_budget":
         o = d["offer"]
-        notes = (f"NOT COMPUTED YET: {d['basis']}. Our integration reached {o['reached_date']} ({o['reached_lead_years']:.2f} yr after the edge); ask again for the same date to continue it, ask for a date up to "
+        notes = (f"NOT COMPUTED YET: {d['basis']}. Our integration reached {o['reached_date']} ({o['reached_lead_years']:.2f} yr after its start); ask again for the same date to continue it, ask for a date up to "
                  f"{o['reached_date']}, or raise budget_s (about {o['seconds_to_finish_estimate']:.0f} s more). The value holds JPL's {d['jpl_same_instant']['kernel']} position for the asked instant (jpl_same_instant), which is JPL's, not ours.")
         return ToolResult(value=d, units="km (position), km/s (velocity)", source=d["method"], provenance_tag="DERIVED", notes=notes, inputs=inputs)
     notes = f"{d['kind'].upper()}. {d['basis']}."
     if d["kind"] == "prediction" and d.get("expected_distance_from_de440"):
         e = d["expected_distance_from_de440"]
         notes += f" Measured by hindcast, this model lands typically {e['typical_km']:.3g} km (largest seen {e['largest_seen_km']:.3g} km) from DE440 at this lead." + (f" {e['note']}." if e.get("note") else "") + (f" Step of that measurement: {e['integration_step_days']} d. {e['step_caveat']}" if e.get("step_caveat") else "")
-    if d["kind"] == "prediction":
+    if d["kind"] in ("prediction", "calculated"):
         rc = d["receipt"]
         on = [l["layer"] for l in rc["layers"] if l["applied"]]
         notes += (f" JPL {d['cross_check']['jpl_kernel']}'s own extrapolation is {d['cross_check']['difference_km']:.3g} km away."

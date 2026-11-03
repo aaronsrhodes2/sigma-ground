@@ -981,7 +981,7 @@ def main() -> int:
         return t_astr.body_constants(body_name).to_dict()
 
     @server.tool()
-    def body_position(body_name: str, when: str, central_body: str = "sun", budget_s: float = 60.0, ctx: Context | None = None) -> dict[str, Any]:
+    def body_position(body_name: str, when: str, central_body: str = "sun", budget_s: float = 60.0, calculate: bool = False, ctx: Context | None = None) -> dict[str, Any]:
         """Where a planet, the Sun, the Moon, an asteroid, a Kuiper-belt object or a comet is at a time, e.g. body_position('mars', '2031-06-15'), body_position('Eros', '2026-12-01', 'earth'), body_position('Apophis', '2029-04-13').
         `when` is an ISO date or date-time (UTC), 'JD 2462000.5' (TDB) or 'now'; `central_body` is 'sun' (default), 'ssb' or 'earth' (from the Earth the answer adds RA and Dec).
 
@@ -990,6 +990,7 @@ def main() -> int:
         heaviest asteroids and Apophis from JPL's 2026 state; DE440's 343 asteroids, 30 Kuiper-belt objects and 20 comets from their elements; every named main-belt asteroid): our test-particle integration in the
         planet field with relativity and the asteroid belt, from the stated start, with the daily telescope scoreboard's measurement of this body beside it where there is one. solvable_bodies() lists the roster.
         `budget_s` caps the computation (raise it for a long lead); an unfinished integration says how far it got and continues when asked again. Progress (years integrated, evaluations) is reported to the client while it runs.
+        `calculate=True` ("calculate where Mars was on 2015-06-15"): for a date the kernel knows, run the full N-body chain anyway from the kernel's state a year earlier and show the work; the kernel's value is then reality and the difference is the model's measured miss.
         """
         def progress(info: dict) -> None:
             msg = f"{info['years_integrated']:.2f} of {info['years_asked']:.2f} yr integrated, {info['force_evaluations']:,} force evaluations, {info['seconds']:.0f} s"
@@ -1000,7 +1001,7 @@ def main() -> int:
                 except Exception:
                     pass
             print(f"body_position: {msg}", file=sys.stderr, flush=True)
-        return t_astr.body_position(body_name, when, central_body, budget_s, progress=progress).to_dict()
+        return t_astr.body_position(body_name, when, central_body, budget_s, progress=progress, calculate=calculate).to_dict()
 
     @server.tool()
     def solvable_bodies() -> dict[str, Any]:

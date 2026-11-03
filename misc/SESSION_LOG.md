@@ -4350,3 +4350,4 @@ Skippy told the Captain that Mentat did not know Eros, while the engine had trac
 
 ### Next
 - Measure the live /ask routing for "where is Eros" and "which bodies can you predict" after the pin lands; refresh the SBDB catalogue in the nightly task; Yarkovsky for Apophis when it is observed again (2027).
+- 2026-11-03 evening (C30 follow-up): the three tool-call misses behind "Mentat does not know Eros" traced in the research log and fixed at their causes (SkippyTel position/directive/router stages; sigma-ground lookup() and body_skill for small bodies); body_position(calculate=True) runs the chain inside the kernel data with the receipt (CALC_LEAD_YEARS 0.5, 67 s/yr measured on the PC).

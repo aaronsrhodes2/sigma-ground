@@ -101,7 +101,7 @@ class TestTools(unittest.TestCase):
 
     def test_unknown_and_unscored_bodies_are_declined_with_the_reason(self):
         from sigma_ground.mcp.tools import celestial_tools as T
-        for fn, args in ((T.body_skill, ("ceres",)), (T.orbital_elements, ("ceres",)), (T.hill_radius, ("pluto-charon-xyz",)), (T.roche_limit, ("sun", "sun"))):
+        for fn, args in ((T.body_skill, ("bennu",)), (T.orbital_elements, ("ceres",)), (T.hill_radius, ("pluto-charon-xyz",)), (T.roche_limit, ("sun", "sun"))):   # Ceres is scored since C30 (the telescope scoreboard)
             r = fn(*args).to_dict()
             self.assertIsNone(r["value"], args)
             self.assertTrue(r["notes"])
