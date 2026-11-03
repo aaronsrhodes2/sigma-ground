@@ -618,3 +618,35 @@ Paired against the DE442 control (`misc/HINDCAST_RESTATED_FIELDR_EARTH_DE442.md`
 | `restated_pole` (IAU poles at the start date) | 0.244 | 0.997 | 1/4 | 1.001 | 1.000 | 1.003 | 1.000 |
 * The predictions of 20:00 ("fieldr_earth carries most; fieldr_moon under 0.03 km; pole under 0.02 km") all hold on four starts; the 2015 start's 13 % pole penalty was one start's scatter (the four-start ratio is 0.997).
 * **`restated_fieldr_earth` is the cleanest Moon lever: one sourced constant applied on the radius it was defined on, 54 % of the Moon's five-year error gone, nothing else moved beyond 0.7 %.** It, not `restated_geo`, is the base of `restated_math` (geo's 1.9 % Mercury cost is not in fieldr_earth). What was wrong was never a physics constant: the Earth's J2 was being applied on the 6371 km mean radius, and J2 is defined on 6378.1366 km (DE440 header RE); the +0.22 % in J2 R^2 on the Moon's orbit was the Moon's missing 0.13 km.
+
+## C26 verdicts (2026-11-02, 22:45): M-A met for the Moon by `restated_math_tide`; M-B's four gaps all halved by the served model; the tide helps only on the right radius
+**M-A (design metric: DE440 start, 0.0125 d, four starts, +5 yr against DE442; `misc/HINDCAST_RESTATED_MATH_DE442.md`, `..._MATH_TIDE_DE442.md`, `..._TIDE_DE442.md`):**
+| body | control `restated_zon` | `restated_math` (Earth zonal radius) | `restated_math_tide` (+ DE tide) | `restated_tide` alone | target | met by |
+|---|---|---|---|---|---|---|
+| Moon | 0.245 | 0.116 (0.474, 4/4) | **0.097 (0.396, 4/4)** | 0.298 (1.218, 0/4) | 0.122 | math and math_tide |
+| Moon +10 yr | 0.443 | 0.283 (0.638, 3/3) | **0.222 (0.501, 3/3)** | 0.679 (1.531, 0/3) | | |
+| Mercury | 0.0896 | 0.0899 | 0.0897 | 0.0899 | 0.045 | no |
+| Venus | 0.0753 | 0.0754 | 0.0752 | 0.0753 | 0.038 | no |
+| Earth | 0.113 | 0.112 | 0.113 | 0.114 | 0.056 | no |
+| Mars | 0.119 | 0.119 | 0.119 | 0.119 | 0.059 | no |
+* **The Moon: met, 60 % of its five-year error gone (0.245 -> 0.097 km) and 50 % at ten years, with two sourced terms: the Earth's J2 on its own reference radius, and DE430's time-delayed tide with the header's constants.** Nothing fitted.
+* **The tide alone is a recorded miss and a lesson:** on the wrong Earth radius it makes the Moon 22 % worse (0/4 starts); on the right radius it takes another 16 % off. The two terms are not additive: the J2 precession rate and the tide's secular term are coupled through the orbit, so a correct term can test as harmful beside an incorrect one. The L3 prediction ("+5 yr -0.06 km") was wrong as a single lever and right in direction inside `restated_math_tide` (-0.019 km at +5, -0.061 at +10).
+* **Mercury, Venus, Earth, Mars: not met and unchanged (within 1 %) by every lever tried today.** Their 0.08-0.12 km five-year deficits are not any of: zonal radii, pole epoch, header constants of the Moon, the DE tide, solar mass loss (sized below the floor). Open; the growth-law diagnostic (linear along-track = a mean-motion offset) is the next step, recorded in the brief.
+* **`restated_math_tide` becomes the served model** once the contest rerun confirms it at the converged step (launched tonight on skippy-core).
+
+**M-B (public proof: contest v2, `restated_zon` at 0.025 d, 147 propagations from eleven ephemerides' own states, against DE442; `fixtures/vintages/FAIR_CONTEST_v2.md`):**
+| body, +5 yr | ours vs reality | JPL-at-the-time vs reality | dynamics gap now | gap 2026-10-12 | target (half) | met | ours closer | p |
+|---|---|---|---|---|---|---|---|---|
+| Moon | 1.064 | 0.265 | **0.974** | 3.40 | 1.70 | **yes** | 14/102 | 0.000 |
+| Mars | 0.524 | 0.604 | **0.268** | 2.11 | 1.05 | **yes** | 50/102 | 0.921 |
+| Earth | 0.245 | 0.266 | **0.325** | 0.90 | 0.45 | **yes** | 58/102 | 0.198 |
+| Mercury | 1.844 | 1.322 | **0.359** | 1.20 | 0.60 | **yes** | 40/102 | 0.037 |
+| Venus | 0.707 | 0.680 | 0.372 | 0.52 | | | 51/102 | 1.000 |
+| Jupiter | 54.43 | 54.36 | 1.24 | 3.84 | | | 17/102 | 0.000 (reality spread 10.5 km) |
+| Saturn | 177.87 | 178.01 | 0.34 | 1.91 | | | 38/102 | 0.013 (spread 0.12 km) |
+| Uranus | 983.7 | 983.5 | 0.64 | 1.50 | | | 42/102 | 0.092 (spread 601 km) |
+| Neptune | 2973.4 | 2972.0 | 1.67 | 1.49 | | | 17/102 | 0.000 (spread 210 km) |
+| Pluto | 5414.6 | 5413.3 | 2.42 | 1.49 | | | 48/102 | 0.621 |
+* **All four pre-registered gaps halved and more: Moon 3.40 -> 0.97, Mars 2.11 -> 0.27, Earth 0.90 -> 0.33, Mercury 1.20 -> 0.36 km (71-87 % of the gap to JPL's dynamics gone since 2026-10-12, by the asteroids, the ring, the KBOs, the Moon's C22, the measured zonals and the converged step).** Earth and Mars are now indistinguishable from JPL's own dynamics (p 0.20, 0.92; Earth ours is CLOSER to reality than JPL-at-the-time, 0.245 vs 0.266). The Moon and Mercury are still behind JPL's dynamics (the Moon's 0.97 km gap is this run's `restated_zon`; `restated_math_tide` is predicted to cut it by about 0.5 km at the rerun).
+* **Parity for Venus to Pluto:** Venus, Uranus and Pluto indistinguishable (p > 0.05); Jupiter, Saturn and Neptune are NOT by the sign test, though the median differences (0.07, 0.14, 1.5 km) are below reality's own spread for Jupiter and Neptune (10.5 and 210 km) and above it only for Saturn (0.34 km gap against a 0.12 km spread): Saturn carries a small real deficit; the other two cannot be told from the truth's own uncertainty. Recorded as the target not met for those three.
+* The contest ran in 40 minutes on skippy-core (two halves, 20 workers) against the PC's hours; the PC's 127 propagations were a duplicate set and were stopped.

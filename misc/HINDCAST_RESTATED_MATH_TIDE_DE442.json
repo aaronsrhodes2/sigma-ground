@@ -1,0 +1,452 @@
+[
+ {
+  "body": "Earth",
+  "lead": 1,
+  "control_km": 0.027747881026625974,
+  "new_km": 0.027943617850881897,
+  "ratio": 1.0070541179006822,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Earth",
+  "lead": 2,
+  "control_km": 0.04855980832418199,
+  "new_km": 0.048780356513130535,
+  "ratio": 1.0045417845860547,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Earth",
+  "lead": 3,
+  "control_km": 0.07105776791712043,
+  "new_km": 0.07076065215610144,
+  "ratio": 0.9958186730356415,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Earth",
+  "lead": 5,
+  "control_km": 0.11278941113329932,
+  "new_km": 0.11300005278769118,
+  "ratio": 1.0018675658670024,
+  "starts_better": 3,
+  "starts": 4
+ },
+ {
+  "body": "Earth",
+  "lead": 10,
+  "control_km": 0.2075244160261075,
+  "new_km": 0.20737454654186027,
+  "ratio": 0.9992778224022162,
+  "starts_better": 2,
+  "starts": 3
+ },
+ {
+  "body": "Jupiter",
+  "lead": 1,
+  "control_km": 6.641233516336627,
+  "new_km": 6.64123353687871,
+  "ratio": 1.0000000030931127,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Jupiter",
+  "lead": 2,
+  "control_km": 7.149503284681382,
+  "new_km": 7.149503282151441,
+  "ratio": 0.9999999996461375,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Jupiter",
+  "lead": 3,
+  "control_km": 12.524336783091954,
+  "new_km": 12.524336668772342,
+  "ratio": 0.9999999908722024,
+  "starts_better": 3,
+  "starts": 4
+ },
+ {
+  "body": "Jupiter",
+  "lead": 5,
+  "control_km": 12.211500655034463,
+  "new_km": 12.211500593562757,
+  "ratio": 0.9999999949660809,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Jupiter",
+  "lead": 10,
+  "control_km": 13.927132600836702,
+  "new_km": 13.92713181471208,
+  "ratio": 0.9999999435544528,
+  "starts_better": 3,
+  "starts": 3
+ },
+ {
+  "body": "Mars",
+  "lead": 1,
+  "control_km": 0.028056813650768973,
+  "new_km": 0.028057178897440006,
+  "ratio": 1.000013018109454,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Mars",
+  "lead": 2,
+  "control_km": 0.051251183308354514,
+  "new_km": 0.05125207849898961,
+  "ratio": 1.000017466731055,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Mars",
+  "lead": 3,
+  "control_km": 0.06755670334518504,
+  "new_km": 0.06755876064721948,
+  "ratio": 1.0000304529666573,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Mars",
+  "lead": 5,
+  "control_km": 0.11884881853072451,
+  "new_km": 0.11879776387960053,
+  "ratio": 0.999570423570422,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Mars",
+  "lead": 10,
+  "control_km": 0.2783001202387745,
+  "new_km": 0.2782482075171029,
+  "ratio": 0.9998134649685848,
+  "starts_better": 2,
+  "starts": 3
+ },
+ {
+  "body": "Mercury",
+  "lead": 1,
+  "control_km": 0.019178396378740997,
+  "new_km": 0.01919413169246177,
+  "ratio": 1.0008204707739912,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Mercury",
+  "lead": 2,
+  "control_km": 0.03441531224275992,
+  "new_km": 0.03452177963555091,
+  "ratio": 1.0030936053126582,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Mercury",
+  "lead": 3,
+  "control_km": 0.05063829567462663,
+  "new_km": 0.0508104382687797,
+  "ratio": 1.0033994547379548,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Mercury",
+  "lead": 5,
+  "control_km": 0.08963167960909246,
+  "new_km": 0.08974229255510457,
+  "ratio": 1.0012340831555822,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Mercury",
+  "lead": 10,
+  "control_km": 0.16393339520316363,
+  "new_km": 0.16032129409151216,
+  "ratio": 0.9779660446416365,
+  "starts_better": 1,
+  "starts": 3
+ },
+ {
+  "body": "Moon",
+  "lead": 1,
+  "control_km": 0.07132746888336824,
+  "new_km": 0.033005997215974754,
+  "ratio": 0.4627389382054873,
+  "starts_better": 4,
+  "starts": 4
+ },
+ {
+  "body": "Moon",
+  "lead": 2,
+  "control_km": 0.1311959502049546,
+  "new_km": 0.06014835364283933,
+  "ratio": 0.4584619689012919,
+  "starts_better": 4,
+  "starts": 4
+ },
+ {
+  "body": "Moon",
+  "lead": 3,
+  "control_km": 0.15578414927104828,
+  "new_km": 0.07026608304248923,
+  "ratio": 0.4510477052465301,
+  "starts_better": 4,
+  "starts": 4
+ },
+ {
+  "body": "Moon",
+  "lead": 5,
+  "control_km": 0.24476928461523761,
+  "new_km": 0.09703170074193243,
+  "ratio": 0.396421066043725,
+  "starts_better": 4,
+  "starts": 4
+ },
+ {
+  "body": "Moon",
+  "lead": 10,
+  "control_km": 0.4433397637716215,
+  "new_km": 0.22194428006936692,
+  "ratio": 0.5006189342936934,
+  "starts_better": 3,
+  "starts": 3
+ },
+ {
+  "body": "Neptune",
+  "lead": 1,
+  "control_km": 120.06141150725546,
+  "new_km": 120.06141150725546,
+  "ratio": 1.0,
+  "starts_better": 0,
+  "starts": 4
+ },
+ {
+  "body": "Neptune",
+  "lead": 2,
+  "control_km": 128.4792121145087,
+  "new_km": 128.4792121145087,
+  "ratio": 1.0,
+  "starts_better": 0,
+  "starts": 4
+ },
+ {
+  "body": "Neptune",
+  "lead": 3,
+  "control_km": 137.276817621395,
+  "new_km": 137.276817621395,
+  "ratio": 1.0,
+  "starts_better": 0,
+  "starts": 4
+ },
+ {
+  "body": "Neptune",
+  "lead": 5,
+  "control_km": 156.11280136991695,
+  "new_km": 156.11280136991695,
+  "ratio": 1.0,
+  "starts_better": 0,
+  "starts": 4
+ },
+ {
+  "body": "Neptune",
+  "lead": 10,
+  "control_km": 180.6455578849399,
+  "new_km": 180.64555825444265,
+  "ratio": 1.0000000020454571,
+  "starts_better": 0,
+  "starts": 3
+ },
+ {
+  "body": "Pluto",
+  "lead": 1,
+  "control_km": 0.7907654836980035,
+  "new_km": 0.7907654836980035,
+  "ratio": 1.0,
+  "starts_better": 0,
+  "starts": 4
+ },
+ {
+  "body": "Pluto",
+  "lead": 2,
+  "control_km": 0.761891729748845,
+  "new_km": 0.761891729748845,
+  "ratio": 1.0,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Pluto",
+  "lead": 3,
+  "control_km": 0.7327976178277318,
+  "new_km": 0.7327970374237915,
+  "ratio": 0.9999992079614806,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Pluto",
+  "lead": 5,
+  "control_km": 0.7306469821367683,
+  "new_km": 0.7306469821367683,
+  "ratio": 1.0,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Pluto",
+  "lead": 10,
+  "control_km": 0.6548754131963541,
+  "new_km": 0.6548754131963541,
+  "ratio": 1.0,
+  "starts_better": 0,
+  "starts": 3
+ },
+ {
+  "body": "Saturn",
+  "lead": 1,
+  "control_km": 0.09050337954689847,
+  "new_km": 0.09050337954689847,
+  "ratio": 1.0,
+  "starts_better": 0,
+  "starts": 4
+ },
+ {
+  "body": "Saturn",
+  "lead": 2,
+  "control_km": 0.09602746245853504,
+  "new_km": 0.09602746712531801,
+  "ratio": 1.0000000485984202,
+  "starts_better": 0,
+  "starts": 4
+ },
+ {
+  "body": "Saturn",
+  "lead": 3,
+  "control_km": 0.10556859840969539,
+  "new_km": 0.10556856381410709,
+  "ratio": 0.9999996722928142,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Saturn",
+  "lead": 5,
+  "control_km": 0.1309364099216524,
+  "new_km": 0.13093690621000587,
+  "ratio": 1.000003790300603,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Saturn",
+  "lead": 10,
+  "control_km": 0.35263236798065595,
+  "new_km": 0.3526317467282325,
+  "ratio": 0.9999982382433382,
+  "starts_better": 1,
+  "starts": 3
+ },
+ {
+  "body": "Uranus",
+  "lead": 1,
+  "control_km": 485.04653784403894,
+  "new_km": 485.04653784403894,
+  "ratio": 1.0,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Uranus",
+  "lead": 2,
+  "control_km": 493.4087760036714,
+  "new_km": 493.4087760048938,
+  "ratio": 1.0000000000024776,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Uranus",
+  "lead": 3,
+  "control_km": 501.6373173166579,
+  "new_km": 501.63731722870335,
+  "ratio": 0.999999999824665,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Uranus",
+  "lead": 5,
+  "control_km": 520.4953102873008,
+  "new_km": 520.4953102028476,
+  "ratio": 0.9999999998377446,
+  "starts_better": 1,
+  "starts": 4
+ },
+ {
+  "body": "Uranus",
+  "lead": 10,
+  "control_km": 542.7429313113495,
+  "new_km": 542.742930741419,
+  "ratio": 0.999999998949907,
+  "starts_better": 2,
+  "starts": 3
+ },
+ {
+  "body": "Venus",
+  "lead": 1,
+  "control_km": 0.019919837327213055,
+  "new_km": 0.019916348430769504,
+  "ratio": 0.9998248531659049,
+  "starts_better": 3,
+  "starts": 4
+ },
+ {
+  "body": "Venus",
+  "lead": 2,
+  "control_km": 0.031503335032397425,
+  "new_km": 0.03149333580397527,
+  "ratio": 0.9996825977817311,
+  "starts_better": 2,
+  "starts": 4
+ },
+ {
+  "body": "Venus",
+  "lead": 3,
+  "control_km": 0.048137862851283374,
+  "new_km": 0.048166241056810784,
+  "ratio": 1.000589519431203,
+  "starts_better": 3,
+  "starts": 4
+ },
+ {
+  "body": "Venus",
+  "lead": 5,
+  "control_km": 0.07527982585817594,
+  "new_km": 0.07517584699385813,
+  "ratio": 0.9986187685328376,
+  "starts_better": 3,
+  "starts": 4
+ },
+ {
+  "body": "Venus",
+  "lead": 10,
+  "control_km": 0.1483415015139519,
+  "new_km": 0.1457522104489393,
+  "ratio": 0.9825450663598071,
+  "starts_better": 1,
+  "starts": 3
+ }
+]
