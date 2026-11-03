@@ -35,8 +35,9 @@ _ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ROOT))
 sys.path.insert(0, str(_ROOT / "scripts"))
 
-V_DIR = Path("D:/datasets/jpl/vintages")
-START = Path("D:/datasets/jpl/de440s.bsp")      # the DE440 start state of the control/plan jobs (the fixtures were built from it)
+from sigma_ground.field import datasets as _ds0  # noqa: E402
+V_DIR = (_ds0.jpl_dir() or Path("D:/datasets/jpl")) / "vintages"
+START = _ds0.de440_kernel() or Path("D:/datasets/jpl/de440s.bsp")      # the DE440 start state of the control/plan jobs (the fixtures were built from it)
 from sigma_ground.field import datasets as _ds  # noqa: E402  (sys.path is set above)
 TRUTH, TRUTH_NAME = _ds.truth_kernel()          # what every run is SCORED against: DE442 since 2026-11-02 (SIGMA_TRUTH_KERNEL overrides)
 FIXTURE = _ROOT / "sigma_ground/field/interface/fixtures/de440_state_vectors_v2physics.json"

@@ -753,7 +753,12 @@ def _de440_heliocentric_km(de440: dict, snap_key: str, name: str) -> np.ndarray 
 
 # ── N-body predictor integration ─────────────────────────────────────────
 
-_DE440_KERNEL = Path("D:/datasets/jpl/de440s.bsp")
+def _de440_kernel_path() -> Path:
+    """The DE440s kernel the perturber paths are integrated in: wherever the data root is on this machine (SIGMA_DATASETS, D:/datasets, /srv/datasets, /datasets), not a D: path."""
+    from sigma_ground.field import datasets as _ds
+    f = _ds.de440_kernel()
+    return f if f is not None else Path("D:/datasets/jpl/de440s.bsp")
+
 _PERTURBERS_FILE = Path(__file__).parent / "fixtures" / "de440_perturbers_v2physics.json"
 
 
@@ -776,7 +781,7 @@ def _candidate_layers(predictor: Predictor, bodies: list, body_names: list[str],
         from jplephem.spk import SPK
         from sigma_ground.field.interface import perturber_paths as pp
         from sigma_ground.field.interface.asteroid_perturbers import Perturber
-        kernel = SPK.open(str(_DE440_KERNEL))
+        kernel = SPK.open(str(_de440_kernel_path()))
         gm = [b.mass_kg * _G / 1e9 for b in bodies]                                       # km^3/s^2
         idx = {n: i for i, n in enumerate(body_names)}
 

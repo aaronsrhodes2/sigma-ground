@@ -42,7 +42,7 @@ def run_arm(arm: str, years: float, dt_days: float) -> dict:
     bodies, names, sun_idx, parent = rs._build_bodies_at_snapshot(WINDOW, fx, pred)
     start = fx["snapshots"][WINDOW]["epoch"]["jd_tdb"]
     horizon = years * 365.25
-    kernel = SPK.open(str(rs._DE440_KERNEL))
+    kernel = SPK.open(str(rs._de440_kernel_path()))
     gm = [b.mass_kg * G / 1e9 for b in bodies]
     idx = {n: i for i, n in enumerate(names)}
     sysgm = lambda n: gm[idx[n]] + sum(gm[j] for j, par in enumerate(parent) if par == idx[n])

@@ -31,9 +31,9 @@ from pathlib import Path
 
 import numpy as np
 
-V_DIR = Path("D:/datasets/jpl/vintages")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from sigma_ground.field import datasets as _ds  # noqa: E402
+V_DIR = (_ds.jpl_dir() or Path("D:/datasets/jpl")) / "vintages"
 TRUTH, TRUTH_NAME = _ds.truth_kernel()          # DE442 since 2026-11-02 (SIGMA_TRUTH_KERNEL overrides); the earlier mesh was against DE440
 J2000 = 2451545.0
 # (name, file, release date as stated in the kernel's own comments)
