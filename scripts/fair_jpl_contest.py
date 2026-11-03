@@ -386,8 +386,7 @@ def main() -> int:
                 r = json.loads(item[2].read_text())
                 results.append(r)
                 with open(part, "a") as fh:
-                    fh.write(json.dumps(r) + "
-")
+                    fh.write(json.dumps(r) + "\n")
                 finished += 1
                 print(f"[{time.time() - t0:6.0f}s] taken {item[0][0]}/{item[0][2]} from an earlier worker's result ({finished}/{len(todo)})", flush=True)
                 continue
