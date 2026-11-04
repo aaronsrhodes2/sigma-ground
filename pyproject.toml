@@ -57,6 +57,8 @@ sigma-ground-mcp = "sigma_ground.mcp.server:main"
 
 [project.optional-dependencies]
 test = ["pytest>=8.0"]
+# whole-sky pipeline (stage 2): parquet storage and the compiled source sum of batch_particles.py (numpy fallback without numba)
+sky = ["pyarrow>=15", "numba>=0.59", "numpy>=1.26", "erfa>=2.0"]
 # MCP server + LLM-front-end deps. Installed only when the MCP layer is
 # used; the core sigma_ground library remains zero-dependency.
 mcp = [
