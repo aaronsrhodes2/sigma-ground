@@ -701,3 +701,16 @@ the face, at the refracted angle). No display-exposure constant is used on that 
   an irregular body.
 - **The carrier-block path** (the resource pack, used by the theater until it writes matter blocks) still uses
   ``export_mc.legible``'s display exposure (the entry above); it goes when the theater moves to matter blocks.
+
+## The theater in matter mode (slosh, 2026-11-04): what a matter cell does not yet carry
+
+The slosh theater draws every cell as a ``skippycraft:matter`` block with sigma-ground's record for its material (``theater.Theater(matter=True)``;
+the two free bodies get a live record: velocity in Minecraft's axes and the sim time, only while they move). Not yet:
+
+- **Water cells carry no per-cell velocity.** A record per cell per tick would be thousands of distinct records a frame; the FLIP grid has the
+  velocity, and "what is that" reads it live from the world (controls.py) instead of from the block. Only the two bodies carry theirs.
+- **Isothermal worlds only.** A hot world (melt, playground) still uses the glow carriers; matter mode raises rather than draw it wrong.
+- **One cell is one block**, so a theater is dozens of blocks across (slosh: 72 x 28 x 32, about 46,000 matter blocks, each a block entity).
+  The first draw sends every cell; after that, only what changed (400-600 cells a tick at 25 Hz). The renderer's view distance is 256.
+- **A clear block passes skylight in full** (its light follows the state, not the cube); a clear body's real light attenuation (Beer-Lambert on
+  the sun) is not computed, so a deep body of water does not darken what is under it.

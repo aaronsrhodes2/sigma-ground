@@ -31,7 +31,8 @@ MAX_LIGHT = 15
 
 
 def record(material, mass_kg, pitch_m, temperature_k=293.15, *, t=None, v=(0.0, 0.0, 0.0), melt=0.0):
-    """The record of ``mass_kg`` of ``material`` filling a cube ``pitch_m`` across, at ``temperature_k``.
+    """The record of ``mass_kg`` of ``material`` filling a cube ``pitch_m`` across, at ``temperature_k``. ``mass_kg`` None:
+    the cube is full, so its mass is the material's density (at that temperature) times the volume.
 
     ``t``: the sim time (s) this state is as of, or None for a block with no clock. ``v``: its velocity (m/s); non-zero
     needs a ``t``. ``melt``: the fraction melted (0..1), from the world's own ledger."""
@@ -41,7 +42,11 @@ def record(material, mass_kg, pitch_m, temperature_k=293.15, *, t=None, v=(0.0, 
     T = float(temperature_k)
     if any(float(c) != 0.0 for c in v) and t is None:
         raise ValueError("a moving block needs a time: velocity is a rate of change")
-    b = block(material, T, mass_kg=float(mass_kg), volume_m3=float(pitch_m) ** 3)
+    b = block(material, T, mass_kg=None if mass_kg is None else float(mass_kg), volume_m3=float(pitch_m) ** 3)
+    if mass_kg is None:
+        mass_kg = b["amount"].get("mass_kg", 0.0)
+        if not b["amount"]:
+            b["gaps"].append("no density: mass unknown, recorded as 0")
     a = appearance(material, float(pitch_m), T)
     shown = a
     gaps = list(dict.fromkeys(b["gaps"] + shown["gaps"]))

@@ -38,6 +38,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * stage/skippycraft/matter.py; n = 0 clears the cell). Each becomes a skippycraft:matter block carrying that record, its
  * light level set from the record. Reply: int set, int ms.
  *
+ * MATTER RUNS (magic 'SKCN'): the same, as the theater draws: int palette size; that many records (int length, that many
+ * bytes of UTF-8 JSON; length 0 is air); int run count; runs of (int x, int y, int z, short length, short palette index) along
+ * +x. A whole body of one material is one record and a few runs. Reply: int set, int ms.
+ *
  * SAID (magic 'SKCP'): what the player said to Skippy since the last poll ("Skippy, ..." in chat or /theater ...), with
  * where he was and what he looked at: int count; per message UTF player, UTF text, double eye x y z, double look
  * dx dy dz, byte hit, int block x y z.
@@ -47,6 +51,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public final class SkippyBridge {
 	private static final int MAGIC_BLOCKS = 0x534B4346;
 	private static final int MAGIC_MATTER = 0x534B434D;
+	private static final int MAGIC_MATTER_RUNS = 0x534B434E;
 	private static final int MAGIC_SAID = 0x534B4350;
 	private static final int PORT = 25576;
 	private static final int FLAGS = 2 | 16;        // send to clients, skip neighbour shape updates: no block physics
@@ -149,6 +154,18 @@ public final class SkippyBridge {
 					cells.add(new Cell(x, y, z, new String(b, StandardCharsets.UTF_8)));
 				}
 				result = onServerThread(() -> applyMatter(cells));
+			} else if (magic == MAGIC_MATTER_RUNS) {
+				int np = in.readInt();
+				List<String> records = new ArrayList<>(np);
+				for (int i = 0; i < np; i++) {
+					byte[] b = new byte[in.readInt()];
+					in.readFully(b);
+					records.add(new String(b, StandardCharsets.UTF_8));
+				}
+				int nr = in.readInt();
+				List<Run> runs = new ArrayList<>(nr);
+				for (int i = 0; i < nr; i++) runs.add(new Run(in.readInt(), in.readInt(), in.readInt(), in.readShort(), in.readShort()));
+				result = onServerThread(() -> applyMatterRuns(records, runs));
 			} else {
 				throw new IOException("bad frame");
 			}
@@ -195,26 +212,42 @@ public final class SkippyBridge {
 		ServerLevel level = server.overworld();
 		int n = 0;
 		for (Cell c : cells) {
-			BlockPos pos = new BlockPos(c.x(), c.y(), c.z());
-			if (c.json().isEmpty()) {
-				level.setBlock(pos, Blocks.AIR.defaultBlockState(), FLAGS);
-				n++;
-				continue;
-			}
-			MatterData d;
-			try {
-				d = new MatterData(c.json());
-			} catch (Exception e) {
-				SkippyCraftMod.LOGGER.warn("bad matter record at {}: {}", pos, e.toString());
-				continue;
-			}
-			BlockState state = SkippyCraftMod.MATTER_BLOCK.defaultBlockState()
-				.setValue(MatterBlock.LIGHT, Math.max(0, Math.min(15, d.light)));
-			level.setBlock(pos, state, FLAGS);
-			BlockEntity be = level.getBlockEntity(pos);
-			if (be instanceof MatterBlockEntity m) m.setRecord(c.json());
-			n++;
+			if (placeMatter(level, new BlockPos(c.x(), c.y(), c.z()), c.json())) n++;
 		}
 		return new int[] {n, (int) ((System.nanoTime() - t0) / 1_000_000)};
+	}
+
+	private int[] applyMatterRuns(List<String> records, List<Run> runs) {
+		long t0 = System.nanoTime();
+		ServerLevel level = server.overworld();
+		int n = 0;
+		BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+		for (Run r : runs) {
+			String json = records.get(r.palette());
+			for (int dx = 0; dx < r.length(); dx++) {
+				if (placeMatter(level, p.set(r.x() + dx, r.y(), r.z()), json)) n++;
+			}
+		}
+		return new int[] {n, (int) ((System.nanoTime() - t0) / 1_000_000)};
+	}
+
+	/** Make {@code pos} a matter block carrying {@code json} (its light level set from the record), or air when json is empty. */
+	public static boolean placeMatter(ServerLevel level, BlockPos pos, String json) {
+		if (json.isEmpty()) {
+			level.setBlock(pos, Blocks.AIR.defaultBlockState(), FLAGS);
+			return true;
+		}
+		MatterData d;
+		try {
+			d = MatterData.of(json);
+		} catch (Exception e) {
+			SkippyCraftMod.LOGGER.warn("bad matter record at {}: {}", pos, e.toString());
+			return false;
+		}
+		BlockState state = SkippyCraftMod.MATTER_BLOCK.defaultBlockState().setValue(MatterBlock.LIGHT, Math.max(0, Math.min(15, d.light)))
+			.setValue(MatterBlock.CLEAR, d.clear());
+		level.setBlock(pos.immutable(), state, FLAGS);
+		if (level.getBlockEntity(pos) instanceof MatterBlockEntity m) m.setRecord(json);
+		return true;
 	}
 }

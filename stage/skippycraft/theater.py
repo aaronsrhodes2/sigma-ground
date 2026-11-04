@@ -96,7 +96,7 @@ STAGES = {
              "tell": "Sink: a gold block drops into the mercury and sinks; the iron floats (gold is denser than mercury, iron is not)."},
     "melt": {"origin": (56, -60, 24), "desk": (75, -46, 14), "pitch": 35, "other": "slosh", "request": 2, "rate": 6.0,
              "tell": "Melt: a lead column on a 1500 K tungsten plate, in vacuum. It slumps when it melts; the boss bar keeps the books."},
-    "slosh": {"origin": (0, -60, 100), "desk": (36, -46, 88), "pitch": 25, "other": "slit", "request": 3, "rate": 25.0,
+    "slosh": {"origin": (0, -60, 100), "desk": (36, -46, 88), "pitch": 25, "other": "slit", "request": 3, "rate": 25.0, "matter": True,
               "extra": (("Slower", 4), ("Faster", 5)),
               "tell": "Slosh: the paddle pushes the water at the tank's own sloshing period, so each push adds to the last. "
                       "A gold block and an oak block drop in: the water's own pressure sinks one and floats the other."},
@@ -208,6 +208,18 @@ class Blocks:
                 raise ConnectionError("block writer closed")
             buf += chunk
         return struct.unpack(">ii", buf)
+
+    def send_matter(self, records, runs):
+        """Matter blocks (frame 'SKCN'): ``records``: matter-record JSON texts ('' is air); ``runs``: (x, y, z, length, index
+        into records). Returns (blocks set, server ms)."""
+        out = [struct.pack(">ii", 0x534B434E, len(records))]
+        for text in records:
+            b = text.encode("utf-8")
+            out.append(struct.pack(">i", len(b)) + b)
+        out.append(struct.pack(">i", len(runs)))
+        out.append(b"".join(struct.pack(">iiihh", *r) for r in runs))
+        self.sock.sendall(b"".join(out))
+        return struct.unpack(">ii", self._exact(8))
 
     def _exact(self, n):
         buf = b""
@@ -413,9 +425,17 @@ def slit_looks():
 class Theater:
     """A ``VoxelWorld`` shown in Minecraft with its low corner at ``origin``. ``send(commands)`` delivers commands."""
 
-    def __init__(self, world, looks, origin, send, blocks=None, glows=None):
+    def __init__(self, world, looks, origin, send, blocks=None, glows=None, matter=False):
         import numpy as np
         self.world, self.send, self.blocks = world, send, blocks
+        # matter mode: each cell is a skippycraft:matter block carrying sigma-ground's record for its material (and a live one for a
+        # moving body), not a carrier block repainted by the resource pack. Needs the mod's block writer.
+        self.matter = bool(matter and blocks is not None)
+        self.records, self.body_json, self.shown_body = {}, {}, {}
+        if self.matter:
+            if glows or hasattr(world, "T"):
+                raise ValueError("matter mode draws isothermal worlds for now: a hot world still uses the glow carriers")
+            self.ambient_k = float(getattr(world, "temperature_k", 293.15))
         self.origin = tuple(int(v) for v in origin)
         occ = np.argwhere(world.label > 0)
         self.i0, self.k0, self.jhi = int(occ[:, 0].min()), int(occ[:, 2].min()), int(occ[:, 1].max())
@@ -436,6 +456,8 @@ class Theater:
         self.shown = np.full_like(world.label, -1)
         self.shown[:, :, :self.k0] = world.label[:, :, :self.k0]
         self.changed_total = 0
+        if self.matter:
+            self.sync()
 
     def mc(self, i, j, k):
         x0, y0, z0 = self.origin
@@ -457,6 +479,11 @@ class Theater:
     def sync(self):
         """Give every material the world gained since the last draw its carrier block."""
         mats = self.world.materials
+        if self.matter:
+            import matter
+            for idx in range(1, len(mats)):
+                if idx not in self.records:
+                    self.records[idx] = matter.to_wire(matter.record(mats[idx], None, self.world.pitch, self.ambient_k))
         for idx in range(self.n_materials, len(mats)):
             key = (mats[idx], self.world.pitch)
             if key not in self.looks:
@@ -483,7 +510,10 @@ class Theater:
         import numpy as np
         self.sync()
         label = self.display()
-        changed = label != self.shown
+        if self.matter:
+            label, changed = self._matter_label(label)
+        else:
+            changed = label != self.shown
         if self.blocks is not None:
             self._draw_frame(label, changed)
             n = int(changed.sum())
@@ -510,6 +540,42 @@ class Theater:
         self.changed_total += n
         return n
 
+    def _body_record(self, b):
+        """A free body's record now: its velocity (in Minecraft's axes) and the time it is as of, only when it is moving."""
+        import numpy as np
+        import matter
+        v = np.asarray(b["vel"], float)
+        mc_v = (float(v[0]), float(v[2]), -float(v[1]))                 # world (i, j, k up) -> Minecraft (x, y up, z)
+        moving = any(abs(c) > 1e-6 for c in mc_v)
+        return matter.to_wire(matter.record(b["material"], None, self.world.pitch, self.ambient_k,
+                                            t=float(self.world.t) if moving else None, v=mc_v if moving else (0.0, 0.0, 0.0)))
+
+    def _matter_label(self, label):
+        """The label with each free body's cells under its own live record (a palette slot past the materials), and which cells
+        changed: a cell whose block differs, or any cell of a body whose record changed (its velocity, its clock)."""
+        label = label.copy()
+        live = []
+        for bi, b in enumerate(getattr(self.world, "bodies", ())):
+            if not isinstance(b, dict) or getattr(self, "_clearing", False):
+                continue
+            idx = tuple(self.world._body_cells(b).T)
+            label[idx] = MAX_MATERIALS + bi
+            live.append((bi, idx, self._body_record(b)))
+        changed = label != self.shown
+        for bi, idx, rec in live:
+            self.body_json[bi] = rec
+            if self.shown_body.get(bi) != rec:
+                changed[idx] = True
+                self.shown_body[bi] = rec
+        return label, changed
+
+    def _draw_matter(self, runs):
+        """Send the runs as one matter frame, its palette only the records the runs use."""
+        used = sorted({r[4] for r in runs})
+        slot = {old: new for new, old in enumerate(used)}
+        records = [self.body_json[old - MAX_MATERIALS] if old >= MAX_MATERIALS else self.records.get(old, "") for old in used]
+        self.blocks.send_matter(records, [(*r[:4], slot[r[4]]) for r in runs])
+
     def _draw_frame(self, label, changed):
         """Every changed cell, as runs along x, in one frame to the plugin."""
         import numpy as np
@@ -527,7 +593,9 @@ class Theater:
                 x, y, z = self.mc(i, j, k)
                 runs.append((x, y, z, end - i + 1, int(row[i])))
                 i = end + 1
-        if runs:
+        if runs and self.matter:
+            self._draw_matter(runs)
+        elif runs:
             self.blocks.send(["minecraft:" + b for b in self.block], runs)
 
     def readout(self, changed):
@@ -559,7 +627,11 @@ class Theater:
     def clear(self):
         import numpy as np
         self.world.label[:] = 0
-        self.draw()
+        self._clearing = True
+        try:
+            self.draw()
+        finally:
+            self._clearing = False
         self.shown = np.zeros_like(self.world.label)
 
 
@@ -573,8 +645,8 @@ def verify(theater, rcon):
         if k < theater.k0:
             continue
         x, y, z = theater.mc(i, j, k)
-        want = theater.block[shown[i, j, k]]
-        if "passed" not in rcon.command(f"execute if block {x} {y} {z} minecraft:{want}"):
+        want = ("skippycraft:matter" if shown[i, j, k] > 0 else "minecraft:air") if theater.matter else "minecraft:" + theater.block[shown[i, j, k]]
+        if "passed" not in rcon.command(f"execute if block {x} {y} {z} {want}"):
             bad.append(((x, y, z), want))
     return bad
 
@@ -770,7 +842,7 @@ def serve(player="aaronsrhodes"):
                 _, world = impact_world(impact_aim["weapon"])
             else:
                 _, world = build(name)
-            th = Theater(world, looks, st["origin"], send, blocks, glows)
+            th = Theater(world, looks, st["origin"], send, blocks, None if st.get("matter") else glows, matter=st.get("matter", False))
             rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
             tell(f"Building {name} at {SCENE_RESOLUTION.get(name, RESOLUTION)}x resolution (a few seconds)...")
             th.open()

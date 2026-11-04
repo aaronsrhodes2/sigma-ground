@@ -16,6 +16,14 @@ import java.util.List;
  */
 public final class MatterData {
 	public static final MatterData EMPTY = new MatterData("");
+	private static final java.util.Map<String, MatterData> CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
+	/** The parsed record for this JSON, shared: a whole body of water is thousands of blocks with one record. */
+	public static MatterData of(String json) {
+		if (json.isEmpty()) return EMPTY;
+		if (CACHE.size() > 4096) CACHE.clear();
+		return CACHE.computeIfAbsent(json, MatterData::new);
+	}
 
 	public final String json;
 	public final String material;

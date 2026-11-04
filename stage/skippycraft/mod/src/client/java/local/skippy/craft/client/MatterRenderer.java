@@ -89,6 +89,12 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 		return neighbour.opaque() || neighbour.material.equals(me.material);
 	}
 
+	/** A theater is dozens of blocks across (one cell, one block): far more than the default 64 blocks a block entity is drawn at. */
+	@Override
+	public int getViewDistance() {
+		return 256;
+	}
+
 	@Override
 	public void submit(State s, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
 		if (s.data.isEmpty()) return;

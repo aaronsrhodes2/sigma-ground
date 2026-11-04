@@ -1,9 +1,11 @@
 package local.skippy.craft.test;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import local.skippy.craft.MatterBlock;
 import local.skippy.craft.MatterBlockEntity;
+import local.skippy.craft.SkippyBridge;
 import local.skippy.craft.SkippyCraftMod;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -31,10 +33,44 @@ public class MatterClientTest implements FabricClientGameTest {
 	}
 
 	private static void put(ServerLevel level, int x, int y, int z, String json) {
-		BlockPos pos = new BlockPos(x, y, z);
-		int light = JsonParser.parseString(json).getAsJsonObject().get("light").getAsInt();
-		level.setBlock(pos, SkippyCraftMod.MATTER_BLOCK.defaultBlockState().setValue(MatterBlock.LIGHT, light), 2 | 16);
-		if (level.getBlockEntity(pos) instanceof MatterBlockEntity be) be.setRecord(json);
+		SkippyBridge.placeMatter(level, new BlockPos(x, y, z), json);
+	}
+
+	/** The real slosh theater, drawn in matter mode at two sim times (stage/skippycraft/mod/gen_slosh_frames.py). */
+	private void sloshFrames(ClientGameTestContext context, TestSingleplayerContext world) throws Exception {
+		JsonArray frames;
+		try (var in = getClass().getResourceAsStream("/slosh_frames.json")) {
+			frames = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonArray();
+		}
+		world.getServer().runCommand("time set noon");
+		for (int f = 0; f < frames.size(); f++) {
+			JsonObject fr = frames.get(f).getAsJsonObject();
+			int xoff = 200 * (f + 1);
+			JsonArray bb = fr.getAsJsonArray("bbox");
+			int x0 = bb.get(0).getAsInt() + xoff, y0 = bb.get(1).getAsInt(), z0 = bb.get(2).getAsInt();
+			int x1 = bb.get(3).getAsInt() + xoff, z1 = bb.get(5).getAsInt();
+			JsonArray records = fr.getAsJsonArray("records");
+			JsonArray runs = fr.getAsJsonArray("runs");
+			world.getServer().runOnServer(server -> {
+				ServerLevel level = server.overworld();
+				for (int x = x0 - 110; x <= x1 + 110; x++) for (int z = z0 - 110; z <= z1 + 6; z++) level.setBlock(new BlockPos(x, y0 - 1, z), Blocks.QUARTZ_BLOCK.defaultBlockState(), 2 | 16);
+				for (int x = x0 - 110; x <= x1 + 110; x++) for (int y = y0; y <= y0 + 50; y++) level.setBlock(new BlockPos(x, y, z1 + 5), Blocks.OBSIDIAN.defaultBlockState(), 2 | 16);
+				for (var el : runs) {
+					JsonArray r = el.getAsJsonArray();
+					String json = records.get(r.get(4).getAsInt()).getAsString();
+					for (int dx = 0; dx < r.get(3).getAsInt(); dx++) {
+						SkippyBridge.placeMatter(level, new BlockPos(r.get(0).getAsInt() + xoff + dx, r.get(1).getAsInt(), r.get(2).getAsInt()), json);
+					}
+				}
+			});
+			double cx = (x0 + x1) / 2.0 + 0.5;
+			world.getServer().runCommand("tp @a " + cx + " " + (y0 + 9) + " " + (z0 - 42) + " 0 4");
+			context.waitTicks(80);
+			context.takeScreenshot("slosh-t" + String.format("%.1f", fr.get("t").getAsDouble()) + "-front");
+			world.getServer().runCommand("tp @a " + (x0 - 50) + " " + (y0 + 9) + " " + ((z0 + z1) / 2.0) + " -90 4");
+			context.waitTicks(80);
+			context.takeScreenshot("slosh-t" + String.format("%.1f", fr.get("t").getAsDouble()) + "-side");
+		}
 	}
 
 	@Override
@@ -84,6 +120,7 @@ public class MatterClientTest implements FabricClientGameTest {
 			world.getServer().runCommand("tp @a 0.5 " + (Y + 3) + " -4.5 0 12");
 			context.waitTicks(20);
 			context.takeScreenshot("night-row");
+			sloshFrames(context, world);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

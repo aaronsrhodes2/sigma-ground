@@ -12,7 +12,10 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
@@ -22,20 +25,37 @@ import net.minecraft.world.phys.BlockHitResult;
  */
 public class MatterBlock extends Block implements EntityBlock {
 	public static final IntegerProperty LIGHT = IntegerProperty.create("light", 0, 15);
+	/** A clear dielectric lets light through (its sky light and its shadow follow the physics, not the cube); an opaque one does not. */
+	public static final BooleanProperty CLEAR = BooleanProperty.create("clear");
 
 	public MatterBlock(Properties properties) {
 		super(properties);
-		registerDefaultState(stateDefinition.any().setValue(LIGHT, 0));
+		registerDefaultState(stateDefinition.any().setValue(LIGHT, 0).setValue(CLEAR, false));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(LIGHT);
+		builder.add(LIGHT, CLEAR);
 	}
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new MatterBlockEntity(pos, state);
+	}
+
+	@Override
+	protected boolean propagatesSkylightDown(BlockState state) {
+		return state.getValue(CLEAR);
+	}
+
+	@Override
+	protected boolean useShapeForLightOcclusion(BlockState state) {
+		return true;
+	}
+
+	@Override
+	protected VoxelShape getOcclusionShape(BlockState state) {
+		return state.getValue(CLEAR) ? Shapes.empty() : Shapes.block();
 	}
 
 	@Override

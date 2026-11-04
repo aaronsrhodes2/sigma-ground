@@ -7,7 +7,7 @@ set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 export MSYS_NO_PATHCONV=1
 win="$(cd "$here" && pwd -W 2>/dev/null || pwd)"
-(cd "$here" && python gen_test_records.py >/dev/null)
+(cd "$here" && python gen_test_records.py >/dev/null && python gen_slosh_frames.py 0.0 3.0 >/dev/null)
 docker build -q -t skippycraft-gametest -f "$win/test.Dockerfile" "$win" >/dev/null
 docker volume create skippycraft-gradle >/dev/null
 docker run --rm -v "$win:/mod" -v skippycraft-gradle:/root/.gradle -w /mod skippycraft-gametest \

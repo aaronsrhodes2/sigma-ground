@@ -25,7 +25,7 @@ public class MatterBlockEntity extends BlockEntity {
 
 	public void setRecord(String json) {
 		if (json.equals(data.json)) return;
-		data = new MatterData(json);
+		data = MatterData.of(json);
 		setChanged();
 		if (level != null && !level.isClientSide()) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 2);
 	}
@@ -39,7 +39,7 @@ public class MatterBlockEntity extends BlockEntity {
 	@Override
 	protected void loadAdditional(ValueInput in) {
 		super.loadAdditional(in);
-		data = new MatterData(in.getStringOr("record", ""));
+		data = MatterData.of(in.getStringOr("record", ""));
 	}
 
 	@Override
