@@ -22,6 +22,16 @@ loom {
 	}
 }
 
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "skippycraft-test"
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true // the Captain accepted the Minecraft EULA for this server (eula.txt)
+	}
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"

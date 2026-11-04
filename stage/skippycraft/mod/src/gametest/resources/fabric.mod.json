@@ -1,0 +1,10 @@
+{
+	"schemaVersion": 1,
+	"id": "skippycraft-test",
+	"version": "1.0.0",
+	"name": "SkippyCraft test",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-client-gametest": ["local.skippy.craft.test.MatterClientTest"]
+	}
+}
