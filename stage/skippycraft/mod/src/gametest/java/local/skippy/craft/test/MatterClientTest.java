@@ -71,6 +71,12 @@ public class MatterClientTest implements FabricClientGameTest {
 			world.getServer().runCommand("tp @a 1.5 " + (Y + 1.5) + " -2.5 0 0");
 			context.waitTicks(10);
 			context.takeScreenshot("day-water-volume");
+			world.getServer().runCommand("tp @a 1.5 " + (Y + 0.4) + " -3.5 0 -2");
+			context.waitTicks(10);
+			context.takeScreenshot("day-water-grazing");
+			world.getServer().runCommand("tp @a 1.5 " + (Y + 6) + " -1.5 0 60");
+			context.waitTicks(10);
+			context.takeScreenshot("day-water-from-above");
 			world.getServer().runCommand("time set midnight");
 			world.getServer().runCommand("tp @a 4.0 " + (Y + 2.5) + " -3.5 0 10");
 			context.waitTicks(40);

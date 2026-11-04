@@ -35,10 +35,13 @@ def test_a_hot_block_glows_and_lights_its_neighbours():
     assert 1 <= hot["light"] <= matter.MAX_LIGHT and hot["emission"] > 0 and hot["glow_rgb"][0] > hot["glow_rgb"][2]
 
 
-def test_a_clear_block_keeps_its_physical_opacity_beside_the_drawn_one():
+def test_a_clear_block_carries_the_physics_a_renderer_needs_not_a_tuned_opacity():
     r = matter.record("water", 0.125, PITCH)
-    assert r["opacity_physical"] < 0.1 and r["rgba"][3] > 60 and r["drawn_at_m"] > PITCH
-    assert any("display exposure" in g for g in r["gaps"])                   # said, not hidden
+    assert r["rgba"][3] < 25 and r["opacity_physical"] == pytest.approx(r["rgba"][3] / 255, abs=0.01)   # its own, physical
+    assert 1.3 < r["n"] < 1.4 and len(r["absorption_per_m"]) == 3 and r["absorption_per_m"][0] > r["absorption_per_m"][2]
+    assert not any("display exposure" in g for g in r["gaps"]) and "drawn_at_m" not in r
+    gold = matter.record("gold", 2.4, PITCH)
+    assert gold["n"] is None and gold["absorption_per_m"] is None                  # opaque: nothing passes
 
 
 def test_the_wire_form_is_json_the_mod_reads():

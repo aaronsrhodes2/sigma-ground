@@ -680,3 +680,24 @@ slosh tank showed a gold and an oak block moving in nothing.
 - **Named per material:** `drawn_at_m` and a "display exposure" gap in `skippycraft_looks.json`; `appearance` itself is unchanged.
 - **No refraction or reflection** in vanilla Minecraft (shader packs read the LabPBR smoothness/F0 and do draw them).
 - Sentinel: `tests/test_skippycraft_export.py::test_a_clear_volume_is_drawn_as_one_visible_pane_with_its_own_tint`.
+
+
+## Clear matter in SkippyCraft is drawn from n and absorption, with these approximations (2026-11-04)
+
+The Captain's rule: we do not tune how it looks; where the physics is missing we add it to the tool. A matter block of a clear
+dielectric (``skippycraft:matter``) therefore carries ``n`` (index at 550 nm) and ``absorption_per_m`` (R, G, B) from
+``field.interface.block.appearance``, and the mod draws each face as F reflected (exact unpolarised Fresnel at the angle the
+camera sees it) plus the rest transmitted and attenuated by Beer-Lambert over the real path (blocks of the same material behind
+the face, at the refracted angle). No display-exposure constant is used on that path. What is still approximate, each named here:
+
+- **Refraction is not drawn.** The bending of the view through water or glass (what makes clear things look clear) needs a
+  screen-space pass; vanilla has none. A clear block is therefore honest but faint: at normal incidence a 5 cm cube of water
+  reflects ~2% and a glass block ~4%.
+- **The reflected environment is white at the local light level**, not the sky or the surroundings (no environment map).
+- **The attenuation is one number per face** (the mean of R, G, B): alpha blending cannot multiply per channel, so water does
+  not lose its red first on screen. A multiply pass (Minecraft 26.3's new renderer has a transmittance snippet for it) would.
+- **A back face's reflectance assumes parallel faces**; total internal reflection is not drawn.
+- **Thickness is the normal-incidence body behind the face**, counted along the face's own axis, not the ray's true path through
+  an irregular body.
+- **The carrier-block path** (the resource pack, used by the theater until it writes matter blocks) still uses
+  ``export_mc.legible``'s display exposure (the entry above); it goes when the theater moves to matter blocks.

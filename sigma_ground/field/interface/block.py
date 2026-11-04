@@ -266,7 +266,9 @@ def appearance(material: str, thickness_m: float, temperature_k: float = 293.15)
     """How one block of ``material``, ``thickness_m`` across, looks: what a renderer needs.
 
     Returns ``{"color_rgb", "transmittance_rgb", "opacity", "reflectance_f0", "metal", "smoothness",
-    "sources", "gaps"}``, every value from sigma-ground's optics, or a named gap:
+    "n_refractive", "absorption_per_m", "sources", "gaps"}`` (the last two for a CLEAR dielectric: its index at 550 nm
+    and its bulk absorption per metre in R, G, B, so a renderer can compute the Fresnel reflectance at any angle and
+    the Beer-Lambert transmittance through any path length instead of reading one thickness's opacity), every value from sigma-ground's optics, or a named gap:
 
       - a METAL (``optics.metal_rgb``: Drude / measured n+ik → Fresnel): its colour IS its normal-incidence
         reflectance; opaque (light dies within nanometres);
@@ -294,7 +296,7 @@ def appearance(material: str, thickness_m: float, temperature_k: float = 293.15)
     canon, props = b["canonical"], b["properties"]
     out = {"material": material, "canonical": canon, "thickness_m": float(thickness_m), "color_rgb": None,
            "transmittance_rgb": (0.0, 0.0, 0.0), "opacity": 1.0, "reflectance_f0": None, "metal": False,
-           "smoothness": None, "sources": {}, "gaps": []}
+           "smoothness": None, "n_refractive": None, "absorption_per_m": None, "sources": {}, "gaps": []}
     try:
         c = tuple(float(v) for v in optics.metal_rgb(canon))
         out.update(color_rgb=c, reflectance_f0=c, metal=True)
@@ -306,6 +308,10 @@ def appearance(material: str, thickness_m: float, temperature_k: float = 293.15)
             T = tuple(float(v) for v in optics.dielectric_transmission_rgb(key, absorb, float(thickness_m)))
             out.update(color_rgb=T, transmittance_rgb=T, opacity=1.0 - sum(T) / 3,
                        reflectance_f0=optics.dielectric_surface_reflectance(optics.cauchy_n(key, optics.LAMBDA_G)))
+            out["n_refractive"] = float(optics.cauchy_n(key, optics.LAMBDA_G))
+            out["absorption_per_m"] = tuple(float(a) for a in optics.DIELECTRIC_ABSORPTION.get(absorb, (0.5, 0.5, 0.5)))
+            out["sources"]["n_refractive"] = f"optics.cauchy_n({key!r}, 550 nm)"
+            out["sources"]["absorption_per_m"] = f"optics.DIELECTRIC_ABSORPTION[{absorb!r}] (Beer-Lambert, R G B per metre)"
             src = f"optics: Cauchy n ({key}) + Beer-Lambert ({absorb}) through {thickness_m:g} m"
             out["sources"].update(color_rgb=src, transmittance_rgb=src, opacity=src,
                                   reflectance_f0=f"optics.dielectric_surface_reflectance(n({key}, 550 nm))")

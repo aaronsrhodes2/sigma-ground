@@ -34,6 +34,8 @@ public final class MatterData {
 	public final boolean metal;
 	public final double smoothness;
 	public final double melt;
+	public final double n;                 // refractive index at 550 nm; NaN for a material light does not pass through
+	public final double[] absorption;      // bulk absorption per metre, R G B; null for an opaque material
 	public final List<String> gaps;
 
 	public MatterData(String json) {
@@ -55,6 +57,8 @@ public final class MatterData {
 		metal = o.has("metal") && !o.get("metal").isJsonNull() && o.get("metal").getAsBoolean();
 		smoothness = num(o, "smoothness", Double.NaN);
 		melt = num(o, "melt", 0);
+		n = num(o, "n", Double.NaN);
+		absorption = o.has("absorption_per_m") && o.get("absorption_per_m").isJsonArray() ? vec(o, "absorption_per_m", 3, 0) : null;
 		gaps = new ArrayList<>();
 		if (o.has("gaps") && o.get("gaps").isJsonArray()) {
 			for (JsonElement g : o.getAsJsonArray("gaps")) gaps.add(g.getAsString());
@@ -63,6 +67,11 @@ public final class MatterData {
 
 	public boolean isEmpty() {
 		return json.isEmpty();
+	}
+
+	/** A clear dielectric: drawn from its index and absorption, not from one opacity. */
+	public boolean clear() {
+		return absorption != null && !Double.isNaN(n);
 	}
 
 	public boolean opaque() {
