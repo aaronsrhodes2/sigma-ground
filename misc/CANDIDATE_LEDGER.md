@@ -754,3 +754,29 @@ The Captain: long calculation runs happen between 01:00 and 07:00. `scripts/nigh
 07:00 and requeued at the front if `--resumable`, else recorded as cut; every event in D:/datasets/sigma_runs/night_queue/night_queue.jsonl, per-job logs beside it.
 Smoke test passed (a one-line job, run with `--now`). Job one, queued for tonight: the roster backfill (`mpc_live_driver.py --bodies <the 11>`, est 180 min, resumable:
 the scorer's watermarks). The 04:30 / 05:00 / 06:30 tasks share the window's tail; a job that must not overlap them carries an estimate ending before 04:30.
+
+## C35 — The whole-sky batch engine (stage 2, phase 0; 2026-11-04)
+
+**Pre-registered (plan of 2026-11-04):** S-A, agreement with the served per-body engine (`comet_orbits.propagate`, dopri5 rtol 1e-13, all 343 sources, Sun 1PN, C31 term) within 0.1 km after one year from the frozen starts, at 1 d (main belt) and 0.25 d (near-Earth); S-B, at least 10,000 body-years per minute on the PC with the full physics.
+
+**Built:** `sigma_ground/field/interface/batch_particles.py`: fixed-step RK4 over an (N, 6) array (the structure of `perturber_paths.rk4_segment`, planets and the Sun's velocity looked up once per segment at the stage times), the Sun's 1PN term in array form, the prescribed-source pull with each body's own column excluded, the Marsden/Yarkovsky term for the rows that carry one; `positions_at` (cubic Hermite between recorded nodes) and `light_time_positions` (two iterations by interpolation, no re-integration). Tests `tests/test_batch_particles.py`; benchmark `scripts/batch_engine_bench.py`.
+
+**S-A, measured (km after 365.25 d, batch minus served), by number of sources kept:**
+
+| body | step | 343 | 60 heaviest | 30 heaviest | none |
+|---|---|---|---|---|---|
+| 1 Ceres | 1 d | 0.0037 | 0.043 | 0.101 | 0.214 |
+| 4 Vesta | 1 d | 0.0045 | 0.051 | 0.031 | 0.389 |
+| 2 Pallas | 1 d | 0.0003 | 0.098 | 0.121 | 0.745 |
+| 10 Hygiea | 1 d | 0.0006 | 0.141 | 0.191 | 0.687 |
+| 704 Interamnia | 1 d | 0.0011 | 0.063 | 0.097 | 0.239 |
+| 433 Eros | 0.25 d | 0.0042 | 0.036 | 0.019 | 0.591 |
+| 99942 Apophis | 0.25 d | 0.0391 | 0.050 | 0.069 | 0.303 |
+| 137108 (1999 AN10) | 0.25 d | 0.0026 | 0.034 | 0.053 | 0.313 |
+| 4953 (1990 MU) | 0.25 d | 0.0002 | 0.044 | 0.071 | 0.628 |
+
+**MET with all 343 sources** (worst 0.039 km, Apophis). A shortened source list fails it (Hygiea 0.14 km with 60): the belt's many light sources matter at the 0.1 km level over a year, so the whole table stays. The RK4 order check holds (error falls more than 8-fold from a 4 d to a 2 d step on Ceres over 120 d).
+
+**S-B, measured, 10,000 bodies x 365 d at 1 d, full physics:** numpy source sum 2,523 body-years/min (MISSED by 4x; without sources 76,323: the (N x 343) sum was the whole cost); the same sum as a compiled parallel loop (numba, identical to the numpy sum to 2e-17 relative, numpy kept as fallback and reference): **54,003 body-years per minute, MET** (5.4x the target). At this rate the 71,798 bodies in one day's `DAILY.DAT` take about 80 s for a year each; the whole catalogue (1.4 M) about 26 min.
+
+**Not changed:** the served per-body engine and the tracked scoreboard still run dopri5; the batch engine is the whole-sky path. A body inside 0.02 au of Earth stays on the per-body path by rule.
