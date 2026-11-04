@@ -168,6 +168,7 @@ def main() -> int:
         subprocess.run(nq + ["--name", f"sky_seal_{day}", "--est-minutes", "10", "--", py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_sky_seal.py"), "--date", day], check=False)
         subprocess.run(nq + ["--name", f"sky_score_{tomorrow}", "--est-minutes", "45", "--resumable", "--", py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_sky_score.py"), "--night", tomorrow], check=False)
         subprocess.run(nq + ["--name", f"sky_report_{tomorrow}", "--est-minutes", "5", "--", py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_sky_report.py")], check=False)
+        subprocess.run(nq + ["--name", f"sky_growth_{tomorrow}", "--est-minutes", "10", "--", py, "-X", "utf8", str(_ROOT / "scripts" / "residual_growth.py")], check=False)
         log("queued tonight's sky seal, score and report")
     if a.fetch_obs:
         od = SKY / "obs_api" / day; od.mkdir(parents=True, exist_ok=True)

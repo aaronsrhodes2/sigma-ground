@@ -121,6 +121,25 @@ def load_bulk_obs(batch: str, packed_list: list[str] | None) -> dict[str, list]:
     return out
 
 
+def sky_track_components(sky: Sky, t_nodes, nodes, b: int, obs, pos, res) -> tuple[np.ndarray, np.ndarray]:
+    """The sky residual split along and across the body's apparent motion (O - C projected on the unit direction of d(RA cos dec, Dec)/dt as seen from the observer).
+
+    Along-track is where an along-orbit timing error (a mean-motion offset, a transverse acceleration) shows; cross-track is where a plane or start error shows. The direction
+    comes from the predicted state (Hermite velocity) and the observer's barycentric velocity (the Earth's, the station's rotation neglected: it changes the direction by under
+    a part in a thousand for a body moving faster than 10 arcsec per hour)."""
+    st = bp.positions_at(t_nodes, nodes, obs.jd_tdb, np.full(obs.n, b), velocity=True)
+    ev = np.asarray(sky.kernel[0, 3].compute_and_differentiate(obs.jd_tdb)[1]).T + np.asarray(sky.kernel[3, 399].compute_and_differentiate(obs.jd_tdb)[1]).T   # km/day
+    d = pos - obs.x_obs; v = st[:, 3:] - ev
+    rn = np.linalg.norm(d, axis=1); east = np.stack([-d[:, 1], d[:, 0], np.zeros(len(d))], axis=1); east /= np.linalg.norm(east, axis=1)[:, None]
+    north = np.cross(d / rn[:, None], east)
+    mu = np.stack([np.einsum("ni,ni->n", v, east), np.einsum("ni,ni->n", v, north)], axis=1)         # sky-plane motion (east, north) in km/day
+    mn = np.linalg.norm(mu, axis=1); ok = mn > 0
+    u = np.zeros_like(mu); u[ok] = mu[ok] / mn[ok][:, None]
+    along = res[:, 0] * u[:, 0] + res[:, 1] * u[:, 1]
+    cross = -res[:, 0] * u[:, 1] + res[:, 1] * u[:, 0]
+    return along, cross
+
+
 def score_group(sky: Sky, group: list[tuple[str, mpcorb.Orbit, list]], step: float, night: str, state: dict, code: str) -> tuple[list[dict], list[dict], list[str]]:
     """One step group: all bodies' observations newer than their watermark, scored from their frozen starts. Returns (observation rows, body rows, flagged packed)."""
     bodies, orbits, obs_rows = [], [], []
@@ -172,17 +191,20 @@ def score_group(sky: Sky, group: list[tuple[str, mpcorb.Orbit, list]], step: flo
         pos, tau = bp.light_time_positions(t_nodes, nodes, obs.jd_tdb, np.full(obs.n, b), obs.x_obs)
         res = esr.radec_residuals(obs, pos)
         tot = np.hypot(res[:, 0], res[:, 1])
+        along, cross = sky_track_components(sky, t_nodes, nodes, b, obs, pos, res)
         frozen = sky.frozen_on(packed)
         fy, fm, fd = map(int, frozen.split("-")); jd_frozen = float(sum(erfa.dtf2d("UTC", fy, fm, fd, 0, 0, 0.0)))
         lead = obs.jd_tdb - jd_frozen
         for i in range(obs.n):
             rows_out.append({"night": night, "packed": packed, "number": o.number, "designation": o.designation, "orbit_class": o.orbit_class, "jd_tdb": float(obs.jd_tdb[i]),
                              "station": obs.code[i], "dra_cosdec_arcsec": float(res[i, 0]), "ddec_arcsec": float(res[i, 1]), "total_arcsec": float(tot[i]),
+                             "along_arcsec": float(along[i]), "cross_arcsec": float(cross[i]),
                              "lead_days": float(lead[i]), "light_time_s": float(tau[i]), "mag": rows[i][8], "code": code, "start_epoch_jd": o.epoch_jd_tt, "frozen_on": frozen})
         fwd = lead > 0
         body_out.append({"night": night, "packed": packed, "number": o.number, "designation": o.designation, "orbit_class": o.orbit_class, "n_obs": int(obs.n),
                          "n_forward": int(fwd.sum()), "median_arcsec": float(np.median(tot)), "rms_arcsec": float(np.sqrt(np.mean(tot ** 2))),
                          "median_forward_arcsec": float(np.median(tot[fwd])) if fwd.any() else None, "mean_dra_cosdec": float(res[:, 0].mean()), "mean_ddec": float(res[:, 1].mean()),
+                         "mean_along_arcsec": float(along.mean()), "mean_cross_arcsec": float(cross.mean()), "sem_along_arcsec": float(along.std(ddof=1) / math.sqrt(obs.n)) if obs.n > 1 else None,
                          "lead_days_max": float(lead.max()), "first_jd": float(obs.jd_tdb.min()), "last_jd": float(obs.jd_tdb.max()), "step_days": step, "code": code,
                          "start_epoch_jd": o.epoch_jd_tt, "frozen_on": frozen, "h_mag": o.h_mag})
         state[packed] = {"watermark_jd": float(obs.jd_tdb.max()), "night": night}
