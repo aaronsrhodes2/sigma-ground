@@ -261,8 +261,15 @@ class Engine:
 
     def positions(self, number: int, jd0: float, y0: np.ndarray, targets: np.ndarray) -> np.ndarray:
         from sigma_ground.field.interface import comet_orbits as co
-        out = co.propagate(list(y0), jd0, [float(t) for t in targets], self.kernel, self.gmp, gr=True, sources=self.sources(number), sources_epoch_jd=self.w0)
+        yk = yarkovsky(number)                                                  # C31: JPL's fitted A2 where it is a detection (only Apophis of the tracked set), else nothing
+        extra = {"nongrav": list(yk["A_au_day2"]), "law": yk["law"]} if yk else {}
+        out = co.propagate(list(y0), jd0, [float(t) for t in targets], self.kernel, self.gmp, gr=True, sources=self.sources(number), sources_epoch_jd=self.w0, **extra)
         return np.array([out[float(t)][:3] for t in targets])
+
+
+def yarkovsky(number: int):
+    from sigma_ground.field.interface import small_body_position as sbp
+    return sbp.yarkovsky_for(number)
 
 
 # ----------------------------------------------------------------------------- one body, one window
@@ -402,7 +409,7 @@ def main() -> int:
         rows, times = select_new(rows_all, st.get("last_obs_utc"), a.date)
         n_unknown_station = sum(1 for r in rows if r[5] not in codes)
         rows, times = [r for r in rows if r[5] in codes], [t for r, t in zip(rows, times) if r[5] in codes]
-        base = {"date": a.date, "body": number, "name": name, "files": {"obs80": str(obs_file)}, "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+        base = {"date": a.date, "body": number, "name": name, "files": {"obs80": str(obs_file)}, "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources" + (", Yarkovsky from JPL's fitted A2 (C31)" if yarkovsky(number) else ""),
                 "code": git_sha(), "n_obs_in_file": len(rows_all), "n_new_unknown_station": n_unknown_station}
         start = start_state(number, day_dir, log)
         if start is None:
