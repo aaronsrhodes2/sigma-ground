@@ -1,0 +1,251 @@
+{
+ "metadata": {
+  "what": "numbered asteroids added to the daily scoreboard from JPL's close-approach list (within 0.05 au of Earth in the coming year at the time of adding); never removed",
+  "created_utc": "2026-11-04T19:14:25+00:00",
+  "updated_utc": "2026-11-04T19:14:25+00:00"
+ },
+ "bodies": [
+  {
+   "number": 893859,
+   "name": "893859 (2016 VO1)",
+   "full_name": "893859 (2016 VO1)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Feb-14 19:12",
+   "approach_jd": 2461451.299857109,
+   "approach_dist_au": 0.00947362261563036,
+   "v_rel_km_s": 13.7183672212303,
+   "h_mag": 23.14,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "24",
+   "condition_code": "1",
+   "data_arc_days": "3396",
+   "n_obs_used": 97,
+   "soln_date": "2026-06-07 19:15:20",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_893859.json"
+   }
+  },
+  {
+   "number": 474158,
+   "name": "474158 (1999 FA)",
+   "full_name": "474158 (1999 FA)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Mar-04 05:02",
+   "approach_jd": 2461468.709453033,
+   "approach_dist_au": 0.0424478641013942,
+   "v_rel_km_s": 6.62764360700964,
+   "h_mag": 20.71,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "95",
+   "condition_code": "0",
+   "data_arc_days": "17525",
+   "n_obs_used": 499,
+   "soln_date": "2026-10-04 06:53:03",
+   "nongrav": "A2 -5.081e-14 +- 6.824E-15 au/d^2 appended",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_474158.json"
+   }
+  },
+  {
+   "number": 535844,
+   "name": "535844 (2015 BY310)",
+   "full_name": "535844 (2015 BY310)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Mar-04 20:59",
+   "approach_jd": 2461469.374339742,
+   "approach_dist_au": 0.0235812256428188,
+   "v_rel_km_s": 8.02204472773422,
+   "h_mag": 21.89,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "166",
+   "condition_code": "0",
+   "data_arc_days": "3836",
+   "n_obs_used": 965,
+   "soln_date": "2026-08-26 08:49:16",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_535844.json"
+   }
+  },
+  {
+   "number": 673675,
+   "name": "673675 (2015 FM34)",
+   "full_name": "673675 (2015 FM34)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Mar-17 03:25",
+   "approach_jd": 2461481.642383232,
+   "approach_dist_au": 0.0482580318543917,
+   "v_rel_km_s": 11.7454786096701,
+   "h_mag": 22.5,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "33",
+   "condition_code": "0",
+   "data_arc_days": "3334",
+   "n_obs_used": 113,
+   "soln_date": "2024-12-14 05:12:42",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_673675.json"
+   }
+  },
+  {
+   "number": 506074,
+   "name": "506074 Svarog",
+   "full_name": "506074 Svarog (2015 UM67)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Mar-18 19:29",
+   "approach_jd": 2461483.311770974,
+   "approach_dist_au": 0.0488517530091559,
+   "v_rel_km_s": 22.4124563133785,
+   "h_mag": 18.9,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "127",
+   "condition_code": "0",
+   "data_arc_days": "3703",
+   "n_obs_used": 651,
+   "soln_date": "2025-12-13 05:24:22",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_506074.json"
+   }
+  },
+  {
+   "number": 678964,
+   "name": "678964 (2018 CC14)",
+   "full_name": "678964 (2018 CC14)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Apr-06 06:43",
+   "approach_jd": 2461501.779697584,
+   "approach_dist_au": 0.0493028069049453,
+   "v_rel_km_s": 8.93380414348199,
+   "h_mag": 22.4,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "18",
+   "condition_code": "0",
+   "data_arc_days": "4517",
+   "n_obs_used": 97,
+   "soln_date": "2024-05-17 05:47:21",
+   "nongrav": "A2 9.405e-14 +- 2.982E-14 au/d^2 appended",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_678964.json"
+   }
+  },
+  {
+   "number": 4953,
+   "name": "4953 (1990 MU)",
+   "full_name": "4953 (1990 MU)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Jun-06 22:43",
+   "approach_jd": 2461563.446653278,
+   "approach_dist_au": 0.0308301893682232,
+   "v_rel_km_s": 23.8171162429457,
+   "h_mag": 14.88,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "513",
+   "condition_code": "0",
+   "data_arc_days": "19098",
+   "n_obs_used": 3494,
+   "soln_date": "2026-11-04 05:56:57",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_4953.json"
+   }
+  },
+  {
+   "number": 137108,
+   "name": "137108 (1999 AN10)",
+   "full_name": "137108 (1999 AN10)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Aug-07 07:11",
+   "approach_jd": 2461624.799043508,
+   "approach_dist_au": 0.0026060207695371,
+   "v_rel_km_s": 26.2840539548859,
+   "h_mag": 18.05,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "100",
+   "condition_code": "0",
+   "data_arc_days": "24459",
+   "n_obs_used": 410,
+   "soln_date": "2023-08-18 06:14:19",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_137108.json"
+   }
+  },
+  {
+   "number": 826799,
+   "name": "826799 (2023 OE6)",
+   "full_name": "826799 (2023 OE6)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Aug-29 05:50",
+   "approach_jd": 2461646.743235132,
+   "approach_dist_au": 0.0429131086355578,
+   "v_rel_km_s": 25.2131897731093,
+   "h_mag": 19.85,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "19",
+   "condition_code": "0",
+   "data_arc_days": "4319",
+   "n_obs_used": 137,
+   "soln_date": "2025-08-01 16:48:28",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_826799.json"
+   }
+  },
+  {
+   "number": 250680,
+   "name": "250680 (2005 QC5)",
+   "full_name": "250680 (2005 QC5)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Oct-27 00:27",
+   "approach_jd": 2461705.518527946,
+   "approach_dist_au": 0.0486169752579568,
+   "v_rel_km_s": 10.8809562828143,
+   "h_mag": 19.63,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "41",
+   "condition_code": "0",
+   "data_arc_days": "17462",
+   "n_obs_used": 129,
+   "soln_date": "2026-07-17 06:19:37",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_250680.json"
+   }
+  },
+  {
+   "number": 453707,
+   "name": "453707 (2010 XY72)",
+   "full_name": "453707 (2010 XY72)",
+   "added_on": "2026-11-04",
+   "approach_date": "2027-Oct-29 12:12",
+   "approach_jd": 2461708.008341154,
+   "approach_dist_au": 0.0479984799585305,
+   "v_rel_km_s": 18.0285455062781,
+   "h_mag": 18.73,
+   "t_sigma_f": "< 00:01",
+   "orbit_id": "87",
+   "condition_code": "0",
+   "data_arc_days": "5580",
+   "n_obs_used": 458,
+   "soln_date": "2026-03-26 06:19:58",
+   "nongrav": "no A2 in JPL's solution: checked_without_A2",
+   "source": {
+    "cad": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\cad.json",
+    "sbdb": "D:\\datasets\\mpc_live\\neo_roster\\2026-11-04\\sbdb_453707.json"
+   }
+  }
+ ]
+}

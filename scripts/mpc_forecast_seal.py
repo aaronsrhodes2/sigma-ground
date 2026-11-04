@@ -6,6 +6,7 @@ instants, hashed and committed before any of those instants arrive. Anyone can l
 
     python scripts/mpc_forecast_seal.py --seal                      # write the sealed file (refuses to overwrite one)
     python scripts/mpc_forecast_seal.py --check 433 99942           # recompute these bodies and compare with the sealed rows (reproducibility, km and arcsec)
+    python scripts/mpc_forecast_seal.py --seal-missing              # new roster bodies (C33) into today's file; the daily driver runs this
     python scripts/mpc_forecast_seal.py --judge                     # rows whose instant has passed: fetch JPL's geocentric astrometric RA/Dec from Horizons and compare
 
 What a row is: `state_bary_km_kms` is the engine's barycentric ICRF position and velocity at the TDB instant; `ra_deg`/`dec_deg` are the geocentric astrometric direction
@@ -22,7 +23,7 @@ import math
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import erfa
@@ -38,6 +39,36 @@ SEAL_DIR = m.FIX / "mpc_live"
 DATES_ALL = ["2027-01-01", "2028-01-01", "2029-01-01", "2030-01-01", "2031-01-01"]         # 1 to 5 years after the heavies' 2026-01-01 start; Eros 7 to 11
 DATES_EXTRA = {99942: ["2029-04-13", "2029-04-14"]}                                        # Apophis's approach (closest 2029-04-13 ~21:46 UTC): the test of C31's Yarkovsky term
 ARC = esr.ARC if hasattr(esr, "ARC") else 180.0 / math.pi * 3600.0
+
+
+def roster_dates() -> dict[int, list[str]]:
+    """Near-miss roster bodies (C33): the UTC date of each body's close approach and the day after, when the astrometry is densest."""
+    f = SEAL_DIR / "neo_roster.json"
+    if not f.exists():
+        return {}
+    out: dict[int, list[str]] = {}
+    for b in json.loads(f.read_text(encoding="utf-8"))["bodies"]:
+        d = datetime.strptime(b["approach_date"][:11], "%Y-%b-%d").date()
+        out.setdefault(b["number"], []).extend([d.isoformat(), (d + timedelta(days=1)).isoformat()])
+    return out
+
+
+def dates_for(number: int) -> list[str]:
+    """The instants sealed for a body: the January set, then any extra dates, in order, no repeats."""
+    out = []
+    for d in DATES_ALL + DATES_EXTRA.get(number, []) + roster_dates().get(number, []):
+        if d not in out:
+            out.append(d)
+    return out
+
+
+def free_seal_path(day: str) -> Path:
+    """Today's sealed file name, or the next free one when the day already has a seal (a sealed file is never rewritten)."""
+    p = SEAL_DIR / f"forecast_sealed_{day}.json"
+    k = 2
+    while p.exists():
+        p = SEAL_DIR / f"forecast_sealed_{day}_{k}.json"; k += 1
+    return p
 
 
 def tdb_of_utc_midnight(iso: str) -> float:
@@ -113,7 +144,7 @@ def seal(path: Path, bodies: list[int] | None, log) -> int:
         start = m.start_state(number, day_dir, log)
         if start is None:
             log(f"  {number} {name}: no start state; skipped"); continue
-        rows += forecast_rows(number, name, engine, start, DATES_ALL + DATES_EXTRA.get(number, []), log)
+        rows += forecast_rows(number, name, engine, start, dates_for(number), log)
     doc = {"metadata": {"sealed_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "code": code_sha(),
                         "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources; Yarkovsky from JPL's fitted A2 where it is a detection (C31)",
                         "kernel": "D:/datasets/jpl/de440s.bsp", "frame": "ICRF, barycentric km and km/s; RA/Dec geocentric astrometric (light time from our path, no aberration)",
@@ -172,12 +203,20 @@ def judge(path: Path, log) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--seal", action="store_true")
+    ap.add_argument("--seal-missing", action="store_true", help="seal only the tracked bodies no sealed file holds yet (new roster bodies) into today's file; nothing to do is exit 0")
     ap.add_argument("--check", nargs="*", type=int)
     ap.add_argument("--judge", action="store_true")
     ap.add_argument("--file", type=Path, default=None, help="the sealed file (default fixtures/mpc_live/forecast_sealed_<today>.json for --seal, the newest for --check/--judge)")
     ap.add_argument("--bodies", nargs="*", type=int, help="--seal: only these bodies (a partial seal, for a trial file)")
     a = ap.parse_args()
     log = lambda s: print(s, flush=True)
+    if a.seal_missing:
+        sealed = {r["body"] for f in SEAL_DIR.glob("forecast_sealed_*.json") for r in json.loads(f.read_text(encoding="utf-8"))["rows"]}
+        missing = [n for n, _ in m.tracked() if n not in sealed]
+        if not missing:
+            log("every tracked body is sealed"); return 0
+        log(f"sealing {len(missing)} new bodies: {missing}")
+        return seal(a.file or free_seal_path(datetime.now(timezone.utc).date().isoformat()), missing, log)
     if a.seal:
         return seal(a.file or SEAL_DIR / f"forecast_sealed_{datetime.now(timezone.utc).date().isoformat()}.json", a.bodies, log)
     newest = a.file or sorted(SEAL_DIR.glob("forecast_sealed_*.json"))[-1]

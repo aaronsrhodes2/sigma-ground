@@ -47,6 +47,8 @@ def main() -> int:
         return r.returncode
 
     py = sys.executable
+    run("roster", [py, "-X", "utf8", str(_ROOT / "scripts" / "neo_roster_update.py"), "--date", a.date], 1)        # C33: near-miss roster; a failed fetch leaves the roster as it was
+    run("seal", [py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_forecast_seal.py"), "--seal-missing"], 2)         # C32: new bodies are sealed before they are scored
     score_cmd = [py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_live_score.py"), "--date", a.date] + (["--bodies"] + [str(b) for b in a.bodies] if a.bodies else [])
     rc = run("score", score_cmd, a.attempts)
     rc2 = run("report", [py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_live_report.py")], 2)

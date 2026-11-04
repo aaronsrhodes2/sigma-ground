@@ -51,7 +51,12 @@ OUTLIER_ARCSEC = 5.0                                                # C24's rule
 def tracked() -> list[tuple[int, str]]:
     cat = json.loads((FIX / "de440_perturbers_v2physics.json").read_text(encoding="utf-8"))["asteroids"]
     top = sorted(cat, key=lambda a: -a["gm_km3_s2"])[:30]
-    return [(a["number"], a["name"]) for a in top] + [(433, "Eros"), (99942, "Apophis")]
+    out = [(a["number"], a["name"]) for a in top] + [(433, "Eros"), (99942, "Apophis")]
+    roster = FIX / "mpc_live" / "neo_roster.json"                                        # C33: the near-miss roster (scripts/neo_roster_update.py), never shrinks
+    if roster.exists():
+        have = {n for n, _ in out}
+        out += [(b["number"], b["name"]) for b in json.loads(roster.read_text(encoding="utf-8"))["bodies"] if b["number"] not in have]
+    return out
 
 
 # ----------------------------------------------------------------------------- bookkeeping (pure; tested)

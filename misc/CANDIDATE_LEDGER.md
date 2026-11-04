@@ -718,3 +718,39 @@ Status: built and tested on the PC, committed on master, NOT pushed and NOT pinn
 
 **Not in this seal:** comets, the catalogue bodies, the planets and Moon (their sealed forecast is the stamped forecast table, a different file), per-station topocentric rows.
 * P1 judged 2026-11-04: `--check 433 99942` 0.000000 km, 0.000000 arcsec on all 12 rows: MET.
+
+
+## C33 — The near-miss roster: close-approach asteroids join the nightly scoreboard (2026-11-04)
+
+**Why.** The Captain's north star (2026-11-04): track all public astronomical data nightly, predict positions before they arrive, and find missing terms for the next
+run. Stage 1 of that program: bodies that pass close to Earth get dense astrometry within months, so a prediction frozen now is tested soon, and the Yarkovsky term
+(C31) matters most for exactly these bodies. Assumptions stated: the roster must fit inside the 04:30 job; JPL's close-approach list is a roster source only, never a
+filter on what we score.
+
+**Built.** `scripts/neo_roster_update.py`: JPL CNEOS close-approach API (within 0.05 au, next 365 d) -> numbered bodies -> per-body SBDB record (condition code, arc,
+observation count, fitted non-gravitational parameters) -> `fixtures/mpc_live/neo_roster.json` (never shrinks) and rows appended to `fixtures/sbdb_nongrav_asteroids.json`
+so the C31 3-sigma rule sees them. `mpc_live_score.tracked()` includes the roster; `mpc_forecast_seal.py --seal-missing` seals new bodies at the January dates AND their
+approach date and the day after; the daily driver runs roster -> seal-missing -> score -> report, and `--judge` every 2 January.
+
+**First day.** 151 close approaches listed, 11 numbered (the 140 unnumbered are recorded, not tracked: the scorer is keyed on the number; tracking provisional
+designations is the roster's open item). Added: 893859 (2016 VO1, 0.0095 au 2027-02-14), 474158 (1999 FA), 535844, 673675, 506074 Svarog, 678964, 4953 (1990 MU, H 14.9),
+137108 (1999 AN10, 0.0026 au 2027-08-07), 826799, 250680, 453707. All condition code 0 or 1, arcs 9 to 67 years. Non-grav: 474158 A2 -5.08e-14 +- 6.8e-15 (7.4 sigma, applied),
+678964 A2 9.4e-14 +- 3.0e-14 (3.2 sigma, applied, positive: JPL's fit says prograde drift), the other nine have no A2 in JPL's solution. Sealed 77 rows ->
+`forecast_sealed_2026-11-04_2.json`, rows_sha256 af7f26dd49bd1f04b4f4f0c00c7f59e1de4b2d2f017e0a1178c2bd934c9da985. Starts: JPL's 2026-01-01 state fetched today (as the heavies').
+
+**Pre-registered (judged from the scoreboard rows as they come):**
+* P1: each roster body has 20 or more scored observations within the 60 days around its approach (surveys follow approaches; the C27 lesson says they follow far less).
+* P2: for the nine bodies without a term, ours minus JPL (same start, near-same physics) stays below JPL's own sky error at every window up to the approach.
+* P3: for 474158 and 678964 the term's along-track effect by the approach is computed by Mentat before the approach month and the with/without arms are both scored;
+  the term is kept only if the WITH arm is closer to the sky.
+* P4 (cost): the 04:30 job grows by under 10 minutes a day for these 11 (first-day backfill from 2026-01-01 runs in the night window, not the 04:30 job).
+
+**Not done:** unnumbered designations (most of the list), radar astrometry, comets; stage 2 (whole-sky ingestion) and stage 3 (automated term discovery) wait for a plan.
+
+## C34 — The night window (2026-11-04)
+
+The Captain: long calculation runs happen between 01:00 and 07:00. `scripts/night_queue.py` (add / list / drop / run) with the Windows task 'sigma-ground night window'
+(daily 01:00, `scripts/run_night_queue.bat`): one job at a time, a job starts only if its estimate fits before 07:00, a running job is stopped with its process tree at
+07:00 and requeued at the front if `--resumable`, else recorded as cut; every event in D:/datasets/sigma_runs/night_queue/night_queue.jsonl, per-job logs beside it.
+Smoke test passed (a one-line job, run with `--now`). Job one, queued for tonight: the roster backfill (`mpc_live_driver.py --bodies <the 11>`, est 180 min, resumable:
+the scorer's watermarks). The 04:30 / 05:00 / 06:30 tasks share the window's tail; a job that must not overlap them carries an estimate ending before 04:30.

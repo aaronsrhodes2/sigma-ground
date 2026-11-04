@@ -17,18 +17,21 @@ SEALS = sorted((ROOT / "sigma_ground/field/interface/fixtures/mpc_live").glob("f
 class TestSealedFile(unittest.TestCase):
     def setUp(self):
         self.assertTrue(SEALS, "no sealed forecast file")
-        self.doc = json.loads(SEALS[-1].read_text(encoding="utf-8"))
+        self.docs = [json.loads(f.read_text(encoding="utf-8")) for f in SEALS]
+        self.doc = {"metadata": self.docs[0]["metadata"], "rows": [r for d in self.docs for r in d["rows"]]}        # the union: every seal file, in order
 
     def test_rows_hash_is_the_recorded_one(self):                                             # an edited sealed row changes the hash: the seal is only a seal if this holds
         import mpc_forecast_seal as fs
-        self.assertEqual(fs.rows_hash(self.doc["rows"]), self.doc["metadata"]["rows_sha256"])
+        for d in self.docs:
+            self.assertEqual(fs.rows_hash(d["rows"]), d["metadata"]["rows_sha256"])
 
     def test_every_tracked_body_at_every_date(self):
         import mpc_forecast_seal as fs, mpc_live_score as m
-        want = {(n, d) for n, _ in m.tracked() for d in fs.DATES_ALL} | {(n, d) for n, ds in fs.DATES_EXTRA.items() for d in ds}
+        want = {(n, d) for n, _ in m.tracked() for d in fs.dates_for(n)}
         got = {(r["body"], r["date_utc"][:10]) for r in self.doc["rows"]}
         self.assertEqual(got, want)
-        self.assertEqual(self.doc["metadata"]["n_rows"], len(self.doc["rows"]))
+        for d in self.docs:
+            self.assertEqual(d["metadata"]["n_rows"], len(d["rows"]))
 
     def test_rows_carry_state_direction_and_their_start(self):
         for r in self.doc["rows"]:
