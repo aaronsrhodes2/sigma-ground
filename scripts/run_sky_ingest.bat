@@ -13,6 +13,6 @@ echo ============================================================ >> "%LOG%"
 echo sky ingest started %DATE% %TIME% >> "%LOG%"
 echo ============================================================ >> "%LOG%"
 
-"%PYTHON_EXE%" -X utf8 scripts\mpc_sky_ingest.py --fetch-obs >> "%LOG%" 2>&1
+"%PYTHON_EXE%" -X utf8 scripts\mpc_sky_ingest.py --queue-night --fetch-obs >> "%LOG%" 2>&1
 
 echo sky ingest finished %DATE% %TIME% exit %ERRORLEVEL% >> "%LOG%"

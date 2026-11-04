@@ -780,3 +780,31 @@ the scorer's watermarks). The 04:30 / 05:00 / 06:30 tasks share the window's tai
 **S-B, measured, 10,000 bodies x 365 d at 1 d, full physics:** numpy source sum 2,523 body-years/min (MISSED by 4x; without sources 76,323: the (N x 343) sum was the whole cost); the same sum as a compiled parallel loop (numba, identical to the numpy sum to 2e-17 relative, numpy kept as fallback and reference): **54,003 body-years per minute, MET** (5.4x the target). At this rate the 71,798 bodies in one day's `DAILY.DAT` take about 80 s for a year each; the whole catalogue (1.4 M) about 26 min.
 
 **Not changed:** the served per-body engine and the tracked scoreboard still run dopri5; the batch engine is the whole-sky path. A body inside 0.02 au of Earth stays on the per-body path by rule.
+
+
+## C36 — Whole-sky ingest, scoring and sealing (stage 2, phases 1-3; 2026-11-04)
+
+**Sources, as found:** no public nightly file of new observations exists; the MPC archive (MPCAT-OBS) is complete and monthly; `MPCORB.DAT` (1,579,068 orbits, 94 MB) and
+`DAILY.DAT` (71,798 orbits touched by the day's Daily Orbit Update) are daily; the `get-obs` API serves one body's whole file per request; the nightly whole-sky feed is the
+SBN PostgreSQL replica (institutional, 24/7 server: the Captain's decision, not requested). **Correction to the plan's assumption 3:** the MPC's robots.txt crawl delay is 20 s
+(C24), not 5 s; the ingest fetches at 20 s and the daily priority budget is 1,000 bodies (5.6 h), not 4,000.
+
+**Built.** `mpcorb.py` (the fixed-column record, packed designations both ways, packed epochs; `states_at_epoch`), `obs80.py` (the 80-column record WITH its designation),
+`scripts/mpc_sky_ingest.py` (orbits to parquet; **freeze at first sight** into `D:/datasets/mpc_sky/starts.parquet`, never replaced; the priority list: roster + every
+near-Earth body touched today + a rotating sample; the polite fetch; `--queue-night` puts the seal, the scorer and the report into the night window), `scripts/mpc_bulk_to_parquet.py`
+(the 9.1 GB archive to parquet parts, resumable; 779,000 lines/s measured: the 525 M lines in about 12 minutes plus writes; queued for tonight), `scripts/mpc_sky_score.py`
+(the batch engine from the frozen starts, one propagation per step group, light time by interpolation, `eros_sky_residuals.Obs` station geometry; rows per observation,
+per body per night; bodies within 0.02 au of Earth flagged to the per-body path; first scoring reaches 400 d before the epoch for the fit's own baseline), `scripts/mpc_sky_seal.py`
+(the priority bodies' geocentric RA/Dec and state at the next seven midnights, hash logged in `fixtures/mpc_live/sky_seal_log.jsonl`), `scripts/mpc_sky_report.py`.
+Windows task 'sigma-ground sky ingest' daily 06:00.
+
+**First day (2026-11-04).** MPCORB parsed in 26 s; 1,579,068 starts frozen; priority 1,000 (roster 11, NEAs touched 220, sample 769). Dry run of the scorer on the first
+34 near-Earth bodies fetched: 17,708 observations, one propagation of 3.4 s for the group, **median 0.195 arcsec**, 88 observations already forward of the freeze. The first
+real night is queued (2026-11-05 01:00: archive conversion, roster backfill, sky score).
+
+**Pre-registered for the first week (S-C, S-D of the plan):** S-C, the nightly sky job under 60 min for every priority body with new observations; S-D, for bodies with 3 or
+more nights, the forward median grows no faster than the tracked set's per-year rate at the same lead; the frozen-minus-refreshed control arm is read weekly (not yet built:
+the control arm is phase 2's open item). Recorded met or missed in this entry after the week.
+
+**Verification owed:** the roster's 11 bodies scored by both paths (per-body dopri5 scoreboard and the batch scorer) on the same observations must agree within 0.01 arcsec
+(S-A in the sky); read from tonight's two runs.

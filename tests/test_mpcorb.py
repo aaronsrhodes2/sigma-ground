@@ -22,6 +22,12 @@ class TestPacked(unittest.TestCase):
         from sigma_ground.field.interface.mpcorb import unpack_number
         self.assertEqual([unpack_number(p) for p in ("00005", "15231", "A0029", "a0017", "~0J43", "~AZaz")], [5, 15231, 100029, 360017, 693287, 620000 + ((10 * 62 + 35) * 62 + 36) * 62 + 61])
 
+    def test_pack_number_round_trips(self):
+        from sigma_ground.field.interface.mpcorb import pack_number, unpack_number
+        for n in (5, 433, 99942, 100029, 360017, 619999, 620000, 693287, 893859):
+            self.assertEqual(unpack_number(pack_number(n)), n, n)
+        self.assertEqual([pack_number(n) for n in (433, 100029, 693287)], ["00433", "A0029", "~0J43"])
+
     def test_provisional_and_epoch(self):
         from sigma_ground.field.interface.mpcorb import unpack_epoch_jd, unpack_provisional
         self.assertEqual(unpack_provisional("K25MM4T"), "2025 MT224")

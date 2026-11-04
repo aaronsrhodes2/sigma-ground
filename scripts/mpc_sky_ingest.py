@@ -23,7 +23,7 @@ import shutil
 import sys
 import time
 import urllib.request
-from datetime import date as _date, datetime, timezone
+from datetime import date as _date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pyarrow as pa
@@ -98,7 +98,7 @@ def priority_list(touched: pa.Table, day: str, budget: int) -> dict:
     rest = rest[seed:] + rest[:seed]
     chosen = {}
     for n in roster:
-        chosen[str(n).zfill(5)] = {"packed": str(n).zfill(5), "number": n, "why": "roster"}
+        chosen[mpcorb.pack_number(n)] = {"packed": mpcorb.pack_number(n), "number": n, "why": "roster"}
     for r in neas:
         chosen.setdefault(r[0], {"packed": r[0], "number": r[1], "designation": r[2], "why": "nea touched", "last_obs": r[4]})
     for r in rest:
@@ -134,6 +134,7 @@ def main() -> int:
     ap.add_argument("--fetch-obs", action="store_true", help="also fetch the priority list's observation files from the MPC API")
     ap.add_argument("--budget", type=int, default=1000)
     ap.add_argument("--delay", type=float, default=20.0)
+    ap.add_argument("--queue-night", action="store_true", help="queue tonight's whole-sky scoring, seal and report in the night window (scripts/night_queue.py)")
     a = ap.parse_args()
     day = a.date
     raw = SKY / "raw" / day
@@ -160,6 +161,14 @@ def main() -> int:
     log(f"priority: {pl['n']} bodies (roster {pl['roster']}, NEAs touched {pl['nea_touched']}, budget {a.budget}) -> {pf}")
     if day[-2:] != "01" and mp_gz.exists():
         mp_gz.unlink()                                                   # the parquet is the record; the raw 94 MB is kept only on the first of the month
+    if a.queue_night:
+        import subprocess
+        py = sys.executable; nq = [py, "-X", "utf8", str(_ROOT / "scripts" / "night_queue.py"), "add"]
+        tomorrow = (_date.fromisoformat(day) + timedelta(days=1)).isoformat()
+        subprocess.run(nq + ["--name", f"sky_seal_{day}", "--est-minutes", "10", "--", py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_sky_seal.py"), "--date", day], check=False)
+        subprocess.run(nq + ["--name", f"sky_score_{tomorrow}", "--est-minutes", "45", "--resumable", "--", py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_sky_score.py"), "--night", tomorrow], check=False)
+        subprocess.run(nq + ["--name", f"sky_report_{tomorrow}", "--est-minutes", "5", "--", py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_sky_report.py")], check=False)
+        log("queued tonight's sky seal, score and report")
     if a.fetch_obs:
         od = SKY / "obs_api" / day; od.mkdir(parents=True, exist_ok=True)
         ok = bad = 0

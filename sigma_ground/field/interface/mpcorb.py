@@ -38,6 +38,18 @@ def unpack_number(p: str) -> int:
     return _b62(p[0]) * 10000 + int(p[1:])
 
 
+def pack_number(n: int) -> str:
+    """The 5-column packed form of a permanent number: 00433, A0029 (100029), ~0J43 (693287)."""
+    if n < 100000:
+        return f"{n:05d}"
+    if n < 620000:
+        return _B62[n // 10000] + f"{n % 10000:04d}"
+    x = n - 620000; out = ""
+    for _ in range(4):
+        out = _B62[x % 62] + out; x //= 62
+    return "~" + out
+
+
 def unpack_provisional(p: str) -> str:
     """K25MM4T -> '2025 MT224'; survey forms (PLS2040 -> '2040 P-L', T1S3138 -> '3138 T-1') and the extended '_' form are passed through unpacked where possible."""
     p = p.strip()
