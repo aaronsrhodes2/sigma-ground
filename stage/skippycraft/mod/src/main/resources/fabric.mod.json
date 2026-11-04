@@ -1,0 +1,27 @@
+{
+	"schemaVersion": 1,
+	"id": "skippycraft",
+	"version": "${version}",
+	"name": "SkippyCraft",
+	"description": "A matter block: material, mass and state from sigma-ground, drawn from the record",
+	"authors": [
+		"The Captain"
+	],
+	"license": "CC0-1.0",
+	"icon": "assets/skippycraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"local.skippy.craft.SkippyCraftMod"
+		],
+		"client": [
+			"local.skippy.craft.client.SkippyCraftClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

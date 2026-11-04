@@ -1,2 +1,5 @@
 dev-server/data/
 dev-server/pack/
+mod/build/
+mod/.gradle/
+mod/.kotlin/
