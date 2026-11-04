@@ -153,6 +153,7 @@ def _compute_uncovered():
                 pass
         try:
             _A.solvable_bodies()
+            _A.sky_scoreboard(); _A.sky_scoreboard("433"); _A.sky_scoreboard("no such body")          # the whole-sky scoreboard (C36): summary, a body, a miss
         except Exception:
             pass
     finally:

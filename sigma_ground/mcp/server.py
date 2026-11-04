@@ -1009,6 +1009,11 @@ def main() -> int:
         return t_astr.solvable_bodies().to_dict()
 
     @server.tool()
+    def sky_scoreboard(body: str = "") -> dict[str, Any]:
+        """The whole sky against our frozen N-body predictions: every public optical observation in hand of the nightly-scored bodies, each against our prediction from the MPC elements of the day the body was first seen (never refreshed); median miss by orbit class and by lead, or one body's latest night (by number, designation or packed designation). From the committed fixtures, as of their date."""
+        return t_astr.sky_scoreboard(body or None).to_dict()
+
+    @server.tool()
     def small_body(body_name: str) -> dict[str, Any]:
         """Orbit, physical data and non-gravitational terms of an asteroid, Kuiper-belt object or comet, e.g. small_body('Ceres'), small_body('1P'), small_body('67P'), small_body('Eris'). Period and perihelion are calculated from the elements. For WHERE it is, use body_position."""
         return t_astr.small_body(body_name).to_dict()

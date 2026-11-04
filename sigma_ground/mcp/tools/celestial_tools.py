@@ -151,6 +151,12 @@ def body_skill(body_name: str) -> ToolResult:
                        f"body_position places it (start tier: {hit['tier']}).")
             return ToolResult(value={"body": label, "class": "predictable", "measured_against": "Minor Planet Center observations (the daily scoreboard, C27)", "scoreboard": row, "start_tier": hit["tier"], "summary": summary},
                               units="arcsec (median miss on the sky)", source="sigma-ground mpc_live scoreboard (fixtures/mpc_live/scoreboard_portal.json, C27)", provenance_tag="DERIVED", notes=summary, inputs=inputs)
+        from sigma_ground.mcp.tools import astronomy as t_astr
+        sky = t_astr.sky_scoreboard(str(hit.get("number") or hit["name"]))
+        if sky.value is not None:                                                      # the whole-sky scoreboard (C36) has scored it from its frozen MPC start
+            summary = f"{label} is predictable: {sky.notes} body_position places it (start tier: {hit['tier']})."
+            return ToolResult(value={"body": label, "class": "predictable", "measured_against": "Minor Planet Center observations (the whole-sky scoreboard, C36)", "sky": sky.value, "start_tier": hit["tier"], "summary": summary},
+                              units="arcsec (median miss on the sky)", source=sky.source, provenance_tag="DERIVED", notes=summary, inputs=inputs)
         summary = (f"{label} is not on the daily telescope scoreboard and not in the DE440 skill table, so its skill is not measured; body_position still places it as a test particle from "
                    f"{'JPL SBDB osculating elements at their epoch' if hit['tier'] in ('catalogue', 'sbdb') else 'its stated start'} (tier {hit['tier']}), with the engine whose tracked bodies sit at JPL's level on the sky.")
         return ToolResult(value={"body": label, "class": "placed_not_scored", "start_tier": hit["tier"], "summary": summary}, units="", source="sigma-ground body_position roster (small_body_position.lookup)",

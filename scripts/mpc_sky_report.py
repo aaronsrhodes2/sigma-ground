@@ -49,6 +49,11 @@ def main() -> int:
     lines += ["", f"Source files: `D:/datasets/mpc_sky/residuals/<night>.parquet`, `sky_scoreboard.parquet`; sealed forecasts in `seals/` with their hashes in `fixtures/mpc_live/sky_seal_log.jsonl`.", ""]
     (_ROOT / "misc" / "MPC_SKY.md").write_text("\n".join(lines), encoding="utf-8")
     (_ROOT / "sigma_ground/field/interface/fixtures/mpc_live/sky_report.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
+    latest = sb.sort_values("night").groupby("packed").tail(1)                       # each body's newest night: the compact per-body fixture Mentat answers from (committed with the day)
+    cols = ["packed", "number", "designation", "orbit_class", "night", "n_obs", "n_forward", "median_arcsec", "median_forward_arcsec", "mean_along_arcsec", "mean_cross_arcsec", "lead_days_max", "h_mag", "frozen_on"]
+    cols = [c for c in cols if c in latest.columns]
+    rows = json.loads(latest[cols].to_json(orient="records"))
+    (_ROOT / "sigma_ground/field/interface/fixtures/mpc_live/sky_scoreboard_latest.json").write_text(json.dumps({"generated_utc": out["generated_utc"], "nights": nights, "rows": rows}, separators=(",", ":")), encoding="utf-8")
     print("\n".join(lines))
     return 0
 

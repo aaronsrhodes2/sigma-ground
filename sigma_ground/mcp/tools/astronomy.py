@@ -412,6 +412,40 @@ def solvable_bodies() -> ToolResult:
                              f"{t[3]['count']} named main-belt asteroids from SBDB elements. Not solved: {'; '.join(d['small_bodies_as_test_particles']['not_solved'])}."))
 
 
+
+def sky_scoreboard(body: str | None = None) -> ToolResult:
+    """The whole sky against our frozen predictions (stage 2, C36): every public optical observation in hand of the bodies we score nightly, each scored against OUR N-body prediction from the MPC
+    elements of the day the body was first seen (never refreshed), with the median miss by orbit class and by lead; or one body's latest night. Read from the committed fixtures (as of their date)."""
+    import json
+    from pathlib import Path
+    fix = Path(__file__).resolve().parents[2] / "field/interface/fixtures/mpc_live"
+    rep_f, lat_f = fix / "sky_report.json", fix / "sky_scoreboard_latest.json"
+    src = "sigma-ground whole-sky scoreboard (scripts/mpc_sky_score.py; fixtures/mpc_live/sky_report.json, sky_scoreboard_latest.json; C36)"
+    if not rep_f.exists():
+        return ToolResult(value=None, source=src, notes="no whole-sky rows have been committed yet", inputs={"body": body})
+    rep = json.loads(rep_f.read_text(encoding="utf-8"))
+    if body:
+        lat = json.loads(lat_f.read_text(encoding="utf-8")) if lat_f.exists() else {"rows": []}
+        q = body.strip().lower()
+        hit = None
+        for r in lat["rows"]:
+            names = {str(r.get("packed", "")).lower(), str(r.get("designation", "")).lower(), str(r.get("number", "")).lower()}
+            if q in names or q.lstrip("0") in names or q == str(r.get("designation", "")).lower().replace(" ", ""):
+                hit = r; break
+        if hit is None:
+            return ToolResult(value=None, source=src, notes=f"{body}: not among the bodies scored so far ({len(lat['rows'])} bodies through {rep['nights'][-1]}); the daily priority set is the roster, the near-Earth bodies touched each day and a rotating sample",
+                              inputs={"body": body})
+        fwd = hit.get("median_forward_arcsec")
+        note = (f"{hit['designation']} ({hit['orbit_class']}): on the night of {hit['night']}, {hit['n_obs']} observations scored, median miss {hit['median_arcsec']:.3f} arcsec"
+                + (f", of which {hit['n_forward']} were forward predictions (observed after the start was frozen on {hit['frozen_on']}) with median {fwd:.3f} arcsec" if fwd is not None else f"; none yet forward of the freeze ({hit['frozen_on']})")
+                + f"; along-track mean {hit['mean_along_arcsec']:+.3f}, cross-track {hit['mean_cross_arcsec']:+.3f} arcsec; longest lead {hit['lead_days_max']:.0f} d.")
+        return ToolResult(value=hit, units="arcsec", source=src, provenance_tag="DERIVED", notes=note, inputs={"body": body})
+    cls = "; ".join(f"{k}: {v['bodies']:,} bodies, {v['n_obs']:,} obs, median {v['median_arcsec']:.3f} arcsec" + (f" (forward {v['median_forward_arcsec']:.3f})" if v.get("median_forward_arcsec") is not None else "") for k, v in rep["by_class"].items())
+    lead = "; ".join(f"{k}: {v['median_arcsec']:.3f} arcsec over {v['n']:,}" for k, v in rep["by_lead"].items())
+    note = (f"Whole sky as of {rep['generated_utc'][:10]} ({len(rep['nights'])} nights): {rep['n_bodies']:,} bodies, {rep['n_obs']:,} observations, {rep['n_forward']:,} forward of their freeze. By class: {cls}. "
+            f"By lead: {lead}. Every prediction runs from the MPC elements of the day the body was first seen and is never refreshed; a miss at lead <= 0 is the fit's own residual.")
+    return ToolResult(value=rep, units="arcsec", source=src, provenance_tag="DERIVED", notes=note, inputs={"body": body})
+
 def small_body(body_name: str) -> ToolResult:
     """Orbit, physical data and, for comets, the non-gravitational force terms of an asteroid, Kuiper-belt object or comet, each with its source.
 

@@ -791,6 +791,10 @@ TOOL_KEYWORDS: dict[str, list[str]] = {
         "which bodies can you predict the position of", "what asteroids can you track", "list of bodies the N-body predictor can solve", "can you predict comets", "which bodies does body_position know",
         "what can the predictor calculate", "roster of solvable bodies", "do you know about Eros",
     ],
+    "sky_scoreboard": [
+        "how well do we predict the whole sky", "whole-sky scoreboard", "median miss on the sky by class", "how are the asteroid predictions doing tonight", "residuals against the MPC observations",
+        "how many observations did we score", "how good is our prediction for 1999 AN10", "forward prediction residual", "whole sky against our predictions",
+    ],
     "orbital_elements": [
         "orbital elements of a planet", "semi-major axis of Mars", "eccentricity of Mercury's orbit", "inclination of Jupiter's orbit", "orbital period of a moon from its state", "osculating elements",
     ],
@@ -1084,6 +1088,7 @@ _COLLOQUIAL: dict[str, list[str]] = {
     "body_position": ["where is mars", "where will jupiter be", "where was the moon", "where is venus tonight",
                       "how far is mars from the sun on", "how far is the moon right now", "where is saturn in the sky",
                       "where is eros", "where is eros right now", "where will apophis be in 2029", "where is ceres tonight", "predict the position of eros", "where is halley's comet now", "how far away is vesta"],
+    "sky_scoreboard": ["how well are we predicting the sky", "whole sky scoreboard", "how did the asteroid predictions do", "median miss by class", "how good is our prediction for an asteroid"],
     "solvable_bodies": ["which bodies can you predict", "what asteroids can you track", "do you know about eros", "which bodies does the predictor know", "can you predict where a comet will be"],
     "orbital_elements": ["what is the semi-major axis of mars", "what are the orbital elements of jupiter", "how eccentric is the orbit of mercury", "what is the inclination of venus"],
     "hill_radius": ["what is the hill radius of the earth", "how big is jupiter's hill sphere"],
