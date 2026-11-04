@@ -50,6 +50,8 @@ def main() -> int:
     score_cmd = [py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_live_score.py"), "--date", a.date] + (["--bodies"] + [str(b) for b in a.bodies] if a.bodies else [])
     rc = run("score", score_cmd, a.attempts)
     rc2 = run("report", [py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_live_report.py")], 2)
+    if a.date.endswith("-01-02"):                                      # C32: the sealed forecast is judged against JPL's solution the day after each January instant (never blocks the scoreboard)
+        run("judge", [py, "-X", "utf8", str(_ROOT / "scripts" / "mpc_forecast_seal.py"), "--judge"], 2)
     summary = {"date": a.date, "score_exit": rc, "report_exit": rc2, "finished_utc": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     if rc == 0 and rc2 == 0:
         (day / "DONE").write_text(json.dumps(summary), encoding="utf-8")
