@@ -4352,3 +4352,24 @@ Skippy told the Captain that Mentat did not know Eros, while the engine had trac
 - Measure the live /ask routing for "where is Eros" and "which bodies can you predict" after the pin lands; refresh the SBDB catalogue in the nightly task; Yarkovsky for Apophis when it is observed again (2027).
 - 2026-11-03 evening (C30 follow-up): the three tool-call misses behind "Mentat does not know Eros" traced in the research log and fixed at their causes (SkippyTel position/directive/router stages; sigma-ground lookup() and body_skill for small bodies); body_position(calculate=True) runs the chain inside the kernel data with the receipt (CALC_LEAD_YEARS 0.5, 67 s/yr measured on the PC).
 - 2026-11-03 night (C31, built NOT deployed): Yarkovsky as JPL's fitted A2 on the (1 au/r)^2 law through the existing Marsden routine; fixture sbdb_nongrav_asteroids.json (12 bodies with A2, 33 checked without); predictions for Apophis (1.58 km at 2027-04-01, 11.0 km at 2029-04-13 from the 2026 start) written before the with/without run.
+
+## Session — 2026-11-04 — C31 deployed; the sealed forecast (C32); the near-miss roster (C33); the night window (C34); stage 2, the whole sky (C35, C36)
+**Time:** 2026-11-04 00:30 to 21:00 UTC. **Status:** complete; the first whole-sky night runs 2026-11-05 01:00.
+
+### Changes
+- C31 deployed (sigma-ground 7d16a7a, SkippyTel 3ccfc15): the deployed Mentat's Apophis answer carries the Yarkovsky term; the daily MPC scorer applies the same 3-sigma rule (only Apophis of the 32 has a detection).
+- C32 `scripts/mpc_forecast_seal.py`: 162 rows sealed for the 32 tracked bodies (2027..2031 Jan 1, Apophis 2029-04-13/14), hash in the ledger, `--check` reproduces to 0 km, `--judge` each 2 January from the driver; the 2027 Apophis row 0.0034 arcsec from Horizons before sealing.
+- C33 `scripts/neo_roster_update.py`: 11 numbered close-approach asteroids (JPL CNEOS, <0.05 au next year) join the tracked set; their SBDB non-grav terms into the C31 fixture (474158 and 678964 carry A2 above 3 sigma); sealed (77 rows, a second dated file); the driver runs roster -> seal-missing -> score.
+- C34 `scripts/night_queue.py` + Windows task 'sigma-ground night window' (01:00-07:00, one job at a time, cut and requeued at 07:00 if resumable); tonight's queue: the archive conversion, the roster backfill, the sky score.
+- C35 `batch_particles.py`: S-A met with all 343 sources (worst 0.039 km/yr; 60 sources fail: Hygiea 0.14 km), S-B 54,003 body-years/min after the numba source sum (numpy 2,523, missed).
+- C36 `mpcorb.py`, `obs80.py`, `mpc_sky_ingest.py` (06:00 task; freeze at first sight: 1,579,068 starts; priority 1,000/day at the MPC's 20 s crawl delay, correcting the plan's 5 s), `mpc_bulk_to_parquet.py` (779k lines/s), `mpc_sky_score.py`, `mpc_sky_seal.py` (990 bodies x 7 midnights sealed today), `mpc_sky_report.py`, `residual_growth.py` (-> misc/CANDIDATE_QUEUE.md, [AUTO, UNTESTED]), `rtn.py`; Mentat `sky_scoreboard`; SkippyTel: "The whole sky" plate, pin 00afc1e (373f925).
+
+### Why
+The Captain: "I would ideally like to be tracking ALL publicly available astronomical data nightly and predicting those positions before we get them, and trying to discover any missing terms to contribute to the next run or a rerun"; and long runs between 01:00 and 07:00.
+
+### Verification
+- C35 tests (S-A per body in the ledger), C36 first real pass: 53 near-Earth bodies, 23,002 observations, median 0.208 arcsec, 147 forward of the freeze (0.199). Suites: test_batch_particles 3, test_mpcorb 5, test_obs80 3, test_mpc_sky 3, test_residual_growth 4, test_sky_scoreboard 3, test_forecast_seal 5, test_mpc_live 13, test_small_body_position + body_skill 27; SkippyTel image-file + bridge tests 8.
+- Sources: no public nightly observation file; the SBN replica is institutional (the Captain's decision); LLR needs an account.
+
+### Next
+- Read tonight's three jobs (night_queue.jsonl) and the two-path agreement of the roster 11 (S-A in the sky); S-C after the first full night; S-D after a week; the weekly refreshed-start control arm (not built); unnumbered designations in the roster; the SBN replica decision; the live Mentat suite rows for sky_scoreboard.
