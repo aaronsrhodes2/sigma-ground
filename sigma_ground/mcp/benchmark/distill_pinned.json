@@ -566,6 +566,80 @@
     "units": "W",
     "oracle": "tool"
    }
+  },
+  {
+   "id": "distill-2026-11-04-024",
+   "day": "2026-11-04",
+   "reason": "new_combination",
+   "question": "What is 18.9 percent of the potential energy a 2.27 kg mass gains when raised 48.6 m?",
+   "domain": "physics",
+   "signature": [
+    "gravitational_potential_energy",
+    "percent_of"
+   ],
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 18.9,
+     "value": 1081.8892413
+    },
+    "plan": [
+     {
+      "tool": "gravitational_potential_energy",
+      "args": {
+       "mass_kg": 2.27,
+       "height_m": 48.6
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 18.9,
+       "value": "$1"
+      }
+     }
+    ],
+    "result": 204.4770666057,
+    "units": "",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-11-04-027",
+   "day": "2026-11-04",
+   "reason": "new_combination",
+   "question": "How many joules of electricity does a plant make from 3.92 g of uranium-235 if its efficiency is 87.3 percent?",
+   "domain": "physics",
+   "signature": [
+    "fission_energy_release",
+    "percent_of"
+   ],
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 87.3,
+     "value": 321831370159.68097
+    },
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 0.00392,
+       "isotope": "U235"
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 87.3,
+       "value": "$1"
+      }
+     }
+    ],
+    "result": 280958786149.4015,
+    "units": "",
+    "oracle": "tool"
+   }
   }
  ],
  "open_misses": [
@@ -584,6 +658,14 @@
    "cause": "wrong_value",
    "tool": "joules_to_TNT",
    "got": 0.03737652989966689
+  },
+  {
+   "id": "distill-2026-11-04-011",
+   "day": "2026-11-04",
+   "question": "Fourier transform of exp(-2*x^2)",
+   "cause": "wrong_value",
+   "tool": "fourier_transform",
+   "got": "sqrt(2)*sqrt(pi)*exp(-pi**2*k**2/2)/2"
   }
  ]
 }
