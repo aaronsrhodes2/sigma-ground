@@ -12,16 +12,17 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | 2026-11-02 | 40 | 35 | 35 | none | 5 | 32 / 8 | 15 / 7 | 00afc1e |
 | 2026-11-03 | 40 | 35 | 34 | wrong_value 1 | 5 | 22 / 18 | 15 / 4 | 00afc1e |
 | 2026-11-04 | 40 | 35 | 34 | wrong_value 1 | 5 | 28 / 12 | 15 / 6 | 00afc1e |
+| 2026-11-05 | 39 | 35 | 34 | wrong_value 1 | 4 | 29 / 10 | 15 / 5 | 00afc1e |
 
 ## Causes, grouped: the candidate fixes
 
 | cause | expected tool | rows | examples | status |
 |---|---|---|---|---|
 | wrong_value | fourier_transform | 2 | `Fourier transform of exp(-2*t^2)` (got 0 via fourier_transform); `Fourier transform of exp(-2*x^2)` (got sqrt(2)*sqrt(pi)*exp via fourier_transform) | open |
+| wrong_value | joules_to_TNT | 2 | `Fully splitting 1.74 g of Pu-239 releases how many megatons of TNT?` (got 0.03737652989966689 via None); `Fully splitting 6.01 kg of Pu-239 releases how many megatons of TNT?` (got 129.09939350402183 via None) | open |
 | wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | set wording f0a0e56 |
-| wrong_value | joules_to_TNT | 1 | `Fully splitting 1.74 g of Pu-239 releases how many megatons of TNT?` (got 0.03737652989966689 via None) | open |
 
-## Unverified (30): wild questions with no oracle, for a person to read
+## Unverified (34): wild questions with no oracle, for a person to read
 
 - `molar mass of water in g/mol` -> Mentat {'atomic_mass_amu': 1.008, 'at  (router); Wolfram answered
 - `density of gold in kg/m³` -> Mentat 19300.0 kg/m^3 (router); Wolfram answered
@@ -53,3 +54,7 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 - `specific heat capacity of aluminum in J/gK` -> Mentat None  (qwen); Wolfram no_result
 - `effective temperature of the Sun` -> Mentat {'field_constants_source': 'JP  (router); Wolfram answered
 - `orbital period of Earth in days` -> Mentat 365.256 day (cascade); Wolfram answered
+- `atomic radius of carbon in picometers` -> Mentat 11.26 eV (router); Wolfram answered
+- `standard enthalpy of formation for CO2 in kJ/mol` -> Mentat None  (research); Wolfram answered
+- `escape velocity of Jupiter in km/s` -> Mentat 59532.140511916 m/s (fold); Wolfram answered
+- `surface gravity of the Moon in m/s^2` -> Mentat 1.625 m/s^2 (router); Wolfram answered
