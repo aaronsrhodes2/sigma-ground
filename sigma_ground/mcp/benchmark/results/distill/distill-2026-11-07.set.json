@@ -1,0 +1,1068 @@
+{
+ "suite": "distill-2026-11-07",
+ "generator": {
+  "date": "2026-11-07",
+  "seed": 1600061541,
+  "rota": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "known_before": 815,
+  "wild": [
+   {
+    "model": "chat",
+    "url": "http://127.0.0.1:17434",
+    "prompt_sha256": "184cc1d8ff132321",
+    "seed": 1600061541,
+    "domain": "chemistry",
+    "kept": 3
+   },
+   {
+    "model": "chat",
+    "url": "http://127.0.0.1:17434",
+    "prompt_sha256": "184cc1d8ff132321",
+    "seed": 1600061541,
+    "domain": "astronomy",
+    "kept": 2
+   }
+  ],
+  "made": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "oracles": {
+   "agrees": 20,
+   "unchecked": 0,
+   "tool": 15,
+   "none": 5
+  }
+ },
+ "items": [
+  {
+   "question": "solve [[5, -3, -1], [1, 3, 5], [6, 1, 3]] x = [0, -7, 4]",
+   "question_long": "Given A = [[5, -3, -1], [1, 3, 5], [6, 1, 3]] and b = (0, -7, 4), what x solves A x = b?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[5, -3, -1], [1, 3, 5], [6, 1, 3]]",
+     "vector_b": "[0, -7, 4]"
+    },
+    "result": [
+     "26/11",
+     "251/44",
+     "-233/44"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       5,
+       -3,
+       -1
+      ],
+      [
+       1,
+       3,
+       5
+      ],
+      [
+       6,
+       1,
+       3
+      ]
+     ],
+     "b": [
+      0,
+      -7,
+      4
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-000"
+  },
+  {
+   "question": "solve f'' + 6*f' + 9*f = 0",
+   "question_long": "Give me every function f(x) with f'' + 6*f' + 9*f = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "f'' + 6*f' + 9*f",
+     "func": "f"
+    },
+    "result": "Eq(f(x), (C1 + C2*x)*exp(-3*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "f'' + 6*f' + 9*f",
+     "fn": "f",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-001"
+  },
+  {
+   "question": "factor x^2 - 7*x + 6",
+   "question_long": "express x**2 - 7*x + 6 as a product.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 7*x + 6"
+    },
+    "result": "(x - 6)*(x - 1)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 7*x + 6",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-002"
+  },
+  {
+   "question": "[[2, -2, 3], [2, -2, -4]] * [[2, -4], [3, -3], [-1, 1]]",
+   "question_long": "What do you get when you multiply [[2, -2, 3], [2, -2, -4]] on the right by the matrix with rows (2, -4) and (3, -3) and (-1, 1)?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[2, -2, 3], [2, -2, -4]]",
+     "matrix_b": "[[2, -4], [3, -3], [-1, 1]]"
+    },
+    "result": "[[-5, 1], [2, -6]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       2,
+       -2,
+       3
+      ],
+      [
+       2,
+       -2,
+       -4
+      ]
+     ],
+     "B": [
+      [
+       2,
+       -4
+      ],
+      [
+       3,
+       -3
+      ],
+      [
+       -1,
+       1
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-003"
+  },
+  {
+   "question": "integral of -2*t^3 - 2*t^2 - t + 3 dt",
+   "question_long": "Give me an antiderivative for -2t^3 - 2t^2 - t + 3?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "-2*t**3 - 2*t**2 - t + 3",
+     "variable": "t"
+    },
+    "result": "-t**4/2 - 2*t**3/3 - t**2/2 + 3*t",
+    "spec": {
+     "kind": "int",
+     "expr": "-2*t**3 - 2*t**2 - t + 3",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-004"
+  },
+  {
+   "question": "solve n^2 - 4*n + 2 = 24 for n",
+   "question_long": "If n**2 - 4*n + 2 = 24, what is n?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "n**2 - 4*n + 2 = 24",
+     "variable": "n"
+    },
+    "result": [
+     "2 - sqrt(26)",
+     "2 + sqrt(26)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "n**2 - 4*n + 2 = 24",
+     "var": "n"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-005"
+  },
+  {
+   "question": "divergence of (x*y, 4*x*y)",
+   "question_long": "how much does the field (x*y, 4*x*y) spread out at a point? Give the divergence (variables x, y)",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x*y, 4*x*y",
+     "variables": "x,y"
+    },
+    "result": "4*x + y",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "x*y",
+      "4*x*y"
+     ],
+     "names": [
+      "x",
+      "y"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-006"
+  },
+  {
+   "question": "eigenvalues of [[4, 3], [0, 1]]",
+   "question_long": "What are the characteristic values of [[4, 3], [0, 1]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[4, 3], [0, 1]]"
+    },
+    "result": [
+     "1",
+     "4"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       4,
+       3
+      ],
+      [
+       0,
+       1
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-007"
+  },
+  {
+   "question": "integral of tan(x) dx",
+   "question_long": "Give me an antiderivative for tan(x).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "tan(x)"
+    },
+    "result": "-log(cos(x))",
+    "spec": {
+     "kind": "int",
+     "expr": "tan(x)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-008"
+  },
+  {
+   "question": "simplify (x^2 + 2*x + 1)/(x + 1)",
+   "question_long": "Can (x^2 + 2x + 1)/(x + 1) be simplified? What is it?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "(x**2 + 2*x + 1)/(x + 1)"
+    },
+    "result": "x + 1",
+    "spec": {
+     "kind": "simplify",
+     "expr": "(x**2 + 2*x + 1)/(x + 1)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-009"
+  },
+  {
+   "question": "factor x^2 - 8*x + 12",
+   "question_long": "Break x² - 8x + 12 into factors.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 8*x + 12"
+    },
+    "result": "(x - 6)*(x - 2)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 8*x + 12",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-010"
+  },
+  {
+   "question": "eigenvalues of [[5, 4], [0, -1]]",
+   "question_long": "What are the characteristic values of [[5, 4], [0, -1]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[5, 4], [0, -1]]"
+    },
+    "result": [
+     "-1",
+     "5"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       5,
+       4
+      ],
+      [
+       0,
+       -1
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-011"
+  },
+  {
+   "question": "integrate exp(-x) from 0 to infinity",
+   "question_long": "Over the interval [0, infinity], what is the integral of e^(-x)?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(-x)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "int_def",
+     "expr": "exp(-x)",
+     "var": "x",
+     "lo": "0",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-012"
+  },
+  {
+   "question": "determinant of [[6, 5], [-3, 5]]",
+   "question_long": "Work out the determinant of this matrix: the matrix with rows (6, 5) and (-3, 5)",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[6, 5], [-3, 5]]"
+    },
+    "result": "45",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       6,
+       5
+      ],
+      [
+       -3,
+       5
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-013"
+  },
+  {
+   "question": "limit of sin(2*x)/x as x -> 0",
+   "question_long": "Determine lim sin(2*x)/x when x → 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "sin(2*x)/x",
+     "point": "0"
+    },
+    "result": "2",
+    "spec": {
+     "kind": "limit",
+     "expr": "sin(2*x)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-014"
+  },
+  {
+   "question": "sum of k^3 for k from 2 to 10",
+   "question_long": "total up k^3 with k going from 2 to 10.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "k**3",
+     "variable": "k",
+     "lower": "2",
+     "upper": "10"
+    },
+    "result": "3024",
+    "spec": {
+     "kind": "sum",
+     "expr": "k**3",
+     "var": "k",
+     "lo": "2",
+     "hi": "10"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-015"
+  },
+  {
+   "question": "integrate 1/(1 + x^2) from 0 to infinity",
+   "question_long": "Find the exact value of ∫(1 over (1 plus x squared)) dx for x running from 0 up to infinity",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(1 + x**2)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "pi/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(1 + x**2)",
+     "var": "x",
+     "lo": "0",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-016"
+  },
+  {
+   "question": "series expansion of atan(x) at x = 0 to order 5",
+   "question_long": "Series for atan(x) around 0, to order 5.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "atan(x)",
+     "point": "0",
+     "order": 5
+    },
+    "result": "-x**3/3 + x",
+    "spec": {
+     "kind": "series",
+     "expr": "atan(x)",
+     "var": "x",
+     "point": "0",
+     "order": 5
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-017"
+  },
+  {
+   "question": "factor x^2 - 25",
+   "question_long": "express x^2 - 25 as a product.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 25"
+    },
+    "result": "(x - 5)*(x + 5)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 25",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-018"
+  },
+  {
+   "question": "divergence of (y^2, y)",
+   "question_long": "how much does the field (y^2, y) spread out at a point? Give the divergence (variables x, y)",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "y**2, y",
+     "variables": "x,y"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "y**2",
+      "y"
+     ],
+     "names": [
+      "x",
+      "y"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-07-019"
+  },
+  {
+   "question": "What is 56.5 percent of the potential energy a 31.4 tonnes mass gains when raised 1.8 m?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 56.5,
+     "value": 554271.858
+    },
+    "result": 313163.59977,
+    "units": "",
+    "plan": [
+     {
+      "tool": "gravitational_potential_energy",
+      "args": {
+       "mass_kg": 31400.0,
+       "height_m": 1.8
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 56.5,
+       "value": "$1"
+      }
+     }
+    ],
+    "recipe": "lift_energy_waste",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-020"
+  },
+  {
+   "question": "Kinetic energy in eV of a 6.33e-27 kg particle travelling at 30.3 km/s?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 2.90575485e-18
+    },
+    "result": 18.136295264433375,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 6.33e-27,
+       "velocity_m_s": 30300.0
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "kinetic_energy_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-021"
+  },
+  {
+   "question": "Find the peak emission frequency of a perfect radiator at 2.32e4 K.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "em_wave_frequency",
+    "args": {
+     "wavelength_m": 1.249039635775862e-07
+    },
+    "result": 2400183704448889.5,
+    "units": "Hz",
+    "plan": [
+     {
+      "tool": "blackbody_peak_wavelength",
+      "args": {
+       "temperature_k": 23200.0
+      }
+     },
+     {
+      "tool": "em_wave_frequency",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "recipe": "blackbody_peak_frequency",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-022"
+  },
+  {
+   "question": "Convert 427 kWh to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 427.0,
+     "from_units": "kWh",
+     "to_units": "J"
+    },
+    "result": 1537200000.0,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 427.0,
+       "from_units": "kWh",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_kwh_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-023"
+  },
+  {
+   "question": "Express the rest-mass energy of 1.87 g in kilotons of TNT.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 168067218423784.88,
+     "unit": "kt"
+    },
+    "result": 40.16902925998682,
+    "units": "kt_TNT",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 0.00187
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1",
+       "unit": "kt"
+      }
+     }
+    ],
+    "recipe": "mass_to_tnt_kilotons",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-024"
+  },
+  {
+   "question": "Express the mass-energy of 1.53e-26 kg in eV.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 1.375095423467331e-09
+    },
+    "result": 8582670563.820812,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 1.53e-26
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_to_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-025"
+  },
+  {
+   "question": "A 850 kg moon moves in a circle of radius 5.8e7 m about a 9.89e23 kg planet. Kinetic energy?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 850.0,
+     "velocity_m_s": 1066.809835039934
+    },
+    "result": 483685370.2586206,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 9.89e+23,
+       "radius_m": 58000000.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 850.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "orbit_kinetic_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-026"
+  },
+  {
+   "question": "Fully splitting 6.82 kg of Pu-239 releases how many megatons of TNT?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 550532678927291.75,
+     "unit": "MT"
+    },
+    "result": 0.1315804681948594,
+    "units": "MT_TNT",
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 6.82,
+       "isotope": "Pu239"
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1",
+       "unit": "MT"
+      }
+     }
+    ],
+    "recipe": "fission_tnt_megatons",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-027"
+  },
+  {
+   "question": "Fully splitting 38.5 g of Pu-239 releases how many megatons of TNT?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 3107845768137.9375,
+     "unit": "MT"
+    },
+    "result": 0.0007427929656161419,
+    "units": "MT_TNT",
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 0.0385,
+       "isotope": "Pu239"
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1",
+       "unit": "MT"
+      }
+     }
+    ],
+    "recipe": "fission_tnt_megatons",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-028"
+  },
+  {
+   "question": "What is 19.3 percent of 318 m?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 19.3,
+     "value": 318.0
+    },
+    "result": 61.374,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 19.3,
+       "value": 318.0
+      }
+     }
+    ],
+    "recipe": "percent_of_length",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-029"
+  },
+  {
+   "question": "What is 71.6 percent of 1.82 tonnes?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 71.6,
+     "value": 1820.0
+    },
+    "result": 1303.12,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 71.6,
+       "value": 1820.0
+      }
+     }
+    ],
+    "recipe": "percent_of_mass",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-030"
+  },
+  {
+   "question": "Photon energy at the Wien peak for 1.13e4 K?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "photon_energy_from_wavelength",
+    "args": {
+     "wavelength_m": 2.564399960176991e-07
+    },
+    "result": 7.746240394554887e-19,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "blackbody_peak_wavelength",
+      "args": {
+       "temperature_k": 11300.0
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "recipe": "blackbody_peak_photon",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-031"
+  },
+  {
+   "question": "triply ionized beryllium: how much energy is the n = 4 level?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "hydrogen_like_energy_level",
+    "args": {
+     "n": 4,
+     "atomic_number": 4
+    },
+    "result": -13.605693122994,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "hydrogen_like_energy_level",
+      "args": {
+       "n": 4,
+       "atomic_number": 4
+      }
+     }
+    ],
+    "recipe": "level_hydrogen_like",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-032"
+  },
+  {
+   "question": "What is the energy of the n = 3 level of hydrogen?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "hydrogen_like_energy_level",
+    "args": {
+     "n": 3
+    },
+    "result": -1.5117436803326667,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "hydrogen_like_energy_level",
+      "args": {
+       "n": 3
+      }
+     }
+    ],
+    "recipe": "level_hydrogen",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-033"
+  },
+  {
+   "question": "molar mass of water",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-07-034"
+  },
+  {
+   "question": "density of gold at 20 C",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-07-035"
+  },
+  {
+   "question": "pH of pure water",
+   "domain": "chemistry",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-07-036"
+  },
+  {
+   "question": "Horizon radius for 8.97 solar masses of collapsed matter?",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "schwarzschild_radius",
+    "args": {
+     "mass_kg": 1.78360365402e+31
+    },
+    "result": 26490.653182676393,
+    "units": "m",
+    "plan": [
+     {
+      "tool": "schwarzschild_radius",
+      "args": {
+       "mass_kg": 1.78360365402e+31
+      }
+     }
+    ],
+    "recipe": "solar_schwarzschild_radius",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-07-037"
+  },
+  {
+   "question": "luminosity of Sirius in solar luminosities",
+   "domain": "astronomy",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-07-038"
+  },
+  {
+   "question": "redshift of galaxy NGC 4889",
+   "domain": "astronomy",
+   "kind": "wild",
+   "expected": {
+    "tool": null,
+    "args": null,
+    "result": null,
+    "oracle": "none"
+   },
+   "id": "distill-2026-11-07-039"
+  }
+ ]
+}
