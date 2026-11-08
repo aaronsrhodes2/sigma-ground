@@ -735,6 +735,22 @@
    "cause": "wrong_value",
    "tool": "joules_to_TNT",
    "got": 129.09939350402183
+  },
+  {
+   "id": "distill-2026-11-07-027",
+   "day": "2026-11-07",
+   "question": "Fully splitting 6.82 kg of Pu-239 releases how many megatons of TNT?",
+   "cause": "wrong_value",
+   "tool": "joules_to_TNT",
+   "got": 146.49881259524608
+  },
+  {
+   "id": "distill-2026-11-07-028",
+   "day": "2026-11-07",
+   "question": "Fully splitting 38.5 g of Pu-239 releases how many megatons of TNT?",
+   "cause": "wrong_value",
+   "tool": "joules_to_TNT",
+   "got": 0.8270094259409052
   }
  ]
 }
