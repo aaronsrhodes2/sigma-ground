@@ -701,6 +701,65 @@
     "units": "m",
     "oracle": "tool"
    }
+  },
+  {
+   "id": "distill-2026-11-09-017",
+   "day": "2026-11-09",
+   "reason": "fixed_miss",
+   "question": "curl of (0, t + s, r*s)",
+   "domain": "math",
+   "signature": [
+    "curl"
+   ],
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "0, t + s, r*s",
+     "variables": "r,s,t"
+    },
+    "result": [
+     "r - 1",
+     "-s",
+     "0"
+    ],
+    "oracle": "agrees"
+   }
+  },
+  {
+   "id": "distill-2026-11-09-025",
+   "day": "2026-11-09",
+   "reason": "new_combination",
+   "question": "A 17.6 tonnes stone falls freely for 114 m. Kinetic energy at the bottom?",
+   "domain": "physics",
+   "signature": [
+    "free_fall_velocity",
+    "kinetic_energy"
+   ],
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 17600.0,
+     "velocity_m_s": 47.28547557125761
+    },
+    "plan": [
+     {
+      "tool": "free_fall_velocity",
+      "args": {
+       "height_m": 114.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 17600.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "result": 19676062.56,
+    "units": "J",
+    "oracle": "tool"
+   }
   }
  ],
  "open_misses": [
