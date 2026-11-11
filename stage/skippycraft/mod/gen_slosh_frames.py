@@ -1,5 +1,5 @@
-"""Write src/gametest/resources/slosh_frames.json: the real slosh theater (the same Theater, in matter mode) at chosen
-sim times, as full matter frames (record palette + runs) shifted to y = 200, z <= 0, for the headless client test."""
+"""Write src/gametest/resources/slosh_frames.json: real theaters (the same Theater, in matter mode: slosh at chosen sim times, and the melt
+scene's hot plate) as full matter frames (record palette + runs) shifted to y = 200, z <= 0, for the headless client test."""
 import json
 import sys
 from pathlib import Path
@@ -26,24 +26,25 @@ class Capture:
 
 def full_frame(world, looks):
     cap = Capture()
-    theater.Theater(world, looks, ORIGIN, lambda c: None, cap, None, matter=True).draw()
+    theater.Theater(world, looks, ORIGIN, lambda c: None, cap, matter=True).draw()
     records, runs = cap.frames[0]
     return records, [[x, y + DY, z + DZ, n, i] for x, y, z, n, i in runs if records[i]]       # air needs no block here
 
 
 def main():
-    _, world = theater.build("slosh")
     looks, _ = theater.shared_looks()
     out = []
-    for t in TIMES:
-        while world.t < t - 1e-9:
-            world.step(0.04)
-        records, runs = full_frame(world, looks)
-        xs = [r[0] for r in runs] + [r[0] + r[3] - 1 for r in runs]
-        ys, zs = [r[1] for r in runs], [r[2] for r in runs]
-        out.append({"t": float(world.t), "records": records, "runs": runs,
-                    "bbox": [min(xs), min(ys), min(zs), max(xs), max(ys), max(zs)]})
-        print(f"t={world.t:.2f} s: {sum(r[3] for r in runs)} blocks, {len(records)} records", flush=True)
+    for scene, times in (("slosh", TIMES), ("melt", [1.0])):
+        _, world = theater.build(scene)
+        for t in times:
+            while world.t < t - 1e-9:
+                world.step(0.04 if scene == "slosh" else 0.05)
+            records, runs = full_frame(world, looks)
+            xs = [r[0] for r in runs] + [r[0] + r[3] - 1 for r in runs]
+            ys, zs = [r[1] for r in runs], [r[2] for r in runs]
+            out.append({"scene": scene, "t": float(world.t), "records": records, "runs": runs,
+                        "bbox": [min(xs), min(ys), min(zs), max(xs), max(ys), max(zs)]})
+            print(f"{scene} t={world.t:.2f} s: {sum(r[3] for r in runs)} blocks, {len(records)} records", flush=True)
     (here / "src" / "gametest" / "resources" / "slosh_frames.json").write_text(json.dumps(out), encoding="utf-8")
 
 

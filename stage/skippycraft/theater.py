@@ -92,9 +92,9 @@ MAX_MATERIALS = 64                       # palette slots per theater: a scene's 
 # board of three buttons with big labels: Run, Stop, and Go to the other theater's desk. ``desk`` is the board's middle block;
 # he stands 2.5 blocks behind it, facing +z, looking down at ``pitch`` degrees.
 STAGES = {
-    "sink": {"origin": (0, -60, 24), "desk": (16, -46, 14), "pitch": 25, "other": "melt", "request": 1, "rate": 4.0,
+    "sink": {"origin": (0, -60, 24), "desk": (16, -46, 14), "pitch": 25, "other": "melt", "request": 1, "rate": 4.0, "matter": True,
              "tell": "Sink: a gold block drops into the mercury and sinks; the iron floats (gold is denser than mercury, iron is not)."},
-    "melt": {"origin": (56, -60, 24), "desk": (75, -46, 14), "pitch": 35, "other": "slosh", "request": 2, "rate": 6.0,
+    "melt": {"origin": (56, -60, 24), "desk": (75, -46, 14), "pitch": 35, "other": "slosh", "request": 2, "rate": 6.0, "matter": True,
              "tell": "Melt: a lead column on a 1500 K tungsten plate, in vacuum. It slumps when it melts; the boss bar keeps the books."},
     "slosh": {"origin": (0, -60, 100), "desk": (36, -46, 88), "pitch": 25, "other": "slit", "request": 3, "rate": 25.0, "matter": True,
               "extra": (("Slower", 4), ("Faster", 5)),
@@ -113,17 +113,17 @@ STAGES = {
                       "goes through every layer the shot defeats, the crater glows at the temperature the game computes, then "
                       "cools by conduction. Weapon / Armor change the setup."},
     # the playground's grid is ~90 blocks square at x 100-190, z 105-195; the desk floats in front of it
-    "playground": {"origin": (100, -60, 105), "desk": (145, -38, 92), "pitch": 35, "other": "strength", "request": 14, "rate": 6.0,
+    "playground": {"origin": (100, -60, 105), "desk": (145, -38, 92), "pitch": 35, "other": "strength", "request": 14, "rate": 6.0, "matter": True,
                    "tell": "Playground: everything at once. A 2200 K tungsten plate melts the lead slab on it; the melt flows with "
                            "momentum, runs off onto the cold granite and freezes where it stops; the gold cube sinks through the "
                            "melt. Every number comes from each block's own temperature; the boss bar keeps the books."},
     # the strength scene is 74 x 34 blocks (1 cm each) at x 0-74, z 260-294, 36 high; the desk floats in front of it
-    "strength": {"origin": (0, -60, 260), "desk": (37, -40, 244), "pitch": 30, "other": "impact", "request": 15, "rate": 6.0,
+    "strength": {"origin": (0, -60, 260), "desk": (37, -40, 244), "pitch": 30, "other": "impact", "request": 15, "rate": 6.0, "matter": True,
                  "tell": "Strength: bodies that rotate, slide and break. The leaning granite stack topples. The 3000 K tungsten "
                          "block heats the steel beam under it; where the steel is hot enough to yield, the beam bends, sags, "
                          "tears and drops it. Every strength, friction and bounce comes from the blocks' own state."},
     # the impact scene is 48 x 40 written blocks at 5 mm (96 x 80 blocks) at x 80-176, z 300-380; the desk in front of it
-    "impact": {"origin": (80, -60, 312), "desk": (128, -42, 300), "pitch": 30, "other": "sink", "request": 16, "rate": 6.0,
+    "impact": {"origin": (80, -60, 312), "desk": (128, -42, 300), "pitch": 30, "other": "sink", "request": 16, "rate": 6.0, "matter": True,
                "extra": (("Weapon", IMPACT_WEAPON),),
                "tell": "Impact: the range's weapon fires at the steel wall. The game's own solve says how far the round "
                        "goes and what it loses in each layer; that momentum pushes the block into the backstop, and the "
@@ -357,8 +357,9 @@ def build(name):
 
 
 def shared_looks():
-    """One carrier per (material, block size) across every scene, so all theaters share one resource pack."""
-    fields = [f for f in (scene_field(n) for n in SCENES) if f is not None]
+    """One carrier per (material, block size) across every scene that still draws in carrier blocks (the screens and the range: not matter
+    mode), so those theaters share one resource pack. Matter-mode scenes need none: their cells carry sigma-ground's records."""
+    fields = [f for f in (scene_field(n) for n in SCENES if not STAGES.get(n, {}).get("matter")) if f is not None]
     looks, appearances = {}, {}
     for f in fields:
         lk, ap = export_mc.derive_looks(f)
@@ -366,10 +367,6 @@ def shared_looks():
             appearances.setdefault((m, f.voxel_size), ap[m])
     for key, a in range_appearances().items():
         appearances.setdefault(key, a)
-    import controls
-    from sigma_ground.field.interface.block import appearance
-    for m in controls.PLACEABLE:                                  # what he can place from inside the game (P6)
-        appearances.setdefault((m, controls.PLACE_PITCH), appearance(m, controls.PLACE_PITCH))
     opaque, clear = iter(export_mc.CARRIERS_OPAQUE), iter(export_mc.CARRIERS_CLEAR)
     for key, a in appearances.items():
         try:
@@ -379,22 +376,7 @@ def shared_looks():
     return looks, appearances
 
 
-GLOW_HUE_OF = "blackbody"   # the band's hue: each material's spectral emissivity shifts it by under 2% (checked: tungsten, lead)
-
-
-def shared_glows():
-    """One light-emitting carrier per glow band, shared by every material (the range can reach any band): its hue and
-    brightness from ``export_mc.glow_display`` at the band's lower edge; dimmer bands on dimmer blocks. Returns
-    ``{band: (carrier index, rgba, brightness)}``."""
-    lights = sorted(range(len(export_mc.GLOW_CARRIERS)), key=lambda i: export_mc.GLOW_CARRIERS[i][1])
-    n = len(export_mc.GLOW_BANDS_K)
-    pick = [lights[round(i * (len(lights) - 1) / (n - 1))] for i in range(n)]
-    out = {}
-    for band, (edge, ci) in enumerate(zip(export_mc.GLOW_BANDS_K, pick)):
-        rgba, v, _ = export_mc.glow_display(GLOW_HUE_OF, edge)
-        out[band] = (ci, rgba, v)
-    return out
-
+SLOT_BASE = 1000      # matter-mode palette slots start here: below are the materials' own indices and the free bodies' slots
 
 def range_appearances():
     """``{(material, 0.002): appearance}`` for every range material. A material sigma-ground has no colour for (Kevlar,
@@ -425,39 +407,29 @@ def slit_looks():
 class Theater:
     """A ``VoxelWorld`` shown in Minecraft with its low corner at ``origin``. ``send(commands)`` delivers commands."""
 
-    def __init__(self, world, looks, origin, send, blocks=None, glows=None, matter=False):
+    def __init__(self, world, looks, origin, send, blocks=None, matter=False):
         import numpy as np
         self.world, self.send, self.blocks = world, send, blocks
         # matter mode: each cell is a skippycraft:matter block carrying sigma-ground's record for its material (and a live one for a
         # moving body), not a carrier block repainted by the resource pack. Needs the mod's block writer.
         self.matter = bool(matter and blocks is not None)
         self.records, self.body_json, self.shown_body = {}, {}, {}
-        if self.matter:
-            if glows or hasattr(world, "T"):
-                raise ValueError("matter mode draws isothermal worlds for now: a hot world still uses the glow carriers")
-            self.ambient_k = float(getattr(world, "temperature_k", 293.15))
+        self.slot_of = {}                 # (material index, temperature step, melt step) -> palette slot, stable so a cell only changes when its state does
+        self.ambient_k = float(getattr(world, "ambient_T", getattr(world, "temperature_k", 293.15)))
         self.origin = tuple(int(v) for v in origin)
         occ = np.argwhere(world.label > 0)
         self.i0, self.k0, self.jhi = int(occ[:, 0].min()), int(occ[:, 2].min()), int(occ[:, 1].max())
         # material slots 0..MAX_MATERIALS-1 (a material placed from inside the game takes the next free one: sync);
         # glow carriers past them
         self.looks = looks
-        self.block = ["air"] + [looks[(m, world.pitch)] for m in world.materials[1:]]
+        self.block = ["air"] + ([] if self.matter else [looks[(m, world.pitch)] for m in world.materials[1:]])
         self.block += ["air"] * (MAX_MATERIALS - len(self.block))
         self.n_materials = len(world.materials)
-        nb = len(export_mc.GLOW_BANDS_K)
-        self.glow_lut = np.tile(np.arange(MAX_MATERIALS)[:, None], (1, nb))
-        for band, (ci, _, _) in (glows or {}).items():
-            self.glow_lut[1:, band] = len(self.block)
-            self.block.append(export_mc.GLOW_CARRIERS[ci][0])
-        self.glowing = bool(glows) and hasattr(world, "T")
         # unknown (-1) from the theater's ground up, so the first draw also clears what an earlier run left there; below
         # the ground is Minecraft's own ground and is never touched
-        self.shown = np.full_like(world.label, -1)
+        self.shown = np.full(world.label.shape, -1, np.int32 if self.matter else world.label.dtype)
         self.shown[:, :, :self.k0] = world.label[:, :, :self.k0]
         self.changed_total = 0
-        if self.matter:
-            self.sync()
 
     def mc(self, i, j, k):
         x0, y0, z0 = self.origin
@@ -480,10 +452,8 @@ class Theater:
         """Give every material the world gained since the last draw its carrier block."""
         mats = self.world.materials
         if self.matter:
-            import matter
-            for idx in range(1, len(mats)):
-                if idx not in self.records:
-                    self.records[idx] = matter.to_wire(matter.record(mats[idx], None, self.world.pitch, self.ambient_k))
+            self.n_materials = len(mats)
+            return
         for idx in range(self.n_materials, len(mats)):
             key = (mats[idx], self.world.pitch)
             if key not in self.looks:
@@ -494,22 +464,14 @@ class Theater:
         self.n_materials = len(mats)
 
     def display(self):
-        """What each cell is drawn as: its material, or its material's glow when it is past the Draper point."""
-        import numpy as np
-        label = getattr(self.world, "drawn", self.world.label)
-        if not self.glowing:
-            return label
-        band = np.searchsorted(export_mc.GLOW_BANDS_K, self.world.T, side="right") - 1
-        hot = (band >= 0) & (label > 0)
-        out = label.copy()
-        out[hot] = self.glow_lut[label[hot], band[hot]]
-        return out
+        """What each cell is drawn as: its material (carrier mode; a matter scene draws each cell from its record instead)."""
+        return getattr(self.world, "drawn", self.world.label)
 
     def draw(self):
         """Send every cell whose block differs from what Minecraft shows. Returns how many."""
         import numpy as np
         self.sync()
-        label = self.display()
+        label = getattr(self.world, "drawn", self.world.label) if self.matter else self.display()
         if self.matter:
             label, changed = self._matter_label(label)
         else:
@@ -550,10 +512,35 @@ class Theater:
         return matter.to_wire(matter.record(b["material"], None, self.world.pitch, self.ambient_k,
                                             t=float(self.world.t) if moving else None, v=mc_v if moving else (0.0, 0.0, 0.0)))
 
+    TEMPERATURE_STEP_K, MELT_STEPS = 10.0, 10     # the resolution a cell's state is told apart at (data resolution, not physics)
+
+    def _slots(self, label):
+        """Each non-empty cell's palette slot: its material at its (stepped) live temperature and melt fraction, so a record is made once
+        per distinct state and a cell changes block only when its state does."""
+        import numpy as np
+        import matter
+        w = self.world
+        T = getattr(w, "T", None)
+        tq = np.rint((np.full(label.shape, self.ambient_k) if T is None else T) / self.TEMPERATURE_STEP_K).astype(np.int64)
+        mq = np.rint(getattr(w, "melt", np.zeros(label.shape)) * self.MELT_STEPS).astype(np.int64)
+        out = np.zeros(label.shape, np.int32)
+        live = label > 0
+        keys = (label.astype(np.int64) * 100000 + np.clip(tq, 0, 99999)) * 16 + np.clip(mq, 0, 15)
+        for key in np.unique(keys[live]):
+            slot = self.slot_of.get(int(key))
+            if slot is None:
+                slot = SLOT_BASE + len(self.slot_of)
+                self.slot_of[int(key)] = slot
+                m, rest = divmod(int(key) // 16, 100000)
+                self.records[slot] = matter.to_wire(matter.record(
+                    w.materials[m], None, w.pitch, rest * self.TEMPERATURE_STEP_K, melt=(int(key) % 16) / self.MELT_STEPS))
+            out[live & (keys == key)] = slot
+        return out
+
     def _matter_label(self, label):
-        """The label with each free body's cells under its own live record (a palette slot past the materials), and which cells
+        """The label as palette slots, with each free body's cells under its own live record (a slot past the materials), and which cells
         changed: a cell whose block differs, or any cell of a body whose record changed (its velocity, its clock)."""
-        label = label.copy()
+        label = self._slots(label)
         live = []
         for bi, b in enumerate(getattr(self.world, "bodies", ())):
             if not isinstance(b, dict) or getattr(self, "_clearing", False):
@@ -573,7 +560,8 @@ class Theater:
         """Send the runs as one matter frame, its palette only the records the runs use."""
         used = sorted({r[4] for r in runs})
         slot = {old: new for new, old in enumerate(used)}
-        records = [self.body_json[old - MAX_MATERIALS] if old >= MAX_MATERIALS else self.records.get(old, "") for old in used]
+        records = [self.records.get(old, "") if old >= SLOT_BASE else self.body_json.get(old - MAX_MATERIALS, "") if old >= MAX_MATERIALS else ""
+                   for old in used]
         self.blocks.send_matter(records, [(*r[:4], slot[r[4]]) for r in runs])
 
     def _draw_frame(self, label, changed):
@@ -657,7 +645,6 @@ def build_pack():
     import shutil
     looks, appearances = shared_looks()
     export_mc.write_resourcepack(looks, appearances, PACK_DIR)
-    export_mc.write_glow_textures(shared_glows(), PACK_DIR)
     screen, paint = slit_looks()
     export_mc.write_flat_textures(paint, PACK_DIR)
     shutil.make_archive(str(PACK_DIR / "skippycraft"), "zip", PACK_DIR / "skippycraft")
@@ -751,7 +738,6 @@ def read_request(rcon):
 def serve(player="aaronsrhodes"):
     """Run forever: answer the panel buttons with live theaters."""
     looks = build_pack()
-    glows = shared_glows()
     serve_pack()
     rcon = Rcon()
     send = rcon.commands
@@ -842,7 +828,7 @@ def serve(player="aaronsrhodes"):
                 _, world = impact_world(impact_aim["weapon"])
             else:
                 _, world = build(name)
-            th = Theater(world, looks, st["origin"], send, blocks, None if st.get("matter") else glows, matter=st.get("matter", False))
+            th = Theater(world, looks, st["origin"], send, blocks, matter=st.get("matter", False))
             rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
             tell(f"Building {name} at {SCENE_RESOLUTION.get(name, RESOLUTION)}x resolution (a few seconds)...")
             th.open()
@@ -931,9 +917,7 @@ def main(argv=None):
         return
     _, world = build(a.scene)
     rcon = Rcon()
-    glows = shared_glows()
-    export_mc.write_glow_textures(glows, packs)
-    th = Theater(world, looks, a.at, rcon.commands, block_writer(), glows)
+    th = Theater(world, looks, a.at, rcon.commands, block_writer())
     th.open()
     _, _, _, _, ticks, dt = SCENES[a.scene]
     th.run(a.ticks or ticks, dt, a.rate, on_tick=print)

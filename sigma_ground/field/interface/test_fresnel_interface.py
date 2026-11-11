@@ -53,3 +53,10 @@ def test_beer_lambert_and_its_table():
     tab = optics.transmittance_table((0.3, 0.07, 0.02), 0.5, 4)
     assert len(tab) == 3 and len(tab[0]) == 4 and tab[0][0] == 1.0
     assert tab[0][3] == pytest.approx(optics.beer_lambert_transmittance(0.3, 1.5))
+
+
+def test_srgb_encoding_is_the_iec_61966_curve():
+    assert optics.srgb_encode(0.0) == 0.0 and optics.srgb_encode(1.0) == pytest.approx(1.0)
+    assert optics.srgb_encode(0.18) == pytest.approx(0.4614, abs=1e-3)              # middle grey
+    assert optics.srgb_encode(0.002) == pytest.approx(12.92 * 0.002)                 # the linear toe
+    assert optics.srgb_encode(2.0) == pytest.approx(1.0) and optics.srgb_encode(-1.0) == 0.0        # clamped to the displayable range

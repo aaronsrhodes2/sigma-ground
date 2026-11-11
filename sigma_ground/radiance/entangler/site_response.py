@@ -19,11 +19,7 @@ import math
 
 from ...field.interface import optics, thermal, thermal_emission, texture
 
-# A DISPLAY tonemap of emitted power (W/m²) → [0,1] glow brightness. The glow
-# COLOUR is physics (Planck × emissivity); this only maps the cited intensity to a
-# screen value — no display-referred radiometry is "correct" without a full
-# tonemapper, so this constant is flagged as a tonemap, not a physics claim.
-_GLOW_P0 = 3000.0
+# The display tonemap of emitted power -> glow brightness lives with the physics it maps (thermal_emission.glow_level).
 
 # Memoise: a whole object's thousands of nodes share one (material, T), so the
 # field functions run once per material+temperature, not once per node.
@@ -67,7 +63,7 @@ def site_response(material_key: str, temperature_K: float) -> dict:
             glow_power = float(thermal.thermal_emission_power(material_key, T))
         except Exception:
             glow_power = 0.0
-        glow_level = 1.0 - math.exp(-max(0.0, glow_power) / _GLOW_P0)
+        glow_level = thermal_emission.glow_level(glow_power)
 
     # SPECULAR fraction — Rayleigh criterion on thermal roughness (hotter → rougher
     # → more diffuse). Exposed for the shade; the view-dependent highlight is a

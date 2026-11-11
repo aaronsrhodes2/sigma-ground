@@ -10,8 +10,8 @@ Minecraft only SHOWS the theater; each material's real identity, temperature and
   - derived (the default, the Captain's rule): ``field.interface.block.appearance`` gives each material its colour, its
     opacity through ONE block of this theater's size, its reflectance and smoothness. ``write_resourcepack`` repaints one
     "carrier" block per material with that: a concrete colour for an opaque material, a stained-glass colour for a see-through
-    one (stained glass draws with the texture's alpha; a volume of it is one pane, so ``legible`` deepens a faint one to
-    ``VISIBLE_OPACITY``, flagged), plus a LabPBR specular map (smoothness, F0, metal) that shader packs
+    one (stained glass draws with the texture's alpha; clear matter that needs more than that is drawn by matter blocks, ``matter.py``,
+    from sigma-ground's own optics), plus a LabPBR specular map (smoothness, F0, metal) that shader packs
     read for real reflections; vanilla Minecraft draws no reflections at all. A material sigma-ground has no colour for is
     drawn neutral grey and named in the report.
   - vanilla (``LOOKS``): a hand-picked stock block per material, no resource pack.
@@ -62,34 +62,11 @@ def derive_looks(field, temperature_k=293.15):
     return looks, appearances
 
 
-VISIBLE_OPACITY = 0.30       # display exposure (a screen, not physics): the least a see-through material is drawn at
-
-
-def legible(a):
-    """``(appearance, depth_m)`` of a see-through material as the screen should draw it. Minecraft draws a whole volume of one
-    translucent block as a single pane (the faces between neighbours are culled), so water 15 cm deep, honest to the cell,
-    is a 4% veil nobody can see. Rather than a hand-picked blue, the SAME Beer-Lambert model is evaluated at the least depth
-    where the pane holds ``VISIBLE_OPACITY``, so the tint is still the material's own (water loses red first, so it goes
-    cyan). ``depth_m`` is None when the physical look already holds that, or when no depth does (named in the gaps)."""
-    from sigma_ground.field.interface.block import appearance
-
-    if not 0.0 < a["opacity"] < VISIBLE_OPACITY:
-        return a, None
-    lo, hi = float(a["thickness_m"]), 100.0
-    top = appearance(a["material"], hi)
-    if top["opacity"] < VISIBLE_OPACITY:
-        return dict(a, gaps=[*a["gaps"], f"stays fainter than {VISIBLE_OPACITY:.0%} even 100 m deep: drawn at its physical look"]), None
-    for _ in range(40):                                        # opacity grows with depth: bisect for the least that holds it
-        mid = (lo * hi) ** 0.5
-        lo, hi = (mid, hi) if appearance(a["material"], mid)["opacity"] < VISIBLE_OPACITY else (lo, mid)
-    b = appearance(a["material"], hi)
-    b["gaps"] = [*b["gaps"], f"drawn as if seen through {hi:.3g} m of it so a pane of one block shows (display exposure, not physics)"]
-    return b, hi
-
-
 def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
     """Repaint each carrier with its material's derived look. Returns ``{material: {carrier, rgba, ...}}``."""
     from PIL import Image
+
+    from sigma_ground.field.interface import optics
 
     root = Path(packs_dir) / name
     tex = root / "assets" / "minecraft" / "textures" / "block"
@@ -99,11 +76,11 @@ def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
                   "description": "SkippyCraft: looks derived by sigma-ground"}}, indent=2), encoding="utf-8")
     legend = {}
     for m, carrier in looks.items():
-        a, drawn_at = legible(appearances[m])
+        a = appearances[m]
         rgb = a["color_rgb"] or NO_COLOUR
         alpha = 1.0 if a["opacity"] >= CLEAR_BELOW else a["opacity"]
-        # appearance's colour is linear reflectance; a texture is stored sRGB-encoded (as glow_display already does)
-        rgba = tuple(round(255 * max(0.0, min(1.0, v))) for v in (*(_srgb(max(0.0, min(1.0, c))) for c in rgb), alpha))
+        # appearance's colour is linear reflectance; a texture is stored sRGB-encoded (sigma-ground's optics.srgb_encode)
+        rgba = tuple(round(255 * max(0.0, min(1.0, v))) for v in (*(optics.srgb_encode(c) for c in rgb), alpha))
         Image.new("RGBA", (16, 16), rgba).save(tex / f"{carrier}.png")
         # LabPBR specular: R perceptual smoothness, G F0 (0-229 linear) or 255 = metal (albedo is F0), B 0, A 255 = no emission
         f0 = a["reflectance_f0"]
@@ -111,75 +88,10 @@ def write_resourcepack(looks, appearances, packs_dir, name="skippycraft"):
         r = round(255 * a["smoothness"]) if a["smoothness"] is not None else 0
         Image.new("RGBA", (16, 16), (r, g, 0, 255)).save(tex / f"{carrier}_s.png")
         key = f"{m[0]}@{m[1]:g}m" if isinstance(m, tuple) else m   # (material, block size) when theaters share a pack
-        legend[key] = {"carrier": carrier, "rgba": rgba, "opacity": round(a["opacity"], 4), "drawn_at_m": drawn_at, "metal": a["metal"],
+        legend[key] = {"carrier": carrier, "rgba": rgba, "opacity": round(a["opacity"], 4), "metal": a["metal"],
                      "reflectance_f0": f0, "smoothness": a["smoothness"], "gaps": a["gaps"], "sources": a["sources"]}
     (root / "skippycraft_looks.json").write_text(json.dumps(legend, indent=2, default=str), encoding="utf-8")
     return legend
-
-# ── glow: a block hot enough to shine (field.interface.block.glow) ───────────────────────────────────────────────────────
-# A resource pack can repaint a block but not make it give off light, so a glowing cell is drawn with a block that already
-# does, repainted in its glow colour. Light-emitting blocks that never change by themselves (random ticks are off; copper
-# bulbs keep lit=true without redstone), dimmest first: (block state, light level, the textures that paint it).
-GLOW_CARRIERS = [
-    ("magma_block", 3, ["magma"]),
-    ("waxed_oxidized_copper_bulb[lit=true]", 4, ["oxidized_copper_bulb_lit"]),
-    ("waxed_weathered_copper_bulb[lit=true]", 8, ["weathered_copper_bulb_lit"]),
-    ("crying_obsidian", 10, ["crying_obsidian"]),
-    ("waxed_exposed_copper_bulb[lit=true]", 12, ["exposed_copper_bulb_lit"]),
-    ("waxed_copper_bulb[lit=true]", 15, ["copper_bulb_lit"]),
-    ("glowstone", 15, ["glowstone"]),
-    ("shroomlight", 15, ["shroomlight"]),
-    ("ochre_froglight", 15, ["ochre_froglight_top", "ochre_froglight_side"]),
-    ("verdant_froglight", 15, ["verdant_froglight_top", "verdant_froglight_side"]),
-    ("pearlescent_froglight", 15, ["pearlescent_froglight_top", "pearlescent_froglight_side"]),
-    ("jack_o_lantern", 15, ["jack_o_lantern", "pumpkin_side", "pumpkin_top"]),
-]
-# a cell is drawn in the band of the highest edge at or below its temperature (the first is the Draper point)
-GLOW_BANDS_K = (700.0, 900.0, 1100.0, 1300.0, 1500.0, 1800.0, 2200.0, 2800.0)
-# display exposure (a screen, not physics): real glow brightens ~10^12-fold from the Draper point to 3000 K; a texture has
-# 256 levels, so brightness is drawn on a log scale from GLOW_FLOOR at the Draper point to 1 at GLOW_FULL_K
-GLOW_FLOOR, GLOW_FULL_K = 0.3, 3000.0
-
-
-def _srgb(v):
-    """Linear light → the sRGB encoding textures are stored in."""
-    return 12.92 * v if v <= 0.0031308 else 1.055 * v ** (1 / 2.4) - 0.055
-
-
-def glow_display(material, band_k):
-    """``(rgba, brightness, glow)`` for drawing ``material`` at ``band_k``: its glow hue (sRGB-encoded) times a log-scale
-    brightness from its own radiance."""
-    import math
-    from sigma_ground.field.interface.block import glow
-
-    g = glow(material, band_k)
-    lo = glow(material, GLOW_BANDS_K[0])["radiance_W_m2_sr_m"][0]
-    hi = glow(material, GLOW_FULL_K)["radiance_W_m2_sr_m"][0]
-    L = g["radiance_W_m2_sr_m"][0]
-    v = GLOW_FLOOR + (1 - GLOW_FLOOR) * max(0.0, min(1.0, math.log(L / lo) / math.log(hi / lo))) if L > 0 else 0.0
-    rgba = tuple(round(255 * max(0.0, min(1.0, _srgb(c) * v))) for c in g["rgb"]) + (255,)
-    return rgba, v, g
-
-
-def write_glow_textures(glows, packs_dir, name="skippycraft"):
-    """Repaint each glow carrier: ``glows`` maps a key to ``(carrier index, rgba, brightness)``. LabPBR's emission (the
-    specular map's alpha) carries the brightness for shader packs. Returns a legend."""
-    from PIL import Image
-
-    tex = Path(packs_dir) / name / "assets" / "minecraft" / "textures" / "block"
-    tex.mkdir(parents=True, exist_ok=True)
-    legend = {}
-    for key, (ci, rgba, v) in glows.items():
-        state, light, textures = GLOW_CARRIERS[ci]
-        for t in textures:
-            Image.new("RGBA", (16, 16), rgba).save(tex / f"{t}.png")
-            Image.new("RGBA", (16, 16), (40, 10, 0, max(1, min(254, round(254 * v))))).save(tex / f"{t}_s.png")
-            meta = tex / f"{t}.png.mcmeta"                            # magma's animation would read a missing strip
-            meta.write_text(json.dumps({"animation": {"frametime": 1000}}), encoding="utf-8")
-        legend[str(key)] = {"carrier": state, "light": light, "rgba": rgba, "brightness": round(v, 3)}
-    (Path(packs_dir) / name / "skippycraft_glow.json").write_text(json.dumps(legend, indent=2), encoding="utf-8")
-    return legend
-
 
 def write_flat_textures(paint, packs_dir, name="skippycraft"):
     """Repaint blocks in one flat colour each: ``paint`` maps a block (its texture name) to rgba."""

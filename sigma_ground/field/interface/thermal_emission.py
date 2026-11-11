@@ -154,6 +154,17 @@ def emissivity(material_key: str, lam_m: float) -> float:
 
 # ── Visible glow threshold ────────────────────────────────────────────────
 
+# A DISPLAY tonemap of emitted power (W/m^2) -> [0, 1] glow brightness. The glow COLOUR is physics (Planck x emissivity); this only
+# maps the cited intensity (epsilon sigma T^4) to a screen value. No display-referred radiometry is "correct" without a full tonemapper,
+# so this constant is flagged as a tonemap, not a physics claim. One place, for every renderer (Radiance's site_response, the matter record).
+DISPLAY_GLOW_P0_W_M2 = 3000.0
+
+
+def glow_level(power_W_m2: float) -> float:
+    """Display brightness in [0, 1] of a glow that radiates ``power_W_m2``: 1 - exp(-P / P0), P0 = ``DISPLAY_GLOW_P0_W_M2`` (a tonemap)."""
+    return 1.0 - math.exp(-max(0.0, float(power_W_m2)) / DISPLAY_GLOW_P0_W_M2)
+
+
 def is_visibly_glowing(T: float) -> bool:
     """Whether the thermal emission at temperature T is visible to the human eye.
 

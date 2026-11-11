@@ -669,7 +669,9 @@ least; wood and rubber are molecular). Still approximate:
 - **No temperature dependence:** the colour is the room-temperature one at every temperature (the glow is separate).
 - Sentinels: `sigma_ground/field/interface/test_reflectance_spectra.py`, `tests/test_skippycraft_export.py`.
 
-## See-through blocks are drawn deeper than they are (SkippyCraft, 2026-11-02)
+## RETIRED 2026-11-10: See-through blocks are drawn deeper than they are (SkippyCraft, 2026-11-02)
+
+*``export_mc.legible`` and its ``VISIBLE_OPACITY`` exposure are gone: matter-mode scenes draw clear matter from sigma-ground's optics (below), and the carrier scenes left (the screens, the range) have no clear material. The text below is history.*
 
 `stage/skippycraft/export_mc.py` `legible`: Minecraft draws a volume of one translucent block as a single pane (the faces
 between same blocks are culled), so water honest to its 1.25 cm cell (opacity 4%) or a glass wall (9%) was invisible: the
@@ -697,8 +699,8 @@ the face, at the refracted angle). No display-exposure constant is used on that 
 - **A back face's reflectance assumes parallel faces**; total internal reflection is not drawn.
 - **Thickness is the normal-incidence body behind the face**, counted along the face's own axis, not the ray's true path through
   an irregular body.
-- **The carrier-block path** (the resource pack, used by the theater until it writes matter blocks) still uses
-  ``export_mc.legible``'s display exposure (the entry above); it goes when the theater moves to matter blocks.
+- **The carrier-block path** (the resource pack) no longer has a clear material or an exposure constant: ``export_mc.legible`` is gone, and every scene
+  that draws matter (slosh, sink, melt, playground, strength, impact) draws matter blocks. The screens and the range still use carriers.
 
 ## The theater in matter mode (slosh, 2026-11-04): what a matter cell does not yet carry
 
@@ -707,7 +709,7 @@ the two free bodies get a live record: velocity in Minecraft's axes and the sim 
 
 - **Water cells carry no per-cell velocity.** A record per cell per tick would be thousands of distinct records a frame; the FLIP grid has the
   velocity, and "what is that" reads it live from the world (controls.py) instead of from the block. Only the two bodies carry theirs.
-- **Isothermal worlds only.** A hot world (melt, playground) still uses the glow carriers; matter mode raises rather than draw it wrong.
+- **Hot worlds are matter too (2026-11-10):** each cell's record is its material at its live temperature and melt fraction (stepped at 10 K and 0.1, a data resolution, not physics), so a glow comes from the record's emission, not a glow carrier.
 - **One cell is one block**, so a theater is dozens of blocks across (slosh: 72 x 28 x 32, about 46,000 matter blocks, each a block entity).
   The first draw sends every cell; after that, only what changed (400-600 cells a tick at 25 Hz). The renderer's view distance is 256.
 - **A clear block passes skylight in full** (its light follows the state, not the cube); a clear body's real light attenuation (Beer-Lambert on
@@ -721,8 +723,8 @@ the two free bodies get a live record: velocity in Minecraft's axes and the sim 
 material-into-air reflectance and refraction cosine against the cosine of incidence, and the transmittance of 0..256 cells). The mod
 (``MatterData.Tables``) only interpolates those tables. It has no Fresnel, Snell or exponential of its own: ``MatterRenderer`` is geometry
 (the view angle of a face, the cells behind it) and compositing; ``Refraction`` is geometry (a voxel walk, a search for where a ray lands).
-Anything physical the mod needs must first become a sigma-ground function and a table. Not yet clean: the glow's tone map
-(``export_mc.glow_display``: ``GLOW_FLOOR``, ``GLOW_FULL_K``) and the carrier path's ``legible`` exposure are screen constants, both flagged above.
+Anything physical the mod needs must first become a sigma-ground function and a table. The glow's brightness is a flagged display tonemap that now lives with the physics it maps
+(``thermal_emission.glow_level`` / ``DISPLAY_GLOW_P0_W_M2``, shared with Radiance's ``site_response``); the sRGB encoding is ``optics.srgb_encode``; the whole record is built in sigma-ground (``field.interface.matter_record``), portable to any renderer. Still open, in the renderer's own terms: refraction of the vanilla world (needs a screen-space pass), per-channel tint (needs a multiply blend: a custom render pipeline), and the reflected environment (white at the local light level).
 
 **Refraction (``client/Refraction.java``):** an opaque matter block seen through clear matter is drawn where the refracted ray puts it (the
 gold at the bottom of the tank looks shallower and shifted). Its refraction angle is the table's. Not covered:

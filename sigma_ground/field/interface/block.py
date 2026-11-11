@@ -393,7 +393,7 @@ def glow(material: str, temperature_k: float) -> dict:
     L(λ, T) = ε(λ) · B(λ, T): Planck's law times Kirchhoff's emissivity (``thermal_emission``). A metal with measured
     n+ik uses its own spectral emissivity (``thermal_emission.emissivity``, ε = 1 − R); any other material is a grey body
     with ``block()``'s emissivity. Returns ``{"visible", "rgb", "radiance_W_m2_sr_m", "sources", "gaps"}``:
-    ``radiance`` is L at 650, 550 and 450 nm (absolute, so the brightness rises as steeply as it really does),
+    ``radiance`` is L at 650, 550 and 450 nm (absolute, so the brightness rises as steeply as it really does), ``power_W_m2`` is epsilon sigma T^4 and ``level`` its display tonemap in [0, 1] (``thermal_emission.glow_level``),
     ``rgb`` their ratio normalised to the largest (the glow's hue), ``visible`` whether it is past the Draper point.
     """
     from . import thermal_emission as te
@@ -402,7 +402,7 @@ def glow(material: str, temperature_k: float) -> dict:
     canon = b["canonical"]
     T = float(temperature_k)
     out = {"material": material, "temperature_k": T, "visible": te.is_visibly_glowing(T), "rgb": (0.0, 0.0, 0.0),
-           "radiance_W_m2_sr_m": (0.0, 0.0, 0.0), "sources": {}, "gaps": []}
+           "radiance_W_m2_sr_m": (0.0, 0.0, 0.0), "power_W_m2": 0.0, "level": 0.0, "sources": {}, "gaps": []}
     if canon in te.THERMAL_EMISSION_MATERIALS:
         eps = [te.emissivity(canon, lam) for lam in GLOW_SAMPLES_M]
         out["sources"]["emissivity"] = "thermal_emission.emissivity (Kirchhoff 1 - R, measured n+ik)"
@@ -420,6 +420,14 @@ def glow(material: str, temperature_k: float) -> dict:
     out["sources"]["visible"] = "thermal_emission.is_visibly_glowing (Draper point)"
     if max(L) > 0:
         out["rgb"] = tuple(v / max(L) for v in L)
+    if out["visible"]:
+        from . import thermal
+        try:
+            out["power_W_m2"] = float(thermal.thermal_emission_power(canon, T))
+            out["level"] = te.glow_level(out["power_W_m2"])
+            out["sources"]["level"] = "thermal_emission.glow_level(epsilon sigma T^4): a DISPLAY tonemap (DISPLAY_GLOW_P0_W_M2), not a physics claim"
+        except (KeyError, ValueError):
+            out["gaps"].append("no emissivity for the emitted power: no glow brightness")
     return out
 
 

@@ -733,6 +733,14 @@ def dielectric_surface_reflectance(n: float) -> float:
     return ((n - 1.0) / (n + 1.0)) ** 2
 
 
+def srgb_encode(linear: float) -> float:
+    """The sRGB transfer function (IEC 61966-2-1) for a linear-light value in [0, 1]: the display encoding of a physical reflectance.
+
+    c <= 0.0031308: 12.92 c;  otherwise 1.055 c^(1/2.4) - 0.055.  (Physical colours here are linear; a screen shows them encoded.)"""
+    c = max(0.0, min(1.0, float(linear)))
+    return 12.92 * c if c <= 0.0031308 else 1.055 * c ** (1.0 / 2.4) - 0.055
+
+
 def fresnel_interface(n1: float, n2: float, cos_i: float) -> tuple:
     """Reflectance and refraction at a planar interface between dielectrics, at any angle of incidence.
 

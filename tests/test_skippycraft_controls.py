@@ -160,8 +160,8 @@ def test_a_shot_from_where_he_stands():
     _books(w, M0, E0)
 
 
-def test_every_placeable_material_has_a_carrier_in_the_pack():
-    import theater
-    looks, _ = theater.shared_looks()
+def test_every_placeable_material_has_a_record_from_sigma_ground():
+    import matter
     for m in controls.PLACEABLE:
-        assert (m, controls.PLACE_PITCH) in looks
+        r = matter.record(m, None, controls.PLACE_PITCH)
+        assert r["material"] == m and r["mass_kg"] > 0

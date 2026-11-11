@@ -34,7 +34,7 @@ def slosh():
 
 def _theater(slosh, blocks):
     _, world, looks = slosh
-    return theater.Theater(world, looks, (0, -60, 100), lambda cmds: None, blocks, None, matter=True), world
+    return theater.Theater(world, looks, (0, -60, 100), lambda cmds: None, blocks, matter=True), world
 
 
 def test_first_draw_sends_every_material_as_its_sigma_ground_record(slosh):
@@ -76,8 +76,24 @@ def test_a_resting_world_sends_nothing(slosh):
     assert fb.frames == []
 
 
-def test_a_hot_world_still_needs_the_glow_carriers():
-    field, world = theater.build("playground")
+@pytest.mark.parametrize("scene", ["sink", "melt", "playground", "strength", "impact"])
+def test_every_other_scene_draws_in_matter_mode_from_each_cells_live_state(scene):
+    field, world = theater.build(scene)
     looks, _ = theater.shared_looks()
-    with pytest.raises(ValueError, match="isothermal"):
-        theater.Theater(world, looks, (0, -60, 100), lambda c: None, FakeBlocks(), None, matter=True)
+    fb = FakeBlocks()
+    th = theater.Theater(world, looks, (0, -60, 100), lambda c: None, fb, matter=True)
+    th.draw()
+    records = [json.loads(r) for r in fb.frames[0][0] if r]
+    assert records and all(r["schema"] == matter.SCHEMA for r in records)
+    assert len({(r["material"], r["temperature_k"]) for r in records}) >= len({r["material"] for r in records})
+    world.step(0.05)
+    th.draw()                                                                   # a tick of live physics draws without error
+
+
+def test_a_hot_cell_carries_its_glow_from_sigma_grounds_emission_not_a_carrier():
+    field, world = theater.build("melt")                                      # a 1500 K tungsten plate
+    looks, _ = theater.shared_looks()
+    fb = FakeBlocks()
+    theater.Theater(world, looks, (0, -60, 100), lambda c: None, fb, matter=True).draw()
+    hot = [json.loads(r) for r in fb.frames[0][0] if r and json.loads(r)["temperature_k"] > 1000]
+    assert hot and all(r["emission"] > 0 and r["light"] >= 1 and r["glow_rgb"][0] > r["glow_rgb"][2] for r in hot)
