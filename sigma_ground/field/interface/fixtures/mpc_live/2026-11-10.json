@@ -1,0 +1,774 @@
+{
+ "date": "2026-11-10",
+ "ledger": "misc/CANDIDATE_LEDGER.md C27",
+ "rows": [
+  {
+   "date": "2026-11-10",
+   "body": 1,
+   "name": "Ceres",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_1.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 960,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_1.json",
+   "note": "no optical C/B observations after 2026-09-22T02:04:22.972800+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 4,
+   "name": "Vesta",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_4.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 830,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_4.json",
+   "note": "no optical C/B observations after 2026-10-23T01:07:38.035200+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 2,
+   "name": "Pallas",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_2.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1834,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_2.json",
+   "note": "no optical C/B observations after 2026-10-17T21:08:10.752000+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 10,
+   "name": "Hygiea",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_10.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1955,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_10.json",
+   "note": "no optical C/B observations after 2026-04-23T21:47:05.107200+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 511,
+   "name": "Davida",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_511.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 3180,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_511.json",
+   "note": "no optical C/B observations after 2026-07-16T06:36:22.723200+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 704,
+   "name": "Interamnia",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_704.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 3892,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_704.json",
+   "note": "no optical C/B observations after 2026-09-19T00:48:35.654400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 52,
+   "name": "Europa",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_52.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 3230,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_52.json",
+   "note": "no optical C/B observations after 2026-03-20T02:56:46.636800+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 87,
+   "name": "87 Sylvia (A866 KA)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_87.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 5345,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_87.json",
+   "note": "no optical C/B observations after 2026-11-08T15:05:05.942400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 15,
+   "name": "Eunomia",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_15.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1489,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_15.json",
+   "note": "no optical C/B observations after 2026-07-17T17:42:48.643200+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 3,
+   "name": "Juno",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_3.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1491,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_3.json",
+   "note": "no optical C/B observations after 2026-09-30T13:14:11.328000+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 16,
+   "name": "Psyche",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_16.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 2301,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_16.json",
+   "note": "no optical C/B observations after 2026-10-29T20:52:07.996800+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 107,
+   "name": "107 Camilla (A868 WA)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_107.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 5610,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_107.json",
+   "note": "no optical C/B observations after 2026-11-08T15:17:45.484800+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 88,
+   "name": "Thisbe",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_88.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 4291,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_88.json",
+   "note": "no optical C/B observations after 2026-08-02T18:13:45.206400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 7,
+   "name": "Iris",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_7.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1369,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_7.json",
+   "note": "no optical C/B observations after 2026-07-04T00:18:08.985600+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 31,
+   "name": "Euphrosyne",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_31.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 3247,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_31.json",
+   "note": "no optical C/B observations after 2026-10-29T20:09:21.657600+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 65,
+   "name": "65 Cybele (A861 EB)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_65.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 5433,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_65.json",
+   "note": "no optical C/B observations after 2026-08-02T17:26:52.886400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 209,
+   "name": "Dido",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_209.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 5217,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_209.json",
+   "note": "no optical C/B observations after 2026-11-08T15:31:53.155200+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 94,
+   "name": "Aurora",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_94.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 5111,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_94.json",
+   "note": "no optical C/B observations after 2026-10-29T20:54:00.662400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 48,
+   "name": "Doris",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_48.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 4496,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_48.json",
+   "note": "no optical C/B observations after 2026-10-22T05:36:19.152000+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 154,
+   "name": "Bertha",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_154.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 4773,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_154.json",
+   "note": "no optical C/B observations after 2026-09-19T00:48:35.654400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 29,
+   "name": "Amphitrite",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_29.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1389,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_29.json",
+   "note": "no optical C/B observations after 2026-08-06T07:26:44.131200+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 375,
+   "name": "Ursula",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_375.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 4425,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_375.json",
+   "note": "no optical C/B observations after 2026-11-03T07:32:38.198400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 532,
+   "name": "Herculina",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_532.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1928,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_532.json",
+   "note": "no optical C/B observations after 2026-10-30T01:13:35.558400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 566,
+   "name": "566 Stereoskopia (A905 KA)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_566.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 5432,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_566.json",
+   "note": "no optical C/B observations after 2026-11-08T12:59:37.824000+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 386,
+   "name": "Siegena",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_386.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 4779,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_386.json",
+   "note": "no optical C/B observations after 2026-11-08T15:17:45.484800+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 702,
+   "name": "Alauda",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_702.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 5275,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_702.json",
+   "note": "no optical C/B observations after 2026-11-04T13:10:33.168000+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 39,
+   "name": "Laetitia",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_39.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 2354,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_39.json",
+   "note": "no optical C/B observations after 2026-06-06T22:59:58.070400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 9,
+   "name": "Metis",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_9.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1829,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_9.json",
+   "note": "no optical C/B observations after 2026-09-06T13:37:11.740800+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 6,
+   "name": "Hebe",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_6.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 1436,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_6.json",
+   "note": "no optical C/B observations after 2026-02-16T02:17:54.182400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 324,
+   "name": "Bamberga",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_324.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 3581,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-10-16, D:\\datasets\\jpl\\horizons_asteroids\\horizons_ast_324.json",
+   "note": "no optical C/B observations after 2026-09-07T22:38:53.520000+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 433,
+   "name": "Eros",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_433.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 10039,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2458849.5,
+   "start_source": "JPL Horizons barycentric state at JD 2458849.5 (2020-01-01 TDB), C24's start, D:\\datasets\\mpc\\eros\\vec_2019-12-31_2022-01-02.json",
+   "note": "no optical C/B observations after 2026-09-19T00:55:51.628800+00:00 and before 2026-11-10",
+   "lead_days": 2505.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 99942,
+   "name": "Apophis",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_99942.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources, Yarkovsky from JPL's fitted A2 (C31)",
+   "code": "17410dd",
+   "n_obs_in_file": 8162,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_99942.json",
+   "note": "no optical C/B observations after 2026-01-01 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 893859,
+   "name": "893859 (2016 VO1)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_893859.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 98,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_893859.json",
+   "note": "no optical C/B observations after 2026-02-16T02:57:07.977600+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 474158,
+   "name": "474158 (1999 FA)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_474158.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources, Yarkovsky from JPL's fitted A2 (C31)",
+   "code": "17410dd",
+   "n_obs_in_file": 499,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_474158.json",
+   "note": "no optical C/B observations after 2026-10-03T06:52:06.902400+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 535844,
+   "name": "535844 (2015 BY310)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_535844.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 967,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_535844.json",
+   "note": "no optical C/B observations after 2026-01-01 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 673675,
+   "name": "673675 (2015 FM34)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_673675.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 116,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_673675.json",
+   "note": "no optical C/B observations after 2026-01-01 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 506074,
+   "name": "506074 Svarog",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_506074.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 648,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_506074.json",
+   "note": "no optical C/B observations after 2026-01-01 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 678964,
+   "name": "678964 (2018 CC14)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_678964.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources, Yarkovsky from JPL's fitted A2 (C31)",
+   "code": "17410dd",
+   "n_obs_in_file": 85,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_678964.json",
+   "note": "no optical C/B observations after 2026-01-01 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 4953,
+   "name": "4953 (1990 MU)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_4953.txt",
+    "horizons": [
+     "D:\\datasets\\mpc_live\\2026-11-10\\horizons\\obs_4953_T05_20261109T073052_8.json"
+    ],
+    "per_observation": "D:\\datasets\\mpc_live\\2026-11-10\\residuals_4953_20261109_20261109.json"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 2375,
+   "n_new_unknown_station": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_4953.json",
+   "n_obs": 8,
+   "window_utc": [
+    "2026-11-09T07:30:52.012800+00:00",
+    "2026-11-09T08:13:01.459200+00:00"
+   ],
+   "lead_days": 312.3431787248701,
+   "lead_days_first": 312.31390272499993,
+   "n_no_jpl": 0,
+   "n_scored": 8,
+   "n_dropped_outliers": 0,
+   "ours": {
+    "median_arcsec": 0.4263539134543358,
+    "robust_sigma_arcsec": 0.21848591505492157,
+    "rms_arcsec": 0.5900640987081092,
+    "median_dra_cosdec": 0.0033244236387369834,
+    "median_ddec": 0.2655221595416982
+   },
+   "jpl": {
+    "median_arcsec": 0.42639792622138883,
+    "robust_sigma_arcsec": 0.21852395692508048,
+    "rms_arcsec": 0.5900823150665699,
+    "median_dra_cosdec": 0.003280130892986302,
+    "median_ddec": 0.2655493999887619
+   },
+   "ours_minus_jpl": {
+    "median_arcsec": 5.122633181664864e-05,
+    "robust_sigma_arcsec": 1.420845814785904e-06,
+    "rms_arcsec": 5.156806760244395e-05,
+    "median_dra_cosdec": 4.385533517137219e-05,
+    "median_ddec": -2.6772703242278206e-05
+   },
+   "stations": {
+    "T05": 8
+   },
+   "backfill": false
+  },
+  {
+   "date": "2026-11-10",
+   "body": 137108,
+   "name": "137108 (1999 AN10)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_137108.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 405,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_137108.json",
+   "note": "no optical C/B observations after 2026-01-01 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 826799,
+   "name": "826799 (2023 OE6)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_826799.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 138,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_826799.json",
+   "note": "no optical C/B observations after 2026-01-01 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 250680,
+   "name": "250680 (2005 QC5)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_250680.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 119,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_250680.json",
+   "note": "no optical C/B observations after 2026-07-16T20:22:57.964800+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  },
+  {
+   "date": "2026-11-10",
+   "body": 453707,
+   "name": "453707 (2010 XY72)",
+   "files": {
+    "obs80": "D:\\datasets\\mpc_live\\2026-11-10\\obs80_453707.txt"
+   },
+   "engine": "C24 (scripts/eros_sky_residuals.py): DE440s planets, Sun 1PN, DE440 asteroids as prescribed sources",
+   "code": "17410dd",
+   "n_obs_in_file": 425,
+   "n_new_unknown_station": 0,
+   "n_obs": 0,
+   "start_epoch_jd_tdb": 2461041.5,
+   "start_source": "JPL Horizons barycentric state at JD 2461041.5 (2026-01-01 TDB), fetched 2026-11-10, D:\\datasets\\mpc_live\\start_states\\horizons_vec_453707.json",
+   "note": "no optical C/B observations after 2026-03-26T08:27:10.944000+00:00 and before 2026-11-10",
+   "lead_days": 313.0
+  }
+ ],
+ "failed_bodies": []
+}
