@@ -760,6 +760,78 @@
     "units": "J",
     "oracle": "tool"
    }
+  },
+  {
+   "id": "distill-2026-11-10-022",
+   "day": "2026-11-10",
+   "reason": "new_combination",
+   "question": "A 9.72 kΩ load carries 0.167 A; how many watts does it consume?",
+   "domain": "physics",
+   "signature": [
+    "electrical_power",
+    "ohms_law_voltage"
+   ],
+   "expected": {
+    "tool": "electrical_power",
+    "args": {
+     "voltage_v": 1623.24,
+     "current_a": 0.167
+    },
+    "plan": [
+     {
+      "tool": "ohms_law_voltage",
+      "args": {
+       "current_a": 0.167,
+       "resistance_ohm": 9720.0
+      }
+     },
+     {
+      "tool": "electrical_power",
+      "args": {
+       "voltage_v": "$1",
+       "current_a": 0.167
+      }
+     }
+    ],
+    "result": 271.08108000000004,
+    "units": "W",
+    "oracle": "tool"
+   }
+  },
+  {
+   "id": "distill-2026-11-10-029",
+   "day": "2026-11-10",
+   "reason": "new_combination",
+   "question": "A 24.3 tonnes vehicle is moving at 0.124 km/s. How many tons of TNT equal its kinetic energy?",
+   "domain": "physics",
+   "signature": [
+    "joules_to_TNT",
+    "kinetic_energy"
+   ],
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 186818400.0
+    },
+    "plan": [
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 24300.0,
+       "velocity_m_s": 124.0
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "result": 0.04465066921606119,
+    "units": "ton_TNT",
+    "oracle": "tool"
+   }
   }
  ],
  "open_misses": [

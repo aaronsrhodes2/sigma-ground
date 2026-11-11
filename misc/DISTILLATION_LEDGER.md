@@ -6,16 +6,17 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 
 | day | questions | judged | Mentat right | misses by cause | unverified | Wolfram answered / no result | Wolfram agrees / disagrees with our oracle | Mentat ref |
 |---|---|---|---|---|---|---|---|---|
-| 2026-10-30 | 40 | 35 | 34 | wrong_value 1 | 5 | 29 / 11 | 16 / 6 | 00afc1e |
-| 2026-10-31 | 40 | 35 | 35 | none | 5 | 29 / 11 | 16 / 5 | 00afc1e |
-| 2026-11-01 | 40 | 35 | 34 | wrong_value 1 | 5 | 34 / 6 | 13 / 11 | 00afc1e |
-| 2026-11-02 | 40 | 35 | 35 | none | 5 | 32 / 8 | 15 / 7 | 00afc1e |
-| 2026-11-03 | 40 | 35 | 34 | wrong_value 1 | 5 | 22 / 18 | 15 / 4 | 00afc1e |
-| 2026-11-04 | 40 | 35 | 34 | wrong_value 1 | 5 | 28 / 12 | 15 / 6 | 00afc1e |
-| 2026-11-05 | 39 | 35 | 34 | wrong_value 1 | 4 | 29 / 10 | 15 / 5 | 00afc1e |
-| 2026-11-06 | 39 | 35 | 35 | none | 4 | 31 / 8 | 14 / 7 | 00afc1e |
-| 2026-11-07 | 40 | 35 | 33 | wrong_value 2 | 5 | 29 / 11 | 17 / 7 | 00afc1e |
-| 2026-11-09 | 37 | 35 | 34 | wrong_value 1 | 2 | 27 / 10 | 14 / 8 | 00afc1e |
+| 2026-10-30 | 40 | 35 | 34 | wrong_value 1 | 5 | 29 / 11 | 16 / 6 | bfb2892 |
+| 2026-10-31 | 40 | 35 | 35 | none | 5 | 29 / 11 | 16 / 5 | bfb2892 |
+| 2026-11-01 | 40 | 35 | 34 | wrong_value 1 | 5 | 34 / 6 | 13 / 11 | bfb2892 |
+| 2026-11-02 | 40 | 35 | 35 | none | 5 | 32 / 8 | 15 / 7 | bfb2892 |
+| 2026-11-03 | 40 | 35 | 34 | wrong_value 1 | 5 | 22 / 18 | 15 / 4 | bfb2892 |
+| 2026-11-04 | 40 | 35 | 34 | wrong_value 1 | 5 | 28 / 12 | 15 / 6 | bfb2892 |
+| 2026-11-05 | 39 | 35 | 34 | wrong_value 1 | 4 | 29 / 10 | 15 / 5 | bfb2892 |
+| 2026-11-06 | 39 | 35 | 35 | none | 4 | 31 / 8 | 14 / 7 | bfb2892 |
+| 2026-11-07 | 40 | 35 | 33 | wrong_value 2 | 5 | 29 / 11 | 17 / 7 | bfb2892 |
+| 2026-11-09 | 37 | 35 | 34 | wrong_value 1 | 2 | 27 / 10 | 14 / 8 | bfb2892 |
+| 2026-11-10 | 40 | 35 | 35 | none | 5 | 32 / 8 | 17 / 6 | bfb2892 |
 
 ## Causes, grouped: the candidate fixes
 
@@ -26,7 +27,7 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | set wording f0a0e56 |
 | wrong_value | curl | 1 | `curl of (0, t + s, r*s)` (got ['s - 1', '0', '1'] via curl) | fixed 2cdb61d |
 
-## Unverified (45): wild questions with no oracle, for a person to read
+## Unverified (50): wild questions with no oracle, for a person to read
 
 - `molar mass of water in g/mol` -> Mentat {'atomic_mass_amu': 1.008, 'at  (router); Wolfram answered
 - `density of gold in kg/m³` -> Mentat 19300.0 kg/m^3 (router); Wolfram answered
@@ -64,7 +65,7 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 - `surface gravity of the Moon in m/s^2` -> Mentat 1.625 m/s^2 (router); Wolfram answered
 - `density of gold at 20 celsius` -> Mentat 19300.0 kg/m^3 (router); Wolfram answered
 - `standard reduction potential of copper` -> Mentat {'GM_m3_s2': 1.996082900999999 counts, kg, m^3/s^2 (router); Wolfram no_result
-- `wavelength of visible light peak in nm` -> Mentat 5.020394932432432e-07 m (router); Wolfram no_result
+- `wavelength of visible light peak in nm` -> Mentat 5.015181645898235e-07 m (router); Wolfram no_result
 - `speed of light in vacuum in m/s` -> Mentat 299792458.0 m / s (router); Wolfram answered
 - `molar mass of water` -> Mentat {'atomic_mass_amu': 1.008, 'at  (router); Wolfram answered
 - `density of gold at 20 C` -> Mentat 19300.0 kg/m^3 (router); Wolfram answered
