@@ -41,7 +41,21 @@ def test_a_clear_block_carries_the_physics_a_renderer_needs_not_a_tuned_opacity(
     assert 1.3 < r["n"] < 1.4 and len(r["absorption_per_m"]) == 3 and r["absorption_per_m"][0] > r["absorption_per_m"][2]
     assert not any("display exposure" in g for g in r["gaps"]) and "drawn_at_m" not in r
     gold = matter.record("gold", 2.4, PITCH)
-    assert gold["n"] is None and gold["absorption_per_m"] is None                  # opaque: nothing passes
+    assert gold["n"] is None and gold["absorption_per_m"] is None and gold["tables"] is None   # opaque: nothing passes
+
+
+def test_the_tables_are_sigma_grounds_optics_sampled_not_the_renderers_physics():
+    from sigma_ground.field.interface import optics
+    r = matter.record("glass", None, 0.0125)
+    t = r["tables"]
+    n = r["n"]
+    k = 17                                                                           # a sample in the middle
+    R, cos_t = optics.fresnel_interface(1.0, n, t["in"]["cos_i"][k])
+    assert t["in"]["reflectance"][k] == pytest.approx(R, abs=1e-6) and t["in"]["cos_t"][k] == pytest.approx(cos_t, abs=1e-6)
+    R2, cos_o = optics.fresnel_interface(n, 1.0, t["out"]["cos_i"][k])
+    assert t["out"]["reflectance"][k] == pytest.approx(R2, abs=1e-6)
+    assert t["transmittance"]["step_m"] == 0.0125 and len(t["transmittance"]["rgb"][0]) == matter.DEPTH_CELLS + 1
+    assert t["transmittance"]["rgb"][1][10] == pytest.approx(optics.beer_lambert_transmittance(r["absorption_per_m"][1], 10 * 0.0125), abs=1e-6)
 
 
 def test_the_wire_form_is_json_the_mod_reads():

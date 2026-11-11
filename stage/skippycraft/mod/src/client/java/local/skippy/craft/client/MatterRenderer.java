@@ -22,19 +22,20 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Draws a matter block from its record, with nothing tuned for the screen.
+ * Draws a matter block from its record. This class computes NO physical quantity: every number it draws with is read from the
+ * tables sigma-ground's optics computed into the record (stage/skippycraft/matter.py): the Fresnel reflectance, the refraction
+ * angle and the Beer-Lambert transmittance. What it does is geometry (the view angle of a face, the blocks behind it, where a
+ * refracted ray lands) and compositing.
  *
- * An opaque material is a cube in its record's colour, brightened toward its glow colour by its emission, lit as bright as
- * it glows.
+ * An opaque material is a cube in its record's colour, brightened toward its glow colour by its emission, lit as bright as it
+ * glows, and drawn where a refracted ray puts it when clear matter lies between it and the camera ({@link Refraction}).
  *
- * A clear dielectric (water, glass, ice, ...) is drawn the way light meets it: each face reflects the Fresnel fraction F of
- * the light around it (exact unpolarised Fresnel for the record's index n, at the angle the camera actually sees the face),
- * and what is not reflected goes on through the body and is attenuated by Beer-Lambert over the real path length: the
- * blocks of the same material behind the face (counted here), at the refracted angle. Faces between two blocks of the same
- * material are not drawn: there is no interface there. The environment a face reflects is white at the local light level
- * (no environment map), a back face's reflectance uses the parallel-face angle, and the attenuation is one number (the mean
- * of R, G, B) because alpha blending cannot multiply per channel. Each of these is named in KNOWN_GAPS.md; refraction (the
- * bending that makes clear things look clear) needs a screen-space pass and is the next gap to close.
+ * A clear dielectric is drawn the way light meets it: each face reflects the tabulated Fresnel fraction at the angle the camera
+ * sees it; the rest goes through the body and is attenuated by the tabulated transmittance of the real path (the blocks of the
+ * same material behind the face, at the tabulated refraction angle). Faces between blocks of one material are not drawn: there
+ * is no interface. The environment a face reflects is white at the local light level (no environment map), a back face assumes
+ * parallel faces, and the attenuation is the mean of R, G, B (alpha blending cannot multiply per channel). Each is a named gap
+ * in KNOWN_GAPS.md.
  */
 public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEntity, MatterRenderer.State> {
 	private static final Identifier WHITE = SkippyCraftMod.id("textures/misc/white.png");
@@ -46,6 +47,7 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 		int hidden;                         // bit i set: the face toward Direction.values()[i] is covered
 		final int[] depth = new int[6];     // blocks of the same material behind each face (a clear material)
 		double cx, cy, cz;                  // the camera, relative to this block's corner
+		double[][] shift;                   // per corner (bit 0 x, bit 1 y, bit 2 z): where refraction moves it, or null
 	}
 
 	@Override
@@ -63,8 +65,10 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 		s.cx = camera.x - pos.getX();
 		s.cy = camera.y - pos.getY();
 		s.cz = camera.z - pos.getZ();
+		s.shift = null;
 		Level level = be.getLevel();
 		if (level == null || !(be.getBlockState().getBlock() instanceof MatterBlock)) return;
+		if (s.data.opaque() && Refraction.enabled()) s.shift = Refraction.corners(level, camera, pos);
 		for (Direction d : Direction.values()) {
 			BlockEntity n = level.getBlockEntity(pos.relative(d));
 			if (n instanceof MatterBlockEntity m && covers(m.data(), s.data)) s.hidden |= 1 << d.ordinal();
@@ -132,43 +136,44 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 				lf = FULL_BRIGHT;               // the colour already carries the light it reflects
 				nx = 0; ny = 1; nz = 0;         // the entity shader's face shading is not physics: no darkening by direction
 			}
-			vertex(vc, pose, o[0], o[1], o[2], 0, 0, r, g, b, a, lf, nx, ny, nz);
-			vertex(vc, pose, o[0] + u[0], o[1] + u[1], o[2] + u[2], 1, 0, r, g, b, a, lf, nx, ny, nz);
-			vertex(vc, pose, o[0] + u[0] + v[0], o[1] + u[1] + v[1], o[2] + u[2] + v[2], 1, 1, r, g, b, a, lf, nx, ny, nz);
-			vertex(vc, pose, o[0] + v[0], o[1] + v[1], o[2] + v[2], 0, 1, r, g, b, a, lf, nx, ny, nz);
+			corner(vc, pose, s, o[0], o[1], o[2], 0, 0, r, g, b, a, lf, nx, ny, nz);
+			corner(vc, pose, s, o[0] + u[0], o[1] + u[1], o[2] + u[2], 1, 0, r, g, b, a, lf, nx, ny, nz);
+			corner(vc, pose, s, o[0] + u[0] + v[0], o[1] + u[1] + v[1], o[2] + u[2] + v[2], 1, 1, r, g, b, a, lf, nx, ny, nz);
+			corner(vc, pose, s, o[0] + v[0], o[1] + v[1], o[2] + v[2], 0, 1, r, g, b, a, lf, nx, ny, nz);
 		}
 	}
 
 	/**
 	 * One face of a clear dielectric as (r, g, b, alpha) bytes. Composited over what is behind it, src-over gives
-	 * F * env + (1 - F) * T * behind, which is the physics: F reflected, the rest transmitted and attenuated.
+	 * R * env + (1 - R) * T * behind: R reflected, the rest transmitted and attenuated, with R, the refraction angle and T read
+	 * from sigma-ground's tables.
 	 */
 	static double[] clearFace(MatterData d, double cosI, boolean front, int blocksBehind, double env) {
-		double n = d.n;
-		double sinI2 = Math.max(0, 1 - cosI * cosI);
-		double sinT = Math.sqrt(sinI2) / n;
-		double cosT = Math.sqrt(Math.max(0, 1 - sinT * sinT));
-		double F, T = 1;
+		MatterData.Tables t = d.tables;
+		double cosT = t.cosRefractedIn(cosI);
+		double R, T = 1;
 		if (front) {                           // air -> material
-			F = fresnel(1.0, n, cosI, cosT);
-			double path = blocksBehind * d.pitchM / Math.max(cosT, 0.05);
-			double sum = 0;
-			for (int c = 0; c < 3; c++) sum += Math.exp(-d.absorption[c] * path);
-			T = sum / 3;
+			R = t.reflectanceIn(cosI);
+			T = t.transmittance(blocksBehind / Math.max(cosT, 0.05));     // the slant path through the body, in cells
 		} else {                               // material -> air, the ray having come in at cosT
-			F = fresnel(n, 1.0, cosT, cosI);
+			R = t.reflectanceOut(cosT);
 		}
-		double alpha = 1 - (1 - F) * T;
+		double alpha = 1 - (1 - R) * T;
 		if (alpha <= 1e-4) return new double[] {0, 0, 0, 0};
-		double c = Math.max(0, Math.min(1, F * env / alpha));
+		double c = Math.max(0, Math.min(1, R * env / alpha));
 		return new double[] {Math.round(255 * c), Math.round(255 * c), Math.round(255 * c), Math.round(255 * Math.min(1, alpha))};
 	}
 
-	/** Unpolarised Fresnel reflectance from index n1 into n2, with cosines of the incident and transmitted angles. */
-	static double fresnel(double n1, double n2, double cosI, double cosT) {
-		double rs = (n1 * cosI - n2 * cosT) / (n1 * cosI + n2 * cosT);
-		double rp = (n2 * cosI - n1 * cosT) / (n2 * cosI + n1 * cosT);
-		return Math.min(1, (rs * rs + rp * rp) / 2);
+	/** A cube corner (each coordinate 0 or 1), moved by where refraction puts it. */
+	private static void corner(VertexConsumer vc, PoseStack.Pose pose, State s, float x, float y, float z, float u, float v,
+							   int r, int g, int b, int a, int light, float nx, float ny, float nz) {
+		if (s.shift != null) {
+			double[] d = s.shift[(x > 0.5f ? 1 : 0) | (y > 0.5f ? 2 : 0) | (z > 0.5f ? 4 : 0)];
+			x += (float) d[0];
+			y += (float) d[1];
+			z += (float) d[2];
+		}
+		vertex(vc, pose, x, y, z, u, v, r, g, b, a, light, nx, ny, nz);
 	}
 
 	private static int mix(int base, int glow, float e) {

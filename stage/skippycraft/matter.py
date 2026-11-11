@@ -4,14 +4,17 @@ A record is three layers, and time enters only where the physics needs it:
 
   invariant   material, mass_kg, pitch_m                      (conserved or chosen: no clock)
   state       temperature_k, melt, phase, and, if it moves, t (sim seconds) with x, v      (a snapshot "as of t")
-  look        rgba, light, emission, f0, metal, smoothness, n, absorption_per_m   (derived from the state by sigma-ground's optics)
+  look        rgba, light, emission, f0, metal, smoothness, n, absorption_per_m, tables   (derived from the state by sigma-ground's optics)
 
 Position is the block's own place in the world, so it is not in the record; ``t`` is None for a block that is not moving
 and has no history (a static record needs no clock). Every value is from ``sigma_ground.field.interface.block``
 (``block``, ``appearance``, ``glow``); what it cannot give is a named gap, never filled in. Nothing here is tuned for
 the screen: ``rgba`` is the physical look at the block's own size, and for a clear material the record also carries ``n``
 (index at 550 nm) and ``absorption_per_m`` (R, G, B), so the mod draws the Fresnel reflectance at the real angle and the
-Beer-Lambert transmittance through the real path length of the body, the way a ray meets it. (``export_mc.legible`` is the
+Beer-Lambert transmittance through the real path length of the body, the way a ray meets it. The mod carries NO physics: every
+physical number it draws with is a table in ``tables`` that sigma-ground's ``optics`` computed here (Fresnel reflectance and the
+refraction angle at the interface, air into the material and back out, and the transmittance of 0..256 cells of it); the mod only
+interpolates them and places geometry. (``export_mc.legible`` is the
 carrier-block path's stand-in for that; it goes when the theater writes matter blocks.)
 
 ``to_wire`` is what the mod receives: a JSON string, frame type 'SKCM' (see ``theater.MatterWriter``).
@@ -26,7 +29,8 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-SCHEMA = 1
+SCHEMA = 2
+DEPTH_CELLS = 256         # the transmittance table reaches this many cells of the material (a deeper body reads the last entry)
 MAX_LIGHT = 15
 
 
@@ -62,6 +66,16 @@ def record(material, mass_kg, pitch_m, temperature_k=293.15, *, t=None, v=(0.0, 
         light, emission, glow_rgb = round(MAX_LIGHT * v_glow), round(v_glow, 4), list(g_rgba[:3])
         gaps += g["gaps"]
 
+    tables = None
+    if a["n_refractive"] is not None:
+        from sigma_ground.field.interface import optics
+        n = a["n_refractive"]
+        def rounded(table):                      # 6 decimals: a table is data, and 17 digits would make every record 20 kB
+            return {k: [round(v, 6) for v in vals] for k, vals in table.items()}
+        tables = {"in": rounded(optics.interface_table(1.0, n)), "out": rounded(optics.interface_table(n, 1.0)),
+                  "transmittance": {"step_m": float(pitch_m),
+                                    "rgb": [[round(v, 6) for v in ch] for ch in
+                                            optics.transmittance_table(a["absorption_per_m"], float(pitch_m), DEPTH_CELLS + 1)]}}
     prop = b["properties"]
     return {
         "schema": SCHEMA,
@@ -75,6 +89,7 @@ def record(material, mass_kg, pitch_m, temperature_k=293.15, *, t=None, v=(0.0, 
         "f0": None if shown["reflectance_f0"] is None else [float(c) for c in np.atleast_1d(shown["reflectance_f0"])],
         "metal": bool(shown["metal"]), "smoothness": shown["smoothness"],
         "light": int(light), "emission": emission, "glow_rgb": glow_rgb,
+        "tables": tables,
         "gaps": gaps,
     }
 

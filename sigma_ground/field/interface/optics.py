@@ -733,6 +733,54 @@ def dielectric_surface_reflectance(n: float) -> float:
     return ((n - 1.0) / (n + 1.0)) ** 2
 
 
+def fresnel_interface(n1: float, n2: float, cos_i: float) -> tuple:
+    """Reflectance and refraction at a planar interface between dielectrics, at any angle of incidence.
+
+    FIRST_PRINCIPLES (Maxwell boundary conditions):
+      Snell:      n1 sin(theta_i) = n2 sin(theta_t)
+      Fresnel:    r_s = (n1 cos_i - n2 cos_t) / (n1 cos_i + n2 cos_t)
+                  r_p = (n2 cos_i - n1 cos_t) / (n2 cos_i + n1 cos_t)
+      unpolarised reflectance R = (r_s^2 + r_p^2) / 2; the rest, 1 - R, is transmitted (energy conservation).
+    Beyond the critical angle (n1 > n2) the light is totally reflected: R = 1 and cos_t = 0.
+
+    Args:
+        n1: index of the medium the light is in; n2: index of the medium it enters.
+        cos_i: cosine of the angle of incidence to the surface normal, in [0, 1].
+
+    Returns:
+        (R, cos_t): the reflected fraction and the cosine of the refraction angle.
+    """
+    cos_i = max(0.0, min(1.0, float(cos_i)))
+    sin_t = (n1 / n2) * math.sqrt(max(0.0, 1.0 - cos_i * cos_i))
+    if sin_t >= 1.0:
+        return 1.0, 0.0
+    cos_t = math.sqrt(1.0 - sin_t * sin_t)
+    rs = (n1 * cos_i - n2 * cos_t) / (n1 * cos_i + n2 * cos_t)
+    rp = (n2 * cos_i - n1 * cos_t) / (n2 * cos_i + n1 * cos_t)
+    return (rs * rs + rp * rp) / 2.0, cos_t
+
+
+def interface_table(n1: float, n2: float, samples: int = 65) -> dict:
+    """``fresnel_interface`` sampled at ``samples`` cosines of incidence, uniform on [0, 1], for a renderer that must not
+    carry physics of its own: it interpolates this table. ``{"cos_i", "reflectance", "cos_t"}``, lists of floats."""
+    cos_i = [k / (samples - 1) for k in range(samples)]
+    pairs = [fresnel_interface(n1, n2, c) for c in cos_i]
+    return {"cos_i": cos_i, "reflectance": [r for r, _ in pairs], "cos_t": [c for _, c in pairs]}
+
+
+def beer_lambert_transmittance(alpha_per_m: float, path_m: float) -> float:
+    """Fraction of light that survives ``path_m`` of a medium absorbing ``alpha_per_m``.
+
+    FIRST_PRINCIPLES: dI/dx = -alpha I  =>  T = exp(-alpha x)."""
+    return math.exp(-float(alpha_per_m) * float(path_m))
+
+
+def transmittance_table(alpha_per_m_rgb, step_m: float, count: int) -> list:
+    """``beer_lambert_transmittance`` for each of R, G, B at path lengths 0, step, 2 step, ... (``count`` samples), so a
+    renderer can read the attenuation of a body of any whole number of cells (and interpolate between): ``[[T_r..], [T_g..], [T_b..]]``."""
+    return [[beer_lambert_transmittance(a, k * step_m) for k in range(count)] for a in alpha_per_m_rgb]
+
+
 def dielectric_opacity(material_key: str) -> float:
     """Surface opacity (≈ Fresnel R) of a transparent dielectric at 550 nm.
 

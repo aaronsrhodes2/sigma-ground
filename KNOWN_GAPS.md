@@ -690,9 +690,7 @@ dielectric (``skippycraft:matter``) therefore carries ``n`` (index at 550 nm) an
 camera sees it) plus the rest transmitted and attenuated by Beer-Lambert over the real path (blocks of the same material behind
 the face, at the refracted angle). No display-exposure constant is used on that path. What is still approximate, each named here:
 
-- **Refraction is not drawn.** The bending of the view through water or glass (what makes clear things look clear) needs a
-  screen-space pass; vanilla has none. A clear block is therefore honest but faint: at normal incidence a 5 cm cube of water
-  reflects ~2% and a glass block ~4%.
+- **Refraction of the vanilla world is not drawn** (see the refraction entry below): only matter blocks seen through clear matter are moved.
 - **The reflected environment is white at the local light level**, not the sky or the surroundings (no environment map).
 - **The attenuation is one number per face** (the mean of R, G, B): alpha blending cannot multiply per channel, so water does
   not lose its red first on screen. A multiply pass (Minecraft 26.3's new renderer has a transmittance snippet for it) would.
@@ -714,3 +712,25 @@ the two free bodies get a live record: velocity in Minecraft's axes and the sim 
   The first draw sends every cell; after that, only what changed (400-600 cells a tick at 25 Hz). The renderer's view distance is 256.
 - **A clear block passes skylight in full** (its light follows the state, not the cube); a clear body's real light attenuation (Beer-Lambert on
   the sun) is not computed, so a deep body of water does not darken what is under it.
+
+## Refraction and "the mod carries no physics" (SkippyCraft, 2026-11-10)
+
+**The rule (the Captain): the math comes from sigma-ground, always; it is never written into the mod.** What that means in the code:
+``field.interface.optics`` computes Fresnel at any angle (``fresnel_interface``), Snell's refraction angle with it, and Beer-Lambert
+(``beer_lambert_transmittance``); ``stage/skippycraft/matter.py`` samples them into tables in each clear record (``tables``: air-into-material and
+material-into-air reflectance and refraction cosine against the cosine of incidence, and the transmittance of 0..256 cells). The mod
+(``MatterData.Tables``) only interpolates those tables. It has no Fresnel, Snell or exponential of its own: ``MatterRenderer`` is geometry
+(the view angle of a face, the cells behind it) and compositing; ``Refraction`` is geometry (a voxel walk, a search for where a ray lands).
+Anything physical the mod needs must first become a sigma-ground function and a table. Not yet clean: the glow's tone map
+(``export_mc.glow_display``: ``GLOW_FLOOR``, ``GLOW_FULL_K``) and the carrier path's ``legible`` exposure are screen constants, both flagged above.
+
+**Refraction (``client/Refraction.java``):** an opaque matter block seen through clear matter is drawn where the refracted ray puts it (the
+gold at the bottom of the tank looks shallower and shifted). Its refraction angle is the table's. Not covered:
+
+- **Only matter blocks move.** The vanilla blocks behind a tank (the floor, a wall) are not refracted: that needs a screen-space pass, and
+  Minecraft 26.3 draws translucency through a wavelet order-independent pipeline (``oit_composite.fsh``) whose composite shader would have to be
+  replaced. The clear surfaces themselves are not lensed either.
+- **One planar entry surface:** the first face of clear matter along the ray, and the medium of the last clear block before the vertex; the
+  faces in between are taken as parallel (a glass wall between air and the water shifts the ray sideways, and that shift is ignored).
+- **Light that leaves the body and re-enters is not followed**, and a camera inside the medium is not refracted.
+- **A cube's vertices move, its edges stay straight**, so a large object's lensing is its corners', not a curve.

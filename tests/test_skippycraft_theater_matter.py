@@ -9,6 +9,7 @@ import pytest
 np.seterr(all="ignore")
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "stage" / "skippycraft"))
 
+import matter  # noqa: E402
 import theater  # noqa: E402
 
 
@@ -43,7 +44,7 @@ def test_first_draw_sends_every_material_as_its_sigma_ground_record(slosh):
     records, runs = fb.frames[0]
     mats = {json.loads(r)["material"] for r in records if r}
     assert {"glass", "water", "aluminum"} <= mats and "gold" in mats and "wood_oak" in mats
-    assert all(json.loads(r)["schema"] == 1 for r in records if r)
+    assert all(json.loads(r)["schema"] == matter.SCHEMA for r in records if r)
     water = next(json.loads(r) for r in records if r and json.loads(r)["material"] == "water")
     assert water["n"] and water["absorption_per_m"] and water["t"] is None       # clear; no clock: it is not moving
     assert water["pitch_m"] == pytest.approx(world.pitch) and water["mass_kg"] == pytest.approx(1000 * world.pitch ** 3, rel=0.05)

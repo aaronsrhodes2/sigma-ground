@@ -64,12 +64,20 @@ public class MatterClientTest implements FabricClientGameTest {
 				}
 			});
 			double cx = (x0 + x1) / 2.0 + 0.5;
-			world.getServer().runCommand("tp @a " + cx + " " + (y0 + 9) + " " + (z0 - 42) + " 0 4");
-			context.waitTicks(80);
-			context.takeScreenshot("slosh-t" + String.format("%.1f", fr.get("t").getAsDouble()) + "-front");
-			world.getServer().runCommand("tp @a " + (x0 - 50) + " " + (y0 + 9) + " " + ((z0 + z1) / 2.0) + " -90 4");
-			context.waitTicks(80);
-			context.takeScreenshot("slosh-t" + String.format("%.1f", fr.get("t").getAsDouble()) + "-side");
+			String tag = "slosh-t" + String.format("%.1f", fr.get("t").getAsDouble());
+			for (String mode : new String[] {"refracted", "straight"}) {      // the same views with refraction on, then off
+				System.setProperty("skippycraft.refraction", mode.equals("refracted") ? "true" : "false");
+				world.getServer().runCommand("tp @a " + cx + " " + (y0 + 16) + " " + (z0 - 42) + " 0 4");
+				context.waitTicks(60);
+				context.takeScreenshot(tag + "-front-" + mode);
+				world.getServer().runCommand("tp @a " + cx + " " + (y0 + 40) + " " + (z0 - 22) + " 0 50");
+				context.waitTicks(30);
+				context.takeScreenshot(tag + "-above-" + mode);
+				world.getServer().runCommand("tp @a " + (x0 - 50) + " " + (y0 + 9) + " " + ((z0 + z1) / 2.0) + " -90 4");
+				context.waitTicks(40);
+				context.takeScreenshot(tag + "-side-" + mode);
+			}
+			System.setProperty("skippycraft.refraction", "true");
 		}
 	}
 

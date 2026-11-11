@@ -44,6 +44,7 @@ public final class MatterData {
 	public final double melt;
 	public final double n;                 // refractive index at 550 nm; NaN for a material light does not pass through
 	public final double[] absorption;      // bulk absorption per metre, R G B; null for an opaque material
+	public final Tables tables;            // sigma-ground's optics, sampled: the only physics the renderer draws with
 	public final List<String> gaps;
 
 	public MatterData(String json) {
@@ -67,9 +68,64 @@ public final class MatterData {
 		melt = num(o, "melt", 0);
 		n = num(o, "n", Double.NaN);
 		absorption = o.has("absorption_per_m") && o.get("absorption_per_m").isJsonArray() ? vec(o, "absorption_per_m", 3, 0) : null;
+		tables = o.has("tables") && o.get("tables").isJsonObject() ? new Tables(o.getAsJsonObject("tables")) : null;
 		gaps = new ArrayList<>();
 		if (o.has("gaps") && o.get("gaps").isJsonArray()) {
 			for (JsonElement g : o.getAsJsonArray("gaps")) gaps.add(g.getAsString());
+		}
+	}
+
+	/**
+	 * sigma-ground's optics for a clear material, sampled by the writer (stage/skippycraft/matter.py): for light going air into
+	 * the material ("in") and back out ("out"), the Fresnel reflectance and the cosine of the refraction angle against the
+	 * cosine of incidence (uniform on [0, 1]); and the transmittance of 0, 1, 2, ... cells of the material (R, G, B). This class
+	 * only interpolates them. It computes no physical quantity.
+	 */
+	public static final class Tables {
+		private final double[] inR, inCosT, outR, outCosT;
+		private final double[][] trans;
+
+		Tables(JsonObject o) {
+			inR = arr(o.getAsJsonObject("in"), "reflectance");
+			inCosT = arr(o.getAsJsonObject("in"), "cos_t");
+			outR = arr(o.getAsJsonObject("out"), "reflectance");
+			outCosT = arr(o.getAsJsonObject("out"), "cos_t");
+			JsonArray rgb = o.getAsJsonObject("transmittance").getAsJsonArray("rgb");
+			trans = new double[rgb.size()][];
+			for (int c = 0; c < trans.length; c++) trans[c] = toArray(rgb.get(c).getAsJsonArray());
+		}
+
+		/** Reflected fraction for light entering the material at this cosine of incidence. */
+		public double reflectanceIn(double cosI) { return at(inR, cosI); }
+
+		/** Cosine of the refraction angle for light entering the material at this cosine of incidence. */
+		public double cosRefractedIn(double cosI) { return at(inCosT, cosI); }
+
+		/** Reflected fraction for light inside the material meeting its surface at this cosine of incidence. */
+		public double reflectanceOut(double cosI) { return at(outR, cosI); }
+
+		/** Mean transmittance (over R, G, B) of this many cells of the material, interpolating between whole cells. */
+		public double transmittance(double cells) {
+			double sum = 0;
+			for (double[] ch : trans) sum += at(ch, cells / (ch.length - 1));
+			return sum / trans.length;
+		}
+
+		/** Linear interpolation in a table sampled uniformly over [0, 1]; x is clamped to it. */
+		private static double at(double[] ys, double x) {
+			double f = Math.max(0, Math.min(1, x)) * (ys.length - 1);
+			int i = Math.min((int) f, ys.length - 2);
+			return ys[i] + (ys[i + 1] - ys[i]) * (f - i);
+		}
+
+		private static double[] arr(JsonObject o, String k) {
+			return toArray(o.getAsJsonArray(k));
+		}
+
+		private static double[] toArray(JsonArray a) {
+			double[] r = new double[a.size()];
+			for (int i = 0; i < r.length; i++) r[i] = a.get(i).getAsDouble();
+			return r;
 		}
 	}
 
@@ -77,9 +133,9 @@ public final class MatterData {
 		return json.isEmpty();
 	}
 
-	/** A clear dielectric: drawn from its index and absorption, not from one opacity. */
+	/** A clear dielectric: drawn from sigma-ground's optics tables, not from one opacity. */
 	public boolean clear() {
-		return absorption != null && !Double.isNaN(n);
+		return tables != null;
 	}
 
 	public boolean opaque() {
