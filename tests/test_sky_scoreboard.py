@@ -28,6 +28,13 @@ class TestSkyScoreboard(unittest.TestCase):
         miss = t.sky_scoreboard("no such body 1234567")
         self.assertIsNone(miss.value); self.assertIn("not among the bodies scored", miss.notes)
 
+    def test_a_roster_body_with_nothing_new_says_so(self):
+        from sigma_ground.mcp.tools import astronomy as t
+        rep = json.loads((FIX / "sky_report.json").read_text(encoding="utf-8"))
+        number, w = next(iter(rep["roster_waiting"].items()))
+        r = t.sky_scoreboard(number)
+        self.assertEqual(r.value["last_obs"], w["last_obs"]); self.assertIn("nothing has been observed since", r.notes)
+
     def test_manifest_and_keywords_carry_it(self):
         from sigma_ground.mcp import manifest, tool_keywords
         names = {e["name"] for e in manifest.TOOLS} if hasattr(manifest, "TOOLS") else set(json.dumps(manifest.__dict__, default=str).split('"name": "')[1:]) and {x.split('"')[0] for x in json.dumps(manifest.__dict__, default=str).split('"name": "')[1:]}

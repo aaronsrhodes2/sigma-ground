@@ -18,6 +18,27 @@ SKY = Path("D:/datasets/mpc_sky")
 LEAD_BINS = [(-1e9, 0.0, "fit (lead <= 0)"), (0.0, 30.0, "0-30 d"), (30.0, 90.0, "30-90 d"), (90.0, 180.0, "90-180 d"), (180.0, 365.0, "180-365 d"), (365.0, 1e9, "> 1 yr")]
 
 
+def roster_waiting(scored: set) -> dict:
+    """Roster bodies with a frozen start but no scored rows, each with its newest observation date: a body with nothing observed since its freeze has nothing to score, which is not a miss."""
+    from sigma_ground.field.interface import mpcorb
+    roster = json.loads((_ROOT / "sigma_ground/field/interface/fixtures/mpc_live/neo_roster.json").read_text(encoding="utf-8"))["bodies"]
+    rows = roster.values() if isinstance(roster, dict) else roster
+    days = sorted(p.name for p in (SKY / "obs_api").glob("*"))
+    out = {}
+    for b in rows:
+        n = int(b["number"] if isinstance(b, dict) else b); packed = mpcorb.pack_number(n)
+        if packed in scored:
+            continue
+        for d in reversed(days):
+            f = SKY / "obs_api" / d / f"{packed}.txt"
+            if f.exists():
+                ls = [ln for ln in f.read_text(encoding="utf-8", errors="replace").splitlines() if len(ln) > 32]
+                dates = sorted({f"{ln[15:19]}-{ln[20:22]}-{ln[23:25]}" for ln in ls if ln[15:19].isdigit()})
+                out[str(n)] = {"packed": packed, "n_obs": len(ls), "last_obs": dates[-1] if dates else None}
+                break
+    return out
+
+
 def main() -> int:
     sb_f = SKY / "sky_scoreboard.parquet"
     res_files = sorted((SKY / "residuals").glob("*.parquet"))
@@ -28,6 +49,7 @@ def main() -> int:
     nights = sorted(sb["night"].unique())
     out = {"generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"), "nights": nights, "n_bodies": int(sb["packed"].nunique()), "n_obs": int(len(res)),
            "n_forward": int((res["lead_days"] > 0).sum()), "by_class": {}, "by_lead": {}}
+    out["roster_waiting"] = roster_waiting(set(sb["packed"]))
     lines = ["# The whole sky against our frozen predictions", "", f"Generated {out['generated_utc']}. Nights: {nights[0]} .. {nights[-1]} ({len(nights)}). Bodies {out['n_bodies']:,}; observations {out['n_obs']:,}, of which {out['n_forward']:,} are forward predictions (observed after the start was frozen).", "",
              "Every prediction runs from the MPC elements of the day the body was first seen, never refreshed; a residual at lead <= 0 is the fit's own residual (the baseline), a residual at lead > 0 is ours ahead of the sky.", "",
              "| class | bodies | observations | median arcsec (all) | median arcsec (forward) | mean dRA cos dec | mean dDec |", "|---|---|---|---|---|---|---|"]

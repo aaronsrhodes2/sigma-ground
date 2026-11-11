@@ -433,6 +433,10 @@ def sky_scoreboard(body: str | None = None) -> ToolResult:
             if q in names or q.lstrip("0") in names or q == str(r.get("designation", "")).lower().replace(" ", ""):
                 hit = r; break
         if hit is None:
+            wait = (rep.get("roster_waiting") or {}).get(body.strip().lstrip("0"))
+            if wait:
+                return ToolResult(value=wait, source=src, provenance_tag="DERIVED", inputs={"body": body},
+                                  notes=f"{body} is on the near-miss roster with a frozen start, but nothing has been observed since: its newest observation in hand is {wait['last_obs']} ({wait['n_obs']} in all), so there is nothing to score yet; it is scored the night one arrives.")
             return ToolResult(value=None, source=src, notes=f"{body}: not among the bodies scored so far ({len(lat['rows'])} bodies through {rep['nights'][-1]}); the daily priority set is the roster, the near-Earth bodies touched each day and a rotating sample",
                               inputs={"body": body})
         fwd = hit.get("median_forward_arcsec")
