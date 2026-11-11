@@ -111,6 +111,13 @@ public final class MatterData {
 			return sum / trans.length;
 		}
 
+		/** Transmittance of this many cells of the material in each of R, G, B (a multiply per channel), interpolating between whole cells. */
+		public double[] transmittanceRgb(double cells) {
+			double[] out = new double[trans.length];
+			for (int c = 0; c < trans.length; c++) out[c] = at(trans[c], cells / (trans[c].length - 1));
+			return out;
+		}
+
 		/** Linear interpolation in a table sampled uniformly over [0, 1]; x is clamped to it. */
 		private static double at(double[] ys, double x) {
 			double f = Math.max(0, Math.min(1, x)) * (ys.length - 1);

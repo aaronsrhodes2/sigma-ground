@@ -102,8 +102,35 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 	@Override
 	public void submit(State s, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
 		if (s.data.isEmpty()) return;
+		if (s.data.clear()) tint(s);
 		RenderType type = RenderTypes.entityTranslucent(WHITE);
 		collector.submitCustomGeometry(pose, type, (p, vc) -> cube(p, vc, s));
+	}
+
+	/**
+	 * The colour a clear body takes out of the light behind each face that looks at the camera: the face's per-channel
+	 * transmittance, tabulated by sigma-ground for the path through the body, multiplied into the scene by {@link TintRenderer}.
+	 */
+	private static void tint(State s) {
+		MatterData d = s.data;
+		for (int f = 0; f < 6; f++) {
+			Direction dir = FACE[f];
+			if ((s.hidden & (1 << dir.ordinal())) != 0) continue;
+			float[] o = ORIGIN[f], u = U[f], v = V[f];
+			double vx = s.cx - (o[0] + (u[0] + v[0]) / 2), vy = s.cy - (o[1] + (u[1] + v[1]) / 2), vz = s.cz - (o[2] + (u[2] + v[2]) / 2);
+			double cos = (dir.getStepX() * vx + dir.getStepY() * vy + dir.getStepZ() * vz) / Math.sqrt(vx * vx + vy * vy + vz * vz);
+			if (cos <= 0) continue;                                       // a face turned away: the light has not yet come in through it
+			double cosT = d.tables.cosRefractedIn(Math.min(1, cos));
+			double[] rgb = d.tables.transmittanceRgb(s.depth[dir.ordinal()] / Math.max(cosT, 0.05));
+			float[] c = new float[12];
+			for (int k = 0; k < 4; k++) {
+				float a = (k == 1 || k == 2) ? 1 : 0, b = (k >= 2) ? 1 : 0;
+				c[3 * k] = (float) (o[0] + u[0] * a + v[0] * b - s.cx);
+				c[3 * k + 1] = (float) (o[1] + u[1] * a + v[1] * b - s.cy);
+				c[3 * k + 2] = (float) (o[2] + u[2] * a + v[2] * b - s.cz);
+			}
+			TintRenderer.add(c, rgb);
+		}
 	}
 
 	// each face: origin, u, v with u x v = the outward normal, so the quad winds counter-clockwise from outside
@@ -130,7 +157,7 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 				double vx = s.cx - (o[0] + (u[0] + v[0]) / 2), vy = s.cy - (o[1] + (u[1] + v[1]) / 2), vz = s.cz - (o[2] + (u[2] + v[2]) / 2);
 				double dist = Math.sqrt(vx * vx + vy * vy + vz * vz);
 				double cos = (nx * vx + ny * vy + nz * vz) / dist;
-				double[] ca = clearFace(d, Math.abs(cos), cos > 0, s.depth[dir.ordinal()], env);
+				double[] ca = clearFace(d, Math.abs(cos), cos > 0, env);
 				r = (int) ca[0]; g = (int) ca[1]; b = (int) ca[2]; a = (int) ca[3];
 				if (a <= 0) continue;
 				lf = FULL_BRIGHT;               // the colour already carries the light it reflects
@@ -148,20 +175,13 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 	 * R * env + (1 - R) * T * behind: R reflected, the rest transmitted and attenuated, with R, the refraction angle and T read
 	 * from sigma-ground's tables.
 	 */
-	static double[] clearFace(MatterData d, double cosI, boolean front, int blocksBehind, double env) {
+	static double[] clearFace(MatterData d, double cosI, boolean front, double env) {
 		MatterData.Tables t = d.tables;
-		double cosT = t.cosRefractedIn(cosI);
-		double R, T = 1;
-		if (front) {                           // air -> material
-			R = t.reflectanceIn(cosI);
-			T = t.transmittance(blocksBehind / Math.max(cosT, 0.05));     // the slant path through the body, in cells
-		} else {                               // material -> air, the ray having come in at cosT
-			R = t.reflectanceOut(cosT);
-		}
-		double alpha = 1 - (1 - R) * T;
-		if (alpha <= 1e-4) return new double[] {0, 0, 0, 0};
-		double c = Math.max(0, Math.min(1, R * env / alpha));
-		return new double[] {Math.round(255 * c), Math.round(255 * c), Math.round(255 * c), Math.round(255 * Math.min(1, alpha))};
+		double R = front ? t.reflectanceIn(cosI)                           // air -> material
+			: t.reflectanceOut(t.cosRefractedIn(cosI));                    // material -> air, the ray having come in at cosT
+		if (R <= 1e-4) return new double[] {0, 0, 0, 0};
+		double c = Math.round(255 * Math.max(0, Math.min(1, env)));
+		return new double[] {c, c, c, Math.round(255 * Math.min(1, R))};
 	}
 
 	/** A cube corner (each coordinate 0 or 1), moved by where refraction puts it. */

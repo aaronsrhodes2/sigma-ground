@@ -82,6 +82,25 @@ public class MatterClientTest implements FabricClientGameTest {
 		}
 	}
 
+	/**
+	 * Three metres of water seen end-on against a white wall (60 cells of the 5 cm pitch): sigma-ground's absorption takes red out
+	 * faster than green and blue (T = 0.41, 0.81, 0.94), so the part of the wall behind the water turns blue-green and the part
+	 * beside it stays white. A short volume cannot show this: 15 cm of water absorbs 4% of red.
+	 */
+	private void deepWater(ClientGameTestContext context, TestSingleplayerContext world, String water) {
+		world.getServer().runOnServer(server -> {
+			ServerLevel level = server.overworld();
+			for (int x = 30; x <= 54; x++) for (int y = 190; y <= 210; y++) level.setBlock(new BlockPos(x, y, 70), Blocks.QUARTZ_BLOCK.defaultBlockState(), 2 | 16);
+			for (int dx = 0; dx < 3; dx++) for (int dy = 0; dy < 3; dy++) for (int dz = 0; dz < 60; dz++) {
+				put(level, 41 + dx, Y + dy, 4 + dz, water);
+			}
+		});
+		world.getServer().runCommand("time set noon");
+		world.getServer().runCommand("tp @a 42.5 " + (Y + 1.5) + " 1.5 0 0");
+		context.waitTicks(80);
+		context.takeScreenshot("deep-water-tint");
+	}
+
 	@Override
 	public void runTest(ClientGameTestContext context) {
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
@@ -129,6 +148,7 @@ public class MatterClientTest implements FabricClientGameTest {
 			world.getServer().runCommand("tp @a 0.5 " + (Y + 3) + " -4.5 0 12");
 			context.waitTicks(20);
 			context.takeScreenshot("night-row");
+			deepWater(context, world, rec.get("water").getAsString());
 			sloshFrames(context, world);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

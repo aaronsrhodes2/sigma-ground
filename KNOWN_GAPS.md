@@ -694,8 +694,16 @@ the face, at the refracted angle). No display-exposure constant is used on that 
 
 - **Refraction of the vanilla world is not drawn** (see the refraction entry below): only matter blocks seen through clear matter are moved.
 - **The reflected environment is white at the local light level**, not the sky or the surroundings (no environment map).
-- **The attenuation is one number per face** (the mean of R, G, B): alpha blending cannot multiply per channel, so water does
-  not lose its red first on screen. A multiply pass (Minecraft 26.3's new renderer has a transmittance snippet for it) would.
+- **The tint is a per-channel multiply, and it is drawn** (``TintRenderer`` + ``LevelRendererMixin``): the scene behind each camera-facing
+  clear face is multiplied by sigma-ground's tabulated Beer-Lambert transmittance in R, G and B (3 m of water: red 0.41, green 0.81,
+  blue 0.94, so the sky seen through it goes blue). The translucent pass composites only the Fresnel reflection over it
+  (out = R*env + (1-R)*T*behind). What is approximate: the multiply acts on the framebuffer's sRGB-encoded values while T is linear light
+  (the colours are right in kind, a little off in amount; fix: a display-encoded transmittance table from sigma-ground), a face's
+  path is the body behind it along its own axis (not the true slant), and things inside the body that are nearer than its far side
+  are tinted by the whole depth to the far side only when they lie beyond the front face (the depth test), not by their own shorter path.
+  Minecraft 26.3 sends every blended draw through its order-independent translucency (one transmittance per pixel), so the multiply is
+  its own draw into the open solid pass, from a mixin on ``LevelRenderer.executeSolid``; the depth test is copied from the engine's own
+  pipeline because the depth buffer is reversed (GREATER_THAN_OR_EQUAL). Sentinel: the gametest's ``deep-water-tint`` screenshot.
 - **A back face's reflectance assumes parallel faces**; total internal reflection is not drawn.
 - **Thickness is the normal-incidence body behind the face**, counted along the face's own axis, not the ray's true path through
   an irregular body.
@@ -724,7 +732,7 @@ material-into-air reflectance and refraction cosine against the cosine of incide
 (``MatterData.Tables``) only interpolates those tables. It has no Fresnel, Snell or exponential of its own: ``MatterRenderer`` is geometry
 (the view angle of a face, the cells behind it) and compositing; ``Refraction`` is geometry (a voxel walk, a search for where a ray lands).
 Anything physical the mod needs must first become a sigma-ground function and a table. The glow's brightness is a flagged display tonemap that now lives with the physics it maps
-(``thermal_emission.glow_level`` / ``DISPLAY_GLOW_P0_W_M2``, shared with Radiance's ``site_response``); the sRGB encoding is ``optics.srgb_encode``; the whole record is built in sigma-ground (``field.interface.matter_record``), portable to any renderer. Still open, in the renderer's own terms: refraction of the vanilla world (needs a screen-space pass), per-channel tint (needs a multiply blend: a custom render pipeline), and the reflected environment (white at the local light level).
+(``thermal_emission.glow_level`` / ``DISPLAY_GLOW_P0_W_M2``, shared with Radiance's ``site_response``); the sRGB encoding is ``optics.srgb_encode``; the whole record is built in sigma-ground (``field.interface.matter_record``), portable to any renderer. Still open, in the renderer's own terms: refraction of the vanilla world (needs a screen-space pass), the sRGB-vs-linear amount of the tint, and the reflected environment (white at the local light level).
 
 **Refraction (``client/Refraction.java``):** an opaque matter block seen through clear matter is drawn where the refracted ray puts it (the
 gold at the bottom of the tank looks shallower and shifted). Its refraction angle is the table's. Not covered:

@@ -18,6 +18,12 @@
 			"local.skippy.craft.client.SkippyCraftClient"
 		]
 	},
+	"mixins": [
+		{
+			"config": "skippycraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
 	"depends": {
 		"fabricloader": ">=0.20.1",
 		"minecraft": "~26.3",
