@@ -83,16 +83,17 @@ public final class MatterData {
 	 */
 	public static final class Tables {
 		private final double[] inR, inCosT, outR, outCosT;
-		private final double[][] trans;
+		private final double[][] trans;           // linear light, per channel
+		private final double[][] transDisplay;    // the same as multipliers of sRGB-encoded pixels (sigma-ground's optics.display_multiplier)
 
 		Tables(JsonObject o) {
 			inR = arr(o.getAsJsonObject("in"), "reflectance");
 			inCosT = arr(o.getAsJsonObject("in"), "cos_t");
 			outR = arr(o.getAsJsonObject("out"), "reflectance");
 			outCosT = arr(o.getAsJsonObject("out"), "cos_t");
-			JsonArray rgb = o.getAsJsonObject("transmittance").getAsJsonArray("rgb");
-			trans = new double[rgb.size()][];
-			for (int c = 0; c < trans.length; c++) trans[c] = toArray(rgb.get(c).getAsJsonArray());
+			JsonObject tr = o.getAsJsonObject("transmittance");
+			trans = channels(tr.getAsJsonArray("rgb"));
+			transDisplay = tr.has("rgb_display") ? channels(tr.getAsJsonArray("rgb_display")) : trans;
 		}
 
 		/** Reflected fraction for light entering the material at this cosine of incidence. */
@@ -111,11 +112,20 @@ public final class MatterData {
 			return sum / trans.length;
 		}
 
-		/** Transmittance of this many cells of the material in each of R, G, B (a multiply per channel), interpolating between whole cells. */
+		/**
+		 * What to multiply an sRGB-encoded pixel by, in each of R, G, B, to show the light after this many cells of the material
+		 * (sigma-ground's display multiplier of the Beer-Lambert transmittance), interpolating between whole cells.
+		 */
 		public double[] transmittanceRgb(double cells) {
-			double[] out = new double[trans.length];
-			for (int c = 0; c < trans.length; c++) out[c] = at(trans[c], cells / (trans[c].length - 1));
+			double[] out = new double[transDisplay.length];
+			for (int c = 0; c < out.length; c++) out[c] = at(transDisplay[c], cells / (transDisplay[c].length - 1));
 			return out;
+		}
+
+		private static double[][] channels(JsonArray rgb) {
+			double[][] r = new double[rgb.size()][];
+			for (int c = 0; c < r.length; c++) r[c] = toArray(rgb.get(c).getAsJsonArray());
+			return r;
 		}
 
 		/** Linear interpolation in a table sampled uniformly over [0, 1]; x is clamped to it. */

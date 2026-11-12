@@ -11,7 +11,7 @@ Position is the block's own place in the world, so it is not in the record; ``t`
 from ``block`` / ``appearance`` / ``glow`` (and through them ``optics`` and ``thermal_emission``); what they cannot give is a named gap,
 never filled in. For a CLEAR material the record carries sigma-ground's optics as ``tables`` (Fresnel reflectance and the refraction angle
 at the interface, air into the material and back out, against the cosine of incidence; and the transmittance of 0..DEPTH_CELLS cells of
-it), so the renderer only interpolates and places geometry. The one display choice is the glow's brightness, a flagged tonemap
+it, linear and as an sRGB display multiplier), so the renderer only interpolates and places geometry. The one display choice is the glow's brightness, a flagged tonemap
 (``thermal_emission.DISPLAY_GLOW_P0_W_M2``); the sRGB encoding of colours is ``optics.srgb_encode``.
 """
 from __future__ import annotations
@@ -67,7 +67,11 @@ def matter_record(material, mass_kg, pitch_m, temperature_k=293.15, *, t=None, v
         tables = {"in": rounded(optics.interface_table(1.0, n)), "out": rounded(optics.interface_table(n, 1.0)),
                   "transmittance": {"step_m": float(pitch_m),
                                     "rgb": [[round(x, 6) for x in ch] for ch in
-                                            optics.transmittance_table(a["absorption_per_m"], float(pitch_m), DEPTH_CELLS + 1)]}}
+                                            optics.transmittance_table(a["absorption_per_m"], float(pitch_m), DEPTH_CELLS + 1)],
+                                    # the same, as the multiplier of an sRGB-encoded pixel (optics.display_multiplier): what a renderer
+                                    # that multiplies the screen's own values uses
+                                    "rgb_display": [[round(x, 6) for x in ch] for ch in
+                                                    optics.transmittance_display_table(a["absorption_per_m"], float(pitch_m), DEPTH_CELLS + 1)]}}
     prop = b["properties"]
     return {
         "schema": SCHEMA,

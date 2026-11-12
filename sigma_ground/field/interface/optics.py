@@ -789,6 +789,28 @@ def transmittance_table(alpha_per_m_rgb, step_m: float, count: int) -> list:
     return [[beer_lambert_transmittance(a, k * step_m) for k in range(count)] for a in alpha_per_m_rgb]
 
 
+def display_multiplier(transmittance: float) -> float:
+    """The factor to multiply an sRGB-ENCODED pixel by so the screen shows the light after a transmittance ``T`` (linear light).
+
+    A screen holds encoded values e = srgb_encode(x); the light that passed through a medium is T*x, shown as srgb_encode(T*x). A plain
+    multiply of e cannot give that for every x (the curve is not a power law), so this returns ``srgb_encode(T)``: exact against a
+    full-white backdrop (x = 1) and exact for any pure power-law display; against a darker backdrop the shown value is a little off
+    (``display_multiplier_error`` says how much).  The alternative, multiplying encoded values by the linear T, darkens too little:
+    T = 0.41 would show as 0.41 instead of 0.67."""
+    return srgb_encode(transmittance)
+
+
+def display_multiplier_error(transmittance: float, backdrop_linear: float) -> float:
+    """Shown value minus true value (both display-encoded) when ``display_multiplier(T)`` is applied to a backdrop of this linear brightness."""
+    shown = display_multiplier(transmittance) * srgb_encode(backdrop_linear)
+    return shown - srgb_encode(transmittance * backdrop_linear)
+
+
+def transmittance_display_table(alpha_per_m_rgb, step_m: float, count: int) -> list:
+    """``transmittance_table`` as display multipliers (``display_multiplier`` of each entry), for a renderer that multiplies encoded pixels."""
+    return [[display_multiplier(t) for t in ch] for ch in transmittance_table(alpha_per_m_rgb, step_m, count)]
+
+
 def dielectric_opacity(material_key: str) -> float:
     """Surface opacity (≈ Fresnel R) of a transparent dielectric at 550 nm.
 

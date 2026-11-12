@@ -60,3 +60,15 @@ def test_srgb_encoding_is_the_iec_61966_curve():
     assert optics.srgb_encode(0.18) == pytest.approx(0.4614, abs=1e-3)              # middle grey
     assert optics.srgb_encode(0.002) == pytest.approx(12.92 * 0.002)                 # the linear toe
     assert optics.srgb_encode(2.0) == pytest.approx(1.0) and optics.srgb_encode(-1.0) == 0.0        # clamped to the displayable range
+
+
+def test_display_multiplier_is_exact_on_white_and_close_on_grey():
+    T = 0.41
+    m = optics.display_multiplier(T)
+    assert m == pytest.approx(optics.srgb_encode(T)) and m > T                       # darkening the encoded value by T would show too much
+    assert optics.display_multiplier_error(T, 1.0) == pytest.approx(0.0, abs=1e-9)   # exact against white
+    assert abs(optics.display_multiplier_error(T, 0.18)) < 0.02                       # middle grey: under 2% of full scale
+    assert abs(optics.display_multiplier_error(T, 0.5)) < 0.02
+    assert optics.display_multiplier(1.0) == pytest.approx(1.0) and optics.display_multiplier(0.0) == 0.0
+    tab = optics.transmittance_display_table((0.3, 0.07, 0.02), 0.5, 4)
+    assert tab[0][3] == pytest.approx(optics.display_multiplier(optics.beer_lambert_transmittance(0.3, 1.5)))

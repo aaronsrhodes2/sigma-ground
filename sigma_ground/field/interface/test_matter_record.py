@@ -50,6 +50,7 @@ def test_the_tables_are_sigma_grounds_optics_sampled_not_the_renderers_physics()
     assert t["out"]["reflectance"][k] == pytest.approx(R2, abs=1e-6)
     assert t["transmittance"]["step_m"] == 0.0125 and len(t["transmittance"]["rgb"][0]) == matter.DEPTH_CELLS + 1
     assert t["transmittance"]["rgb"][1][10] == pytest.approx(optics.beer_lambert_transmittance(r["absorption_per_m"][1], 10 * 0.0125), abs=1e-6)
+    assert t["transmittance"]["rgb_display"][1][10] == pytest.approx(optics.display_multiplier(t["transmittance"]["rgb"][1][10]), abs=1e-5)
 
 
 def test_the_wire_form_is_json_the_mod_reads():
