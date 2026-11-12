@@ -28,7 +28,7 @@ def test_rayleigh_follows_the_inverse_fourth_power_of_wavelength():
 def test_zenith_radiance_matches_the_plane_parallel_closed_form():
     # (air only) Sun and view both at the zenith: the sun-ray and view-ray optical depths add to the whole column at every height, so
     # L = E0 p(0) tau exp(-tau), p(0) = 3/(8 pi). The spherical Earth moves it by well under 2%.
-    L = sky.sky_radiance(90.0, 90.0, 0.0, aod550=0.0)          # air only: the closed form has no aerosol
+    L = sky.sky_radiance(90.0, 90.0, 0.0, aod550=0.0, multiple=False)          # air only, scattered once: the closed form
     for c, lam in enumerate(sky.WAVELENGTHS_M):
         tau = sky.vertical_optical_depth(lam)
         want = sky.solar_irradiance_top(lam) * 3.0 / (8.0 * math.pi) * tau * math.exp(-tau)
@@ -158,3 +158,52 @@ def test_aerosol_shifts_the_table_and_is_recorded():
     s = list(sky.SUN_ELEVATION_DEG).index(90.0)
     v = list(sky.VIEW_ELEVATION_DEG).index(90.0)
     assert rec["sky"]["rgb"][s][v][0][1] > 0.05
+
+
+# ── Multiple scattering ──────────────────────────────────────────────────
+
+def test_multiple_scattering_adds_light_and_more_of_the_blue():
+    for sun, view, az in ((60.0, 90.0, 0.0), (60.0, 30.0, 180.0), (40.0, 20.0, 100.0)):
+        one = sky.sky_radiance(sun, view, az, multiple=False)
+        many = sky.sky_radiance(sun, view, az)
+        assert all(m > o for m, o in zip(many, one))
+    # in clean air (no aerosol, which is grey) the air scatters blue more, so the blue gains more by the second order
+    one = sky.sky_radiance(60.0, 90.0, 0.0, aod550=0.0, multiple=False)
+    many = sky.sky_radiance(60.0, 90.0, 0.0, aod550=0.0)
+    assert many[2] / one[2] > many[0] / one[0]
+    # the second order is a fraction of the first, not a rival to it (the air is thin): between 5% and 60% at the zenith
+    one = sky.sky_radiance(60.0, 90.0, 0.0, multiple=False)[1]
+    assert 1.05 < sky.sky_radiance(60.0, 90.0, 0.0)[1] / one < 1.6
+
+
+def test_light_from_the_ground_is_all_of_the_lower_half_at_the_surface():
+    mean_i, _, _, _, _ = sky._context(60.0, sky.AEROSOL_OD_550, sky.GROUND_ALBEDO)
+    assert mean_i[1][0] == pytest.approx([0.5, 0.5, 0.5], abs=1e-9)      # standing on it: half the sphere is the ground, no air between
+    # from 100 km up the ground fills a smaller part of the sphere and the air between dims it, blue more than red
+    top = mean_i[1][-1]
+    assert 0.1 < top[2] < top[1] < top[0] < 0.5
+
+
+def test_the_ground_radiance_solves_its_own_balance():
+    # L_g = rho (E_direct/pi + mean sky), the mean sky including the light the ground itself sends up and the air sends back
+    _, lg, _, _, _ = sky._context(60.0, sky.AEROSOL_OD_550, sky.GROUND_ALBEDO)
+    assert sky.ground_radiance(60.0) == pytest.approx(lg, rel=1e-9)
+
+
+def test_a_brighter_ground_brightens_the_sky_above_it(monkeypatch):
+    base = sky.sky_radiance(60.0, 30.0, 180.0)
+    monkeypatch.setattr(sky, "GROUND_ALBEDO", 0.9)               # snow
+    snow = sky.sky_radiance(60.0, 30.0, 180.0)
+    assert all(s > 1.1 * b for s, b in zip(snow, base))
+    monkeypatch.setattr(sky, "GROUND_ALBEDO", 0.0)               # a black ground still has the sky's second order
+    dark = sky.sky_radiance(60.0, 30.0, 180.0)
+    one = sky.sky_radiance(60.0, 30.0, 180.0, multiple=False)
+    assert all(o < d < b for o, d, b in zip(one, dark, base))
+
+
+def test_twilight_is_dominated_by_multiple_scattering_in_the_earths_shadow():
+    # sun 8 degrees down: the air overhead is in the Earth's shadow, so the single-scattered sunlight is almost nothing and what is
+    # left is the second order from the lit air near the horizon
+    one = sky.sky_radiance(-8.0, 90.0, 0.0, multiple=False)
+    many = sky.sky_radiance(-8.0, 90.0, 0.0)
+    assert all(m > 3.0 * o for m, o in zip(many, one))
