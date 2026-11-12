@@ -17,17 +17,18 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | 2026-11-07 | 40 | 35 | 33 | wrong_value 2 | 5 | 29 / 11 | 17 / 7 | bfb2892 |
 | 2026-11-09 | 37 | 35 | 34 | wrong_value 1 | 2 | 27 / 10 | 14 / 8 | bfb2892 |
 | 2026-11-10 | 40 | 35 | 35 | none | 5 | 32 / 8 | 17 / 6 | bfb2892 |
+| 2026-11-11 | 40 | 35 | 30 | wrong_value 5 | 5 | 29 / 11 | 11 / 10 | bfb2892 |
 
 ## Causes, grouped: the candidate fixes
 
 | cause | expected tool | rows | examples | status |
 |---|---|---|---|---|
-| wrong_value | joules_to_TNT | 4 | `Fully splitting 1.74 g of Pu-239 releases how many megatons of TNT?` (got 0.03737652989966689 via None); `Fully splitting 6.01 kg of Pu-239 releases how many megatons of TNT?` (got 129.09939350402183 via None) | open |
-| wrong_value | fourier_transform | 2 | `Fourier transform of exp(-2*t^2)` (got 0 via fourier_transform); `Fourier transform of exp(-2*x^2)` (got sqrt(2)*sqrt(pi)*exp via fourier_transform) | open |
+| wrong_value | fourier_transform | 5 | `Fourier transform of exp(-2*t^2)` (got 0 via fourier_transform); `Fourier transform of exp(-2*x^2)` (got sqrt(2)*sqrt(pi)*exp via fourier_transform) | open |
+| wrong_value | joules_to_TNT | 5 | `Fully splitting 1.74 g of Pu-239 releases how many megatons of TNT?` (got 0.03737652989966689 via None); `Fully splitting 6.01 kg of Pu-239 releases how many megatons of TNT?` (got 129.09939350402183 via None) | open |
+| wrong_value | curl | 2 | `curl of (0, t + s, r*s)` (got ['s - 1', '0', '1'] via curl); `curl of (t + r, 0, 2*t)` (got ['0', '-2', '-1'] via curl) | fixed 2cdb61d |
 | wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | set wording f0a0e56 |
-| wrong_value | curl | 1 | `curl of (0, t + s, r*s)` (got ['s - 1', '0', '1'] via curl) | fixed 2cdb61d |
 
-## Unverified (50): wild questions with no oracle, for a person to read
+## Unverified (55): wild questions with no oracle, for a person to read
 
 - `molar mass of water in g/mol` -> Mentat {'atomic_mass_amu': 1.008, 'at  (router); Wolfram answered
 - `density of gold in kg/m³` -> Mentat 19300.0 kg/m^3 (router); Wolfram answered

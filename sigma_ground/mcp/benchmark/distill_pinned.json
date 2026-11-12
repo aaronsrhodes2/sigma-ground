@@ -832,6 +832,29 @@
     "units": "ton_TNT",
     "oracle": "tool"
    }
+  },
+  {
+   "id": "distill-2026-11-11-015",
+   "day": "2026-11-11",
+   "reason": "fixed_miss",
+   "question": "curl of (t + r, 0, 2*t)",
+   "domain": "math",
+   "signature": [
+    "curl"
+   ],
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "t + r, 0, 2*t",
+     "variables": "r,s,t"
+    },
+    "result": [
+     "0",
+     "1",
+     "0"
+    ],
+    "oracle": "agrees"
+   }
   }
  ],
  "open_misses": [
@@ -882,6 +905,38 @@
    "cause": "wrong_value",
    "tool": "joules_to_TNT",
    "got": 0.8270094259409052
+  },
+  {
+   "id": "distill-2026-11-11-000",
+   "day": "2026-11-11",
+   "question": "Fourier transform of exp(-3*x^2)",
+   "cause": "wrong_value",
+   "tool": "fourier_transform",
+   "got": "sqrt(3)*sqrt(pi)*exp(-pi**2*k**2/3)/3"
+  },
+  {
+   "id": "distill-2026-11-11-002",
+   "day": "2026-11-11",
+   "question": "Fourier transform of exp(-t^2)",
+   "cause": "wrong_value",
+   "tool": "fourier_transform",
+   "got": "0"
+  },
+  {
+   "id": "distill-2026-11-11-012",
+   "day": "2026-11-11",
+   "question": "Fourier transform of exp(-1*t^2)",
+   "cause": "wrong_value",
+   "tool": "fourier_transform",
+   "got": "0"
+  },
+  {
+   "id": "distill-2026-11-11-025",
+   "day": "2026-11-11",
+   "question": "Fully splitting 2.51 g of Pu-239 releases how many megatons of TNT?",
+   "cause": "wrong_value",
+   "tool": "joules_to_TNT",
+   "got": 0.053916718418484985
   }
  ]
 }
