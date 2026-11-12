@@ -1,6 +1,7 @@
 package local.skippy.craft.client.mixin;
 
 import com.mojang.renderpearl.api.commands.RenderPass;
+import local.skippy.craft.client.SkyLight;
 import local.skippy.craft.client.TintRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
@@ -26,4 +27,9 @@ public abstract class LevelRendererMixin {
 	private void skippycraft$tint(ChunkSectionsToRender sections, FeatureRenderDispatcher.PreparedFrame frame, RenderPass pass, CallbackInfo ci) {
 		TintRenderer.draw(pass, levelRenderState.cameraRenderState);
 	}
+
+	/** The engine's sun angle for what a clear surface reflects (the matter blocks are drawn before this, so they use the last frame's). */
+	@Inject(method = "executeSolid", at = @At("HEAD"))
+	private void skippycraft$sun(ChunkSectionsToRender sections, FeatureRenderDispatcher.PreparedFrame frame, RenderPass pass, CallbackInfo ci) {
+		SkyLight.sunAngle(levelRenderState.skyRenderState.sunAngle);	}
 }

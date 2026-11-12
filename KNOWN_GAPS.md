@@ -693,7 +693,17 @@ camera sees it) plus the rest transmitted and attenuated by Beer-Lambert over th
 the face, at the refracted angle). No display-exposure constant is used on that path. What is still approximate, each named here:
 
 - **Refraction of the vanilla world is not drawn** (see the refraction entry below): only matter blocks seen through clear matter are moved.
-- **The reflected environment is white at the local light level**, not the sky or the surroundings (no environment map).
+- **The reflected environment is sigma-ground's clear sky** (``field.interface.sky``, the table ``skippycraft_sky.json`` written by ``mod/gen_sky.py``;
+  ``SkyData`` + ``SkyLight`` only interpolate it): single Rayleigh scattering on a spherical Earth (the Earth's shadow takes the sky through dusk to dark),
+  a blackbody Sun, the measured air index, a Lambertian ground (albedo 0.25, an empirical input) for a ray that points down, white-balanced to a white
+  card in full zenith sun = 1.0 (a fixed exposure, so dusk and night are dim), sRGB-encoded. Each corner of a clear face mirrors the camera's ray and looks up its own
+  elevation and angle from the sun; the engine's sun angle gives the sun, the game's own sky light says how much sky the block sees. Not drawn:
+  ozone, aerosols/Mie (so no haze or sun halo, and a sky darker and bluer than a real one: a pure-Rayleigh zenith at noon is ~4% of a white card where a
+  real one is ~15%), multiple scattering, clouds, the sun's disc (no glint), moon and stars; the reflected ray is not blocked by the vanilla world
+  (a pool beside a hill still mirrors sky, not the hill); a back face mirrors the sky too (the truth is the inside of the body); the reflection is
+  blended in the screen's encoded values like the tint. The vanilla sky is a stylised colour, so the mirror and the sky it reflects differ. Sentinel:
+  the gametest's ``sky-pool-*`` shots (blue-grey at noon, orange toward a low sun, dark at midnight) and ``sigma_ground/field/interface/test_sky.py``
+  (the zenith radiance against the plane-parallel closed form, the measured Rayleigh extinction).
 - **The tint is a per-channel multiply, and it is drawn** (``TintRenderer`` + ``LevelRendererMixin``): the scene behind each camera-facing
   clear face is multiplied, in R, G and B, by sigma-ground's Beer-Lambert transmittance of the path through the body, as the multiplier
   of an sRGB-encoded pixel (``optics.display_multiplier`` = ``srgb_encode(T)``, the ``rgb_display`` table: exact against white and for a
@@ -732,7 +742,7 @@ material-into-air reflectance and refraction cosine against the cosine of incide
 (``MatterData.Tables``) only interpolates those tables. It has no Fresnel, Snell or exponential of its own: ``MatterRenderer`` is geometry
 (the view angle of a face, the cells behind it) and compositing; ``Refraction`` is geometry (a voxel walk, a search for where a ray lands).
 Anything physical the mod needs must first become a sigma-ground function and a table. The glow's brightness is a flagged display tonemap that now lives with the physics it maps
-(``thermal_emission.glow_level`` / ``DISPLAY_GLOW_P0_W_M2``, shared with Radiance's ``site_response``); the sRGB encoding is ``optics.srgb_encode``; the whole record is built in sigma-ground (``field.interface.matter_record``), portable to any renderer. Still open, in the renderer's own terms: refraction of the vanilla world (needs a screen-space pass), and the reflected environment (white at the local light level).
+(``thermal_emission.glow_level`` / ``DISPLAY_GLOW_P0_W_M2``, shared with Radiance's ``site_response``); the sRGB encoding is ``optics.srgb_encode``; the whole record is built in sigma-ground (``field.interface.matter_record``), portable to any renderer. Still open, in the renderer's own terms: refraction of the vanilla world (needs a screen-space pass), and the reflected environment's missing pieces (aerosols, clouds, the sun's glint, the vanilla world in the mirror: see the sky entry above).
 
 **Refraction (``client/Refraction.java``):** an opaque matter block seen through clear matter is drawn where the refracted ray puts it (the
 gold at the bottom of the tank looks shallower and shifted). Its refraction angle is the table's. Not covered:

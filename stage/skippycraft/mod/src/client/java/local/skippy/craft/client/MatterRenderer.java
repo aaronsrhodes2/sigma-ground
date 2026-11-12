@@ -33,9 +33,9 @@ import net.minecraft.world.phys.Vec3;
  * A clear dielectric is drawn the way light meets it: each face reflects the tabulated Fresnel fraction at the angle the camera
  * sees it; the rest goes through the body and is attenuated by the tabulated transmittance of the real path (the blocks of the
  * same material behind the face, at the tabulated refraction angle). Faces between blocks of one material are not drawn: there
- * is no interface. The environment a face reflects is white at the local light level (no environment map), a back face assumes
- * parallel faces, and the attenuation is the mean of R, G, B (alpha blending cannot multiply per channel). Each is a named gap
- * in KNOWN_GAPS.md.
+ * is no interface. The environment a face reflects is sigma-ground's clear sky (or its ground, for a ray that points down)
+ * along the ray mirrored at each corner of the face ({@link SkyLight}); a back face assumes parallel faces. Each approximation is
+ * a named gap in KNOWN_GAPS.md.
  */
 public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEntity, MatterRenderer.State> {
 	private static final Identifier WHITE = SkippyCraftMod.id("textures/misc/white.png");
@@ -146,27 +146,41 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 		int r = mix(d.rgba[0], d.glowRgb[0], e), g = mix(d.rgba[1], d.glowRgb[1], e), b = mix(d.rgba[2], d.glowRgb[2], e);
 		int a = d.rgba[3];
 		int light = e > 0.05f ? FULL_BRIGHT : s.lightCoords;
-		double env = Math.max((s.lightCoords >> 20) & 15, (s.lightCoords >> 4) & 15) / 15.0;   // the light around it, to reflect
+		double env = Math.max((s.lightCoords >> 20) & 15, (s.lightCoords >> 4) & 15) / 15.0;   // the light around it, when there is no sky table
+		double skyExposure = ((s.lightCoords >> 20) & 15) / 15.0;                              // how much sky this block sees: the game's own sky light
 		for (int f = 0; f < 6; f++) {
 			Direction dir = FACE[f];
 			if ((s.hidden & (1 << dir.ordinal())) != 0) continue;
 			float[] o = ORIGIN[f], u = U[f], v = V[f];
 			float nx = dir.getStepX(), ny = dir.getStepY(), nz = dir.getStepZ();
 			int lf = light;
+			double[][] cv = null;               // a clear face: r, g, b, alpha at each of its four corners
 			if (clear) {
-				double vx = s.cx - (o[0] + (u[0] + v[0]) / 2), vy = s.cy - (o[1] + (u[1] + v[1]) / 2), vz = s.cz - (o[2] + (u[2] + v[2]) / 2);
-				double dist = Math.sqrt(vx * vx + vy * vy + vz * vz);
-				double cos = (nx * vx + ny * vy + nz * vz) / dist;
-				double[] ca = clearFace(d, Math.abs(cos), cos > 0, env);
-				r = (int) ca[0]; g = (int) ca[1]; b = (int) ca[2]; a = (int) ca[3];
-				if (a <= 0) continue;
+				cv = new double[4][];
+				boolean any = false;
+				for (int k = 0; k < 4; k++) {
+					float ka = (k == 1 || k == 2) ? 1 : 0, kb = (k >= 2) ? 1 : 0;
+					double vx = s.cx - (o[0] + u[0] * ka + v[0] * kb), vy = s.cy - (o[1] + u[1] * ka + v[1] * kb), vz = s.cz - (o[2] + u[2] * ka + v[2] * kb);
+					double dist = Math.sqrt(vx * vx + vy * vy + vz * vz);
+					double cos = (nx * vx + ny * vy + nz * vz) / dist;
+					// the ray from the camera mirrors off the face: r = -v + 2 (v . n) n, v the unit vector from the face to the camera
+					double[] mirror = SkyLight.reflected(-vx / dist + 2 * cos * nx, -vy / dist + 2 * cos * ny, -vz / dist + 2 * cos * nz, skyExposure);
+					cv[k] = clearFace(d, Math.abs(cos), cos > 0, env, mirror);
+					any |= cv[k][3] > 0;
+				}
+				if (!any) continue;
 				lf = FULL_BRIGHT;               // the colour already carries the light it reflects
 				nx = 0; ny = 1; nz = 0;         // the entity shader's face shading is not physics: no darkening by direction
 			}
-			corner(vc, pose, s, o[0], o[1], o[2], 0, 0, r, g, b, a, lf, nx, ny, nz);
-			corner(vc, pose, s, o[0] + u[0], o[1] + u[1], o[2] + u[2], 1, 0, r, g, b, a, lf, nx, ny, nz);
-			corner(vc, pose, s, o[0] + u[0] + v[0], o[1] + u[1] + v[1], o[2] + u[2] + v[2], 1, 1, r, g, b, a, lf, nx, ny, nz);
-			corner(vc, pose, s, o[0] + v[0], o[1] + v[1], o[2] + v[2], 0, 1, r, g, b, a, lf, nx, ny, nz);
+			for (int k = 0; k < 4; k++) {
+				float ka = (k == 1 || k == 2) ? 1 : 0, kb = (k >= 2) ? 1 : 0;
+				int cr = r, cg = g, cb = b, ca = a;
+				if (cv != null) {
+					cr = (int) cv[k][0]; cg = (int) cv[k][1]; cb = (int) cv[k][2]; ca = (int) cv[k][3];
+				}
+				corner(vc, pose, s, o[0] + u[0] * ka + v[0] * kb, o[1] + u[1] * ka + v[1] * kb, o[2] + u[2] * ka + v[2] * kb,
+					ka, kb, cr, cg, cb, ca, lf, nx, ny, nz);
+			}
 		}
 	}
 
@@ -175,13 +189,15 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 	 * R * env + (1 - R) * T * behind: R reflected, the rest transmitted and attenuated, with R, the refraction angle and T read
 	 * from sigma-ground's tables.
 	 */
-	static double[] clearFace(MatterData d, double cosI, boolean front, double env) {
+	static double[] clearFace(MatterData d, double cosI, boolean front, double env, double[] mirror) {
 		MatterData.Tables t = d.tables;
 		double R = front ? t.reflectanceIn(cosI)                           // air -> material
 			: t.reflectanceOut(t.cosRefractedIn(cosI));                    // material -> air, the ray having come in at cosT
 		if (R <= 1e-4) return new double[] {0, 0, 0, 0};
-		double c = Math.round(255 * Math.max(0, Math.min(1, env)));
-		return new double[] {c, c, c, Math.round(255 * Math.min(1, R))};
+		double alpha = Math.round(255 * Math.min(1, R));
+		if (mirror != null) return new double[] {Math.round(mirror[0]), Math.round(mirror[1]), Math.round(mirror[2]), alpha};
+		double c = Math.round(255 * Math.max(0, Math.min(1, env)));        // no sky table: white at the local light
+		return new double[] {c, c, c, alpha};
 	}
 
 	/** A cube corner (each coordinate 0 or 1), moved by where refraction puts it. */

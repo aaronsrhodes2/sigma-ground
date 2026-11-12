@@ -101,6 +101,24 @@ public class MatterClientTest implements FabricClientGameTest {
 		context.takeScreenshot("deep-water-tint");
 	}
 
+	/**
+	 * A pool seen at a grazing angle, where a clear surface is most a mirror (R ~ 0.3-0.5): it reflects sigma-ground's sky for the
+	 * sun's place at that hour, so it is blue-grey at noon, orange toward a low sun, and dark at midnight.
+	 */
+	private void skyPool(ClientGameTestContext context, TestSingleplayerContext world, String water) {
+		world.getServer().runOnServer(server -> {
+			ServerLevel level = server.overworld();
+			for (int x = 94; x <= 118; x++) for (int z = -2; z <= 20; z++) level.setBlock(new BlockPos(x, Y - 1, z), Blocks.OBSIDIAN.defaultBlockState(), 2 | 16);
+			for (int x = 100; x <= 111; x++) for (int z = 4; z <= 15; z++) for (int dy = 0; dy < 2; dy++) put(level, x, Y + dy, z, water);
+		});
+		world.getServer().runCommand("tp @a 105.5 " + (Y + 1.3) + " -1.5 0 9");
+		for (int[] hour : new int[][] {{6000, 0}, {2500, 0}, {10500, 0}, {12700, 0}, {18000, 0}}) {
+			world.getServer().runCommand("time set " + hour[0]);
+			context.waitTicks(40);
+			context.takeScreenshot("sky-pool-" + hour[0]);
+		}
+	}
+
 	@Override
 	public void runTest(ClientGameTestContext context) {
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
@@ -149,6 +167,7 @@ public class MatterClientTest implements FabricClientGameTest {
 			context.waitTicks(20);
 			context.takeScreenshot("night-row");
 			deepWater(context, world, rec.get("water").getAsString());
+			skyPool(context, world, rec.get("water").getAsString());
 			sloshFrames(context, world);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
