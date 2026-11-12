@@ -694,12 +694,14 @@ the face, at the refracted angle). No display-exposure constant is used on that 
 
 - **Refraction of the vanilla world is not drawn** (see the refraction entry below): only matter blocks seen through clear matter are moved.
 - **The reflected environment is sigma-ground's clear sky** (``field.interface.sky``, the table ``skippycraft_sky.json`` written by ``mod/gen_sky.py``;
-  ``SkyData`` + ``SkyLight`` only interpolate it): single Rayleigh scattering on a spherical Earth (the Earth's shadow takes the sky through dusk to dark),
+  ``SkyData`` + ``SkyLight`` only interpolate it): single Rayleigh scattering plus a typical clear-air aerosol (AOD 0.10 at 550 nm, Ångström 1.3, 1.2 km scale height, ω0 0.92,
+  Henyey-Greenstein g 0.70: all empirical inputs, since the library has no aerosol composition) on a spherical Earth (the Earth's shadow takes the sky through dusk to dark),
   a blackbody Sun, the measured air index, a Lambertian ground (albedo 0.25, an empirical input) for a ray that points down, white-balanced to a white
   card in full zenith sun = 1.0 (a fixed exposure, so dusk and night are dim), sRGB-encoded. Each corner of a clear face mirrors the camera's ray and looks up its own
   elevation and angle from the sun; the engine's sun angle gives the sun, the game's own sky light says how much sky the block sees. Not drawn:
-  ozone, aerosols/Mie (so no haze or sun halo, and a sky darker and bluer than a real one: a pure-Rayleigh zenith at noon is ~4% of a white card where a
-  real one is ~15%), multiple scattering, clouds, the sun's disc (no glint), moon and stars; the reflected ray is not blocked by the vanilla world
+  ozone, a Mie calculation (the aerosol is one assumed air with a fitted phase function: a hazy, smoky or maritime day is a different sky; HG underestimates
+  scattering to the sides and back, so the sky opposite a low sun is darker than a real one; the table's 10-degree azimuth steps smooth the aureole before
+  it clips), multiple scattering (the noon zenith is now ~10% of a white card, 3% without aerosol, against ~15% real), clouds, the sun's disc (no glint), moon and stars; the reflected ray is not blocked by the vanilla world
   (a pool beside a hill still mirrors sky, not the hill); a back face mirrors the sky too (the truth is the inside of the body); the reflection is
   blended in the screen's encoded values like the tint. The vanilla sky is a stylised colour, so the mirror and the sky it reflects differ. Sentinel:
   the gametest's ``sky-pool-*`` shots (blue-grey at noon, orange toward a low sun, dark at midnight) and ``sigma_ground/field/interface/test_sky.py``

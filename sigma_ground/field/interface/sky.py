@@ -6,9 +6,12 @@ Physics chain (a renderer looks the answer up; it computes none of this):
   Sun         E0(λ) = π B(λ, T_sun) (R_sun / AU)²                    blackbody Sun at the top of the atmosphere
   Air         n(λ) → σ_R(λ) = 24π³ ((n²−1)/(n²+2))² F / (λ⁴ N_s²)   Rayleigh cross-section per molecule
               N(z) = N0 exp(−z/H),  H from atmosphere.scale_height
-  Scattering  L(view) = ∫ β(P) p(θ) E0 exp(−τ_sun(P) − τ_view(P)) ds,  p = 3/(16π)(1+cos²θ)
-              single scattering along the view ray; the sun ray from each sample point is blocked by the
-              Earth's shadow (a spherical Earth), so the sky goes through dusk and then dark
+  Aerosol     β_a(λ) = β_a(550) (λ/550 nm)^−α  (Ångström), N_a(z) = exp(−z/H_a); scattering fraction ω0 of the
+              extinction (the rest is absorbed), phase Henyey-Greenstein with asymmetry g (the forward peak: the
+              halo round the sun, the whiter horizon)
+  Scattering  L(view) = ∫ [β_R p_R(θ) + ω0 β_a p_a(θ)] E0 exp(−τ_sun(P) − τ_view(P)) ds,  p_R = 3/(16π)(1+cos²θ)
+              single scattering along the view ray, τ the sum of air and aerosol extinction; the sun ray from each
+              sample point is blocked by the Earth's shadow (a spherical Earth), so the sky goes through dusk and then dark
   Ground      Lambertian, albedo ρ_g: L_g = ρ_g (E_direct/π + ⟨L_sky⟩)  (⟨L_sky⟩ the cosine-weighted mean of the sky)
   Display     the table is white-balanced to a white diffuse card in full sun at the zenith (1.0 = that card); sRGB-encoded
               by optics.srgb_encode. This is a fixed exposure, like a camera left on one setting: the sky is dim at dusk
@@ -23,9 +26,12 @@ Origin tags:
   - Sun: blackbody at the IAU 2015 nominal T_eff and R_sun (a real solar spectrum has Fraunhofer lines, a measured one is not used)
   - Earth radius, top of atmosphere: MEASURED / convention (IAU nominal mean radius; 100 km, the Kármán line)
   - Ground albedo: EMPIRICAL-INPUT (a typical land surface; the renderer does not know what the ground is made of)
+  - Aerosol (optical depth, Ångström exponent, scale height, single-scattering albedo, asymmetry): EMPIRICAL-INPUT, the
+    typical clear continental air (AERONET climatology). The library holds no aerosol composition or size distribution,
+    so a Mie calculation is not possible: the phase function is the Henyey-Greenstein fit to one, not derived.
 
-Not in it (SKY_GAPS): ozone, aerosols and Mie scattering (no sun halo, no haze), multiple scattering, clouds and rain, the
-sun's disc (a mirror's sun glint), the moon and stars, an observer above sea level, a real solar spectrum.
+Not in it (SKY_GAPS): ozone, multiple scattering, clouds and rain, the sun's disc (a mirror's sun glint), the moon and
+stars, an observer above sea level, a real solar spectrum; and the aerosol is one typical air, not this place's today.
 """
 
 import math
@@ -42,6 +48,11 @@ T_SUN_K = 5772.0             # MEASURED: IAU 2015 Resolution B3 nominal effectiv
 TOP_M = 100.0e3              # convention: the Kármán line; the air above it is under 1e-5 of the surface density
 KING_F = 1.048               # MEASURED: Bates (1984), the depolarisation correction for air at 550 nm
 GROUND_ALBEDO = 0.25         # EMPIRICAL-INPUT: typical land surface albedo (the mean over Earth's land is 0.25-0.3)
+AEROSOL_OD_550 = 0.10        # EMPIRICAL-INPUT: aerosol optical depth at 550 nm, clear continental air (AERONET: 0.05-0.15 on a clear day)
+ANGSTROM_EXPONENT = 1.3      # EMPIRICAL-INPUT: Ångström (1929) exponent, the AERONET global mean ~1.3
+AEROSOL_SCALE_HEIGHT_M = 1.2e3   # EMPIRICAL-INPUT: aerosols sit in the boundary layer (Elterman 1968 ~1.2 km)
+AEROSOL_SSA = 0.92           # EMPIRICAL-INPUT: single-scattering albedo of continental aerosol at 550 nm (the rest of the extinction is absorbed)
+AEROSOL_G = 0.70             # EMPIRICAL-INPUT: Henyey-Greenstein asymmetry of continental aerosol at 550 nm (0.65-0.75)
 T_AIR_K = _atm._T_STANDARD   # the standard atmosphere the index was measured in
 P_AIR_PA = _atm._P_STANDARD
 
@@ -54,7 +65,8 @@ RELATIVE_AZIMUTH_DEG = (0.0, 10.0, 20.0, 35.0, 55.0, 80.0, 110.0, 140.0, 180.0)
 
 SKY_GAPS = (
     "No ozone: the real twilight zenith is bluer (the Chappuis band) than Rayleigh alone gives.",
-    "No aerosols or Mie scattering: no haze, no halo round the sun, a horizon bluer than a real one.",
+    "The aerosol is one typical clear continental air with a Henyey-Greenstein phase function (empirical inputs, no Mie calculation: the library holds no aerosol composition); a hazy, smoky or maritime day is a different sky.",
+    "The table's azimuth steps (10 degrees near the sun) are coarser than the real aureole: the glare round the sun is smoothed, then clipped at the white card.",
     "Single scattering only: the real sky is a little brighter, and bluer in the shade, from multiple scattering and the ground bounce.",
     "No clouds or rain: an overcast sky is a different radiance.",
     "The sun's disc is not in the table: a mirror's sun glint is not drawn.",
@@ -108,6 +120,23 @@ def vertical_optical_depth(lam_m: float) -> float:
     return rayleigh_extinction_per_m(lam_m) * h * (1.0 - math.exp(-TOP_M / h))
 
 
+def _aod(aod550) -> float:
+    return AEROSOL_OD_550 if aod550 is None else aod550
+
+
+def aerosol_extinction_per_m(lam_m: float, aod550=None, altitude_m: float = 0.0) -> float:
+    """β_a(λ, z): the aerosol extinction coefficient, 1/m. The 550 nm optical depth spread over the layer's scale height, and the
+    Ångström power law in wavelength: β_a(λ) ∝ λ^−α."""
+    ha = AEROSOL_SCALE_HEIGHT_M
+    at_550 = _aod(aod550) / (ha * (1.0 - math.exp(-TOP_M / ha)))
+    return at_550 * (lam_m / LAMBDA_G) ** (-ANGSTROM_EXPONENT) * math.exp(-altitude_m / ha)
+
+
+def henyey_greenstein(cos_theta: float, g: float = AEROSOL_G) -> float:
+    """Henyey-Greenstein phase function (per steradian, integrates to 1 over the sphere): the aerosol's forward peak."""
+    return (1.0 - g * g) / (4.0 * math.pi * (1.0 + g * g - 2.0 * g * cos_theta) ** 1.5)
+
+
 def solar_irradiance_top(lam_m: float) -> float:
     """Spectral irradiance of sunlight at the top of the atmosphere, W / (m² · m): π B(λ, T_sun) (R_sun / AU)²."""
     return math.pi * planck_spectral_radiance(lam_m, T_SUN_K) * (R_SUN_M / AU_M) ** 2
@@ -115,9 +144,10 @@ def solar_irradiance_top(lam_m: float) -> float:
 
 # ── Geometry on a spherical Earth ────────────────────────────────────────
 
-def _column(p, d, steps: int = 24):
-    """∫ exp(−h/H) ds along the ray from p in direction d (a unit vector) to the top of the atmosphere, in metres of
-    surface-density air; None when the Earth blocks the ray (the point is in the Earth's shadow)."""
+def _columns(p, d, steps: int = 24):
+    """(air, aerosol): ∫ exp(−h/H) ds along the ray from p in direction d (a unit vector) to the top of the atmosphere, for
+    the air's scale height and for the aerosol layer's, in metres of surface-density medium; None when the Earth blocks the
+    ray (the point is in the Earth's shadow)."""
     px, py, pz = p
     dx, dy, dz = d
     b = px * dx + py * dy + pz * dz
@@ -127,22 +157,27 @@ def _column(p, d, steps: int = 24):
     rt = R_EARTH_M + TOP_M
     t_max = -b + math.sqrt(max(0.0, b * b - (pp - rt * rt)))
     h = _scale_height_m()
-    total = 0.0
+    ha = AEROSOL_SCALE_HEIGHT_M
+    air = 0.0
+    aer = 0.0
     prev = 0.0
     for k in range(1, steps + 1):
         t = (k / steps) ** 3 * t_max
         mid = 0.5 * (prev + t)
         x, y, z = px + dx * mid, py + dy * mid, pz + dz * mid
-        total += math.exp(-(math.sqrt(x * x + y * y + z * z) - R_EARTH_M) / h) * (t - prev)
+        alt = math.sqrt(x * x + y * y + z * z) - R_EARTH_M
+        air += math.exp(-alt / h) * (t - prev)
+        aer += math.exp(-alt / ha) * (t - prev)
         prev = t
-    return total
+    return air, aer
 
 
-def sky_radiance(sun_elevation_deg: float, view_elevation_deg: float, relative_azimuth_deg: float, steps: int = 64):
+def sky_radiance(sun_elevation_deg: float, view_elevation_deg: float, relative_azimuth_deg: float, steps: int = 64,
+                 aod550=None):
     """Single-scattering spectral radiance of the clear sky at R, G, B, W / (m² · sr · m), seen from the surface.
 
     The sun is at this elevation; the view is at its own elevation (0 horizon, 90 zenith) and at this angle round the
-    horizon from the sun's azimuth.
+    horizon from the sun's azimuth. ``aod550`` is the aerosol optical depth at 550 nm (None: AEROSOL_OD_550; 0: air only).
     """
     s = math.radians(sun_elevation_deg)
     e = math.radians(view_elevation_deg)
@@ -150,31 +185,38 @@ def sky_radiance(sun_elevation_deg: float, view_elevation_deg: float, relative_a
     sun = (math.cos(s), 0.0, math.sin(s))
     view = (math.cos(e) * math.cos(ph), math.cos(e) * math.sin(ph), math.sin(e))
     cos_theta = sun[0] * view[0] + sun[1] * view[1] + sun[2] * view[2]
-    phase = 3.0 / (16.0 * math.pi) * (1.0 + cos_theta * cos_theta)
+    phase_r = 3.0 / (16.0 * math.pi) * (1.0 + cos_theta * cos_theta)
+    phase_a = henyey_greenstein(cos_theta)
     origin = (0.0, 0.0, R_EARTH_M)
     rt = R_EARTH_M + TOP_M
     b = origin[2] * view[2]
     t_max = -b + math.sqrt(max(0.0, b * b - (R_EARTH_M ** 2 - rt * rt)))
     h = _scale_height_m()
+    ha = AEROSOL_SCALE_HEIGHT_M
     n0 = surface_number_density()
-    sig = [rayleigh_cross_section_m2(l) for l in WAVELENGTHS_M]
+    sig = [rayleigh_cross_section_m2(l) * n0 for l in WAVELENGTHS_M]                 # air extinction at the surface, 1/m
+    ba = [aerosol_extinction_per_m(l, aod550) for l in WAVELENGTHS_M]                # aerosol extinction at the surface, 1/m
     e0 = [solar_irradiance_top(l) for l in WAVELENGTHS_M]
     out = [0.0, 0.0, 0.0]
-    col_view = 0.0
+    view_air = 0.0
+    view_aer = 0.0
     prev = 0.0
     for k in range(1, steps + 1):
         t = (k / steps) ** 3 * t_max
         dt = t - prev
         mid = 0.5 * (prev + t)
         p = (view[0] * mid, view[1] * mid, R_EARTH_M + view[2] * mid)
-        dens = math.exp(-(math.sqrt(p[0] ** 2 + p[1] ** 2 + p[2] ** 2) - R_EARTH_M) / h)
-        col_sun = _column(p, sun)
-        seg = dens * dt
-        col_to_mid = col_view + 0.5 * seg
-        if col_sun is not None:
+        alt = math.sqrt(p[0] ** 2 + p[1] ** 2 + p[2] ** 2) - R_EARTH_M
+        seg_air = math.exp(-alt / h) * dt
+        seg_aer = math.exp(-alt / ha) * dt
+        sun_cols = _columns(p, sun)
+        if sun_cols is not None:
             for c in range(3):
-                out[c] += sig[c] * n0 * seg * phase * e0[c] * math.exp(-sig[c] * n0 * (col_to_mid + col_sun))
-        col_view += seg
+                tau = sig[c] * (view_air + 0.5 * seg_air + sun_cols[0]) + ba[c] * (view_aer + 0.5 * seg_aer + sun_cols[1])
+                scat = sig[c] * seg_air * phase_r + AEROSOL_SSA * ba[c] * seg_aer * phase_a
+                out[c] += scat * e0[c] * math.exp(-tau)
+        view_air += seg_air
+        view_aer += seg_aer
         prev = t
     return tuple(out)
 
@@ -185,40 +227,42 @@ _U = tuple((k + 0.5) / 12.0 for k in range(12))          # u = sin²(elevation),
 _PHI_DEG = tuple(180.0 * (j + 0.5) / 8.0 for j in range(8))
 
 
-def _mean_sky(sun_elevation_deg: float):
+def _mean_sky(sun_elevation_deg: float, aod550=None):
     """The cosine-weighted mean sky radiance over the hemisphere, R, G, B: the diffuse irradiance is π times it."""
     acc = [0.0, 0.0, 0.0]
     for u in _U:
         el = math.degrees(math.asin(math.sqrt(u)))
         for ph in _PHI_DEG:
-            L = sky_radiance(sun_elevation_deg, el, ph, steps=32)
+            L = sky_radiance(sun_elevation_deg, el, ph, steps=32, aod550=aod550)
             for c in range(3):
                 acc[c] += L[c]
     n = len(_U) * len(_PHI_DEG)
     return [a / n for a in acc]
 
 
-def _direct_irradiance(sun_elevation_deg: float):
+def _direct_irradiance(sun_elevation_deg: float, aod550=None):
     """Direct sunlight on a horizontal surface at the ground, W / (m² · m), R, G, B (zero when the Earth hides the sun)."""
     s = math.radians(sun_elevation_deg)
-    col = _column((0.0, 0.0, R_EARTH_M), (math.cos(s), 0.0, math.sin(s)))
-    if col is None or sun_elevation_deg <= 0.0:
+    cols = _columns((0.0, 0.0, R_EARTH_M), (math.cos(s), 0.0, math.sin(s)))
+    if cols is None or sun_elevation_deg <= 0.0:
         return [0.0, 0.0, 0.0]
     n0 = surface_number_density()
-    return [solar_irradiance_top(l) * math.sin(s) * math.exp(-rayleigh_cross_section_m2(l) * n0 * col) for l in WAVELENGTHS_M]
+    return [solar_irradiance_top(l) * math.sin(s)
+            * math.exp(-rayleigh_cross_section_m2(l) * n0 * cols[0] - aerosol_extinction_per_m(l, aod550) * cols[1])
+            for l in WAVELENGTHS_M]
 
 
-def white_card_radiance():
+def white_card_radiance(aod550=None):
     """Radiance of a white (albedo 1) horizontal diffuse card in full sun at the zenith, R, G, B: the display's 1.0."""
-    direct = _direct_irradiance(90.0)
-    mean = _mean_sky(90.0)
+    direct = _direct_irradiance(90.0, aod550)
+    mean = _mean_sky(90.0, aod550)
     return [direct[c] / math.pi + mean[c] for c in range(3)]
 
 
-def ground_radiance(sun_elevation_deg: float, albedo: float = GROUND_ALBEDO):
+def ground_radiance(sun_elevation_deg: float, albedo: float = GROUND_ALBEDO, aod550=None):
     """Radiance of a Lambertian ground lit by the sun and the sky, R, G, B, W / (m² · sr · m)."""
-    direct = _direct_irradiance(sun_elevation_deg)
-    mean = _mean_sky(sun_elevation_deg)
+    direct = _direct_irradiance(sun_elevation_deg, aod550)
+    mean = _mean_sky(sun_elevation_deg, aod550)
     return [albedo * (direct[c] / math.pi + mean[c]) for c in range(3)]
 
 
@@ -258,6 +302,8 @@ def sky_record() -> dict:
         "relative_azimuth_deg": list(RELATIVE_AZIMUTH_DEG),
         "sky": {"rgb": sky_lin, "rgb_display": sky_disp},
         "ground": {"albedo": GROUND_ALBEDO, "rgb": ground_lin, "rgb_display": ground_disp},
+        "aerosol": {"od_550": AEROSOL_OD_550, "angstrom_exponent": ANGSTROM_EXPONENT, "scale_height_m": AEROSOL_SCALE_HEIGHT_M,
+                    "single_scattering_albedo": AEROSOL_SSA, "asymmetry_g": AEROSOL_G},
         "white_card": "a white diffuse card in full sun at the zenith = 1.0 in each channel (white-balanced, fixed exposure)",
         "gaps": list(SKY_GAPS),
     }

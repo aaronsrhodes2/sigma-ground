@@ -26,9 +26,9 @@ def test_rayleigh_follows_the_inverse_fourth_power_of_wavelength():
 
 
 def test_zenith_radiance_matches_the_plane_parallel_closed_form():
-    # Sun and view both at the zenith: the sun-ray and view-ray optical depths add to the whole column at every height, so
+    # (air only) Sun and view both at the zenith: the sun-ray and view-ray optical depths add to the whole column at every height, so
     # L = E0 p(0) tau exp(-tau), p(0) = 3/(8 pi). The spherical Earth moves it by well under 2%.
-    L = sky.sky_radiance(90.0, 90.0, 0.0)
+    L = sky.sky_radiance(90.0, 90.0, 0.0, aod550=0.0)          # air only: the closed form has no aerosol
     for c, lam in enumerate(sky.WAVELENGTHS_M):
         tau = sky.vertical_optical_depth(lam)
         want = sky.solar_irradiance_top(lam) * 3.0 / (8.0 * math.pi) * tau * math.exp(-tau)
@@ -39,7 +39,9 @@ def test_the_midday_sky_is_blue():
     white = sky.white_card_radiance()
     lin, _ = sky.display(sky.sky_radiance(60.0, 60.0, 90.0), white)
     assert lin[2] > lin[1] > lin[0] > 0.0
-    assert lin[2] / lin[0] > 3.0
+    assert lin[2] / lin[0] > 1.8                        # aerosols whiten it: air alone is more than 3 (next lines)
+    pure, _ = sky.display(sky.sky_radiance(60.0, 60.0, 90.0, aod550=0.0), sky.white_card_radiance(0.0))
+    assert pure[2] / pure[0] > 3.0
 
 
 def test_the_sky_reddens_toward_a_low_sun_and_is_dark_after_dusk():
@@ -94,3 +96,65 @@ def test_the_table_is_complete_in_range_and_consistent():
                 for c in range(3):
                     assert rec["sky"]["rgb_display"][s][v][a][c] == pytest.approx(srgb_encode(rec["sky"]["rgb"][s][v][a][c]), abs=2e-4)
     assert rec["gaps"] == list(sky.SKY_GAPS)
+
+
+# ── Aerosol ──────────────────────────────────────────────────────────────
+
+def test_aerosol_optical_depth_and_angstrom_law():
+    ha = sky.AEROSOL_SCALE_HEIGHT_M
+    # the 550 nm column integrates back to the optical depth the layer was given
+    tau = sky.aerosol_extinction_per_m(550e-9) * ha * (1.0 - math.exp(-sky.TOP_M / ha))
+    assert tau == pytest.approx(sky.AEROSOL_OD_550, rel=1e-9)
+    # Angstrom: extinction goes as wavelength^-alpha
+    ratio = sky.aerosol_extinction_per_m(450e-9) / sky.aerosol_extinction_per_m(650e-9)
+    assert ratio == pytest.approx((650 / 450) ** sky.ANGSTROM_EXPONENT, rel=1e-9)
+    assert sky.aerosol_extinction_per_m(550e-9, aod550=0.0) == 0.0
+    assert sky.aerosol_extinction_per_m(550e-9, altitude_m=ha) == pytest.approx(sky.aerosol_extinction_per_m(550e-9) / math.e)
+
+
+def test_henyey_greenstein_is_a_normalised_forward_peaked_phase_function():
+    n = 4000
+    total = mean_cos = 0.0
+    for i in range(n):                       # integrate over cos(theta) in (-1, 1): d(omega) = 2 pi d(cos)
+        mu = -1.0 + (i + 0.5) * 2.0 / n
+        w = sky.henyey_greenstein(mu) * 2.0 * math.pi * 2.0 / n
+        total += w
+        mean_cos += w * mu
+    assert total == pytest.approx(1.0, rel=2e-3)
+    assert mean_cos == pytest.approx(sky.AEROSOL_G, rel=5e-3)           # the asymmetry parameter is the mean cosine
+    assert sky.henyey_greenstein(1.0) > 50 * sky.henyey_greenstein(-1.0)
+
+
+def test_aerosol_dims_the_direct_sun_by_its_optical_depth():
+    clear = sky._direct_irradiance(90.0, aod550=0.0)
+    hazy = sky._direct_irradiance(90.0)
+    assert hazy[1] / clear[1] == pytest.approx(math.exp(-sky.AEROSOL_OD_550), rel=0.02)      # at 550 nm, straight overhead
+    assert hazy[2] / clear[2] < hazy[0] / clear[0] < 1.0                                       # blue is dimmed more (Angstrom)
+
+
+def test_aerosol_brightens_and_whitens_the_sky_and_puts_a_halo_round_the_sun():
+    w0, w1 = sky.white_card_radiance(0.0), sky.white_card_radiance()
+    clear = sky.display(sky.sky_radiance(60.0, 90.0, 0.0, aod550=0.0), w0)[0]
+    hazy = sky.display(sky.sky_radiance(60.0, 90.0, 0.0), w1)[0]
+    assert all(h > c for h, c in zip(hazy, clear))                     # single scattering only adds light
+    assert hazy[2] / hazy[0] < clear[2] / clear[0]                     # and the sky is less blue
+    # the horizon goes white-grey: a clear-air horizon is bluer than a hazy one
+    c_h = sky.display(sky.sky_radiance(60.0, 2.0, 100.0, aod550=0.0), w0)[0]
+    h_h = sky.display(sky.sky_radiance(60.0, 2.0, 100.0), w1)[0]
+    assert h_h[2] / h_h[0] < c_h[2] / c_h[0]
+    # the halo: the sky 15 degrees from the sun is far brighter than the sky 90 degrees away, more so with aerosol
+    near = sky.sky_radiance(40.0, 40.0, 20.0)[1]
+    far = sky.sky_radiance(40.0, 40.0, 140.0)[1]
+    near0 = sky.sky_radiance(40.0, 40.0, 20.0, aod550=0.0)[1]
+    far0 = sky.sky_radiance(40.0, 40.0, 140.0, aod550=0.0)[1]
+    assert near / far > 2.0 * (near0 / far0)
+
+
+def test_aerosol_shifts_the_table_and_is_recorded():
+    rec = sky.sky_record()
+    a = rec["aerosol"]
+    assert a["od_550"] == sky.AEROSOL_OD_550 and a["asymmetry_g"] == sky.AEROSOL_G
+    # high noon zenith, in the shipped table: brighter than the air-only sky (about 0.03 of a white card in green)
+    s = list(sky.SUN_ELEVATION_DEG).index(90.0)
+    v = list(sky.VIEW_ELEVATION_DEG).index(90.0)
+    assert rec["sky"]["rgb"][s][v][0][1] > 0.05
