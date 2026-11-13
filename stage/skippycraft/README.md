@@ -137,6 +137,17 @@ photon's 3.3 ns flight is slowed billions of times, and when it lands the gold b
 changed is what is recorded. Desk (z = 452): **Run**, **Lamp** (a nanowatt, a microwatt or a milliwatt). Tests: `tests/test_voxel_lights.py`,
 `field/interface/test_levitated_grain.py`.
 
+## Atoms (`atoms`, 2026-11-13)
+
+A photon meets the surface of the osmium grain at half an angstrom a block and 0.2 femtoseconds a tick (`materia.voxel_atoms.AtomicZoom`, numbers from
+`field.interface.osmium_atom`; the clock shows the real femtoseconds, slowed ~10^15 times). Left: five hcp layers of atoms at the library's lattice constant and the
+electron sea (two electrons an atom, a fizz of dots, never at rest). At this scale a 500 nm wave is a uniform field (10,000 blocks to a wavelength) that flips every half period;
+osmium's plasma energy is 14 eV, the light is 0.18 of the plasma frequency, so the sea follows the field (a gauge shows its collective swing, exaggerated) and radiates: the photon goes
+back up, reflected, within a skin of ~14 nm. Right: one atom, a slice on a log radial scale, a ring per Slater group (0.007 A to 3.7 A) with its electrons as dots that jump about (a cloud,
+never an orbit); only the outer 6s, the sea's, follow the field (the inner groups are bound by 10s to 1000s of eV, a photon has 2.5); the nucleus (7 fm) is off the picture. Desk (z = 512):
+**Run**, **Colour** (green, or 50 nm ultraviolet above the plasma frequency: the sea cannot follow it and the photon goes in). Tests: `tests/test_voxel_atoms.py`,
+`field/interface/test_osmium_atom.py`.
+
 ## The shooting range (`range`, 2026-10-31)
 
 Weapon vs. Armor (`games/weapon_vs_armor`) as a real target (`shooting_range.py`): the armour preset built as layers of

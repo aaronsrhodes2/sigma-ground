@@ -812,3 +812,9 @@ uniform field under it): a 1 cm, 95 g lump cannot float; the stage uses a 20 um 
 patch 26 nm across, 20 MPa peak. Not in it: roughness and adhesion (at this size van der Waals is as large as the weight), a shaped real trap (the true limit is lower), the floor lattice's own
 record (taken as immediate), and the atoms: the grain is a continuum and a rigid body here, ~2.4e15 atoms moving together. The diorama is the state drawn from outside physics, not a sight.
 
+**The atom-scale view** (`field/interface/osmium_atom.py`, 2026-11-13): the library's configuration (4f14 5d6 6s2), Slater radii (the outermost 3.66 A against a ~1.4 A metallic radius: the outer
+ones overstate about twofold; the 5d 1.35 A), hcp structure and lattice parameter (predicted 2.56 A against 2.73 A measured), free-electron count (2) and atomic mass; the sea's density from the
+superconductivity table (2 per atom of the measured density); Drude plasma frequency (14 eV, skin depth 14 nm). Not in it: the 5d electrons carry much of osmium's conduction (drawn as bound core), the
+sea is uniform (no Bloch waves), no interband transitions (which dominate its colour in the visible), the 5% of light absorbed is not followed into the lattice's vibrations, the sea's and the outer
+electrons' swing is exaggerated (and labelled), the nucleus is off the log picture, and the lattice is a perfect crystal at rest (the 0 K zero-point motion is not drawn).
+
