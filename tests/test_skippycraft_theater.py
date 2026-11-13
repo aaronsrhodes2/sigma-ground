@@ -1,4 +1,9 @@
-"""Tests for stage/skippycraft/theater.py -- a live theater, against a fake Minecraft."""
+"""Tests for stage/skippycraft/theater.py -- a live theater, against a fake Minecraft.
+
+Matter-mode scenes (sink, melt, playground, strength, impact, slosh) are tested
+in test_skippycraft_theater_matter.py. This file tests non-matter scenes
+(slit screen, shooting range) and infrastructure (desk commands, RCON, etc.).
+"""
 import re
 import shutil
 import sys
@@ -47,66 +52,48 @@ def looks():
     return theater.shared_looks()[0]
 
 
-def test_minecraft_shows_exactly_the_world_after_every_tick(looks):
-    _, world = theater.build("sink")
+# ── non-matter scenes: slit screen (carrier blocks) ──
+
+
+def test_slit_screen_shows_the_photons_in_the_lasers_colour(looks):
+    _, world = theater.build("slit")
+    screen = {**looks, **theater.slit_looks()[0]}
     mc = FakeMinecraft()
-    th = theater.Theater(world, looks, (4, -60, 20), mc.send)
+    th = theater.Theater(world, screen, theater.STAGES["slit"]["origin"], mc.send)
     th.open()
-    assert mc.shown() == _expected(th)
-    for _ in range(8):
-        world.step(0.05)
+    assert set(mc.shown().values()) == {"black_terracotta"} and len(mc.shown()) == 128 * 32
+    for _ in range(30):
+        world.step(0.1)
         th.draw()
-        assert mc.shown() == _expected(th)
-
-
-def test_only_changed_blocks_are_sent(looks):
-    _, world = theater.build("sink")
-    mc = FakeMinecraft()
-    th = theater.Theater(world, looks, (0, 0, 0), mc.send)
-    first = th.draw()
-    assert first == int(world.label[:, :, th.k0:].size)       # the first draw sets every cell from the ground up
-    assert all(y >= 0 for (_, y, _) in mc.blocks)             # and never touches Minecraft's ground below it
-    assert th.draw() == 0                                      # nothing moved, nothing sent
-
-
-def test_a_rerun_clears_what_the_last_run_left():
-    looks = theater.shared_looks()[0]
-    mc = FakeMinecraft()
-    _, w1 = theater.build("sink")
-    t1 = theater.Theater(w1, looks, (0, 0, 0), mc.send)
-    t1.open()
-    t1.run(theater.SCENES["sink"][4], 0.05, rate_hz=1e6)
-    _, w2 = theater.build("sink")
-    t2 = theater.Theater(w2, looks, (0, 0, 0), mc.send)
-    t2.open()
-    assert mc.shown() == _expected(t2)
-
-
-def test_gold_sinks_and_lands_on_the_floor_of_the_mercury(looks):
-    _, world = theater.build("sink")
-    mc = FakeMinecraft()
-    th = theater.Theater(world, looks, (0, 0, 0), mc.send)
-    th.open()
-    th.run(theater.SCENES["sink"][4], 0.05, rate_hz=1e6)
-    n = theater.RESOLUTION
-    gold = [p for p, b in mc.shown().items() if b == looks[("gold", 0.05 / n)]]
-    assert len(gold) == n ** 3                                  # one written block = n³ theater blocks
-    assert {y for _, y, _ in gold} == set(range(n, 2 * n))     # written y 1: the bottom layer of the mercury
-
-
-def test_readout_is_the_worlds_own_ledger(looks):
-    _, world = theater.build("melt")
-    mc = FakeMinecraft()
-    th = theater.Theater(world, looks, (0, 0, 0), mc.send)
-    th.open()
-    th.run(3, 0.05, rate_hz=1e6)
-    assert f"E {world.energy_J():.6g} J" in mc.bar and f"radiated {world.ledger['radiated_J']:.4g} J" in mc.bar
+    assert mc.shown() == _expected(th)
+    lit = {b for b in mc.shown().values() if b.endswith("_wool")}
+    assert lit and lit <= {theater.slit_looks()[0][(f"light 650 {lv}", 0.001)] for lv in range(1, 6)}
+    assert "photons" in mc.bar
 
 
 def test_every_scene_material_has_its_own_carrier(looks):
+    """Non-matter scenes: each material in shared_looks gets a unique carrier."""
     assert len(set(looks.values())) == len(looks)
-    n = theater.RESOLUTION
-    assert looks[("lead", 0.01 / n)] != looks[("granite", 0.05 / n)]
+    # Range scene materials at pitch 0.002
+    assert looks[("steel_mild", 0.002)] != looks[("aluminum", 0.002)]
+
+
+# ── range scene ──
+
+
+def test_the_range_target_and_its_glowing_crater_reach_minecraft(looks):
+    import shooting_range
+    world = shooting_range.RangeWorld("m2_browning", "nij_iv")
+    mc = FakeMinecraft()
+    th = theater.Theater(world, looks, theater.STAGES["range"]["origin"], mc.send)
+    th.open()
+    world.step(0.02)
+    th.draw()
+    shown = th.display()
+    assert {th.mc(i, j, k): th.block[shown[i, j, k]] for i, j, k in np.argwhere(world.label > 0)} == mc.shown()
+
+
+# ── infrastructure tests (no matter-mode dependency) ──
 
 
 def test_desk_has_run_stop_and_go_buttons_on_command_blocks_with_labels():
@@ -147,10 +134,15 @@ def test_read_request_takes_the_value_and_clears_it():
 
 def test_no_desk_is_inside_any_theaters_grid():
     # a theater's first draw sets every cell of its grid from the ground up: a desk inside one would be erased by a run
-    looks = {**theater.shared_looks()[0], **theater.slit_looks()[0], **theater.cat_looks()}   # the range's materials are in shared_looks
-    for name, st in theater.STAGES.items():
+    # Only test non-matter scenes here (matter scenes use matter mode, not carrier blocks)
+    looks = {**theater.shared_looks()[0], **theater.slit_looks()[0], **theater.cat_looks(),
+             **theater.lights_looks(), **theater.atoms_looks()}
+    non_matter = {n: s for n, s in theater.STAGES.items() if not s.get("matter")}
+    for name, name_st in non_matter.items():
         _, world = theater.build(name)
-        th = theater.Theater(world, looks, st["origin"], lambda c: None)
+        if world is None:
+            continue
+        th = theater.Theater(world, looks, name_st["origin"], lambda c: None)
         nx, ny, nz = world.label.shape
         xs = sorted(th.mc(i, 0, 0)[0] for i in (0, nx - 1))
         ys = sorted(th.mc(0, 0, k)[1] for k in (th.k0, nz - 1))
@@ -183,113 +175,3 @@ def test_a_broken_desk_is_rebuilt():
     assert theater.repair_desks(w) == []                       # all there: nothing touched
     w.ok.discard(theater.desk_checks("melt")[3])               # he breaks the melt desk's Run button
     assert theater.repair_desks(w) == ["melt"] and w.rebuilt == 3
-
-
-def test_hot_cells_are_drawn_glowing_and_cool_ones_plain(looks):
-    import export_mc
-    glows = theater.shared_glows()
-    _, world = theater.build("melt")
-    mc = FakeMinecraft()
-    th = theater.Theater(world, looks, (60, -60, 20), mc.send, glows=glows)
-    th.open()
-    w, lead = world.materials.index("tungsten"), world.materials.index("lead")
-    plate = tuple(np.argwhere(world.label == w)[0])
-    rod = tuple(np.argwhere(world.label == lead)[-1])                   # the top of the lead: still room temperature
-    band = int(np.searchsorted(export_mc.GLOW_BANDS_K, world.T[plate], side="right") - 1)
-    assert band == 4                                                    # the 1500 K plate
-    assert mc.blocks[th.mc(*plate)] == export_mc.GLOW_CARRIERS[glows[band][0]][0]
-    assert mc.blocks[th.mc(*rod)] == looks[("lead", world.pitch)]
-    for _ in range(5):
-        world.step(0.05)
-        th.draw()
-    shown = th.display()
-    assert {th.mc(i, j, k): th.block[shown[i, j, k]] for i, j, k in np.argwhere(world.label > 0)} == mc.shown()
-
-
-def test_glow_carriers_emit_light_and_are_never_material_carriers():
-    import export_mc
-    states = [c[0] for c in export_mc.GLOW_CARRIERS]
-    assert not set(states) & set(export_mc.CARRIERS_OPAQUE + export_mc.CARRIERS_CLEAR)
-    assert theater.DESK_LOOK["fill"].split(":")[1] not in states
-
-
-def test_slit_screen_shows_the_photons_in_the_lasers_colour(looks):
-    _, world = theater.build("slit")
-    screen = {**looks, **theater.slit_looks()[0]}
-    mc = FakeMinecraft()
-    th = theater.Theater(world, screen, theater.STAGES["slit"]["origin"], mc.send)
-    th.open()
-    assert set(mc.shown().values()) == {"black_terracotta"} and len(mc.shown()) == 128 * 32
-    for _ in range(30):
-        world.step(0.1)
-        th.draw()
-    assert mc.shown() == _expected(th)
-    lit = {b for b in mc.shown().values() if b.endswith("_wool")}
-    assert lit and lit <= {theater.slit_looks()[0][(f"light 650 {lv}", 0.001)] for lv in range(1, 6)}
-    assert "photons" in mc.bar
-
-
-def test_the_range_target_and_its_glowing_crater_reach_minecraft(looks):
-    import shooting_range
-    glows = theater.shared_glows()
-    world = shooting_range.RangeWorld("m2_browning", "nij_iv")
-    mc = FakeMinecraft()
-    th = theater.Theater(world, looks, theater.STAGES["range"]["origin"], mc.send, glows=glows)
-    th.open()
-    world.step(0.02)
-    th.draw()
-    shown = th.display()
-    assert {th.mc(i, j, k): th.block[shown[i, j, k]] for i, j, k in np.argwhere(world.label > 0)} == mc.shown()
-    lit = {theater.export_mc.GLOW_CARRIERS[ci][0] for ci, _, _ in glows.values()}
-    assert lit & set(mc.shown().values())                               # the crater's walls glow
-
-
-def test_strength_scene_topples_the_stack_and_breaks_the_beam_where_hot():
-    """P3's done-when: the leaning stack topples; the hot block's heat runs into the beam, which hinges where it is
-    hottest (under the block) and sags until the block slides off; the books close with the heat made by contact and
-    bending and whatever left the world over its edge."""
-    field, w = theater.build("strength")
-    top = max((b for b in w.bodies if b.material == "granite"), key=lambda b: b.x[2])
-    load = next(b for b in w.bodies if b.material == "tungsten")
-    top0, load0 = top.x.copy(), load.x[2]
-    E0 = w.thermal_J()
-    hinge_hot, bend = [], 0.0
-    for _ in range(110):
-        n = len(w.rigid.joints)
-        w.step(0.05)
-        for J in w.rigid.joints[n:]:
-            steel = np.concatenate([b.T for b in w.bodies if b.material == "steel_mild"])
-            hinge_hot.append(float(J["a"].T[J["cells_a"]].mean()) >= np.percentile(steel, 90))
-        bend = max([bend] + [J["bend"] for J in w.rigid.joints])
-    L = w.ledger
-    assert np.linalg.norm(top.x - top0) > 0.03
-    assert L["hinges"] >= 1 and hinge_hot and hinge_hot[0]           # the first hinge forms where it is hottest
-    assert bend > np.radians(5) or L["tears"] >= 1
-    assert load.x[2] < load0 - 0.05
-    L = w.ledger
-    assert (w.thermal_J() + L["radiated_J"] + L["vented_J"] + L["to_surroundings_J"] + L["left_J"] + L["ejected_J"]
-            - L["heat_from_motion_J"] - L["impact_heat_J"] == pytest.approx(E0, rel=1e-9))
-
-
-def test_impact_scene_the_round_pushes_the_block_and_heats_its_bore():
-    """P4's done-when: a round into the block wall heats, glows and pushes it as the solve says. The .50 BMG round
-    stops in the steel (the game's Poncelet solve); all its momentum is the block's; the bore glows (in SkippyCraft's
-    first glow band); the books close with the shot's heat, the ejected bore and anything that left the world."""
-    field, w = theater.impact_world("m2_browning")
-    E0, M0 = w.thermal_J(), w.mass_kg()
-    target = min(w.bodies, key=lambda b: (-round(b.x[2], 3), b.x[0]))
-    y0 = target.x[1]
-    while not w.shots:
-        w.step(0.05)
-    r = w.shots[-1][0]
-    assert not r["penetrated"] and r["owner"] == "body"
-    assert r["dp_Ns"] == pytest.approx(0.046 * 895, rel=0.02)
-    import export_mc
-    assert float(w.temperature_grid().max()) > export_mc.GLOW_BANDS_K[0]
-    hot = max(w.bodies, key=lambda b: float(b.T.max()))
-    assert hot.x[1] < y0 - 0.005                                # pushed away from the shooter, toward the backstop
-    w.run(6, 0.05)
-    L = w.ledger
-    assert w.mass_kg() + L["ejected_kg"] + L["left_kg"] == pytest.approx(M0, rel=1e-12)
-    assert (w.thermal_J() + L["radiated_J"] + L["vented_J"] + L["to_surroundings_J"] + L["left_J"] + L["ejected_J"]
-            - L["heat_from_motion_J"] - L["impact_heat_J"] == pytest.approx(E0, rel=1e-9))
