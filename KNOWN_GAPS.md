@@ -803,3 +803,6 @@ records it in ~17 s, a picowatt in ~17 ms; a picowatt of 1 m waves is a million 
 (a cold source), photons are taken to be absorbed or lost to the box (a perfectly mirrored box that kept every photon would hold the record in the box's contents, which the
 "in principle" meter shows), and the lump's box is dark (the stage's block light) unless the lamp is on. The ghost view above the box draws the state itself, which no physical
 observer can read: two worlds, one above the other, each with a block density equal to its weight (the odds), the observer in each, and two columns of the chain's coherence.
+
+**Contact records the lump** (found 2026-11-13): a lump resting on the box floor presses on it, and the floor's atoms are displaced differently for each position of the lump, so the floor records where it is the instant it touches (no photons needed). `lump_decoherence_times` has no contact channel, and the stage draws the osmium on a floor cell as if nothing under it recorded anything. To keep a position superposition the lump must be held without contact: osmium is a type-I superconductor below 0.66 K (`superconductivity`, T_c 0.66 K), so it could float over a magnet by the Meissner effect, the weight carried by the field; a static magnet records nothing, a dissipative one would.
+

@@ -67,6 +67,7 @@ CAT_GAPS = (
     "A sealed box is perfectly isolated by definition here: no real wall stops gravity or heat.",
     "The observer is a two-level pointer that records the cat's state; no brain, no consciousness, and none is needed.",
     "The lump's decoherence by thermal photons uses the scaling (separation/wavelength)^2 once the wavelength exceeds the separation, an order-of-magnitude estimate, not a derived coefficient; its emissivity is a typical polished metal's, not osmium's.",
+    "A lump resting on the box floor would be recorded by the floor at once: its weight strains the floor's atoms differently in each position. The stage draws it on a floor as if it floated; the honest version is a lump held without contact (osmium is a type-I superconductor below 0.66 K, so it can float over a magnet by the Meissner effect). No contact channel is computed.",
     "No gravitational or collapse-model decoherence (Diosi-Penrose and others are hypotheses, and experiments so far bound them far below a lump this size); standard quantum mechanics has gravity decohere nothing here.",
 )
 
