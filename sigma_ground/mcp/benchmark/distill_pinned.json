@@ -937,6 +937,14 @@
    "cause": "wrong_value",
    "tool": "joules_to_TNT",
    "got": 0.053916718418484985
+  },
+  {
+   "id": "distill-2026-11-12-037",
+   "day": "2026-11-12",
+   "question": "Profile a 0.914 solar masses black hole.",
+   "cause": "wrong_value",
+   "tool": "procedure_black_hole_profile",
+   "got": 2699.2705695556283
   }
  ]
 }
