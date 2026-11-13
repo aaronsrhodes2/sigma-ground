@@ -775,3 +775,17 @@ gold at the bottom of the tank looks shallower and shifted). Its refraction angl
   faces in between are taken as parallel (a glass wall between air and the water shifts the ray sideways, and that shift is ignored).
 - **Light that leaves the body and re-enters is not followed**, and a camera inside the medium is not refracted.
 - **A cube's vertices move, its edges stay straight**, so a large object's lensing is its corners', not a curve.
+
+## PHYSICS_GAP: the cat box is a two-level model with a stated environment (2026-11-12)
+
+`field/interface/schrodinger_cat.py` runs a real unitary chain (atom, counter, vial, cat, observer) with two environments, computed
+exactly on 7 two-level systems, and its decoherence times come from kinetic theory and the black-body photon flux (1.7e-27 s with
+the box's air, 1.2e-22 s in a vacuum, 2.6e-17 s for a 1 mm2 pinhole). Not derived: the cat is two states and the environment two
+records that become orthogonal (the saturated regime of scattering decoherence, checked against the probes' wavelengths); only the
+cat's emitted photons and the air are counted (absorbed light, sound, smell, gravity would add rate, never remove it); the cat's
+surface area, skin temperature and the alive/dead separation are typical-cat inputs; the sample's decay is the exponential law with
+the isotope's measured half-life (the library's computed alpha half-lives are far off the measured ones: Po-210 830 Ms against
+11.96 Ms, so a beta emitter whose measured half-life the library uses directly was chosen); the observer is a two-level pointer.
+"No collapse" is the model's stance (unitary quantum mechanics, branches, decoherence); it does not decide between interpretations.
+The stage's colours are plain blocks, the 25 cm block and the phase lengths are the exhibit's choice. Tests:
+`field/interface/test_schrodinger_cat.py`, `tests/test_voxel_cat.py`.

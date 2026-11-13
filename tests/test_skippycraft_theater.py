@@ -147,7 +147,7 @@ def test_read_request_takes_the_value_and_clears_it():
 
 def test_no_desk_is_inside_any_theaters_grid():
     # a theater's first draw sets every cell of its grid from the ground up: a desk inside one would be erased by a run
-    looks = {**theater.shared_looks()[0], **theater.slit_looks()[0]}   # the range's materials are in shared_looks
+    looks = {**theater.shared_looks()[0], **theater.slit_looks()[0], **theater.cat_looks()}   # the range's materials are in shared_looks
     for name, st in theater.STAGES.items():
         _, world = theater.build(name)
         th = theater.Theater(world, looks, st["origin"], lambda c: None)

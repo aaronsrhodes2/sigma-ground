@@ -49,6 +49,8 @@ SCENES = {
               'box(3,1,1,16,3,6,"water"); block(8,5,3,"gold"); block(12,5,4,"wood_oak")', 0.05, "STP", "flip", 750, 0.04),
     # the double slit, one photon at a time, on a screen of 1 mm blocks (materia.voxel_slits): no build code, its own world
     "slit": (None, 0.001, None, "slits", 240, 0.1),
+    # Schrodinger's cat in a sealed box, computed (field.interface.schrodinger_cat via materia.voxel_cat): no build code, its own world
+    "cat": (None, 0.25, None, "cat", 300, 0.1),
     # the shooting range: Weapon vs. Armor's physics carved into an armour target of 2 mm blocks (shooting_range.py)
     "range": (None, 0.002, "STP", "range", 150, 0.02),
     # the playground (SKIPPYCRAFT_PLAN 10b): heat, melting, liquid momentum and bodies at once (materia.playground). A 2200 K
@@ -123,16 +125,26 @@ STAGES = {
                          "block heats the steel beam under it; where the steel is hot enough to yield, the beam bends, sags, "
                          "tears and drops it. Every strength, friction and bounce comes from the blocks' own state."},
     # the impact scene is 48 x 40 written blocks at 5 mm (96 x 80 blocks) at x 80-176, z 300-380; the desk in front of it
-    "impact": {"origin": (80, -60, 312), "desk": (128, -42, 300), "pitch": 30, "other": "sink", "request": 16, "rate": 6.0, "matter": True,
+    "impact": {"origin": (80, -60, 312), "desk": (128, -42, 300), "pitch": 30, "other": "cat", "request": 16, "rate": 6.0, "matter": True,
                "extra": (("Weapon", IMPACT_WEAPON),),
                "tell": "Impact: the range's weapon fires at the steel wall. The game's own solve says how far the round "
                        "goes and what it loses in each layer; that momentum pushes the block into the backstop, and the "
                        "energy the block does not take as motion heats the bore, which glows. Weapon = next round."},
+    # the cat stage is 86 x 14 blocks (25 cm each) at x 0-85, z 430-443: the box on the left, the ledger of its quantum state on the right
+    "cat": {"origin": (0, -60, 430), "desk": (42, -40, 392), "pitch": 0, "other": "sink", "request": 18, "rate": 6.0,
+            "extra": (("Pinhole", 19), ("Air", 20), ("Open box", 21), ("Step inside", 22), ("Step outside", 23)),
+            "tell": "Schrodinger's cat, computed: a sealed box, a cobalt-60 sample sized for even odds in an hour, a counter, a vial, a "
+                    "cat, and you. The box's own air records the cat in 1.7e-27 s, long before anyone could look; sealed, the whole "
+                    "content is still one quantum state in principle (cyan meter) and no experiment can see it in practice (gold "
+                    "meter). Step inside to be the observer: you see one outcome. Open box: the outside looks, and sees the same. "
+                    "Pinhole: one photon tells the outside. Air: pump it out and only the cat's own light records it."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
 SCREEN_BUTTONS = {6: "observe", 7: "one_slit", 10: "colour"}
 RANGE_BUTTONS = {12: "weapon", 13: "armor"}
+CAT_BUTTONS = {19: "leak", 20: "air", 21: "open"}
+CAT_INSIDE, CAT_OUTSIDE = 22, 23
 DESK_LOOK = {"fill": "minecraft:sea_lantern", "board": "minecraft:command_block"}
 PACK_DIR = HERE / "dev-server" / "pack"
 PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet address: the server's RESOURCE_PACK points here
@@ -331,6 +343,9 @@ def build(name):
     if temp == "range":
         import shooting_range
         return None, shooting_range.RangeWorld(armed=False)
+    if temp == "cat":
+        from sigma_ground.materia.voxel_cat import CatBox
+        return None, CatBox()
     if temp == "slits":
         from sigma_ground.materia.voxel_slits import SlitScreen
         return None, SlitScreen()
@@ -385,6 +400,12 @@ def range_appearances():
     import shooting_range
     from sigma_ground.field.interface.block import appearance
     return {(m, shooting_range.PITCH): appearance(m, shooting_range.PITCH) for m in shooting_range.materials()}
+
+
+def cat_looks():
+    """The cat stage's looks: each material is a plain block that the pack leaves alone (nothing is repainted)."""
+    from sigma_ground.materia.voxel_cat import LOOKS, PITCH
+    return {(m, PITCH): block for m, block in LOOKS.items()}
 
 
 def slit_looks():
@@ -648,7 +669,7 @@ def build_pack():
     screen, paint = slit_looks()
     export_mc.write_flat_textures(paint, PACK_DIR)
     shutil.make_archive(str(PACK_DIR / "skippycraft"), "zip", PACK_DIR / "skippycraft")
-    return {**looks, **screen}
+    return {**looks, **screen, **cat_looks()}
 
 
 def serve_pack():
@@ -715,6 +736,30 @@ def repair_desks(rcon):
     return fixed
 
 
+def cat_captions(th, world):
+    """Text over the cat stage's panels (``world.captions()``: grid cells and words), in front of the board."""
+    cmds = []
+    for n, (i, j, k, text) in enumerate(world.captions()):
+        x, y, z = th.mc(i, j, int(k))
+        cmds += label(f"skippycraft_cat_{n}", x + 0.5, y + 0.5 + (k - int(k)), z - 0.7, text)
+    return cmds
+
+
+def step_through(rcon, world, th, inside, tell):
+    """Move him into the sealed box (to stand beside the cat, facing it) or back to the desk."""
+    if inside:
+        if world is None or th is None:
+            tell("Run the cat first, then step inside.")
+            return
+        x, y, z = th.mc(*world.OBSERVER_CELL)
+        rcon.command(f"tp @p {x + 0.5} {y} {z + 0.5} 90 10")
+        tell("You are inside the box. Everything outside is sealed away; the cat is what you see.")
+    else:
+        sx, sy, sz, yaw, pitch = stand("cat")
+        rcon.command(f"tp @p {sx} {sy} {sz} {yaw} {pitch}")
+        tell("You are outside the box, at the desk.")
+
+
 def range_press(aim, what):
     """Cycle the range's weapon or armour. Returns what it is now, in words."""
     import shooting_range
@@ -743,7 +788,7 @@ def serve(player="aaronsrhodes"):
     send = rcon.commands
     blocks = block_writer()
     print("block writer:", "plugin" if blocks else "none (RCON fills)", flush=True)
-    send(["forceload add -16 0 191 207", "forceload add -16 208 191 399", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
+    send(["forceload add -16 0 191 207", "forceload add -16 208 191 399", "forceload add -16 400 191 463", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
           "scoreboard players set #request skippycraft 0"])
     # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
     spots = [st[k] for st in STAGES.values() for k in ("origin", "desk")]
@@ -797,6 +842,16 @@ def serve(player="aaronsrhodes"):
             if req in SCREEN_BUTTONS:                                     # pressed between runs: change the setup, then run
                 tell(kept.setdefault("slit", build("slit")[1]).press(SCREEN_BUTTONS[req]))
                 req = STAGES["slit"]["request"]
+            if req in CAT_BUTTONS:                                        # the cat box: change the setup, then run
+                tell(kept.setdefault("cat", build("cat")[1]).press(CAT_BUTTONS[req]))
+                if CAT_BUTTONS[req] == "open":                            # the door opens where it stands: no new run
+                    if kept.get("cat_th"):
+                        kept["cat_th"].draw()
+                    continue
+                req = STAGES["cat"]["request"]
+            if req in (CAT_INSIDE, CAT_OUTSIDE):                          # between runs: just move him
+                step_through(rcon, kept.get("cat"), kept.get("cat_th"), req == CAT_INSIDE, tell)
+                continue
             if req in RANGE_BUTTONS:                                      # a new weapon or armour: show the fresh target
                 tell(range_press(aim, RANGE_BUTTONS[req]))
                 req, preview = STAGES["range"]["request"], True
@@ -821,6 +876,9 @@ def serve(player="aaronsrhodes"):
             if name == "slit":                                            # the screen keeps its setup between runs
                 world = kept.setdefault("slit", build("slit")[1])
                 world.reset()
+            elif name == "cat":                                           # the box keeps its setup between runs; a new run draws the Born rule again
+                world = kept.setdefault("cat", build("cat")[1])
+                world.reset()
             elif name == "range":
                 import shooting_range
                 world = shooting_range.RangeWorld(aim["weapon"], aim["armor"], armed=not preview)
@@ -832,6 +890,9 @@ def serve(player="aaronsrhodes"):
             rcon.command(f'title @a actionbar {json.dumps({"text": "Running " + name, "color": "green"})}')
             tell(f"Building {name} at {SCENE_RESOLUTION.get(name, RESOLUTION)}x resolution (a few seconds)...")
             th.open()
+            if name == "cat":
+                kept["cat_th"] = th
+                rcon.commands(cat_captions(th, world))
             tell(st["tell"])
             _, _, _, _, ticks, dt = SCENES[name]
             if preview:                                                   # just show the fresh target
@@ -864,6 +925,15 @@ def serve(player="aaronsrhodes"):
                     tell(impact_press())
                     pending = STAGES["impact"]["request"]
                     break
+                if nxt in CAT_BUTTONS and name == "cat":
+                    tell(world.press(CAT_BUTTONS[nxt]))
+                    if CAT_BUTTONS[nxt] != "open":                         # the switches start a fresh run
+                        pending = st["request"]
+                        break
+                    nxt = 0
+                if nxt in (CAT_INSIDE, CAT_OUTSIDE) and name == "cat":
+                    step_through(rcon, world, th, nxt == CAT_INSIDE, tell)
+                    nxt = 0
                 if nxt in SCREEN_BUTTONS and hasattr(world, "press"):
                     tell(world.press(SCREEN_BUTTONS[nxt]))
                     nxt = 0
@@ -911,7 +981,7 @@ def main(argv=None):
     export_mc.write_resourcepack(looks, appearances, packs)
     screen, paint = slit_looks()
     export_mc.write_flat_textures(paint, packs)
-    looks = {**looks, **screen}
+    looks = {**looks, **screen, **cat_looks()}
     if a.scene == "looks":
         print(json.dumps({f"{m}@{s:g}m": c for (m, s), c in looks.items()}, indent=2))
         return

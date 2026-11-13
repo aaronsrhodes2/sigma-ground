@@ -113,6 +113,19 @@ brightness levels. Desk (z = 150, "Go to slit" from slosh): **Run**, **Observe**
 **One slit**, **Colour** (650 / 532 / 405 nm); the three setup buttons also work between runs and start a fresh one. Live:
 bright fringes 5 blocks apart for λL/d = 5.20 mm; observed, one smooth envelope.
 
+## Schrodinger's cat (`cat`, 2026-11-12)
+
+A sealed box on the left (opaque walls, 25 cm blocks) with a cobalt-60 sample sized for even odds in an hour, a counter, a vial,
+a cat and a lamp; on the right the ledger of its quantum state (`materia.voxel_cat.CatBox`, all numbers from
+`field.interface.schrodinger_cat`): the hour clock, five bar pairs (atom, counter, vial, cat, observer: the same bars, which is
+the puzzle), two coherence meters (IN PRACTICE, the air and light inside traced out; IN PRINCIPLE, an experimenter who could reverse
+every molecule), a log-time zoom from 1e-33 s to 10 s (the air inside records the cat in 1.7e-27 s; a person notices in 0.1 s), and
+the outside test's tallies. What is inside the box is the branch the observer experiences (a draw of the Born rule). Desk (z = 392):
+**Run** (a new draw), **Pinhole** (a 1 mm2 leak: the outside is told), **Air** (pump it out), **Open box** (the outside looks and sees
+the same outcome), **Step inside** (stand beside the cat, facing it) and **Step outside**. A switch starts a fresh run; Open box and the
+two steps act where it stands. Live: `python stage/skippycraft/theater.py serve`. Tests: `tests/test_voxel_cat.py`,
+`field/interface/test_schrodinger_cat.py`. Gaps: `schrodinger_cat.CAT_GAPS` and KNOWN_GAPS.md.
+
 ## The shooting range (`range`, 2026-10-31)
 
 Weapon vs. Armor (`games/weapon_vs_armor`) as a real target (`shooting_range.py`): the armour preset built as layers of
