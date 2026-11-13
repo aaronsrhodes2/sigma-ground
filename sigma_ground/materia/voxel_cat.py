@@ -37,7 +37,8 @@ W, D, H = 86, 14, 40
 JF = D - 1                                   # the plane of the front: the board and the box's door wall
 HOUR_TICKS, ZOOM_TICKS, TEST_TICKS = 110, 120, 70
 TICKS = HOUR_TICKS + ZOOM_TICKS + TEST_TICKS
-LOG_FROM, LOG_TO = -33, 1                    # decades of seconds in the zoom: 1e-33 s .. 10 s
+LOG_FROM, LOG_TO = -33, 4                    # decades of seconds in the zoom: 1e-33 s .. 10^4 s
+LUMP_TEMPS_K = (0.0, 1.0e-3, 1.0, 300.0)       # the osmium lump's temperatures the desk steps through
 REACTION_S = 0.1                             # a person's reaction time (EMPIRICAL-INPUT, the mark on the chart)
 TRIALS_PER_TICK = 400
 
@@ -47,9 +48,9 @@ BOX_H = 9                                    # floor k=0, roof k=8
 BOARD_I0 = 17
 OBSERVER_CELL = (10, 10, 1)                  # where the player stands inside the box
 
-MATERIALS = ["air", "wall", "floor", "lamp", "atom", "atom decayed", "counter", "counter clicked", "vial", "vial broken",
+MATERIALS = ["air", "osmium", "wall", "floor", "lamp", "atom", "atom decayed", "counter", "counter clicked", "vial", "vial broken",
              "cat alive", "cat dead", "panel", "green", "red", "white", "gold", "cyan", "violet", "blue", "glow", "grey"]
-LOOKS = {"wall": "polished_deepslate", "floor": "smooth_stone", "lamp": "sea_lantern", "atom": "quartz_block",
+LOOKS = {"osmium": "netherite_block", "wall": "polished_deepslate", "floor": "smooth_stone", "lamp": "sea_lantern", "atom": "quartz_block",
          "atom decayed": "glowstone", "counter": "iron_block", "counter clicked": "copper_block", "vial": "slime_block",
          "vial broken": "mud", "cat alive": "honeycomb_block", "cat dead": "stone", "panel": "polished_blackstone",
          "green": "emerald_block", "red": "redstone_block", "white": "quartz_block", "gold": "gold_block", "cyan": "diamond_block",
@@ -63,6 +64,9 @@ class CatBox:
     def __init__(self, seed=None):
         self.pitch = PITCH
         self.materials = list(MATERIALS)
+        self.subject = "cat"                    # "cat" or "osmium": a lump of inert matter
+        self.lump_t = 0                         # index into LUMP_TEMPS_K
+        self.observer_inside = False            # a warm observer standing in the box
         self.sealed_leak = False                # a pinhole in the box
         self.vacuum = False                     # the air pumped out
         self.door_open = False
@@ -75,9 +79,7 @@ class CatBox:
         """A fresh run: a new draw of the Born rule (the observer's outcome and when the atom decayed)."""
         self.rng = np.random.default_rng(self._seed if seed is None and self._seed is not None else seed)
         self.sample = sc.sample()
-        self.times = sc.decoherence_times(self.vacuum)
-        self.tau_in = self.times["total_s"]
-        self.tau_leak = 1.0 / sc.leak_rate() if self.sealed_leak else math.inf
+        self._environment()
         p_end = sc.decay_probability(sc.WINDOW_S, self.sample)
         self.outcome = sc.observer_sees(p_end, self.rng)          # what the observer inside experiences
         lam_n = self.sample["atoms"] * self.sample["decay_constant_per_s"]
@@ -91,6 +93,32 @@ class CatBox:
         self._state()
         self._draw()
 
+    def _environment(self):
+        """The times in which the box's contents record which branch the subject is in: inside, and out through a pinhole."""
+        if self.subject == "cat":
+            self.times = sc.decoherence_times(self.vacuum)
+            self.tau_in = self.times["total_s"]
+            self.tau_leak = 1.0 / sc.leak_rate() if self.sealed_leak else math.inf
+        else:
+            self.times = sc.lump_decoherence_times(LUMP_TEMPS_K[self.lump_t], vacuum=self.vacuum, observer_inside=self.observer_inside)
+            self.tau_in = self.times["total_s"]
+            photons = self.times["rate_own_per_s"] + self.times["rate_box_per_s"] + self.times["rate_observer_per_s"]
+            hole = sc.PINHOLE_M2 / (4.0 * math.pi * sc.BOX_RADIUS_M ** 2)         # the share of the records that leave through the hole
+            self.tau_leak = 1.0 / (photons * hole) if (self.sealed_leak and photons > 0.0) else math.inf
+
+    def set_observer(self, inside):
+        """The observer (a 305 K body) steps in or out. Returns what that does to the box, in words."""
+        self.observer_inside = bool(inside)
+        self._environment()
+        self._state()
+        self._draw()
+        if not inside:
+            return "You are outside: nothing of you is in the box."
+        if self.subject == "cat":
+            return (f"You are inside. The cat's own warmth and the air already record it in {self.tau_in:.0e} s; you add nothing it would notice.")
+        return (f"You are inside, a 305 K body: your light records the lump in {self.times['observer_s']:.0e} s even though the box and the lump are at "
+                f"{LUMP_TEMPS_K[self.lump_t]:g} K. An observer who leaves no trace cannot be in the box.")
+
     def press(self, what):
         """``leak`` | ``air`` | ``open``: the first two change the setup and start again; ``open`` opens the door now."""
         if what == "leak":
@@ -100,13 +128,26 @@ class CatBox:
         elif what == "air":
             self.vacuum = not self.vacuum
             msg = "The air pumped out: only the cat's own light records it." if self.vacuum else "Air back in the box."
+        elif what == "subject":
+            self.subject = "osmium" if self.subject == "cat" else "cat"
+            self.vacuum = self.subject == "osmium"
+            msg = ("A 95 g lump of osmium, kicked 1 cm sideways or not, in a vacuum box at " + f"{LUMP_TEMPS_K[self.lump_t]:g} K." if self.subject == "osmium"
+                   else "The cat again.")
+        elif what == "temp":
+            if self.subject != "osmium":
+                return "The temperature is the lump's: press Subject first."
+            self.lump_t = (self.lump_t + 1) % len(LUMP_TEMPS_K)
+            d = sc.lump_decoherence_times(LUMP_TEMPS_K[self.lump_t], vacuum=self.vacuum, observer_inside=self.observer_inside)
+            msg = (f"Lump and box at {LUMP_TEMPS_K[self.lump_t]:g} K: " +
+                   ("nothing records it: it stays coherent for ever." if math.isinf(d["total_s"]) else f"recorded in {d['total_s']:.1e} s."))
         elif what == "open":
             if not self.door_open:
                 self.door_open = True
                 self.opened_at_tick = self.ticks
                 self._state()
                 self._draw()
-            return "The door is open: the outside looked, and sees what the observer inside saw: the cat is " + self.outcome.upper() + "."
+            side = self._seen().split()[0]
+            return f"The door is open: the outside looked, and sees what the observer inside saw: the {self._noun()} is {side}."
         else:
             return ""
         self.reset()
@@ -153,9 +194,8 @@ class CatBox:
         # in the hour the environment has had all of it to record the branching (any superposition is long recorded)
         t = max(self.hour_s(), 1.0) if self.phase() == "hour" else self._since_branching()
         self.g_in, self.g_out = self._gammas(t)
-        psi = sc.box_state(self.p, self.g_in, self.g_out, observer_looked=True)
-        self.coh_practice = sc.branch_coherence(psi)
-        self.coh_principle = sc.branch_coherence(psi, tuple(range(sc._ENV_OUT)))       # the air kept: everything inside
+        self.coh_practice = sc.chain_coherence(self.p, self.g_in, self.g_out)
+        self.coh_principle = sc.chain_coherence(self.p, self.g_in, self.g_out, in_principle=True)       # the air kept: everything inside
         p_end = sc.decay_probability(sc.WINDOW_S, self.sample)
         g_in, g_out = self._gammas(10.0 ** LOG_TO)
         self.p_test_principle = sc.outside_test(p_end, g_in, g_out)
@@ -203,7 +243,10 @@ class CatBox:
         lab[11, 4, 1] = M["floor"]                                  # the vial on its pedestal
         lab[11, 4, 2] = M["vial broken"] if dead else M["vial"]
         cat = "cat dead" if dead else "cat alive"
-        if not dead:                                                # sitting up: body, head, ears, tail
+        if self.subject == "osmium":                                # a 2 x 2 x 2 lump, here or kicked there (not to scale: it is 1 cm)
+            x = 9 if dead else 4
+            lab[x:x + 2, 7:9, 1:3] = M["osmium"]
+        elif not dead:                                                # sitting up: body, head, ears, tail
             lab[6:9, 6:10, 1:3] = M[cat]
             lab[7, 10, 3] = M[cat]
             lab[6, 10, 4] = lab[8, 10, 4] = M[cat]
@@ -247,7 +290,9 @@ class CatBox:
                 row = 3 + round(11 * k_val)
                 self._put(c0 + c, min(row, 14), name)
         # marks: where the air inside records the cat, and a person's reaction
-        for lg, name in ((math.log10(self.tau_in), "violet"), (math.log10(REACTION_S), "red")):
+        for lg, name in ((math.log10(self.tau_in) if math.isfinite(self.tau_in) else None, "violet"), (math.log10(REACTION_S), "red")):
+            if lg is None:
+                continue
             c = round(lg) - LOG_FROM
             if 0 <= c < cols:
                 for k in range(3, 15):
@@ -275,16 +320,27 @@ class CatBox:
         """Text for the stage: ``(i, j, k, text)`` in grid cells (j the front plane)."""
         b0 = BOARD_I0
         return [
-            (7, JF, 11, "THE BOX: sealed. Opaque to the outside."),
+            (7, JF, 11, "THE BOX: sealed. Opaque to the outside." if self.subject == "cat" else "THE BOX: sealed, empty of air. A lump of osmium."),
             (b0 + 34, JF, 37, "THE HOUR (the sample's decay clock)"),
             (b0 + 34, JF, 35, "weights: green = nothing happened, red = it did"),
-            (b0 + 34, JF, 22.4, "atom        counter        vial          cat         observer"),
+            (b0 + 34, JF, 22.4, f"atom        counter        vial          {self._noun()}         observer"),
             (b0 + 34, JF, 21, "chain coherence  IN PRACTICE (gold)  /  IN PRINCIPLE (cyan)"),
-            (b0 + 19, JF, 1, "log10 seconds since the branching: -33 ... +1"),
-            (b0 + 19, JF, 15.6, "violet: the air records the cat. red: you notice (0.1 s)."),
+            (b0 + 19, JF, 1, "log10 seconds since the branching: -33 ... +4"),
+            (b0 + 19, JF, 15.6, "violet: the box's contents record it. red: you notice (0.1 s)."),
             (b0 + 54, JF, 15.6, "OUTSIDE TEST: yes (cyan/gold) | no (red)"),
             (b0 + 48, JF, 1, "in principle        in practice"),
         ]
+
+    def _noun(self):
+        return "cat" if self.subject == "cat" else "lump"
+
+    def _seen(self):
+        """What the observer inside has seen so far, in this subject's words."""
+        names = {"alive": ("alive", "dead"), "dead": ("alive", "dead")} if self.subject == "cat" else {"alive": ("left", "right")}
+        a, d = ("alive", "dead") if self.subject == "cat" else ("left", "right")
+        if self.outcome == "alive":
+            return a.upper()
+        return d.upper() if self.hour_s() >= self.t_decay else a.upper() + " so far"
 
     def readout(self):
         ph = {"hour": f"the hour {self.hour_s() / 60:.0f} min: P(decay) {self.p:.2f}",
@@ -292,9 +348,11 @@ class CatBox:
               "test": f"outside test {self.trials:,} runs: yes {self.yes_in_principle / max(1, self.trials):.0%} in principle, "
                       f"{self.yes_in_practice / max(1, self.trials):.0%} in practice"}[self.phase()]
         box = ("open" if self.door_open else "sealed") + (", pinhole" if self.sealed_leak else "") + (", vacuum" if self.vacuum else ", air")
-        seen = self.outcome.upper() if (self.outcome == "alive" or self.hour_s() >= self.t_decay) else "alive so far"
-        return (f"Schrodinger's cat | {ph} | chain coherence in practice {self.coh_practice:.2f}, in principle {self.coh_principle:.2f} | "
-                f"box {box} | observer inside sees: {seen}")
+        seen = self._seen()
+        who = "cat" if self.subject == "cat" else f"osmium lump at {LUMP_TEMPS_K[self.lump_t]:g} K"
+        tau = "never" if math.isinf(self.tau_in) else f"{self.tau_in:.0e} s"
+        return (f"Schrodinger's {who} | {ph} | chain coherence in practice {self.coh_practice:.2f}, in principle {self.coh_principle:.2f} | "
+                f"box {box}{', you inside' if self.observer_inside else ''} | recorded in {tau} | observer inside sees: {seen}")
 
     def gaps(self):
         return sc.CAT_GAPS

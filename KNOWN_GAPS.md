@@ -789,3 +789,10 @@ the isotope's measured half-life (the library's computed alpha half-lives are fa
 "No collapse" is the model's stance (unitary quantum mechanics, branches, decoherence); it does not decide between interpretations.
 The stage's colours are plain blocks, the 25 cm block and the phase lengths are the exhibit's choice. Tests:
 `field/interface/test_schrodinger_cat.py`, `tests/test_voxel_cat.py`.
+
+The same stage takes a lump of osmium (95 g, 1 cm sphere, kicked 1 cm sideways or not) in place of the cat, in a vacuum box at 0 K / 1 mK / 1 K / 300 K
+(`schrodinger_cat.lump_decoherence_times`): thermal photons it emits, the box's that scatter off it, and those of a 305 K observer standing 1 m away. Photons
+whose wavelength is below the separation record it in full; above it the record is scaled by (separation / wavelength)^2, an order-of-magnitude estimate (the
+Joos-Zeh scaling, not a derived coefficient). Its emissivity (0.05, a polished metal) is an input: the library has no osmium optics. At 0 K nothing records it
+(no photons, no gas); at 1 mK about two minutes; at 1 K, 50 ps; at 300 K, 2e-20 s; and an observer's own light records it in 5e-19 s whatever the box's temperature.
+No gravitational or collapse-model decoherence is included (those are hypotheses, and experiments so far bound them far below a lump this size).

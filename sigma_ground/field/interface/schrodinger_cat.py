@@ -57,6 +57,7 @@ CAT_SEPARATION_M = 0.30     # EMPIRICAL-INPUT: how far "dead" (lying) differs fr
 BOX_T_K = 293.15            # EXHIBIT choice: room temperature
 BOX_P_PA = 101325.0         # EXHIBIT choice: one atmosphere inside the box
 PINHOLE_M2 = 1.0e-6         # EXHIBIT choice: a one square millimetre leak
+BOX_RADIUS_M = 1.5          # EXHIBIT choice: the box's inner size, for the share of records that leave through a hole
 ZETA_3 = 1.2020569031595942  # MEASURED (mathematical constant)
 
 CAT_GAPS = (
@@ -65,6 +66,8 @@ CAT_GAPS = (
     "The sample's decay is the exponential law (a Weisskopf-Wigner amplitude), not a derived nuclear process; its half-life is the measured one.",
     "A sealed box is perfectly isolated by definition here: no real wall stops gravity or heat.",
     "The observer is a two-level pointer that records the cat's state; no brain, no consciousness, and none is needed.",
+    "The lump's decoherence by thermal photons uses the scaling (separation/wavelength)^2 once the wavelength exceeds the separation, an order-of-magnitude estimate, not a derived coefficient; its emissivity is a typical polished metal's, not osmium's.",
+    "No gravitational or collapse-model decoherence (Diosi-Penrose and others are hypotheses, and experiments so far bound them far below a lump this size); standard quantum mechanics has gravity decohere nothing here.",
 )
 
 QUBITS = ("atom", "counter", "vial", "cat", "observer", "air_in", "leak")      # indices 0..6
@@ -132,6 +135,64 @@ def decoherence_times(vacuum: bool = False) -> dict:
     r_ph = photon_emission_rate()
     return {"air_s": math.inf if r_air == 0 else 1.0 / r_air, "photons_s": 1.0 / r_ph, "total_s": 1.0 / (r_air + r_ph),
             "rate_air_per_s": r_air, "rate_photons_per_s": r_ph}
+
+
+# ── A lump of inert matter instead of a cat ──────────────────────────────
+OSMIUM_DENSITY_KG_M3 = 22590.0   # MEASURED: CRC Handbook (osmium, the densest natural element)
+LUMP_RADIUS_M = 0.01             # EXHIBIT choice: a 1 cm sphere (95 g of osmium)
+LUMP_SEPARATION_M = 0.01         # EXHIBIT choice: the trigger kicks it 1 cm sideways: "here" and "there" differ by that
+LUMP_EMISSIVITY = 0.05           # EMPIRICAL-INPUT: a polished metal in the far infrared (the library holds no osmium optics)
+OBSERVER_AREA_M2 = 1.8           # EMPIRICAL-INPUT: an adult's skin
+OBSERVER_SKIN_K = 305.0          # EMPIRICAL-INPUT: skin temperature
+OBSERVER_DISTANCE_M = 1.0        # EXHIBIT choice: how far the observer stands from the lump
+
+
+def lump_mass_kg(radius_m: float = LUMP_RADIUS_M) -> float:
+    return OSMIUM_DENSITY_KG_M3 * 4.0 / 3.0 * math.pi * radius_m ** 3
+
+
+def photon_flux_per_area(temperature_k: float) -> float:
+    """Thermal photons per second through a square metre in a radiation field at ``temperature_k``: (c/4) n_gamma, n_gamma = (2 zeta(3)/pi^2)(kT/hbar c)^3."""
+    if temperature_k <= 0.0:
+        return 0.0
+    return C / 4.0 * 2.0 * ZETA_3 / math.pi ** 2 * (K_B * temperature_k / (HBAR * C)) ** 3
+
+
+def thermal_wavelength_m(temperature_k: float) -> float:
+    """The wavelength at the peak of the photon spectrum, 2 pi hbar c / (2.82 k T) (infinite at 0 K)."""
+    return math.inf if temperature_k <= 0.0 else 2.0 * math.pi * HBAR * C / (2.82 * K_B * temperature_k)
+
+
+def resolving_fraction(separation_m: float, temperature_k: float) -> float:
+    """How much of "which side?" one thermal photon carries: 1 when its wavelength is below the separation, (separation/wavelength)^2 above
+    (the long-wavelength scaling of Joos & Zeh 1985: an order-of-magnitude estimate, not a coefficient)."""
+    lam = thermal_wavelength_m(temperature_k)
+    return 0.0 if math.isinf(lam) else min(1.0, (separation_m / lam) ** 2)
+
+
+def lump_decoherence_times(temperature_k: float = 0.0, box_k: float = None, vacuum: bool = True, observer_inside: bool = False,
+                           radius_m: float = LUMP_RADIUS_M, separation_m: float = LUMP_SEPARATION_M) -> dict:
+    """Seconds for the surroundings to record which side a lump of inert matter (osmium) is on, by channel and all together.
+
+    own        its thermal photons: emissivity x area x photon flux x the share of "which side" each carries
+    box        the box's thermal radiation scattering off it (the box at ``box_k``, by default the lump's own temperature)
+    observer   an observer at the skin temperature standing in the box: her photons scatter off the lump
+    gas        residual gas (none when ``vacuum``); at 0 K the walls would freeze it out anyway
+    """
+    box_k = temperature_k if box_k is None else box_k
+    area = 4.0 * math.pi * radius_m ** 2
+    own = LUMP_EMISSIVITY * area * photon_flux_per_area(temperature_k) * resolving_fraction(separation_m, temperature_k)
+    box = (1.0 - LUMP_EMISSIVITY) * area * photon_flux_per_area(box_k) * resolving_fraction(separation_m, box_k)
+    obs = 0.0
+    if observer_inside:
+        emitted = OBSERVER_AREA_M2 * photon_flux_per_area(OBSERVER_SKIN_K)
+        obs = (1.0 - LUMP_EMISSIVITY) * emitted * radius_m ** 2 / (4.0 * OBSERVER_DISTANCE_M ** 2) * resolving_fraction(separation_m, OBSERVER_SKIN_K)
+    gas = 0.0 if vacuum else air_collision_rate(area, BOX_T_K, BOX_P_PA)
+    total = own + box + obs + gas
+    inv = lambda r: math.inf if r <= 0.0 else 1.0 / r
+    return {"own_s": inv(own), "box_s": inv(box), "observer_s": inv(obs), "gas_s": inv(gas), "total_s": inv(total),
+            "rate_own_per_s": own, "rate_box_per_s": box, "rate_observer_per_s": obs, "rate_gas_per_s": gas,
+            "mass_kg": lump_mass_kg(radius_m), "temperature_k": temperature_k}
 
 
 # ── The quantum state ────────────────────────────────────────────────────
@@ -217,22 +278,39 @@ def outside_test(p: float, gamma_in: float, gamma_out: float, observer_looked: b
     psi = box_state(p, gamma_in, gamma_out, observer_looked)
     keep = tuple(range(_ENV_IN)) if practical else tuple(range(_ENV_OUT))
     rho = reduced(psi, keep)
-    obs = 1 if observer_looked else 0
-    def branch(atom):
-        bits = [atom] * 4 + [atom * obs]                         # atom, counter, vial, cat, observer all agree
-        v = np.zeros(2 ** len(keep))
-        base = 0
-        for b in bits:
-            base = base * 2 + b
-        if practical:
-            v[base] = 1.0
-        else:                                                    # the air's record: |0> if alive, overlap gamma_in with it if dead
-            g = gamma_in if atom else 1.0
-            v[base * 2] = g
-            v[base * 2 + 1] = math.sqrt(max(0.0, 1.0 - g * g))
-        return v
-    plus = (branch(0) + branch(1)) / math.sqrt(2.0)
+    plus = (_branch_vec(0, gamma_in, observer_looked, practical) + _branch_vec(1, gamma_in, observer_looked, practical)) / math.sqrt(2.0)
     return float((plus @ rho @ plus).real)
+
+
+def _branch_vec(atom: int, gamma_in: float, observer_looked: bool, practical: bool):
+    """The pure state of the interior if the atom is definitely ``atom``: the macroscopic variables all agree, and (unless ``practical``)
+    the air's record is |0> for "nothing happened" and has overlap ``gamma_in`` with it for the other branch."""
+    obs = 1 if observer_looked else 0
+    base = 0
+    for b in [atom] * 4 + [atom * obs]:
+        base = base * 2 + b
+    if practical:
+        v = np.zeros(2 ** _ENV_IN)
+        v[base] = 1.0
+        return v
+    v = np.zeros(2 ** _ENV_OUT)
+    g = gamma_in if atom else 1.0
+    v[base * 2] = g
+    v[base * 2 + 1] = math.sqrt(max(0.0, 1.0 - g * g))
+    return v
+
+
+def chain_coherence(p: float, gamma_in: float, gamma_out: float, observer_looked: bool = True, in_principle: bool = False) -> float:
+    """The interference between the two branches that the box's contents still hold: |<B0|rho|B1>| / sqrt(<B0|rho|B0><B1|rho|B1>), where
+    B0 and B1 are "nothing happened" and "the atom decayed, the counter clicked, ..., the cat is dead". 1 is a pure superposition, 0 a mixture.
+    In practice (default) only the macroscopic variables are kept: the air and light inside, and what leaks out, are traced away. In principle
+    the air inside is kept too (an experimenter who can reverse every molecule); only what leaks out of the box is lost."""
+    psi = box_state(p, gamma_in, gamma_out, observer_looked)
+    practical = not in_principle
+    rho = reduced(psi, tuple(range(_ENV_IN)) if practical else tuple(range(_ENV_OUT)))
+    b0, b1 = _branch_vec(0, gamma_in, observer_looked, practical), _branch_vec(1, gamma_in, observer_looked, practical)
+    d = float((b0 @ rho @ b0).real * (b1 @ rho @ b1).real)
+    return 0.0 if d <= 1e-30 else float(abs(b0 @ rho @ b1) / math.sqrt(d))
 
 
 def observer_sees(p: float, rng) -> str:

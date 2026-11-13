@@ -122,3 +122,41 @@ def test_no_desk_is_inside_the_cat_stage_and_the_cat_desk_is_clear_of_every_scen
             assert not (xs[0] <= bx <= xs[1] and ys[0] <= by <= ys[1] and zs[0] <= bz <= zs[1]), (bx, by, bz)
     dx, dy, dz = st["desk"]                                        # nor is the cat's desk in anyone else's grid: it stands 38 blocks off the board
     assert zs[0] - dz >= 30
+
+
+def test_the_osmium_lump_at_zero_kelvin_stays_coherent_until_a_warm_observer_steps_in():
+    b = vc.CatBox(seed=2)
+    b.press("subject")
+    assert b.subject == "osmium" and b.vacuum and b.tau_in == float("inf")
+    _run(b)
+    assert b.coh_practice == pytest.approx(1.0) and b.coh_principle == pytest.approx(1.0)
+    assert b.yes_in_practice == b.trials                                   # even in practice the outside can see the superposition
+    msg = b.set_observer(True)
+    assert "5e-19" in msg and b.tau_in == pytest.approx(5.4e-19, rel=0.15)
+    b.step(0.1)
+    assert b.coh_practice == pytest.approx(0.0, abs=1e-9)
+    assert b.set_observer(False).startswith("You are outside") and b.tau_in == float("inf")
+
+
+def test_the_lump_temperature_steps_through_the_desks_values_and_a_pinhole_tells_nothing_at_zero_kelvin():
+    b = vc.CatBox(seed=2)
+    assert "press Subject" in b.press("temp")
+    b.press("subject")
+    b.press("leak")                                                        # a pinhole in a box at 0 K: no photons, nothing to leak
+    assert b.tau_leak == float("inf")
+    seen = []
+    for _ in vc.LUMP_TEMPS_K:
+        b.press("temp")
+        seen.append((vc.LUMP_TEMPS_K[b.lump_t], b.tau_in))
+    assert [t for t, _ in seen] == [1e-3, 1.0, 300.0, 0.0]
+    assert seen[0][1] > 30 > seen[1][1] > seen[2][1] and seen[3][1] == float("inf")
+
+
+def test_the_lump_is_drawn_left_then_kicked_right_in_the_branch_where_the_atom_decays():
+    s = next(s for s in range(50) if vc.CatBox(seed=s).outcome == "dead")
+    b = vc.CatBox(seed=s)
+    b.press("subject")
+    b.reset(seed=s)
+    assert b.label[4, 7, 1] == vc.M["osmium"] and b.label[9, 7, 1] != vc.M["osmium"]
+    _run(b, vc.HOUR_TICKS)
+    assert b.label[9, 7, 1] == vc.M["osmium"] and b.label[4, 7, 1] != vc.M["osmium"]

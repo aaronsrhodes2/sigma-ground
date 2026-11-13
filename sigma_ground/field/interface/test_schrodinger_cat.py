@@ -85,3 +85,52 @@ def test_gamma_falls_as_the_environment_records():
     assert sc.gamma_at(0.0, 1e-27) == 1.0
     assert sc.gamma_at(1e-27, 1e-27) == pytest.approx(math.exp(-1))
     assert sc.gamma_at(1e-20, 1e-27) == 0.0
+
+
+def test_chain_coherence_in_practice_is_the_product_and_in_principle_only_the_leak():
+    for p in (0.5, 0.2):
+        for gi in (1.0, 0.6, 0.0):
+            for go in (1.0, 0.4, 0.0):
+                assert sc.chain_coherence(p, gi, go) == pytest.approx(gi * go, abs=1e-9)
+                assert sc.chain_coherence(p, gi, go, in_principle=True) == pytest.approx(go, abs=1e-9)
+    assert sc.chain_coherence(0.3, 0.5, 1.0, observer_looked=False, in_principle=True) == pytest.approx(1.0)
+
+
+# ── a lump of inert matter ───────────────────────────────────────────────
+
+def test_a_lump_of_osmium_is_95_grams_of_the_densest_metal():
+    assert sc.lump_mass_kg() == pytest.approx(0.0946, rel=0.01)
+
+
+def test_at_zero_kelvin_in_a_vacuum_nothing_records_the_lump():
+    d = sc.lump_decoherence_times(0.0)
+    assert math.isinf(d["total_s"]) and d["rate_own_per_s"] == 0.0 and d["rate_box_per_s"] == 0.0
+    assert sc.resolving_fraction(0.01, 0.0) == 0.0 and sc.photon_flux_per_area(0.0) == 0.0
+
+
+def test_a_warm_observer_in_the_box_records_it_whatever_the_temperature_of_the_box():
+    d = sc.lump_decoherence_times(0.0, observer_inside=True)
+    assert d["total_s"] == pytest.approx(5.4e-19, rel=0.15)             # half an attosecond: her own light
+    assert d["rate_own_per_s"] == 0.0 and d["rate_box_per_s"] == 0.0
+    assert sc.lump_decoherence_times(0.0, observer_inside=False)["total_s"] > 1e30
+
+
+def test_a_cold_lump_holds_for_minutes_and_a_warm_one_for_no_time_at_all():
+    mk = sc.lump_decoherence_times(1e-3)["total_s"]
+    assert 30 < mk < 600                                                  # the wavelength (5 m) is far above the 1 cm separation: a weak record
+    assert sc.lump_decoherence_times(1.0)["total_s"] < 1e-9               # at 1 K the wavelength is below it: each photon records it in full
+    assert sc.lump_decoherence_times(300.0)["total_s"] < 1e-18
+    # the colder, the longer: monotonic
+    times = [sc.lump_decoherence_times(t)["total_s"] for t in (300.0, 1.0, 1e-3, 1e-5)]
+    assert times == sorted(times)
+
+
+def test_the_record_by_photons_is_capped_by_their_number_and_scaled_below_the_wavelength():
+    assert sc.resolving_fraction(0.01, 300.0) == 1.0                      # 17 um photons against 1 cm
+    assert sc.resolving_fraction(0.01, 1e-3) == pytest.approx((0.01 / sc.thermal_wavelength_m(1e-3)) ** 2)
+    assert sc.thermal_wavelength_m(300.0) == pytest.approx(1.7e-5, rel=0.1)     # Wien's law, in photon-energy form: ~17 um at room temperature
+
+
+def test_air_in_the_box_records_the_lump_at_once():
+    d = sc.lump_decoherence_times(0.0, vacuum=False)
+    assert d["gas_s"] < 1e-24 and d["total_s"] == pytest.approx(d["gas_s"])
