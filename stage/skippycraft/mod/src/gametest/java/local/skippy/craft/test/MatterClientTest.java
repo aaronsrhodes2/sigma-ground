@@ -117,6 +117,16 @@ public class MatterClientTest implements FabricClientGameTest {
 			context.waitTicks(40);
 			context.takeScreenshot("sky-pool-" + hour[0]);
 		}
+		// the same pool looking toward the sun (it runs along the east-west axis), where the waves glint: sigma-ground's
+		// wind-roughened water adds the sun's reflection to the sky it mirrors, a bright path under the sun
+		String eye = " " + (Y + 1.3) + " 9.5 ";
+		String[][] views = {{"west", "113.5" + eye + "90 12", "10500"}, {"west-low", "113.5" + eye + "90 4", "11700"}, {"east", "96.5" + eye + "-90 12", "1500"}};
+		for (String[] view : views) {
+			world.getServer().runCommand("tp @a " + view[1]);
+			world.getServer().runCommand("time set " + view[2]);
+			context.waitTicks(40);
+			context.takeScreenshot("sky-pool-glint-" + view[0]);
+		}
 	}
 
 	@Override

@@ -18,6 +18,8 @@ wire = {
     "relative_azimuth_deg": rec["relative_azimuth_deg"],
     "sky": rec["sky"]["rgb_display"],
     "ground": rec["ground"]["rgb_display"],
+    "water": {k: rec["water"][k] for k in ("material", "sun_elevation_deg", "view_elevation_deg", "relative_azimuth_deg",
+                                           "wind_m_s", "rgb_display", "alpha")},
     "white_card": rec["white_card"],
     "gaps": rec["gaps"],
 }

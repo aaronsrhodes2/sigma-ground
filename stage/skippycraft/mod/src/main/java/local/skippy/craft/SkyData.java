@@ -19,6 +19,9 @@ public final class SkyData {
 	private final double[] sun, view, az;
 	private final double[][][][] sky;      // [sun][view][azimuth][r g b], sRGB-encoded 0..1 against the white card
 	private final double[][] ground;       // [sun][r g b]
+	private final String waterMaterial;    // the material the water table is for, or null
+	private final double[] wSun, wView, wAz;                   // the water table's own (finer) axes
+	private final double[][][][] water;    // [sun][view][azimuth][r g b alpha]: colour sRGB-encoded 0..1, alpha 0..1
 
 	/** The table, or null when the resource is missing (the renderer then falls back to a white environment). */
 	public static synchronized SkyData get() {
@@ -45,6 +48,47 @@ public final class SkyData {
 		JsonArray g = o.getAsJsonArray("ground");
 		ground = new double[sun.length][];
 		for (int i = 0; i < sun.length; i++) ground[i] = axis(g.get(i).getAsJsonArray());
+		JsonObject w = o.has("water") ? o.getAsJsonObject("water") : null;
+		if (w == null) {
+			waterMaterial = null;
+			wSun = wView = wAz = null;
+			water = null;
+		} else {
+			waterMaterial = w.get("material").getAsString();
+			wSun = axis(w.getAsJsonArray("sun_elevation_deg"));
+			wView = axis(w.getAsJsonArray("view_elevation_deg"));
+			wAz = axis(w.getAsJsonArray("relative_azimuth_deg"));
+			JsonArray c = w.getAsJsonArray("rgb_display"), a = w.getAsJsonArray("alpha");
+			water = new double[wSun.length][wView.length][wAz.length][];
+			for (int i = 0; i < wSun.length; i++) for (int j = 0; j < wView.length; j++) for (int k = 0; k < wAz.length; k++) {
+				double[] rgb = axis(c.get(i).getAsJsonArray().get(j).getAsJsonArray().get(k).getAsJsonArray());
+				water[i][j][k] = new double[] {rgb[0], rgb[1], rgb[2], a.get(i).getAsJsonArray().get(j).getAsJsonArray().get(k).getAsDouble()};
+			}
+		}
+	}
+
+	/** The material the water table is for (the one with a wind-roughened surface that glints), or null without a water table. */
+	public String waterMaterial() {
+		return waterMaterial;
+	}
+
+	/**
+	 * A horizontal sheet of water seen by its reflected ray: the face's display colour (r, g, b in 0..1) and its alpha, the sky's
+	 * reflection plus the sun's glint on the waves, to composite over what is behind it. {@code out} has four entries.
+	 */
+	public void water(double sunDeg, double viewDeg, double azDeg, double[] out) {
+		int[] si = new int[2], vi = new int[2], ai = new int[2];
+		double[] sf = new double[1], vf = new double[1], af = new double[1];
+		locate(wSun, sunDeg, si, sf);
+		locate(wView, viewDeg, vi, vf);
+		locate(wAz, azDeg, ai, af);
+		out[0] = out[1] = out[2] = out[3] = 0;
+		for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) {
+			double w = (a == 0 ? 1 - sf[0] : sf[0]) * (b == 0 ? 1 - vf[0] : vf[0]) * (c == 0 ? 1 - af[0] : af[0]);
+			if (w == 0) continue;
+			double[] v = water[si[a]][vi[b]][ai[c]];
+			for (int k = 0; k < 4; k++) out[k] += w * v[k];
+		}
 	}
 
 	/** The sky's display colour (r, g, b in 0..1) looking up at this elevation and this angle round from the sun. */

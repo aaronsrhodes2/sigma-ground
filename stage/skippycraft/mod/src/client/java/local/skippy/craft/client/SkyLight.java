@@ -34,12 +34,37 @@ public final class SkyLight {
 		if (ry <= 0) {
 			d.ground(sunEl, c);
 		} else {
-			double rh = Math.sqrt(rx * rx + rz * rz);
-			double sunSide = -Math.signum(Math.sin(sunAngle));            // +1 when the sun is on the east side (+x), -1 on the west
-			double cosPhi = rh < 1e-9 || sunSide == 0 ? 1 : Math.max(-1, Math.min(1, rx * sunSide / rh));
-			d.sky(sunEl, Math.toDegrees(Math.asin(Math.min(1, ry))), Math.toDegrees(Math.acos(cosPhi)), c);
+			d.sky(sunEl, Math.toDegrees(Math.asin(Math.min(1, ry))), azimuthFromSunDeg(rx, rz), c);
 		}
 		double k = 255 * Math.max(0, Math.min(1, skyExposure));
 		return new double[] {c[0] * k, c[1] * k, c[2] * k};
+	}
+
+	/**
+	 * What a horizontal sheet of water shows along the reflected ray {@code (rx, ry, rz)} (it must point up): the face's colour
+	 * (r, g, b in 0..255, scaled by how much sky the surface sees) and alpha (0..255), the sky's reflection plus the sun's glint on
+	 * the waves, to composite over what is behind it; null without a water table, or for a ray that does not point up.
+	 */
+	public static double[] water(double rx, double ry, double rz, double skyExposure) {
+		SkyData d = SkyData.get();
+		if (d == null || d.waterMaterial() == null || ry <= 0) return null;
+		double[] c = new double[4];
+		d.water(sunElevationDeg(), Math.toDegrees(Math.asin(Math.min(1, ry))), azimuthFromSunDeg(rx, rz), c);
+		double k = 255 * Math.max(0, Math.min(1, skyExposure));
+		return new double[] {c[0] * k, c[1] * k, c[2] * k, c[3] * 255};
+	}
+
+	/** The material the water table is for, or null. */
+	public static String waterMaterial() {
+		SkyData d = SkyData.get();
+		return d == null ? null : d.waterMaterial();
+	}
+
+	/** The angle in degrees, round the horizon, between the horizontal part of a direction and the sun's azimuth. */
+	private static double azimuthFromSunDeg(double rx, double rz) {
+		double rh = Math.sqrt(rx * rx + rz * rz);
+		double sunSide = -Math.signum(Math.sin(sunAngle));            // +1 when the sun is on the east side (+x), -1 on the west
+		double cosPhi = rh < 1e-9 || sunSide == 0 ? 1 : Math.max(-1, Math.min(1, rx * sunSide / rh));
+		return Math.toDegrees(Math.acos(cosPhi));
 	}
 }

@@ -164,8 +164,12 @@ public final class MatterRenderer implements BlockEntityRenderer<MatterBlockEnti
 					double dist = Math.sqrt(vx * vx + vy * vy + vz * vz);
 					double cos = (nx * vx + ny * vy + nz * vz) / dist;
 					// the ray from the camera mirrors off the face: r = -v + 2 (v . n) n, v the unit vector from the face to the camera
-					double[] mirror = SkyLight.reflected(-vx / dist + 2 * cos * nx, -vy / dist + 2 * cos * ny, -vz / dist + 2 * cos * nz, skyExposure);
-					cv[k] = clearFace(d, Math.abs(cos), cos > 0, env, mirror);
+					double rx = -vx / dist + 2 * cos * nx, ry = -vy / dist + 2 * cos * ny, rz = -vz / dist + 2 * cos * nz;
+					// the free surface of water, seen from above, is wind-roughened: its table adds the sun's glint to the sky it mirrors
+					double[] sheet = dir == Direction.UP && cos > 0 && d.material.equals(SkyLight.waterMaterial())
+						? SkyLight.water(rx, ry, rz, skyExposure) : null;
+					cv[k] = sheet != null ? new double[] {Math.round(sheet[0]), Math.round(sheet[1]), Math.round(sheet[2]), Math.round(sheet[3])}
+						: clearFace(d, Math.abs(cos), cos > 0, env, SkyLight.reflected(rx, ry, rz, skyExposure));
 					any |= cv[k][3] > 0;
 				}
 				if (!any) continue;

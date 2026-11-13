@@ -207,3 +207,144 @@ def test_twilight_is_dominated_by_multiple_scattering_in_the_earths_shadow():
     one = sky.sky_radiance(-8.0, 90.0, 0.0, multiple=False)
     many = sky.sky_radiance(-8.0, 90.0, 0.0)
     assert all(m > 3.0 * o for m, o in zip(many, one))
+
+
+# ── The sun's glint on water ─────────────────────────────────────────────
+
+def test_the_slope_variance_is_the_measured_cox_munk_law():
+    assert sky.water_slope_variance(0.0) == pytest.approx(0.003)
+    assert sky.water_slope_variance(10.0) == pytest.approx(0.003 + 0.0512)
+    assert sky.water_slope_variance() == pytest.approx(0.003 + 0.00512 * sky.WIND_M_S)
+
+
+def _hemisphere_reflectance(sun_el, **kw):
+    """The glint summed over every direction the eye can be in (cos theta_v dOmega), against the sun's irradiance on the water."""
+    n_el, n_az = 90, 180
+    total = 0.0
+    for i in range(n_el):
+        e = (i + 0.5) * 90.0 / n_el
+        for j in range(n_az):
+            a = (j + 0.5) * 360.0 / n_az
+            total += (sky.sun_glint_radiance(sun_el, e, a, **kw)[1] * math.sin(math.radians(e)) * math.cos(math.radians(e))
+                      * math.radians(90.0 / n_el) * math.radians(360.0 / n_az))
+    return total / sky._direct_irradiance(sun_el)[1]
+
+
+def test_the_glint_conserves_energy_against_the_fresnel_reflectance():
+    # all the sunlight the waves send up equals the water's reflectance at the sun's own angle (a smooth sheet sends it all one way, a
+    # rough one spreads it); facets hiding each other (Smith) take a little at a low sun, never add any
+    from sigma_ground.field.interface.optics import cauchy_n, fresnel_interface
+    for sun in (25.0, 40.0, 70.0):
+        f, _ = fresnel_interface(1.0, cauchy_n("water", sky.LAMBDA_G), math.sin(math.radians(sun)))
+        assert _hemisphere_reflectance(sun) == pytest.approx(f, rel=0.12)
+    f5, _ = fresnel_interface(1.0, cauchy_n("water", sky.LAMBDA_G), math.sin(math.radians(5.0)))
+    assert 0.3 * f5 < _hemisphere_reflectance(5.0) < 1.05 * f5
+
+
+def test_the_glint_peaks_where_the_mirror_points_at_the_sun_and_widens_with_wind():
+    on = sky.sun_glint_radiance(30.0, 30.0, 0.0)[1]               # the reflected ray is the sun's own direction
+    away = sky.sun_glint_radiance(30.0, 30.0, 40.0)[1]
+    assert on > 20 * away > 0
+    calm = sky.sun_glint_radiance(30.0, 30.0, 0.0, wind_m_s=0.0)[1]
+    gale = sky.sun_glint_radiance(30.0, 30.0, 0.0, wind_m_s=12.0)[1]
+    assert calm > on > gale                                       # a rougher sea spreads the same light over more directions
+    assert sky.sun_glint_radiance(30.0, 30.0, 40.0, wind_m_s=12.0)[1] > sky.sun_glint_radiance(30.0, 30.0, 40.0, wind_m_s=0.0)[1]
+
+
+def test_no_glint_without_the_sun_or_on_the_far_side_of_it():
+    assert sky.sun_glint_radiance(-5.0, 30.0, 0.0) == (0.0, 0.0, 0.0)
+    assert sky.sun_glint_radiance(0.0, 30.0, 0.0) == (0.0, 0.0, 0.0)
+    # looking away from the sun (reflected ray opposite): no facet can tilt that far
+    assert sky.sun_glint_radiance(30.0, 30.0, 180.0)[1] < 1e-6 * sky.sun_glint_radiance(30.0, 30.0, 0.0)[1]
+
+
+def test_the_glint_is_the_suns_own_colour_reddened_by_its_path():
+    # the Fresnel reflectance barely depends on colour, so the glint is the sun's light after its way through the air: nearly white
+    # high up, warmer as the sun lowers (against the white card, which is balanced for the zenith sun)
+    white = sky.white_card_radiance()
+    high = [g / w for g, w in zip(sky.sun_glint_radiance(70.0, 70.0, 0.0), white)]
+    low = [g / w for g, w in zip(sky.sun_glint_radiance(10.0, 10.0, 0.0), white)]
+    assert high[2] / high[1] > 0.85
+    assert low[0] > low[1] > low[2] and low[2] / low[1] < high[2] / high[1]
+
+
+def test_water_mirror_without_a_glint_is_the_sky_at_the_fresnel_alpha(monkeypatch):
+    from sigma_ground.field.interface.optics import cauchy_n, fresnel_interface
+    white = sky.white_card_radiance()
+    # sun below the horizon: no glint, so the colour is the sky's display colour and the alpha the reflectance
+    colour, alpha = sky.water_mirror(-8.0, 40.0, 60.0, white)
+    _, disp = sky.display(sky.sky_radiance(-8.0, 40.0, 60.0), white)
+    assert colour == pytest.approx(disp, abs=1e-9)
+    r, _ = fresnel_interface(1.0, cauchy_n("water", sky.LAMBDA_G), math.sin(math.radians(40.0)))
+    assert alpha == pytest.approx(r)
+
+
+def test_water_mirror_carries_the_glint_as_light_over_the_scene():
+    white = sky.white_card_radiance()
+    lin_sky, _ = sky.display(sky.sky_radiance(30.0, 30.0, 0.0), white)
+    glint = sky.sun_glint_radiance(30.0, 30.0, 0.0)
+    colour, alpha = sky.water_mirror(30.0, 30.0, 0.0, white)
+    # the light that comes back (a * c in linear light) is R L_sky + L_glint while it fits under 1, and the face grows to carry it
+    from sigma_ground.field.interface.optics import cauchy_n, fresnel_interface
+    r, _ = fresnel_interface(1.0, cauchy_n("water", sky.LAMBDA_G), math.sin(math.radians(30.0)))
+    total = [r * lin_sky[c] + glint[c] / white[c] for c in range(3)]
+    assert alpha >= r
+    lin_colour = [_srgb_decode(v) for v in colour]
+    for c in range(3):
+        assert alpha * lin_colour[c] == pytest.approx(min(total[c], alpha), rel=1e-3, abs=1e-4)
+    assert max(total) > r                                          # at the mirror angle the glint outshines the plain reflection
+
+
+def _srgb_decode(v):
+    return v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
+
+
+def test_the_table_carries_the_water_and_stays_on_its_axes():
+    rec = sky.sky_record()
+    w = rec["water"]
+    assert w["wind_m_s"] == sky.WIND_M_S
+    ns, nv, na = len(w["sun_elevation_deg"]), len(w["view_elevation_deg"]), len(w["relative_azimuth_deg"])
+    assert len(w["rgb_display"]) == ns and len(w["rgb_display"][0]) == nv and len(w["rgb_display"][0][0]) == na
+    assert len(w["alpha"]) == ns and len(w["alpha"][0]) == nv and len(w["alpha"][0][0]) == na
+    flat = [a for s in w["alpha"] for e in s for a in e]
+    assert all(0.0 < a <= 1.0 for a in flat)
+    # the grid really contains the glint: some face at some angle is lifted above its plain Fresnel alpha
+    i, j = w["sun_elevation_deg"].index(25.0), w["view_elevation_deg"].index(26.0)
+    assert w["alpha"][i][j][0] > w["alpha"][i][j][-1]
+
+
+def test_the_glint_survives_the_tables_interpolation_between_grid_points():
+    # a renderer interpolates the table linearly (colour and alpha apiece); against a dark scene the screen shows alpha * colour.
+    # Between grid points that stays close to the direct value: the median error is small, the worst (a lobe's edge) is bounded
+    import random
+    white = sky.white_card_radiance()
+    axes = (sky.WATER_SUN_ELEVATION_DEG, sky.WATER_VIEW_ELEVATION_DEG, sky.WATER_RELATIVE_AZIMUTH_DEG)
+    cache = {}
+
+    def at(pt):
+        if pt not in cache:
+            cache[pt] = sky.water_mirror(*pt, white)
+        return cache[pt]
+
+    rng = random.Random(3)
+    errors = []
+    for _ in range(40):
+        x = (rng.uniform(3, 80), rng.uniform(3, 80), rng.uniform(0, 40))
+        brackets = []
+        for ax, v in zip(axes, x):
+            k = max(i for i in range(len(ax) - 1) if ax[i] <= v)
+            brackets.append((ax[k], ax[k + 1], (v - ax[k]) / (ax[k + 1] - ax[k])))
+        colour, alpha = 0.0, 0.0
+        for corner in range(8):
+            w, pt = 1.0, []
+            for (lo, hi, f), bit in zip(brackets, ((corner >> 2) & 1, (corner >> 1) & 1, corner & 1)):
+                w *= f if bit else 1 - f
+                pt.append(hi if bit else lo)
+            c, al = at(tuple(pt))
+            colour += w * c[1]
+            alpha += w * al
+        c, al = sky.water_mirror(*x, white)
+        errors.append(abs(alpha * colour - al * c[1]) / max(al * c[1], 1e-3))
+    errors.sort()
+    assert errors[len(errors) // 2] < 0.06
+    assert errors[-1] < 0.5

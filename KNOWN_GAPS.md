@@ -701,11 +701,30 @@ the face, at the refracted angle). No display-exposure constant is used on that 
   elevation and angle from the sun; the engine's sun angle gives the sun, the game's own sky light says how much sky the block sees. Not drawn:
   ozone, a Mie calculation (the aerosol is one assumed air with a fitted phase function: a hazy, smoky or maritime day is a different sky; HG underestimates
   scattering to the sides and back, so the sky opposite a low sun is darker than a real one; the table's 10-degree azimuth steps smooth the aureole before
-  it clips), third and higher orders of scattering (second order and one bounce off the ground are in, isotropic, with the observer's sun elevation used along the whole ray; the noon zenith is ~12% of a white card, 3% for first-order air alone, against ~15% real), clouds, the sun's disc (no glint), moon and stars; the reflected ray is not blocked by the vanilla world
+  it clips), third and higher orders of scattering (second order and one bounce off the ground are in, isotropic, with the observer's sun elevation used along the whole ray; the noon zenith is ~12% of a white card, 3% for first-order air alone, against ~15% real), clouds, moon and stars; the reflected ray is not blocked by the vanilla world
   (a pool beside a hill still mirrors sky, not the hill); a back face mirrors the sky too (the truth is the inside of the body); the reflection is
   blended in the screen's encoded values like the tint. The vanilla sky is a stylised colour, so the mirror and the sky it reflects differ. Sentinel:
   the gametest's ``sky-pool-*`` shots (blue-grey at noon, orange toward a low sun, dark at midnight) and ``sigma_ground/field/interface/test_sky.py``
   (the zenith radiance against the plane-parallel closed form, the measured Rayleigh extinction).
+- **The sun's glint on water** (``sky.sun_glint_radiance`` / ``water_mirror``, the ``water`` block of the same table, its own finer axes): the free surface of
+  water, seen from above, is a wind-roughened sheet of small mirrors: the sun's irradiance times the Fresnel reflectance at the facet times the Cox & Munk slope
+  density (measured: mean-square slope 0.003 + 0.00512 W), Smith's masking for facets that hide each other, over 4 cos(view) cos^4(tilt). The face's colour
+  and alpha carry R*sky + glint over the scene (a glint that outshines the reflection raises the alpha); without a glint it is exactly the plain mirror. Checked:
+  the hemisphere sum of the glint equals the Fresnel reflectance at the sun's angle (within 12% from 25 degrees up; a low sun loses the masked part),
+  and the table's interpolation tracks the direct value (median 2%). The wind is an empirical input (``WIND_M_S`` 3, a light breeze: the world has no
+  weather, and the water has no waves of its own). Not drawn: the sun's disc in a flat mirror (glass, still water: a colour per corner cannot show a
+  0.27-degree disc), the wave field the water would really have (the glint is the statistics of one, so no glitter, no moving sparkle), one wind only, foam,
+  the sun glint of vertical or sloped water faces, and the sun's glare in the vanilla sky (the vanilla sun is a square sprite). Radiance's own water
+  (`water_waves.wind_wave_components`) does not agree with Cox & Munk: see the Radiance entry below. Sentinel: the gametest's ``sky-pool-glint-*`` shots.
+- **Radiance's sky, sun and water against the library's measured ones** (checked 2026-11-12, the Radiance path tracer `radiance/web/viewer.js` and
+  `radiance/water_waves.py` against `field.interface.sky`): (1) the path tracer's environment is painted: `skyEmit` is a hand-picked two-colour gradient and
+  the sun a `9.0 * pow(cos, 3000)` disc (its own audit flag calls it the largest physics-to-screen gap in the PT path), while `sky.py` derives the sky
+  (Rayleigh + aerosol + multiple scattering, ground) and the sun's irradiance, white-balanced to a card; (2) the wind-wave field's mean-square slope is not
+  Cox & Munk's: `wind_wave_components(W)` gives 0.34 / 0.15 / 0.055 / 0.021 / 0.0095 at 2 / 3 / 5 / 8 / 12 m/s against the measured 0.013 / 0.018 / 0.029 / 0.044 /
+  0.064: 25x too steep in a breeze and FALLING with wind (the peak wavelength grows as U^2 while the amplitude only as U, so the slope shrinks). A path-traced sun
+  glint off that field would be the wrong width; (3) the fast shader and the PT use Schlick's Fresnel, the mod uses the exact `optics.fresnel_interface`.
+  Fix direction: take the wave spectrum from a measured one (Pierson-Moskowitz or JONSWAP with a capillary tail), normalise its slope to Cox & Munk and test
+  it (the same assertion as the glint's energy check); feed the PT's sky and sun from the sky table; one Fresnel. Not changed here.
 - **The tint is a per-channel multiply, and it is drawn** (``TintRenderer`` + ``LevelRendererMixin``): the scene behind each camera-facing
   clear face is multiplied, in R, G and B, by sigma-ground's Beer-Lambert transmittance of the path through the body, as the multiplier
   of an sRGB-encoded pixel (``optics.display_multiplier`` = ``srgb_encode(T)``, the ``rgb_display`` table: exact against white and for a
@@ -744,7 +763,7 @@ material-into-air reflectance and refraction cosine against the cosine of incide
 (``MatterData.Tables``) only interpolates those tables. It has no Fresnel, Snell or exponential of its own: ``MatterRenderer`` is geometry
 (the view angle of a face, the cells behind it) and compositing; ``Refraction`` is geometry (a voxel walk, a search for where a ray lands).
 Anything physical the mod needs must first become a sigma-ground function and a table. The glow's brightness is a flagged display tonemap that now lives with the physics it maps
-(``thermal_emission.glow_level`` / ``DISPLAY_GLOW_P0_W_M2``, shared with Radiance's ``site_response``); the sRGB encoding is ``optics.srgb_encode``; the whole record is built in sigma-ground (``field.interface.matter_record``), portable to any renderer. Still open, in the renderer's own terms: refraction of the vanilla world (needs a screen-space pass), and the reflected environment's missing pieces (aerosols, clouds, the sun's glint, the vanilla world in the mirror: see the sky entry above).
+(``thermal_emission.glow_level`` / ``DISPLAY_GLOW_P0_W_M2``, shared with Radiance's ``site_response``); the sRGB encoding is ``optics.srgb_encode``; the whole record is built in sigma-ground (``field.interface.matter_record``), portable to any renderer. Still open, in the renderer's own terms: refraction of the vanilla world (needs a screen-space pass), and the reflected environment's missing pieces (clouds, the vanilla world in the mirror: see the sky entry above).
 
 **Refraction (``client/Refraction.java``):** an opaque matter block seen through clear matter is drawn where the refracted ray puts it (the
 gold at the bottom of the tank looks shallower and shifted). Its refraction angle is the table's. Not covered:

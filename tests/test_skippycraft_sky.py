@@ -15,3 +15,5 @@ def test_shipped_sky_table_matches_the_library():
     assert shipped["sun_elevation_deg"] == rec["sun_elevation_deg"]
     assert shipped["view_elevation_deg"] == rec["view_elevation_deg"]
     assert shipped["relative_azimuth_deg"] == rec["relative_azimuth_deg"]
+    for key in ("material", "sun_elevation_deg", "view_elevation_deg", "relative_azimuth_deg", "wind_m_s", "rgb_display", "alpha"):
+        assert shipped["water"][key] == rec["water"][key], key

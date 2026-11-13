@@ -16,6 +16,9 @@ Physics chain (a renderer looks the answer up; it computes none of this):
               isotropic): L_ms = ∫ σ_s(P) Ī(z(P)) exp(−τ_view) ds. Second order only, plus the ground's light scattered once.
   Ground      Lambertian, albedo ρ_g: L_g = ρ_g (E_direct/π + ⟨L_sky⟩)  (⟨L_sky⟩ the cosine-weighted mean of the whole sky,
               which includes the light the ground itself sent up and the air sent back: solved in closed form)
+  Glint       a horizontal sheet of water is a field of small tilted mirrors (Cox & Munk slopes for the wind, Smith masking); the sun
+              reaches the eye off the facets that bisect it and the eye: L = E_perp F(w) P G / (4 cos(theta_v) cos^4(b)).
+              ``water_mirror`` folds the sky's reflection and the glint into the colour and alpha of a water face.
   Display     the table is white-balanced to a white diffuse card in full sun at the zenith (1.0 = that card); sRGB-encoded
               by optics.srgb_encode. This is a fixed exposure, like a camera left on one setting: the sky is dim at dusk
               and dark at night because the scene is, not because anything was fitted.
@@ -28,12 +31,15 @@ Origin tags:
   - King correction F: MEASURED (Bates 1984, air at 550 nm)
   - Sun: blackbody at the IAU 2015 nominal T_eff and R_sun (a real solar spectrum has Fraunhofer lines, a measured one is not used)
   - Earth radius, top of atmosphere: MEASURED / convention (IAU nominal mean radius; 100 km, the Kármán line)
+  - Water glint: the slope statistics are MEASURED (Cox & Munk 1954/1956, a clean surface), Smith's masking is FIRST_PRINCIPLES
+    geometry for Gaussian slopes, the Fresnel reflectance is the library's (optics.fresnel_interface, water's Cauchy index); the
+    wind over the water is an EMPIRICAL-INPUT (the world has no weather)
   - Ground albedo: EMPIRICAL-INPUT (a typical land surface; the renderer does not know what the ground is made of)
   - Aerosol (optical depth, Ångström exponent, scale height, single-scattering albedo, asymmetry): EMPIRICAL-INPUT, the
     typical clear continental air (AERONET climatology). The library holds no aerosol composition or size distribution,
     so a Mie calculation is not possible: the phase function is the Henyey-Greenstein fit to one, not derived.
 
-Not in it (SKY_GAPS): ozone, third and higher orders of scattering, clouds and rain, the sun's disc (a mirror's sun glint), the moon and
+Not in it (SKY_GAPS): ozone, third and higher orders of scattering, clouds and rain, the sun's disc (a flat mirror's glint), the moon and
 stars, an observer above sea level, a real solar spectrum; and the aerosol is one typical air, not this place's today.
 """
 
@@ -42,6 +48,7 @@ import math
 
 from ..constants import AU_M, K_B
 from . import atmosphere as _atm
+from . import optics as _optics
 from .optics import LAMBDA_B, LAMBDA_G, LAMBDA_R, srgb_encode
 from .thermal_emission import planck_spectral_radiance
 
@@ -57,6 +64,10 @@ ANGSTROM_EXPONENT = 1.3      # EMPIRICAL-INPUT: Ångström (1929) exponent, the 
 AEROSOL_SCALE_HEIGHT_M = 1.2e3   # EMPIRICAL-INPUT: aerosols sit in the boundary layer (Elterman 1968 ~1.2 km)
 AEROSOL_SSA = 0.92           # EMPIRICAL-INPUT: single-scattering albedo of continental aerosol at 550 nm (the rest of the extinction is absorbed)
 AEROSOL_G = 0.70             # EMPIRICAL-INPUT: Henyey-Greenstein asymmetry of continental aerosol at 550 nm (0.65-0.75)
+WIND_M_S = 3.0               # EMPIRICAL-INPUT: the wind over the water, a light breeze (Beaufort 2); the world has no weather of its own
+COX_MUNK_BASE = 0.003        # MEASURED: Cox & Munk (1954, 1956), the mean-square slope of a clean sea surface at no wind
+COX_MUNK_PER_M_S = 0.00512   # MEASURED: Cox & Munk (1956), the growth of that slope with wind speed (m/s)
+GLINT_MIN_ELEVATION_DEG = 0.25   # the table's horizon row is evaluated a quarter degree up: at 0 the glint is 0 / 0
 T_AIR_K = _atm._T_STANDARD   # the standard atmosphere the index was measured in
 P_AIR_PA = _atm._P_STANDARD
 
@@ -66,6 +77,11 @@ WAVELENGTHS_M = (LAMBDA_R, LAMBDA_G, LAMBDA_B)
 SUN_ELEVATION_DEG = (-18.0, -12.0, -8.0, -4.0, 0.0, 2.0, 5.0, 10.0, 15.0, 25.0, 40.0, 60.0, 90.0)
 VIEW_ELEVATION_DEG = (0.0, 1.0, 2.0, 4.0, 7.0, 11.0, 16.0, 22.0, 30.0, 40.0, 52.0, 65.0, 78.0, 90.0)
 RELATIVE_AZIMUTH_DEG = (0.0, 10.0, 20.0, 35.0, 55.0, 80.0, 110.0, 140.0, 180.0)
+# The water's table has its own, finer axes: the glint is a lobe a few degrees wide, narrower than the sky's grid.
+WATER_SUN_ELEVATION_DEG = (0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0, 75.0, 90.0)
+WATER_VIEW_ELEVATION_DEG = (0.0, 1.0, 2.0, 3.0, 4.0, 5.5, 7.0, 9.0, 11.0, 13.5, 16.0, 19.0, 22.0, 26.0, 30.0, 35.0, 40.0, 46.0,
+                            52.0, 58.0, 65.0, 72.0, 78.0, 84.0, 90.0)
+WATER_RELATIVE_AZIMUTH_DEG = (0.0, 4.0, 8.0, 12.0, 16.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0, 80.0, 110.0, 140.0, 180.0)
 
 SKY_GAPS = (
     "No ozone: the real twilight zenith is bluer (the Chappuis band) than Rayleigh alone gives.",
@@ -73,7 +89,7 @@ SKY_GAPS = (
     "The table's azimuth steps (10 degrees near the sun) are coarser than the real aureole: the glare round the sun is smoothed, then clipped at the white card.",
     "Multiple scattering is second order only (the air scatters the first-order sky and the ground's light once more, isotropically, with the sun's elevation taken at the observer for the whole ray): third and higher orders are missing, so the real sky is a little brighter still; near the horizon at dusk the observer's sun elevation is wrong for a distant point.",
     "No clouds or rain: an overcast sky is a different radiance.",
-    "The sun's disc is not in the table: a mirror's sun glint is not drawn.",
+    "The sun's glint is drawn on water only, as the statistics of a wind-roughened surface (Cox-Munk slopes, Smith masking, the sun a point: its 0.27-degree disc is far narrower than the glint). A flat mirror (glass, still water) would show the sun's disc itself, which a colour per corner cannot; the wave field the water would really have is not simulated; one wind (WIND_M_S) is tabulated; sea foam and whitecaps are not.",
     "No moon or stars: after dusk the table is dark.",
     "The observer is at sea level; the sun is a blackbody at T_eff, not a measured spectrum.",
     "Three colour samples (650, 550, 450 nm), not a spectrum.",
@@ -377,6 +393,82 @@ def ground_radiance(sun_elevation_deg: float, albedo: float = GROUND_ALBEDO, aod
     return [albedo * (direct[c] / math.pi + mean[c]) for c in range(3)]
 
 
+# ── The sun's glint on water ─────────────────────────────────────────────
+# A wind-roughened surface is a field of small tilted mirrors. Light from the sun reaches the eye only off the facets whose
+# normal bisects the sun and the eye, so the glint is the sun's irradiance times the Fresnel reflectance at that facet times the
+# fraction of facets tilted that way (Cox & Munk 1954), over the geometry of a mirror (Smith 1967 for the facets that hide each other):
+#   L = E_perp F(w) P(tan b) G / (4 cos(theta_v) cos^4(b))     b the facet tilt, w its angle of incidence, P the slope density
+
+def water_slope_variance(wind_m_s=None) -> float:
+    """The mean-square slope of the sea surface in this wind (Cox & Munk 1956, a clean surface): 0.003 + 0.00512 W."""
+    w = WIND_M_S if wind_m_s is None else wind_m_s
+    return COX_MUNK_BASE + COX_MUNK_PER_M_S * max(0.0, float(w))
+
+
+def _smith_lambda(cos_theta: float, slope_variance: float) -> float:
+    """Smith's (1967) shadowing function for a Gaussian slope distribution: the fraction of facets hidden at this angle from the normal."""
+    sin = math.sqrt(max(0.0, 1.0 - cos_theta * cos_theta))
+    if sin <= 0.0:
+        return 0.0
+    a = cos_theta / (sin * math.sqrt(slope_variance))
+    if a <= 1e-9:
+        return float("inf")
+    return 0.5 * (math.exp(-a * a) / (a * math.sqrt(math.pi)) - math.erfc(a))
+
+
+def sun_glint_radiance(sun_elevation_deg: float, view_elevation_deg: float, relative_azimuth_deg: float,
+                       wind_m_s=None, aod550=None):
+    """The sun's reflection in a horizontal sheet of wind-roughened water, R, G, B, W / (m² · sr · m), the same units as ``sky_radiance``.
+
+    The reflected ray (the camera's ray mirrored in the surface) is at this elevation and this angle round from the sun's azimuth,
+    as for the sky table. Zero with the sun below the horizon. ``wind_m_s`` None is WIND_M_S.
+    """
+    if sun_elevation_deg <= 0.0:
+        return (0.0, 0.0, 0.0)
+    s2 = water_slope_variance(wind_m_s)
+    e = max(view_elevation_deg, GLINT_MIN_ELEVATION_DEG)
+    sun = _direction(sun_elevation_deg, 0.0)
+    r = _direction(e, relative_azimuth_deg)
+    v = (-r[0], -r[1], r[2])                              # toward the eye: the reflected ray's horizontal part turned round
+    h = (sun[0] + v[0], sun[1] + v[1], sun[2] + v[2])
+    norm = math.sqrt(h[0] ** 2 + h[1] ** 2 + h[2] ** 2)
+    cos_b = h[2] / norm                                   # the facet's tilt from the horizontal
+    if cos_b <= 0.0:
+        return (0.0, 0.0, 0.0)
+    tan2_b = (1.0 - cos_b * cos_b) / (cos_b * cos_b)
+    p = math.exp(-tan2_b / s2) / (math.pi * s2)           # the slope density (isotropic Gaussian)
+    cos_v = r[2]
+    cos_s = sun[2]
+    cos_w = norm / 2.0                                    # the angle of incidence on the facet: s . h = |s + v| / 2
+    g = 1.0 / (1.0 + _smith_lambda(cos_v, s2) + _smith_lambda(cos_s, s2))
+    direct = _direct_irradiance(sun_elevation_deg, aod550)
+    out = []
+    for c, lam in enumerate(WAVELENGTHS_M):
+        n = _optics.cauchy_n("water", lam)
+        f, _ = _optics.fresnel_interface(1.0, n, cos_w)
+        e_perp = direct[c] / cos_s                        # the sun's irradiance across its own beam
+        out.append(e_perp * f * p * g / (4.0 * cos_v * cos_b ** 4))
+    return tuple(out)
+
+
+def water_mirror(sun_elevation_deg: float, view_elevation_deg: float, relative_azimuth_deg: float, white,
+                 wind_m_s=None, aod550=None):
+    """What a horizontal sheet of water shows, drawn as one face composited over what lies behind it: (display colour, alpha).
+
+    The light that comes back is T = R L_sky + L_glint (R the Fresnel reflectance at the camera's own angle, L_sky the sky the
+    mirror shows, L_glint the sun's reflection off the waves), as fractions of the white card. A face that blends colour c at
+    alpha a over the scene gives a c + (1 - a) behind; this is the (c, a) that carries T: a = R and c = T / R while the light
+    is below what the reflection alone can carry, and a raised until c reaches white once the glint outshines it.
+    Without the glint it is exactly (the sky's display colour, R).
+    """
+    lin_sky, _ = display(sky_radiance(sun_elevation_deg, view_elevation_deg, relative_azimuth_deg, aod550=aod550), white)
+    glint = sun_glint_radiance(sun_elevation_deg, view_elevation_deg, relative_azimuth_deg, wind_m_s, aod550)
+    r, _ = _optics.fresnel_interface(1.0, _optics.cauchy_n("water", LAMBDA_G), math.sin(math.radians(view_elevation_deg)))
+    total = [r * lin_sky[c] + glint[c] / white[c] for c in range(3)]
+    alpha = max(r, min(1.0, max(total)))
+    return [srgb_encode(min(1.0, t / alpha)) for t in total], alpha
+
+
 def display(radiance, white):
     """A radiance as (linear, sRGB-encoded) RGB against the white card: [0, 1] each, clipped (the sun's glare saturates)."""
     lin = [max(0.0, min(1.0, radiance[c] / white[c])) for c in range(3)]
@@ -405,6 +497,19 @@ def sky_record() -> dict:
         lin, disp = display(ground_radiance(s), white)
         ground_lin.append([round(v, 6) for v in lin])
         ground_disp.append([round(v, 4) for v in disp])
+    water_rgb, water_alpha = [], []
+    for s in WATER_SUN_ELEVATION_DEG:
+        rgb_s, alpha_s = [], []
+        for e in WATER_VIEW_ELEVATION_DEG:
+            rgb_e, alpha_e = [], []
+            for a in WATER_RELATIVE_AZIMUTH_DEG:
+                c, al = water_mirror(s, e, a, white)
+                rgb_e.append([round(v, 4) for v in c])
+                alpha_e.append(round(al, 4))
+            rgb_s.append(rgb_e)
+            alpha_s.append(alpha_e)
+        water_rgb.append(rgb_s)
+        water_alpha.append(alpha_s)
     return {
         "schema": 1,
         "wavelengths_nm": [round(l * 1e9) for l in WAVELENGTHS_M],
@@ -415,6 +520,12 @@ def sky_record() -> dict:
         "ground": {"albedo": GROUND_ALBEDO, "rgb": ground_lin, "rgb_display": ground_disp},
         "aerosol": {"od_550": AEROSOL_OD_550, "angstrom_exponent": ANGSTROM_EXPONENT, "scale_height_m": AEROSOL_SCALE_HEIGHT_M,
                     "single_scattering_albedo": AEROSOL_SSA, "asymmetry_g": AEROSOL_G},
+        "water": {"material": "water", "sun_elevation_deg": list(WATER_SUN_ELEVATION_DEG), "view_elevation_deg": list(WATER_VIEW_ELEVATION_DEG),
+                  "relative_azimuth_deg": list(WATER_RELATIVE_AZIMUTH_DEG), "wind_m_s": WIND_M_S, "mean_square_slope": round(water_slope_variance(), 6),
+                  "index_550": round(_optics.cauchy_n("water", LAMBDA_G), 6),
+                  "rgb_display": water_rgb, "alpha": water_alpha,
+                  "meaning": "a horizontal sheet of water seen by its reflected ray: the colour (sRGB-encoded) and alpha of the face, "
+                             "sky reflection plus the sun's glint on the waves, composited over what is behind it"},
         "white_card": "a white diffuse card in full sun at the zenith = 1.0 in each channel (white-balanced, fixed exposure)",
         "gaps": list(SKY_GAPS),
     }
