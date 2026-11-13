@@ -38,6 +38,8 @@ JF = D - 1                                   # the plane of the front: the board
 HOUR_TICKS, ZOOM_TICKS, TEST_TICKS = 110, 120, 70
 TICKS = HOUR_TICKS + ZOOM_TICKS + TEST_TICKS
 LOG_FROM, LOG_TO = -33, 4                    # decades of seconds in the zoom: 1e-33 s .. 10^4 s
+LAMPS = ((0.0, 500e-9), (1.0e-15, 500e-9), (1.0e-12, 500e-9), (1.0e-12, 1.0))   # the lump's box lamp: off, a femtowatt of green, a picowatt of green, a picowatt of 1 m waves
+GHOST_K = (12, 21)                           # the floors of the two "worlds" of the ghost view (nothing happened / it happened)
 LUMP_TEMPS_K = (0.0, 1.0e-3, 1.0, 300.0)       # the osmium lump's temperatures the desk steps through
 REACTION_S = 0.1                             # a person's reaction time (EMPIRICAL-INPUT, the mark on the chart)
 TRIALS_PER_TICK = 400
@@ -67,6 +69,7 @@ class CatBox:
         self.subject = "cat"                    # "cat" or "osmium": a lump of inert matter
         self.lump_t = 0                         # index into LUMP_TEMPS_K
         self.observer_inside = False            # a warm observer standing in the box
+        self.lamp = 0                           # index into LAMPS: a cold light source in the box (the lump's only; the cat's box is always lit)
         self.sealed_leak = False                # a pinhole in the box
         self.vacuum = False                     # the air pumped out
         self.door_open = False
@@ -100,9 +103,11 @@ class CatBox:
             self.tau_in = self.times["total_s"]
             self.tau_leak = 1.0 / sc.leak_rate() if self.sealed_leak else math.inf
         else:
-            self.times = sc.lump_decoherence_times(LUMP_TEMPS_K[self.lump_t], vacuum=self.vacuum, observer_inside=self.observer_inside)
+            self.times = sc.lump_decoherence_times(LUMP_TEMPS_K[self.lump_t], vacuum=self.vacuum, observer_inside=self.observer_inside,
+                                                   lamp_w=LAMPS[self.lamp][0], lamp_wavelength_m=LAMPS[self.lamp][1])
             self.tau_in = self.times["total_s"]
-            photons = self.times["rate_own_per_s"] + self.times["rate_box_per_s"] + self.times["rate_observer_per_s"]
+            photons = (self.times["rate_own_per_s"] + self.times["rate_box_per_s"] + self.times["rate_observer_per_s"]
+                       + self.times["rate_lamp_per_s"])
             hole = sc.PINHOLE_M2 / (4.0 * math.pi * sc.BOX_RADIUS_M ** 2)         # the share of the records that leave through the hole
             self.tau_leak = 1.0 / (photons * hole) if (self.sealed_leak and photons > 0.0) else math.inf
 
@@ -133,6 +138,18 @@ class CatBox:
             self.vacuum = self.subject == "osmium"
             msg = ("A 95 g lump of osmium, kicked 1 cm sideways or not, in a vacuum box at " + f"{LUMP_TEMPS_K[self.lump_t]:g} K." if self.subject == "osmium"
                    else "The cat again.")
+        elif what == "lamp":
+            if self.subject != "osmium":
+                return "The cat's box is always lit: its own warmth records it long before any lamp could."
+            self.lamp = (self.lamp + 1) % len(LAMPS)
+            w, lam = LAMPS[self.lamp]
+            if w == 0.0:
+                msg = "Lamp off: the box is dark. Nothing reaches you from the lump, so you see nothing."
+            else:
+                d = sc.lump_decoherence_times(LUMP_TEMPS_K[self.lump_t], vacuum=self.vacuum, observer_inside=self.observer_inside,
+                                              lamp_w=w, lamp_wavelength_m=lam)
+                msg = (f"A {w:.0e} W lamp of {lam:g} m light, cold, in the box: now you can see the lump, and its light records it in "
+                       f"{d['lamp_s']:.0e} s.")
         elif what == "temp":
             if self.subject != "osmium":
                 return "The temperature is the lump's: press Subject first."
@@ -234,29 +251,68 @@ class CatBox:
             lab[i1, j0:j1 + 1, k] = M["wall"]                       # right wall
             if not self.door_open:
                 lab[i0 + 1:i1, j1, k] = M["wall"]                   # the door wall (the front)
-        lab[7, 7, BOX_H - 2] = M["lamp"]                            # a light in the ceiling
+        if self.subject == "cat" or LAMPS[self.lamp][0] > 0.0:
+            lab[7, 7, BOX_H - 2] = M["lamp"]                        # a light in the ceiling (the lump's box is dark unless the lamp is on)
         dead = self.outcome == "dead" and self.hour_s() >= self.t_decay
-        lab[4, 4, 1] = M["floor"]                                   # the sample on its pedestal
-        lab[4, 4, 2] = M["atom decayed"] if dead else M["atom"]
-        for ci in (7, 8):                                           # the counter
-            lab[ci, 4, 1] = lab[ci, 4, 2] = M["counter clicked"] if dead else M["counter"]
-        lab[11, 4, 1] = M["floor"]                                  # the vial on its pedestal
-        lab[11, 4, 2] = M["vial broken"] if dead else M["vial"]
+        for i, j, k, name in self._branch_cells(dead):
+            lab[i, j, k] = M[name]
+        self._draw_ghost()
+
+    def _branch_cells(self, dead):
+        """The box's contents in one branch (nothing happened / the atom decayed): ``(i, j, k, material)`` with k = 0 at the floor."""
+        cells = []
+
+        def fill(i0, i1, j0, j1, k0, k1, name):
+            cells.extend((i, j, k, name) for i in range(i0, i1 + 1) for j in range(j0, j1 + 1) for k in range(k0, k1 + 1))
+        fill(4, 4, 4, 4, 1, 1, "floor")                             # the sample on its pedestal
+        fill(4, 4, 4, 4, 2, 2, "atom decayed" if dead else "atom")
+        fill(7, 8, 4, 4, 1, 2, "counter clicked" if dead else "counter")
+        fill(11, 11, 4, 4, 1, 1, "floor")                           # the vial on its pedestal
+        fill(11, 11, 4, 4, 2, 2, "vial broken" if dead else "vial")
         cat = "cat dead" if dead else "cat alive"
         if self.subject == "osmium":                                # a 2 x 2 x 2 lump, here or kicked there (not to scale: it is 1 cm)
             x = 9 if dead else 4
-            lab[x:x + 2, 7:9, 1:3] = M["osmium"]
-        elif not dead:                                                # sitting up: body, head, ears, tail
-            lab[6:9, 6:10, 1:3] = M[cat]
-            lab[7, 10, 3] = M[cat]
-            lab[6, 10, 4] = lab[8, 10, 4] = M[cat]
-            lab[7, 5, 2:4] = M[cat]
+            fill(x, x + 1, 7, 8, 1, 2, "osmium")
+        elif not dead:                                              # sitting up: body, head, ears, tail
+            fill(6, 8, 6, 9, 1, 2, cat)
+            fill(7, 7, 10, 10, 3, 3, cat)
+            fill(6, 6, 10, 10, 4, 4, cat)
+            fill(8, 8, 10, 10, 4, 4, cat)
+            fill(7, 7, 5, 5, 2, 3, cat)
         else:                                                       # on its side: flat, the legs out
-            lab[6:9, 6:10, 1] = M[cat]
-            lab[7, 10, 1] = M[cat]
-            for ii in (5, 9):
-                lab[ii, 7:9, 1] = M[cat]
-            lab[7, 5, 1] = M[cat]
+            fill(6, 8, 6, 9, 1, 1, cat)
+            fill(7, 7, 10, 10, 1, 1, cat)
+            fill(5, 5, 7, 8, 1, 1, cat)
+            fill(9, 9, 7, 8, 1, 1, cat)
+            fill(7, 7, 5, 5, 1, 1, cat)
+        return cells
+
+    @staticmethod
+    def _density(i, j, k):
+        """A fixed pseudo-random number in [0, 1) for a cell: a cell is drawn when it is below the weight, so density is probability."""
+        return (((i * 73856093) ^ (j * 19349663) ^ (k * 83492791)) % 1000) / 1000.0
+
+    def _draw_ghost(self):
+        """The GHOST VIEW above the box: the state, not a sight. Two worlds, one above the other: in the lower nothing happened, in the
+        upper the atom decayed; each is drawn with a density of blocks equal to its weight (the odds), and a gold and a cyan column beside
+        them hold the coherence between the worlds (in practice, in principle). The observer is in the state too, one in each world."""
+        lab = self.label
+        i0, i1 = BOX
+        j0, j1 = BOX_J
+        for dead, k_off, weight in ((False, GHOST_K[0], 1.0 - self.p), (True, GHOST_K[1], self.p)):
+            lab[i0:i1 + 1, j0:j1 + 1, k_off] = M["panel"]
+            for i, j, k, name in self._branch_cells(dead):
+                if self._density(i, j, k) < weight:
+                    lab[i, j, k_off + k] = M[name]
+            for k in (1, 2):                                       # the observer in this world: a pillar with a lamp for what she saw
+                if self._density(12, 10, k) < weight:
+                    lab[12, 10, k_off + k] = M["white"]
+            if self._density(12, 10, 3) < weight:
+                lab[12, 10, k_off + 3] = M["red" if dead else "green"]
+        height = GHOST_K[1] + 5 - GHOST_K[0]                       # the columns span both worlds
+        for col, (name, coh) in ((i1 + 1, ("gold", self.coh_practice)), (i1 + 2, ("cyan", self.coh_principle))):
+            for n in range(height):
+                lab[col, JF, GHOST_K[0] + n] = M[name] if n < round(height * coh) else M["grey"]
 
     def _draw_board(self):
         lab = self.label
@@ -321,6 +377,9 @@ class CatBox:
         b0 = BOARD_I0
         return [
             (7, JF, 11, "THE BOX: sealed. Opaque to the outside." if self.subject == "cat" else "THE BOX: sealed, empty of air. A lump of osmium."),
+            (7, JF, 30.5, "GHOST VIEW: the state, not a sight. Block density = weight"),
+            (7, JF, 17.6, "world 1: nothing happened (observer saw " + ("alive)" if self.subject == "cat" else "left)")),
+            (7, JF, 26.6, "world 2: it happened (observer saw " + ("dead)" if self.subject == "cat" else "right)")),
             (b0 + 34, JF, 37, "THE HOUR (the sample's decay clock)"),
             (b0 + 34, JF, 35, "weights: green = nothing happened, red = it did"),
             (b0 + 34, JF, 22.4, f"atom        counter        vial          {self._noun()}         observer"),

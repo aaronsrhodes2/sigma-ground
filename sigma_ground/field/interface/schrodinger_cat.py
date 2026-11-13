@@ -170,14 +170,22 @@ def resolving_fraction(separation_m: float, temperature_k: float) -> float:
     return 0.0 if math.isinf(lam) else min(1.0, (separation_m / lam) ** 2)
 
 
+def resolving_fraction_wavelength(separation_m: float, wavelength_m: float) -> float:
+    """``resolving_fraction`` for a probe of this wavelength: 1 below the separation, (separation/wavelength)^2 above."""
+    return min(1.0, (separation_m / wavelength_m) ** 2)
+
+
 def lump_decoherence_times(temperature_k: float = 0.0, box_k: float = None, vacuum: bool = True, observer_inside: bool = False,
-                           radius_m: float = LUMP_RADIUS_M, separation_m: float = LUMP_SEPARATION_M) -> dict:
+                           radius_m: float = LUMP_RADIUS_M, separation_m: float = LUMP_SEPARATION_M,
+                           lamp_w: float = 0.0, lamp_wavelength_m: float = 500e-9) -> dict:
     """Seconds for the surroundings to record which side a lump of inert matter (osmium) is on, by channel and all together.
 
     own        its thermal photons: emissivity x area x photon flux x the share of "which side" each carries
     box        the box's thermal radiation scattering off it (the box at ``box_k``, by default the lump's own temperature)
     observer   an observer at the skin temperature standing in the box: her photons scatter off the lump
     gas        residual gas (none when ``vacuum``); at 0 K the walls would freeze it out anyway
+    lamp       a light source in the box, ``lamp_w`` watts at ``lamp_wavelength_m`` (a cold source: no heat, only photons), 1 m from the lump:
+               the photons that land on it and bounce record it, as many as hit it times the share of "which side" each carries
     """
     box_k = temperature_k if box_k is None else box_k
     area = 4.0 * math.pi * radius_m ** 2
@@ -188,10 +196,15 @@ def lump_decoherence_times(temperature_k: float = 0.0, box_k: float = None, vacu
         emitted = OBSERVER_AREA_M2 * photon_flux_per_area(OBSERVER_SKIN_K)
         obs = (1.0 - LUMP_EMISSIVITY) * emitted * radius_m ** 2 / (4.0 * OBSERVER_DISTANCE_M ** 2) * resolving_fraction(separation_m, OBSERVER_SKIN_K)
     gas = 0.0 if vacuum else air_collision_rate(area, BOX_T_K, BOX_P_PA)
-    total = own + box + obs + gas
+    lamp = 0.0
+    if lamp_w > 0.0:
+        emitted = lamp_w / (H_PLANCK * C / lamp_wavelength_m)                # photons per second
+        lamp = ((1.0 - LUMP_EMISSIVITY) * emitted * radius_m ** 2 / (4.0 * OBSERVER_DISTANCE_M ** 2)
+                * resolving_fraction_wavelength(separation_m, lamp_wavelength_m))
+    total = own + box + obs + gas + lamp
     inv = lambda r: math.inf if r <= 0.0 else 1.0 / r
-    return {"own_s": inv(own), "box_s": inv(box), "observer_s": inv(obs), "gas_s": inv(gas), "total_s": inv(total),
-            "rate_own_per_s": own, "rate_box_per_s": box, "rate_observer_per_s": obs, "rate_gas_per_s": gas,
+    return {"own_s": inv(own), "box_s": inv(box), "observer_s": inv(obs), "gas_s": inv(gas), "lamp_s": inv(lamp), "total_s": inv(total),
+            "rate_own_per_s": own, "rate_box_per_s": box, "rate_observer_per_s": obs, "rate_gas_per_s": gas, "rate_lamp_per_s": lamp,
             "mass_kg": lump_mass_kg(radius_m), "temperature_k": temperature_k}
 
 

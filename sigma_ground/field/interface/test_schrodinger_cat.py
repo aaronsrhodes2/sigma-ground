@@ -134,3 +134,20 @@ def test_the_record_by_photons_is_capped_by_their_number_and_scaled_below_the_wa
 def test_air_in_the_box_records_the_lump_at_once():
     d = sc.lump_decoherence_times(0.0, vacuum=False)
     assert d["gas_s"] < 1e-24 and d["total_s"] == pytest.approx(d["gas_s"])
+
+
+def test_a_cold_lamp_in_the_box_records_the_lump_even_at_a_picowatt():
+    # no heat, only photons: a picowatt of green light is 2.5 million photons a second, and 60 of them a second land on the lump
+    d = sc.lump_decoherence_times(0.0, lamp_w=1e-12, lamp_wavelength_m=500e-9)
+    assert d["rate_own_per_s"] == 0.0 and d["rate_box_per_s"] == 0.0
+    assert d["rate_lamp_per_s"] == pytest.approx(59, rel=0.1) and d["total_s"] == pytest.approx(0.017, rel=0.1)
+    # a femtowatt: a thousand times slower, still recorded in seconds
+    assert sc.lump_decoherence_times(0.0, lamp_w=1e-15)["total_s"] == pytest.approx(17.0, rel=0.1)
+    assert sc.lump_decoherence_times(0.0, lamp_w=0.0)["lamp_s"] == math.inf
+
+
+def test_a_lamps_long_wavelength_light_records_it_less_per_photon_but_a_watt_of_it_still_does():
+    green = sc.lump_decoherence_times(0.0, lamp_w=1e-12, lamp_wavelength_m=500e-9)["rate_lamp_per_s"]
+    radio = sc.lump_decoherence_times(0.0, lamp_w=1e-12, lamp_wavelength_m=1.0)["rate_lamp_per_s"]
+    assert radio > green                    # a picowatt of 1 m waves is a million times as many photons, each carrying a ten-thousandth of the answer
+    assert sc.resolving_fraction_wavelength(0.01, 1.0) == pytest.approx(1e-4) and sc.resolving_fraction_wavelength(0.01, 5e-7) == 1.0

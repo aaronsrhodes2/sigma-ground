@@ -132,20 +132,21 @@ STAGES = {
                        "energy the block does not take as motion heats the bore, which glows. Weapon = next round."},
     # the cat stage is 86 x 14 blocks (25 cm each) at x 0-85, z 430-443: the box on the left, the ledger of its quantum state on the right
     "cat": {"origin": (0, -60, 430), "desk": (42, -40, 392), "pitch": 0, "other": "sink", "request": 18, "rate": 6.0,
-            "extra": (("Pinhole", 19), ("Air", 20), ("Open box", 21), ("Step inside", 22), ("Step outside", 23), ("Subject", 24), ("Lump T", 25)),
+            "extra": (("Pinhole", 19), ("Air", 20), ("Open box", 21), ("Step inside", 22), ("Step outside", 23), ("Subject", 24), ("Lump T", 25), ("Lamp", 26)),
             "tell": "Schrodinger's cat, computed: a sealed box, a cobalt-60 sample sized for even odds in an hour, a counter, a vial, a "
                     "cat, and you. The box's own air records the cat in 1.7e-27 s, long before anyone could look; sealed, the whole "
                     "content is still one quantum state in principle (cyan meter) and no experiment can see it in practice (gold "
                     "meter). Step inside to be the observer: you see one outcome. Open box: the outside looks, and sees the same. "
                     "Pinhole: one photon tells the outside. Air: pump it out and only the cat's own light records it. Subject: swap the "
                     "cat for a 95 g lump of osmium in a vacuum box; Lump T steps it 0 K, 1 mK, 1 K, 300 K. At 0 K nothing records it, "
-                    "until you step inside: a 305 K body."},
+                    "until you step inside: a 305 K body, or switch on a cold lamp: Lamp. Above the box, the ghost view draws the state itself: two "
+                    "worlds, each as dense as its odds, and the coherence between them."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
 SCREEN_BUTTONS = {6: "observe", 7: "one_slit", 10: "colour"}
 RANGE_BUTTONS = {12: "weapon", 13: "armor"}
-CAT_BUTTONS = {19: "leak", 20: "air", 21: "open", 24: "subject", 25: "temp"}
+CAT_BUTTONS = {19: "leak", 20: "air", 21: "open", 24: "subject", 25: "temp", 26: "lamp"}
 CAT_INSIDE, CAT_OUTSIDE = 22, 23
 DESK_LOOK = {"fill": "minecraft:sea_lantern", "board": "minecraft:command_block"}
 PACK_DIR = HERE / "dev-server" / "pack"

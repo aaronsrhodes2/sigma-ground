@@ -796,3 +796,10 @@ whose wavelength is below the separation record it in full; above it the record 
 Joos-Zeh scaling, not a derived coefficient). Its emissivity (0.05, a polished metal) is an input: the library has no osmium optics. At 0 K nothing records it
 (no photons, no gas); at 1 mK about two minutes; at 1 K, 50 ps; at 300 K, 2e-20 s; and an observer's own light records it in 5e-19 s whatever the box's temperature.
 No gravitational or collapse-model decoherence is included (those are hypotheses, and experiments so far bound them far below a lump this size).
+
+A cold lamp in the lump's box (``lump_decoherence_times(lamp_w=, lamp_wavelength_m=)``): the photons that land on the lump (the share of the lamp's output on its cross-section
+at 1 m) and bounce record it, each carrying the resolving share of "which side" (1 below the 1 cm separation, (separation/wavelength)^2 above). A femtowatt of green
+records it in ~17 s, a picowatt in ~17 ms; a picowatt of 1 m waves is a million times the photons at a ten-thousandth each and records it faster. The lamp's heating is ignored
+(a cold source), photons are taken to be absorbed or lost to the box (a perfectly mirrored box that kept every photon would hold the record in the box's contents, which the
+"in principle" meter shows), and the lump's box is dark (the stage's block light) unless the lamp is on. The ghost view above the box draws the state itself, which no physical
+observer can read: two worlds, one above the other, each with a block density equal to its weight (the odds), the observer in each, and two columns of the chain's coherence.

@@ -122,7 +122,7 @@ the puzzle), two coherence meters (IN PRACTICE, the air and light inside traced 
 every molecule), a log-time zoom from 1e-33 s to 10 s (the air inside records the cat in 1.7e-27 s; a person notices in 0.1 s), and
 the outside test's tallies. What is inside the box is the branch the observer experiences (a draw of the Born rule). Desk (z = 392):
 **Run** (a new draw), **Pinhole** (a 1 mm2 leak: the outside is told), **Air** (pump it out), **Open box** (the outside looks and sees
-the same outcome), **Step inside** (stand beside the cat, facing it: a 305 K body in the box, which matters for a cold subject) and **Step outside**, **Subject** (a 95 g osmium lump in a vacuum box instead of the cat) and **Lump T** (0 K, 1 mK, 1 K, 300 K). A switch starts a fresh run; Open box and the
+the same outcome), **Step inside** (stand beside the cat, facing it: a 305 K body in the box, which matters for a cold subject) and **Step outside**, **Subject** (a 95 g osmium lump in a vacuum box instead of the cat) and **Lump T** (0 K, 1 mK, 1 K, 300 K). **Lamp** (the lump's box is dark; a cold lamp of a femtowatt or a picowatt lets you see it, and records it). Above the box, the ghost view: the state drawn as two worlds, each as dense as its odds, with the coherence between them in two columns. A switch starts a fresh run; Open box and the
 two steps act where it stands. Live: `python stage/skippycraft/theater.py serve`. Tests: `tests/test_voxel_cat.py`,
 `field/interface/test_schrodinger_cat.py`. Gaps: `schrodinger_cat.CAT_GAPS` and KNOWN_GAPS.md.
 

@@ -160,3 +160,47 @@ def test_the_lump_is_drawn_left_then_kicked_right_in_the_branch_where_the_atom_d
     assert b.label[4, 7, 1] == vc.M["osmium"] and b.label[9, 7, 1] != vc.M["osmium"]
     _run(b, vc.HOUR_TICKS)
     assert b.label[9, 7, 1] == vc.M["osmium"] and b.label[4, 7, 1] != vc.M["osmium"]
+
+
+def _ghost_cells(box, name, world):
+    lo, hi = vc.GHOST_K[world], vc.GHOST_K[world] + 6
+    return int((box.label[:, :, lo + 1:hi] == vc.M[name]).sum())
+
+
+def test_the_ghost_view_draws_each_world_as_dense_as_its_odds():
+    b = vc.CatBox(seed=2)
+    b.press("subject")
+    assert _ghost_cells(b, "osmium", 1) == 0 and _ghost_cells(b, "osmium", 0) == 8          # no decay yet: only the world where nothing happened
+    seen = []
+    for _ in range(vc.HOUR_TICKS):
+        b.step(0.1)
+        seen.append(_ghost_cells(b, "osmium", 1))
+    assert seen == sorted(seen) and seen[-1] > 0                                             # the other world fades in as the odds grow
+    assert abs(_ghost_cells(b, "osmium", 0) - _ghost_cells(b, "osmium", 1)) <= 4             # even odds: about as many in each
+
+
+def test_the_ghost_views_coherence_columns_follow_the_meters():
+    b = vc.CatBox(seed=2)
+    _run(b)
+    height = vc.GHOST_K[1] + 5 - vc.GHOST_K[0]
+    gold = int((b.label[14, vc.JF, vc.GHOST_K[0]:vc.GHOST_K[0] + height] == vc.M["gold"]).sum())
+    cyan = int((b.label[15, vc.JF, vc.GHOST_K[0]:vc.GHOST_K[0] + height] == vc.M["cyan"]).sum())
+    assert gold == 0 and cyan == height                                       # the cat sealed: nothing in practice, everything in principle
+    b.press("subject")
+    _run(b)
+    assert int((b.label[14, vc.JF, vc.GHOST_K[0]:vc.GHOST_K[0] + height] == vc.M["gold"]).sum()) == height   # the lump at 0 K: both full
+
+
+def test_the_lump_box_is_dark_until_a_cold_lamp_is_switched_on_and_the_lamp_records_it():
+    b = vc.CatBox(seed=2)
+    assert b.label[7, 7, vc.BOX_H - 2] == vc.M["lamp"]                        # the cat's box is lit
+    b.press("subject")
+    assert b.label[7, 7, vc.BOX_H - 2] == 0 and b.tau_in == float("inf")      # the lump's is dark: nothing reaches you, you see nothing
+    msg = b.press("lamp")                                                     # a femtowatt of green light
+    assert b.label[7, 7, vc.BOX_H - 2] == vc.M["lamp"] and 10 < b.tau_in < 30 and "records it" in msg
+    b.press("lamp")                                                           # a picowatt
+    assert b.tau_in == pytest.approx(0.017, rel=0.1)
+    b.press("lamp")
+    b.press("lamp")                                                           # round again: off
+    assert b.label[7, 7, vc.BOX_H - 2] == 0 and b.tau_in == float("inf")
+    assert "always lit" in vc.CatBox(seed=2).press("lamp")
