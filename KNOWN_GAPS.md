@@ -806,3 +806,9 @@ observer can read: two worlds, one above the other, each with a block density eq
 
 **Contact records the lump** (found 2026-11-13): a lump resting on the box floor presses on it, and the floor's atoms are displaced differently for each position of the lump, so the floor records where it is the instant it touches (no photons needed). `lump_decoherence_times` has no contact channel, and the stage draws the osmium on a floor cell as if nothing under it recorded anything. To keep a position superposition the lump must be held without contact: osmium is a type-I superconductor below 0.66 K (`superconductivity`, T_c 0.66 K), so it could float over a magnet by the Meissner effect, the weight carried by the field; a static magnet records nothing, a dissipative one would.
 
+**The floating grain** (`field/interface/levitated_grain.py`, 2026-11-13): osmium's thermodynamic critical field from the library's BCS formula is 4.7 mT (the measured ~7 mT:
+a lower bound), so the field pressure on a superconducting surface can be at most 8.7 Pa and the largest sphere it can carry is about 29 um in radius (R <= 3 B_c^2 / 8 mu_0 rho g, a
+uniform field under it): a 1 cm, 95 g lump cannot float; the stage uses a 20 um grain (7.6e-10 kg). Hertz contact (osmium 570 GPa, 0.25; granite 50 GPa, 0.25, typical) for the resting grain:
+patch 26 nm across, 20 MPa peak. Not in it: roughness and adhesion (at this size van der Waals is as large as the weight), a shaped real trap (the true limit is lower), the floor lattice's own
+record (taken as immediate), and the atoms: the grain is a continuum and a rigid body here, ~2.4e15 atoms moving together. The diorama is the state drawn from outside physics, not a sight.
+

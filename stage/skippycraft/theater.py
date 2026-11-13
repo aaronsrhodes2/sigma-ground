@@ -51,6 +51,8 @@ SCENES = {
     "slit": (None, 0.001, None, "slits", 240, 0.1),
     # Schrodinger's cat in a sealed box, computed (field.interface.schrodinger_cat via materia.voxel_cat): no build code, its own world
     "cat": (None, 0.25, None, "cat", 300, 0.1),
+    # a grain of osmium resting, floating and lit, in real slow motion (materia.voxel_lights): no build code, its own world, 5 micrometre blocks
+    "lights": (None, 5.0e-6, None, "lights", 360, 0.1),
     # the shooting range: Weapon vs. Armor's physics carved into an armour target of 2 mm blocks (shooting_range.py)
     "range": (None, 0.002, "STP", "range", 150, 0.02),
     # the playground (SKIPPYCRAFT_PLAN 10b): heat, melting, liquid momentum and bodies at once (materia.playground). A 2200 K
@@ -131,7 +133,7 @@ STAGES = {
                        "goes and what it loses in each layer; that momentum pushes the block into the backstop, and the "
                        "energy the block does not take as motion heats the bore, which glows. Weapon = next round."},
     # the cat stage is 86 x 14 blocks (25 cm each) at x 0-85, z 430-443: the box on the left, the ledger of its quantum state on the right
-    "cat": {"origin": (0, -60, 430), "desk": (42, -40, 392), "pitch": 0, "other": "sink", "request": 18, "rate": 6.0,
+    "cat": {"origin": (0, -60, 430), "desk": (42, -40, 392), "pitch": 0, "other": "lights", "request": 18, "rate": 6.0,
             "extra": (("Pinhole", 19), ("Air", 20), ("Open box", 21), ("Step inside", 22), ("Step outside", 23), ("Subject", 24), ("Lump T", 25), ("Lamp", 26)),
             "tell": "Schrodinger's cat, computed: a sealed box, a cobalt-60 sample sized for even odds in an hour, a counter, a vial, a "
                     "cat, and you. The box's own air records the cat in 1.7e-27 s, long before anyone could look; sealed, the whole "
@@ -141,6 +143,16 @@ STAGES = {
                     "cat for a 95 g lump of osmium in a vacuum box; Lump T steps it 0 K, 1 mK, 1 K, 300 K. At 0 K nothing records it, "
                     "until you step inside: a 305 K body, or switch on a cold lamp: Lamp. Above the box, the ghost view draws the state itself: two "
                     "worlds, each as dense as its odds, and the coherence between them."},
+    # the lights-up stage is 100 x 10 blocks (5 micrometres each) at x 0-99, z 490-499: the diorama is a state, drawn from outside physics
+    "lights": {"origin": (0, -60, 490), "desk": (50, -40, 452), "pitch": 0, "other": "sink", "request": 27, "rate": 6.0,
+               "extra": (("Lamp", 28),),
+               "tell": "Lights up, in real slow motion: a 20 micrometre grain of osmium. First it rests on the floor: its weight goes through "
+                       "a patch tens of nanometres wide, and the floor records where it is. Then the magnet's field floats it (osmium is a "
+                       "superconductor below 0.66 K): no contact, and it is in two places at once, drawn as two grains each as dense as its "
+                       "odds. Then a cold lamp comes on: light goes everywhere and almost none meets the grain, until one photon does (the clock "
+                       "shows real milliseconds, slowed thousands of times). That photon's flight (3.3 ns for a metre) is slowed billions of "
+                       "times. When it lands the grain does not change at all; what changes is what is recorded: the gold bridge between the "
+                       "two places is cut. Lamp: a nanowatt, a microwatt or a milliwatt."},
 }
 STOP = 9
 SLOWER, FASTER = 4, 5
@@ -148,6 +160,7 @@ SCREEN_BUTTONS = {6: "observe", 7: "one_slit", 10: "colour"}
 RANGE_BUTTONS = {12: "weapon", 13: "armor"}
 CAT_BUTTONS = {19: "leak", 20: "air", 21: "open", 24: "subject", 25: "temp", 26: "lamp"}
 CAT_INSIDE, CAT_OUTSIDE = 22, 23
+LIGHTS_BUTTONS = {28: "lamp"}
 DESK_LOOK = {"fill": "minecraft:sea_lantern", "board": "minecraft:command_block"}
 PACK_DIR = HERE / "dev-server" / "pack"
 PACK_HOST, PACK_PORT = "100.122.71.14", 42566           # skippy-pc's tailnet address: the server's RESOURCE_PACK points here
@@ -349,6 +362,9 @@ def build(name):
     if temp == "cat":
         from sigma_ground.materia.voxel_cat import CatBox
         return None, CatBox()
+    if temp == "lights":
+        from sigma_ground.materia.voxel_lights import LightsUp
+        return None, LightsUp()
     if temp == "slits":
         from sigma_ground.materia.voxel_slits import SlitScreen
         return None, SlitScreen()
@@ -408,6 +424,12 @@ def range_appearances():
 def cat_looks():
     """The cat stage's looks: each material is a plain block that the pack leaves alone (nothing is repainted)."""
     from sigma_ground.materia.voxel_cat import LOOKS, PITCH
+    return {(m, PITCH): block for m, block in LOOKS.items()}
+
+
+def lights_looks():
+    """The lights-up stage's looks: plain blocks the pack leaves alone."""
+    from sigma_ground.materia.voxel_lights import LOOKS, PITCH
     return {(m, PITCH): block for m, block in LOOKS.items()}
 
 
@@ -672,7 +694,7 @@ def build_pack():
     screen, paint = slit_looks()
     export_mc.write_flat_textures(paint, PACK_DIR)
     shutil.make_archive(str(PACK_DIR / "skippycraft"), "zip", PACK_DIR / "skippycraft")
-    return {**looks, **screen, **cat_looks()}
+    return {**looks, **screen, **cat_looks(), **lights_looks()}
 
 
 def serve_pack():
@@ -739,12 +761,12 @@ def repair_desks(rcon):
     return fixed
 
 
-def cat_captions(th, world):
-    """Text over the cat stage's panels (``world.captions()``: grid cells and words), in front of the board."""
+def cat_captions(th, world, tag="cat"):
+    """Text over a stage's panels (``world.captions()``: grid cells and words), in front of the board."""
     cmds = []
     for n, (i, j, k, text) in enumerate(world.captions()):
         x, y, z = th.mc(i, j, int(k))
-        cmds += label(f"skippycraft_cat_{n}", x + 0.5, y + 0.5 + (k - int(k)), z - 0.7, text)
+        cmds += label(f"skippycraft_{tag}_{n}", x + 0.5, y + 0.5 + (k - int(k)), z - 0.7, text)
     return cmds
 
 
@@ -794,7 +816,7 @@ def serve(player="aaronsrhodes"):
     send = rcon.commands
     blocks = block_writer()
     print("block writer:", "plugin" if blocks else "none (RCON fills)", flush=True)
-    send(["forceload add -16 0 191 207", "forceload add -16 208 191 399", "forceload add -16 400 191 463", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
+    send(["forceload add -16 0 191 207", "forceload add -16 208 191 399", "forceload add -16 400 191 463", "forceload add -16 464 191 527", "kill @e[type=text_display,tag=skippycraft_label]", "scoreboard objectives add skippycraft dummy",
           "scoreboard players set #request skippycraft 0"])
     # forceload loads chunks asynchronously: build nothing until every panel and theater spot is loaded
     spots = [st[k] for st in STAGES.values() for k in ("origin", "desk")]
@@ -855,6 +877,9 @@ def serve(player="aaronsrhodes"):
                         kept["cat_th"].draw()
                     continue
                 req = STAGES["cat"]["request"]
+            if req in LIGHTS_BUTTONS:                                     # the lights-up lamp: change it, then run
+                tell(kept.setdefault("lights", build("lights")[1]).press(LIGHTS_BUTTONS[req]))
+                req = STAGES["lights"]["request"]
             if req in (CAT_INSIDE, CAT_OUTSIDE):                          # between runs: just move him
                 step_through(rcon, kept.get("cat"), kept.get("cat_th"), req == CAT_INSIDE, tell)
                 continue
@@ -885,6 +910,9 @@ def serve(player="aaronsrhodes"):
             elif name == "cat":                                           # the box keeps its setup between runs; a new run draws the Born rule again
                 world = kept.setdefault("cat", build("cat")[1])
                 world.reset()
+            elif name == "lights":                                        # the lamp keeps its setting between runs; a new run draws the first photon again
+                world = kept.setdefault("lights", build("lights")[1])
+                world.reset()
             elif name == "range":
                 import shooting_range
                 world = shooting_range.RangeWorld(aim["weapon"], aim["armor"], armed=not preview)
@@ -899,6 +927,8 @@ def serve(player="aaronsrhodes"):
             if name == "cat":
                 kept["cat_th"] = th
                 rcon.commands(cat_captions(th, world))
+            elif name == "lights":
+                rcon.commands(cat_captions(th, world, "lights"))
             tell(st["tell"])
             _, _, _, _, ticks, dt = SCENES[name]
             if preview:                                                   # just show the fresh target
@@ -937,6 +967,10 @@ def serve(player="aaronsrhodes"):
                         pending = st["request"]
                         break
                     nxt = 0
+                if nxt in LIGHTS_BUTTONS and name == "lights":
+                    tell(world.press(LIGHTS_BUTTONS[nxt]))
+                    pending = st["request"]
+                    break
                 if nxt in (CAT_INSIDE, CAT_OUTSIDE) and name == "cat":
                     step_through(rcon, world, th, nxt == CAT_INSIDE, tell)
                     nxt = 0
@@ -987,7 +1021,7 @@ def main(argv=None):
     export_mc.write_resourcepack(looks, appearances, packs)
     screen, paint = slit_looks()
     export_mc.write_flat_textures(paint, packs)
-    looks = {**looks, **screen, **cat_looks()}
+    looks = {**looks, **screen, **cat_looks(), **lights_looks()}
     if a.scene == "looks":
         print(json.dumps({f"{m}@{s:g}m": c for (m, s), c in looks.items()}, indent=2))
         return

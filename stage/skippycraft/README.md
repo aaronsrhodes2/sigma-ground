@@ -126,6 +126,17 @@ the same outcome), **Step inside** (stand beside the cat, facing it: a 305 K bod
 two steps act where it stands. Live: `python stage/skippycraft/theater.py serve`. Tests: `tests/test_voxel_cat.py`,
 `field/interface/test_schrodinger_cat.py`. Gaps: `schrodinger_cat.CAT_GAPS` and KNOWN_GAPS.md.
 
+## Lights up (`lights`, 2026-11-13)
+
+A 20 micrometre grain of osmium at 5 micrometres a block (`materia.voxel_lights.LightsUp`, numbers from `field.interface.levitated_grain` and
+`schrodinger_cat`): it rests on the floor (weight 7.4 nN through a contact patch 26 nm wide at 20 MPa, and the floor records where it is), then the
+magnet's field floats it (osmium is a type-I superconductor below 0.66 K; the field pressure limit allows a radius up to 29 um, so a 1 cm lump cannot
+float) and it is in two places 100 um apart, drawn as two half-density ghosts joined by a cyan (in principle) and a gold (in practice) bridge. A cold
+lamp comes on: the clock counts the real milliseconds to the first photon that lands (Poisson, from the library's rate; slowed thousands of times), the
+photon's 3.3 ns flight is slowed billions of times, and when it lands the gold bridge is cut: the grain is unchanged (kick 2e-18 m/s, warmed 2e-13 K), what
+changed is what is recorded. Desk (z = 452): **Run**, **Lamp** (a nanowatt, a microwatt or a milliwatt). Tests: `tests/test_voxel_lights.py`,
+`field/interface/test_levitated_grain.py`.
+
 ## The shooting range (`range`, 2026-10-31)
 
 Weapon vs. Armor (`games/weapon_vs_armor`) as a real target (`shooting_range.py`): the armour preset built as layers of
