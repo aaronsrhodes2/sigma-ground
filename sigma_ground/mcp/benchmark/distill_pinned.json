@@ -945,6 +945,14 @@
    "cause": "wrong_value",
    "tool": "procedure_black_hole_profile",
    "got": 2699.2705695556283
+  },
+  {
+   "id": "distill-2026-11-13-013",
+   "day": "2026-11-13",
+   "question": "Fourier transform of exp(-3*t^2)",
+   "cause": "wrong_value",
+   "tool": "fourier_transform",
+   "got": "0"
   }
  ]
 }

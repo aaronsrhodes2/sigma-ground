@@ -19,12 +19,13 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | 2026-11-10 | 40 | 35 | 35 | none | 5 | 32 / 8 | 17 / 6 | bfb2892 |
 | 2026-11-11 | 40 | 35 | 30 | wrong_value 5 | 5 | 29 / 11 | 11 / 10 | bfb2892 |
 | 2026-11-12 | 40 | 35 | 34 | wrong_value 1 | 5 | 25 / 15 | 15 / 6 | bfb2892 |
+| 2026-11-13 | 35 | 35 | 34 | wrong_value 1 | 0 | 28 / 7 | 15 / 8 | bfb2892 |
 
 ## Causes, grouped: the candidate fixes
 
 | cause | expected tool | rows | examples | status |
 |---|---|---|---|---|
-| wrong_value | fourier_transform | 5 | `Fourier transform of exp(-2*t^2)` (got 0 via fourier_transform); `Fourier transform of exp(-2*x^2)` (got sqrt(2)*sqrt(pi)*exp via fourier_transform) | open |
+| wrong_value | fourier_transform | 6 | `Fourier transform of exp(-2*t^2)` (got 0 via fourier_transform); `Fourier transform of exp(-2*x^2)` (got sqrt(2)*sqrt(pi)*exp via fourier_transform) | open |
 | wrong_value | joules_to_TNT | 5 | `Fully splitting 1.74 g of Pu-239 releases how many megatons of TNT?` (got 0.03737652989966689 via None); `Fully splitting 6.01 kg of Pu-239 releases how many megatons of TNT?` (got 129.09939350402183 via None) | open |
 | wrong_value | curl | 2 | `curl of (0, t + s, r*s)` (got ['s - 1', '0', '1'] via curl); `curl of (t + r, 0, 2*t)` (got ['0', '-2', '-1'] via curl) | fixed 2cdb61d |
 | wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | set wording f0a0e56 |
