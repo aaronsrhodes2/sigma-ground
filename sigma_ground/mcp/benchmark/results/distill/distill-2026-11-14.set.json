@@ -1,0 +1,1016 @@
+{
+ "suite": "distill-2026-11-14",
+ "generator": {
+  "date": "2026-11-14",
+  "seed": 1472907768,
+  "rota": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "known_before": 1047,
+  "wild": [],
+  "made": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 2,
+   "astronomy": 1
+  },
+  "oracles": {
+   "agrees": 20,
+   "unchecked": 0,
+   "tool": 15,
+   "none": 0
+  }
+ },
+ "items": [
+  {
+   "question": "expand (6*x + 4)^2",
+   "question_long": "Multiply out the brackets in (6x + 4)².",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(6*x + 4)**2"
+    },
+    "result": "36*x**2 + 48*x + 16",
+    "spec": {
+     "kind": "expand",
+     "expr": "(6*x + 4)**2",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-000"
+  },
+  {
+   "question": "eigenvalues of [[0, -1, 4], [0, -4, -1], [0, 0, 2]]",
+   "question_long": "Which numbers λ satisfy det(A - λI) = 0 for A = the matrix with rows (0, -1, 4) and (0, -4, -1) and (0, 0, 2)?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[0, -1, 4], [0, -4, -1], [0, 0, 2]]"
+    },
+    "result": [
+     "2",
+     "-4",
+     "0"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       0,
+       -1,
+       4
+      ],
+      [
+       0,
+       -4,
+       -1
+      ],
+      [
+       0,
+       0,
+       2
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-001"
+  },
+  {
+   "question": "expand (t - 3)*(t + 4)",
+   "question_long": "Multiply out the brackets in (t - 3)(t + 4).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(t - 3)*(t + 4)"
+    },
+    "result": "t**2 + t - 12",
+    "spec": {
+     "kind": "expand",
+     "expr": "(t - 3)*(t + 4)",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-002"
+  },
+  {
+   "question": "Laplace transform of cos(2*t)",
+   "question_long": "What does cos(2*t) become under the Laplace transform?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "cos(2*t)"
+    },
+    "result": "s/(s**2 + 4)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "cos(2*t)",
+     "var": "t",
+     "svar": "s"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-003"
+  },
+  {
+   "question": "solve [[1, 2], [0, -3]] x = [-5, 6]",
+   "question_long": "Given A = [[1, 2], [0, -3]] and b = [-5, 6], what x solves A x = b?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[1, 2], [0, -3]]",
+     "vector_b": "[-5, 6]"
+    },
+    "result": [
+     "-1",
+     "-2"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       1,
+       2
+      ],
+      [
+       0,
+       -3
+      ]
+     ],
+     "b": [
+      -5,
+      6
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-004"
+  },
+  {
+   "question": "simplify (t^2 - 36)/(t - 6)",
+   "question_long": "put (t**2 - 36)/(t - 6) in its simplest form.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "(t**2 - 36)/(t - 6)"
+    },
+    "result": "t + 6",
+    "spec": {
+     "kind": "simplify",
+     "expr": "(t**2 - 36)/(t - 6)",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-005"
+  },
+  {
+   "question": "sum of n^3 for n from 0 to 100",
+   "question_long": "What does Σ_(n=0)^100 n**3 come to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "n**3",
+     "variable": "n",
+     "lower": "0",
+     "upper": "100"
+    },
+    "result": "25502500",
+    "spec": {
+     "kind": "sum",
+     "expr": "n**3",
+     "var": "n",
+     "lo": "0",
+     "hi": "100"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-006"
+  },
+  {
+   "question": "inverse of [[-3, -2], [1, -4]]",
+   "question_long": "Give me the matrix that undoes [[-3, -2], [1, -4]].",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[-3, -2], [1, -4]]"
+    },
+    "result": "[[-2/7, 1/7], [-1/14, -3/14]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       -3,
+       -2
+      ],
+      [
+       1,
+       -4
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-007"
+  },
+  {
+   "question": "sum of 1/i^3 for i from 1 to infinity",
+   "question_long": "Total up 1/i^3 with i going from 1 to infinity.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/i**3",
+     "variable": "i",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "zeta(3)",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/i**3",
+     "var": "i",
+     "lo": "1",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-008"
+  },
+  {
+   "question": "sum of (1/2)^k for k from 0 to infinity",
+   "question_long": "Total up (1/2)^k with k going from 0 to ∞.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "(1/2)**k",
+     "variable": "k",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "2",
+    "spec": {
+     "kind": "sum",
+     "expr": "(1/2)**k",
+     "var": "k",
+     "lo": "0",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-009"
+  },
+  {
+   "question": "solve 6*x + 12 = 3 for x",
+   "question_long": "If 6x + 12 = 3, what is x?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "6*x + 12 = 3",
+     "variable": "x"
+    },
+    "result": [
+     "-3/2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "6*x + 12 = 3",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-010"
+  },
+  {
+   "question": "sum of i/2^i for i from 1 to infinity",
+   "question_long": "What does Σ_(i=1)^positive infinity i/2**i come to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "i/2**i",
+     "variable": "i",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "2",
+    "spec": {
+     "kind": "sum",
+     "expr": "i/2**i",
+     "var": "i",
+     "lo": "1",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-011"
+  },
+  {
+   "question": "series expansion of sqrt(1 + x) at x = 0 to order 6",
+   "question_long": "Approximate sqrt(1 + x) near x = 0 with a polynomial of order 6.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "sqrt(1 + x)",
+     "point": "0",
+     "order": 6
+    },
+    "result": "7*x**5/256 - 5*x**4/128 + x**3/16 - x**2/8 + x/2 + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "sqrt(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 6
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-012"
+  },
+  {
+   "question": "series expansion of sin(x) at x = pi to order 3",
+   "question_long": "Approximate sin(x) near x = π with a polynomial of order 3",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "sin(x)",
+     "variable": "x",
+     "point": "pi",
+     "order": 3
+    },
+    "result": "pi - x",
+    "spec": {
+     "kind": "series",
+     "expr": "sin(x)",
+     "var": "x",
+     "point": "pi",
+     "order": 3
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-013"
+  },
+  {
+   "question": "limit of (exp(2*x) - 1)/x as x -> 0",
+   "question_long": "As x gets closer and closer to 0, what value does (e^(2x) - 1)/x settle on?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(exp(2*x) - 1)/x",
+     "point": "0"
+    },
+    "result": "2",
+    "spec": {
+     "kind": "limit",
+     "expr": "(exp(2*x) - 1)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+-"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-014"
+  },
+  {
+   "question": "[[-2, 2, 2], [5, 4, -4]] * [[-4, 1], [2, -3], [-3, 4]]",
+   "question_long": "What do you get when you multiply [-2 2 2; 5 4 -4] on the right by [-4 1; 2 -3; -3 4]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[-2, 2, 2], [5, 4, -4]]",
+     "matrix_b": "[[-4, 1], [2, -3], [-3, 4]]"
+    },
+    "result": "[[6, 0], [0, -23]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       -2,
+       2,
+       2
+      ],
+      [
+       5,
+       4,
+       -4
+      ]
+     ],
+     "B": [
+      [
+       -4,
+       1
+      ],
+      [
+       2,
+       -3
+      ],
+      [
+       -3,
+       4
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-015"
+  },
+  {
+   "question": "[[5, 2, 5], [0, -3, 5]] * [[1, 3], [-1, -1], [2, -2]]",
+   "question_long": "What do you get when you multiply [5 2 5; 0 -3 5] on the right by [[1, 3], [-1, -1], [2, -2]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[5, 2, 5], [0, -3, 5]]",
+     "matrix_b": "[[1, 3], [-1, -1], [2, -2]]"
+    },
+    "result": "[[13, 3], [13, -7]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       5,
+       2,
+       5
+      ],
+      [
+       0,
+       -3,
+       5
+      ]
+     ],
+     "B": [
+      [
+       1,
+       3
+      ],
+      [
+       -1,
+       -1
+      ],
+      [
+       2,
+       -2
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-016"
+  },
+  {
+   "question": "eigenvalues of [[-3, -2], [0, 3]]",
+   "question_long": "Which numbers λ satisfy det(A - λI) = 0 for A = [-3 -2; 0 3]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[-3, -2], [0, 3]]"
+    },
+    "result": [
+     "3",
+     "-3"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       -3,
+       -2
+      ],
+      [
+       0,
+       3
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-017"
+  },
+  {
+   "question": "solve x'' + 7*x' + 10*x = 0 for x(t)",
+   "question_long": "Give me every function x(t) with x'' + 7*x' + 10*x = 0",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "x'' + 7*x' + 10*x",
+     "func": "x",
+     "variable": "t"
+    },
+    "result": "Eq(x(t), (C1 + C2*exp(-3*t))*exp(-2*t))",
+    "spec": {
+     "kind": "ode",
+     "eq": "x'' + 7*x' + 10*x",
+     "fn": "x",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-018"
+  },
+  {
+   "question": "expand (x + 3)*(x + 2)",
+   "question_long": "Write (x + 3)(x + 2) without brackets.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 3)*(x + 2)"
+    },
+    "result": "x**2 + 5*x + 6",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 3)*(x + 2)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-14-019"
+  },
+  {
+   "question": "Express the mass-energy of 1.15e-28 kg in eV.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 1.0335684555473402e-11
+    },
+    "result": 64510268.9437512,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 1.15e-28
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_to_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-020"
+  },
+  {
+   "question": "Mean thermal energy per molecule at 155 K, expressed in eV?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 3.210008925e-21
+    },
+    "result": 0.02003529983448754,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "thermal_energy_per_molecule",
+      "args": {
+       "temperature_k": 155.0
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "thermal_energy_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-021"
+  },
+  {
+   "question": "Convert 71.5 eV to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 71.5,
+     "from_units": "eV",
+     "to_units": "J"
+    },
+    "result": 1.14555629331e-17,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 71.5,
+       "from_units": "eV",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_ev_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-022"
+  },
+  {
+   "question": "A 5.17 tonnes vehicle is moving at 23.2 m/s. How many tons of TNT equal its kinetic energy?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 1391350.4000000001
+    },
+    "result": 0.0003325407265774379,
+    "units": "ton_TNT",
+    "plan": [
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 5170.0,
+       "velocity_m_s": 23.2
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "kinetic_energy_tnt",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-023"
+  },
+  {
+   "question": "A photon has a wavelength of 40.1 nm. Give its energy in eV.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 4.953730314044377e-18
+    },
+    "result": 30.918752707539344,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": 4.01e-08
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "photon_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-024"
+  },
+  {
+   "question": "Convert 216 eV to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 216.0,
+     "from_units": "eV",
+     "to_units": "J"
+    },
+    "result": 3.46070152944e-17,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 216.0,
+       "from_units": "eV",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_ev_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-025"
+  },
+  {
+   "question": "How many joules of electricity does a plant make from 3.88 kg of uranium-235 if its efficiency is 70.3 percent?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 70.3,
+     "value": 318547376586623.0
+    },
+    "result": 223938805740395.97,
+    "units": "",
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 3.88,
+       "isotope": "U235"
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 70.3,
+       "value": "$1"
+      }
+     }
+    ],
+    "recipe": "fission_electricity",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-026"
+  },
+  {
+   "question": "A 1.19 tonnes stone falls freely for 497 m. Kinetic energy at the bottom?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 1190.0,
+     "velocity_m_s": 98.73099867822668
+    },
+    "result": 5799947.0095,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "free_fall_velocity",
+      "args": {
+       "height_m": 497.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 1190.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "drop_impact_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-027"
+  },
+  {
+   "question": "Express the mass-energy of 1.71e-26 kg in eV.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 1.5368713556399582e-09
+    },
+    "result": 9592396512.505613,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 1.71e-26
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_to_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-028"
+  },
+  {
+   "question": "Express the mass-energy of 7.17e-29 kg in eV.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 6.444074631542983e-12
+    },
+    "result": 40220750.289277926,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 7.17e-29
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_to_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-029"
+  },
+  {
+   "question": "A 1.44 tonnes moon moves in a circle of radius 4.41e7 m about a 1.75e22 kg planet. Kinetic energy?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 1440.0,
+     "velocity_m_s": 162.7431026505193
+    },
+    "result": 19069428.57142857,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 1.75e+22,
+       "radius_m": 44100000.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 1440.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "orbit_kinetic_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-030"
+  },
+  {
+   "question": "How many electronvolts does the photon carry when hydrogen drops from n = 7 to n = 3?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 1.9772084895854286e-19
+    },
+    "result": 1.2340764729848313,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "rydberg_hydrogen_wavelength",
+      "args": {
+       "n_initial": 7,
+       "n_final": 3
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$2"
+      }
+     }
+    ],
+    "recipe": "hydrogen_photon_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-031"
+  },
+  {
+   "question": "What is the first ionization energy of argon?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "first_ionization_energy",
+    "args": {
+     "element_symbol": "Ar"
+    },
+    "result": 15.76,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "first_ionization_energy",
+      "args": {
+       "element_symbol": "Ar"
+      }
+     }
+    ],
+    "recipe": "ionization_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-032"
+  },
+  {
+   "question": "What is the first ionization energy of sulfur?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "first_ionization_energy",
+    "args": {
+     "element_symbol": "S"
+    },
+    "result": 10.36,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "first_ionization_energy",
+      "args": {
+       "element_symbol": "S"
+      }
+     }
+    ],
+    "recipe": "ionization_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-033"
+  },
+  {
+   "question": "What is the Hawking temperature of a black hole of 9.86 solar masses?",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "hawking_temperature",
+    "args": {
+     "mass_kg": 1.96057213251e+31
+    },
+    "result": 6.2578705955161465e-09,
+    "units": "K",
+    "plan": [
+     {
+      "tool": "hawking_temperature",
+      "args": {
+       "mass_kg": 1.96057213251e+31
+      }
+     }
+    ],
+    "recipe": "solar_hawking_temperature",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-14-034"
+  }
+ ]
+}
