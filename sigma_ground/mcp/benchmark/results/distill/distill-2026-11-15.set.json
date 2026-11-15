@@ -1,0 +1,1094 @@
+{
+ "suite": "distill-2026-11-15",
+ "generator": {
+  "date": "2026-11-15",
+  "seed": 992669236,
+  "rota": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "known_before": 1082,
+  "wild": [],
+  "made": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 2,
+   "astronomy": 1
+  },
+  "oracles": {
+   "agrees": 20,
+   "unchecked": 0,
+   "tool": 15,
+   "none": 0
+  }
+ },
+ "items": [
+  {
+   "question": "solve 3*x^2 + 5 = 21 for x",
+   "question_long": "If 3 x squared plus 5 = 21, what is x?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "3*x**2 + 5 = 21",
+     "variable": "x"
+    },
+    "result": [
+     "-4*sqrt(3)/3",
+     "4*sqrt(3)/3"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "3*x**2 + 5 = 21",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-000"
+  },
+  {
+   "question": "sum of (2/3)^n for n from 0 to infinity",
+   "question_long": "What does Σ_(n=0)^∞ (2/3)^n come to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "(2/3)**n",
+     "variable": "n",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "3",
+    "spec": {
+     "kind": "sum",
+     "expr": "(2/3)**n",
+     "var": "n",
+     "lo": "0",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-001"
+  },
+  {
+   "question": "curl of (sin(z), 2*z*y, 0)",
+   "question_long": "How much does the field (sin(z), 2*z*y, 0) rotate? Give the curl.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "sin(z), 2*z*y, 0"
+    },
+    "result": [
+     "-2*y",
+     "cos(z)",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "sin(z)",
+      "2*z*y",
+      "0"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-002"
+  },
+  {
+   "question": "[[3, -2, 0], [5, 1, -2], [-3, -4, 5]] * [[-3, 0, 4], [1, 5, -1], [4, 2, 2]]",
+   "question_long": "What do you get when you multiply the matrix with rows (3, -2, 0) and (5, 1, -2) and (-3, -4, 5) on the right by [[-3, 0, 4], [1, 5, -1], [4, 2, 2]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[3, -2, 0], [5, 1, -2], [-3, -4, 5]]",
+     "matrix_b": "[[-3, 0, 4], [1, 5, -1], [4, 2, 2]]"
+    },
+    "result": "[[-11, -10, 14], [-22, 1, 15], [25, -10, 2]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       3,
+       -2,
+       0
+      ],
+      [
+       5,
+       1,
+       -2
+      ],
+      [
+       -3,
+       -4,
+       5
+      ]
+     ],
+     "B": [
+      [
+       -3,
+       0,
+       4
+      ],
+      [
+       1,
+       5,
+       -1
+      ],
+      [
+       4,
+       2,
+       2
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-003"
+  },
+  {
+   "question": "[[4, 0, 3], [2, 5, -4], [-1, 2, 4]] * [[2, -3, 0], [5, 4, -2], [2, 0, 0]]",
+   "question_long": "What do you get when you multiply the matrix with rows (4, 0, 3) and (2, 5, -4) and (-1, 2, 4) on the right by [2 -3 0; 5 4 -2; 2 0 0]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[4, 0, 3], [2, 5, -4], [-1, 2, 4]]",
+     "matrix_b": "[[2, -3, 0], [5, 4, -2], [2, 0, 0]]"
+    },
+    "result": "[[14, -12, 0], [21, 14, -10], [16, 11, -4]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       4,
+       0,
+       3
+      ],
+      [
+       2,
+       5,
+       -4
+      ],
+      [
+       -1,
+       2,
+       4
+      ]
+     ],
+     "B": [
+      [
+       2,
+       -3,
+       0
+      ],
+      [
+       5,
+       4,
+       -2
+      ],
+      [
+       2,
+       0,
+       0
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-004"
+  },
+  {
+   "question": "sum of 2*k + 1 for k from 0 to 20",
+   "question_long": "What does Σ_(k=0)^20 2k + 1 come to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "2*k + 1",
+     "variable": "k",
+     "lower": "0",
+     "upper": "20"
+    },
+    "result": "441",
+    "spec": {
+     "kind": "sum",
+     "expr": "2*k + 1",
+     "var": "k",
+     "lo": "0",
+     "hi": "20"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-005"
+  },
+  {
+   "question": "determinant of [[-3, 2], [-3, 3]]",
+   "question_long": "What is |A| for A = [[-3, 2], [-3, 3]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[-3, 2], [-3, 3]]"
+    },
+    "result": "-3",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       -3,
+       2
+      ],
+      [
+       -3,
+       3
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-006"
+  },
+  {
+   "question": "derivative of sqrt(x)",
+   "question_long": "I need the rate of change of square root of x.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sqrt(x)"
+    },
+    "result": "1/(2*sqrt(x))",
+    "spec": {
+     "kind": "diff",
+     "expr": "sqrt(x)",
+     "var": "x",
+     "order": 1
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-007"
+  },
+  {
+   "question": "series expansion of cos(x) at x = 0 to order 5",
+   "question_long": "Series for cosine of x around 0, to order 5.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "cos(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 5
+    },
+    "result": "x**4/24 - x**2/2 + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "cos(x)",
+     "var": "x",
+     "point": "0",
+     "order": 5
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-008"
+  },
+  {
+   "question": "eigenvalues of [[1, 1], [1, 1]]",
+   "question_long": "Which numbers λ satisfy det(A - λI) = 0 for A = [[1, 1], [1, 1]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[1, 1], [1, 1]]"
+    },
+    "result": [
+     "2",
+     "0"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       1,
+       1
+      ],
+      [
+       1,
+       1
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-009"
+  },
+  {
+   "question": "curl of (0, 0, z^2 - y)",
+   "question_long": "How much does the field (0, 0, z**2 - y) rotate? Give the curl.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "0, 0, z**2 - y"
+    },
+    "result": [
+     "-1",
+     "0",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "0",
+      "0",
+      "z**2 - y"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-010"
+  },
+  {
+   "question": "gradient of x*y*z",
+   "question_long": "Give ∇f for f = x*y*z?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "gradient",
+    "args": {
+     "scalar_field": "x*y*z"
+    },
+    "result": [
+     "y*z",
+     "x*z",
+     "x*y"
+    ],
+    "spec": {
+     "kind": "grad",
+     "expr": "x*y*z",
+     "vars": "x,y,z"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-011"
+  },
+  {
+   "question": "inverse of [[2, 3], [-2, 5]]",
+   "question_long": "What is A^-1 for A = the matrix with rows (2, 3) and (-2, 5)?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[2, 3], [-2, 5]]"
+    },
+    "result": "[[5/16, -3/16], [1/8, 1/8]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       2,
+       3
+      ],
+      [
+       -2,
+       5
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-012"
+  },
+  {
+   "question": "[[-3, 3], [0, 5], [-1, 1]] * [[5, -2, 3], [-4, -2, -2]]",
+   "question_long": "What do you get when you multiply the matrix with rows (-3, 3) and (0, 5) and (-1, 1) on the right by [[5, -2, 3], [-4, -2, -2]]",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[-3, 3], [0, 5], [-1, 1]]",
+     "matrix_b": "[[5, -2, 3], [-4, -2, -2]]"
+    },
+    "result": "[[-27, 0, -15], [-20, -10, -10], [-9, 0, -5]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       -3,
+       3
+      ],
+      [
+       0,
+       5
+      ],
+      [
+       -1,
+       1
+      ]
+     ],
+     "B": [
+      [
+       5,
+       -2,
+       3
+      ],
+      [
+       -4,
+       -2,
+       -2
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-013"
+  },
+  {
+   "question": "solve [[-2, 2], [5, -1]] x = [7, 2]",
+   "question_long": "Given A = the matrix with rows (-2, 2) and (5, -1) and b = (7, 2), what x solves A x = b?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_linear_system",
+    "args": {
+     "matrix_a": "[[-2, 2], [5, -1]]",
+     "vector_b": "[7, 2]"
+    },
+    "result": [
+     "11/8",
+     "39/8"
+    ],
+    "spec": {
+     "kind": "lin",
+     "A": [
+      [
+       -2,
+       2
+      ],
+      [
+       5,
+       -1
+      ]
+     ],
+     "b": [
+      7,
+      2
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-014"
+  },
+  {
+   "question": "divergence of (w*u^2, u*w, w + u)",
+   "question_long": "How much does the field (w*u^2, u*w, w + u) spread out at a point? Give the divergence, with respect to u, v, w",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "w*u**2, u*w, w + u",
+     "variables": "u,v,w"
+    },
+    "result": "2*u*w + 1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "w*u**2",
+      "u*w",
+      "w + u"
+     ],
+     "names": [
+      "u",
+      "v",
+      "w"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-015"
+  },
+  {
+   "question": "solve -7*x^2 + 4*x = 0 for x",
+   "question_long": "Where does -7*x**2 + 4*x cross zero",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "-7*x**2 + 4*x",
+     "variable": "x"
+    },
+    "result": [
+     "0",
+     "4/7"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "-7*x**2 + 4*x",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-016"
+  },
+  {
+   "question": "expand (x - 5)*(x + 2)",
+   "question_long": "Write (x - 5)(x + 2) without brackets?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x - 5)*(x + 2)"
+    },
+    "result": "x**2 - 3*x - 10",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x - 5)*(x + 2)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-017"
+  },
+  {
+   "question": "curl of (sin(z), x + y, 3*y)",
+   "question_long": "How much does the field (sin(z), x + y, 3*y) rotate? Give the curl.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "sin(z), x + y, 3*y"
+    },
+    "result": [
+     "3",
+     "cos(z)",
+     "1"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "sin(z)",
+      "x + y",
+      "3*y"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-018"
+  },
+  {
+   "question": "divergence of (x^2, 0, x^2 - z)",
+   "question_long": "How much does the field (x**2, 0, x**2 - z) spread out at a point? Give the divergence",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x**2, 0, x**2 - z"
+    },
+    "result": "2*x - 1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "x**2",
+      "0",
+      "x**2 - z"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-15-019"
+  },
+  {
+   "question": "Express the rest-mass energy of 5.91 g in kilotons of TNT.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 531164310633459.25,
+     "unit": "kt"
+    },
+    "result": 126.9513170730065,
+    "units": "kt_TNT",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 0.00591
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1",
+       "unit": "kt"
+      }
+     }
+    ],
+    "recipe": "mass_to_tnt_kilotons",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-020"
+  },
+  {
+   "question": "A 31.4 Ω heating element runs on 143 V. How many watts is that?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "electrical_power",
+    "args": {
+     "voltage_v": 143.0,
+     "current_a": 4.554140127388536
+    },
+    "result": 651.2420382165606,
+    "units": "W",
+    "plan": [
+     {
+      "tool": "ohms_law_current",
+      "args": {
+       "voltage_v": 143.0,
+       "resistance_ohm": 31.4
+      }
+     },
+     {
+      "tool": "electrical_power",
+      "args": {
+       "voltage_v": 143.0,
+       "current_a": "$1"
+      }
+     }
+    ],
+    "recipe": "ohm_current_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-021"
+  },
+  {
+   "question": "Momentum of a 0.317 tonnes moon going round a 1.43e27 kg planet at 139 million km from the centre?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "momentum",
+    "args": {
+     "mass_kg": 317.0,
+     "velocity_m_s": 828.6353955178574
+    },
+    "result": 262677.4203791608,
+    "units": "kg m/s",
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 1.43e+27,
+       "radius_m": 139000000000.0
+      }
+     },
+     {
+      "tool": "momentum",
+      "args": {
+       "mass_kg": 317.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "orbit_momentum",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-022"
+  },
+  {
+   "question": "Photon energy at the Wien peak for 5.68e3 K?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "photon_energy_from_wavelength",
+    "args": {
+     "wavelength_m": 5.101711188380282e-07
+    },
+    "result": 3.893685437262987e-19,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "blackbody_peak_wavelength",
+      "args": {
+       "temperature_k": 5680.0
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "recipe": "blackbody_peak_photon",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-023"
+  },
+  {
+   "question": "Escape energy for a 85.7 kg lander on a 1.71e22 kg planet whose radius is 1.8e7 m?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 85.7,
+     "velocity_m_s": 356.10630435306814
+    },
+    "result": 5433881.345,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "escape_velocity",
+      "args": {
+       "mass_kg": 1.71e+22,
+       "radius_m": 18000000.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 85.7,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "escape_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-024"
+  },
+  {
+   "question": "A bomb fissions 0.363 kg of uranium-235. Give its yield as tons of TNT.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 29802241675501.074
+    },
+    "result": 7122.906710205802,
+    "units": "ton_TNT",
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 0.363,
+       "isotope": "U235"
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "fission_tnt",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-025"
+  },
+  {
+   "question": "Photon energy at the Wien peak for 2.73e4 K?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "photon_energy_from_wavelength",
+    "args": {
+     "wavelength_m": 1.0614549285714285e-07
+    },
+    "result": 1.871436838684499e-18,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "blackbody_peak_wavelength",
+      "args": {
+       "temperature_k": 27300.0
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "recipe": "blackbody_peak_photon",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-026"
+  },
+  {
+   "question": "The full mass-energy of 4.33 kg, in tons of TNT?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 3.8916099239304205e+17
+    },
+    "result": 93011709.46296416,
+    "units": "ton_TNT",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 4.33
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_to_tnt",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-027"
+  },
+  {
+   "question": "Convert 256 kWh to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 256.0,
+     "from_units": "kWh",
+     "to_units": "J"
+    },
+    "result": 921600000.0,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 256.0,
+       "from_units": "kWh",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_kwh_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-028"
+  },
+  {
+   "question": "What is 65.3 percent of the rest energy of 2.7 mg of matter?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 65.3,
+     "value": 242663898258.94077
+    },
+    "result": 158459525563.08832,
+    "units": "",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 2.7e-06
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 65.3,
+       "value": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_energy_percent",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-029"
+  },
+  {
+   "question": "Escape energy for a 59.9 kg lander on a 2.25e26 kg planet whose radius is 1.02e6 m?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 59.9,
+     "velocity_m_s": 171596.73999371487
+    },
+    "result": 881890963235.294,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "escape_velocity",
+      "args": {
+       "mass_kg": 2.25e+26,
+       "radius_m": 1020000.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 59.9,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "escape_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-030"
+  },
+  {
+   "question": "A 138 kg moon moves in a circle of radius 11.8 million km about a 1.55e25 kg planet. Kinetic energy?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 138.0,
+     "velocity_m_s": 296.09270479109824
+    },
+    "result": 6049291.398305084,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 1.55e+25,
+       "radius_m": 11800000000.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 138.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "orbit_kinetic_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-031"
+  },
+  {
+   "question": "What is the first ionization energy of calcium?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "first_ionization_energy",
+    "args": {
+     "element_symbol": "Ca"
+    },
+    "result": 6.113,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "first_ionization_energy",
+      "args": {
+       "element_symbol": "Ca"
+      }
+     }
+    ],
+    "recipe": "ionization_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-032"
+  },
+  {
+   "question": "What is the first ionization energy of sodium?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "first_ionization_energy",
+    "args": {
+     "element_symbol": "Na"
+    },
+    "result": 5.139,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "first_ionization_energy",
+      "args": {
+       "element_symbol": "Na"
+      }
+     }
+    ],
+    "recipe": "ionization_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-033"
+  },
+  {
+   "question": "What is the ISCO radius for a 26.9 solar masses black hole?",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "isco_radius",
+    "args": {
+     "mass_kg": 5.34882255218e+31
+    },
+    "result": 238327.28114139006,
+    "units": "m",
+    "plan": [
+     {
+      "tool": "isco_radius",
+      "args": {
+       "mass_kg": 5.34882255218e+31
+      }
+     }
+    ],
+    "recipe": "solar_isco_radius",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-15-034"
+  }
+ ]
+}
