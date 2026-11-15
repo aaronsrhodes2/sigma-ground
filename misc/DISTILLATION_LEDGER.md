@@ -17,9 +17,10 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | 2026-11-07 | 40 | 35 | 33 | wrong_value 2 | 5 | 29 / 11 | 17 / 7 | bfb2892 |
 | 2026-11-09 | 37 | 35 | 34 | wrong_value 1 | 2 | 27 / 10 | 14 / 8 | bfb2892 |
 | 2026-11-10 | 40 | 35 | 35 | none | 5 | 32 / 8 | 17 / 6 | bfb2892 |
-| 2026-11-11 | 40 | 35 | 30 | wrong_value 5 | 5 | 29 / 11 | 11 / 10 | bfb2892 |
-| 2026-11-12 | 40 | 35 | 34 | wrong_value 1 | 5 | 25 / 15 | 15 / 6 | bfb2892 |
-| 2026-11-13 | 35 | 35 | 34 | wrong_value 1 | 0 | 28 / 7 | 15 / 8 | bfb2892 |
+| 2026-11-11 | 40 | 35 | 30 | wrong_value 5 | 5 | 29 / 11 | 11 / 10 | 00afc1e |
+| 2026-11-12 | 40 | 35 | 34 | wrong_value 1 | 5 | 25 / 15 | 15 / 6 | 00afc1e |
+| 2026-11-13 | 35 | 35 | 34 | wrong_value 1 | 0 | 28 / 7 | 15 / 8 | 00afc1e |
+| 2026-11-14 | 35 | 35 | 35 | none | 0 | 25 / 10 | 15 / 5 | 00afc1e |
 
 ## Causes, grouped: the candidate fixes
 
