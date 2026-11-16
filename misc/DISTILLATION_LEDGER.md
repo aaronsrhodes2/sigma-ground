@@ -21,6 +21,7 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | 2026-11-12 | 40 | 35 | 34 | wrong_value 1 | 5 | 25 / 15 | 15 / 6 | 00afc1e |
 | 2026-11-13 | 35 | 35 | 34 | wrong_value 1 | 0 | 28 / 7 | 15 / 8 | 00afc1e |
 | 2026-11-14 | 35 | 35 | 35 | none | 0 | 25 / 10 | 15 / 5 | 00afc1e |
+| 2026-11-15 | 35 | 35 | 35 | none | 0 | 22 / 13 | 17 / 2 | bfb2892 |
 
 ## Causes, grouped: the candidate fixes
 
