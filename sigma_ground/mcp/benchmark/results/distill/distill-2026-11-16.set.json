@@ -1,0 +1,1013 @@
+{
+ "suite": "distill-2026-11-16",
+ "generator": {
+  "date": "2026-11-16",
+  "seed": 2940233119,
+  "rota": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "known_before": 1117,
+  "wild": [],
+  "made": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 2,
+   "astronomy": 1
+  },
+  "oracles": {
+   "agrees": 20,
+   "unchecked": 0,
+   "tool": 15,
+   "none": 0
+  }
+ },
+ "items": [
+  {
+   "question": "factor 2*x^2 + 8*x + 3",
+   "question_long": "Express 2x^2 + 8x + 3 as a product.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "2*x**2 + 8*x + 3"
+    },
+    "result": "2*x**2 + 8*x + 3",
+    "spec": {
+     "kind": "factor",
+     "expr": "2*x**2 + 8*x + 3",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-000"
+  },
+  {
+   "question": "inverse of [[5, -2, -3], [2, 2, 4], [4, 3, -3]]",
+   "question_long": "What is A^-1 for A = [[5, -2, -3], [2, 2, 4], [4, 3, -3]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[5, -2, -3], [2, 2, 4], [4, 3, -3]]"
+    },
+    "result": "[[9/64, 15/128, 1/64], [-11/64, 3/128, 13/64], [1/64, 23/128, -7/64]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       5,
+       -2,
+       -3
+      ],
+      [
+       2,
+       2,
+       4
+      ],
+      [
+       4,
+       3,
+       -3
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-001"
+  },
+  {
+   "question": "integral of tan(u) du",
+   "question_long": "Give me an antiderivative for tan(u).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "tan(u)",
+     "variable": "u"
+    },
+    "result": "-log(cos(u))",
+    "spec": {
+     "kind": "int",
+     "expr": "tan(u)",
+     "var": "u"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-002"
+  },
+  {
+   "question": "curl of (w^2, 0, 0)",
+   "question_long": "How much does the field (w**2, 0, 0) rotate? Give the curl, with respect to u, v, w",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "w**2, 0, 0",
+     "variables": "u,v,w"
+    },
+    "result": [
+     "0",
+     "2*w",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "w**2",
+      "0",
+      "0"
+     ],
+     "names": [
+      "u",
+      "v",
+      "w"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-003"
+  },
+  {
+   "question": "divergence of (t*s^2, 0, t)",
+   "question_long": "How much does the field (t*s^2, 0, t) spread out at a point? Give the divergence in the variables r, s, t",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "t*s**2, 0, t",
+     "variables": "r,s,t"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "t*s**2",
+      "0",
+      "t"
+     ],
+     "names": [
+      "r",
+      "s",
+      "t"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-004"
+  },
+  {
+   "question": "integrate x/(x^2 + 1) from 0 to 1",
+   "question_long": "Over the interval [0, 1], what is the integral of x/(x^2 + 1)?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "x/(x**2 + 1)",
+     "variable": "x",
+     "lower": "0",
+     "upper": "1"
+    },
+    "result": "log(2)/2",
+    "spec": {
+     "kind": "int_def",
+     "expr": "x/(x**2 + 1)",
+     "var": "x",
+     "lo": "0",
+     "hi": "1"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-005"
+  },
+  {
+   "question": "solve -x^3 - 4*x^2 + 4*x + 2 = 0 for x",
+   "question_long": "Find every x that satisfies -x^3 - 4x^2 + 4x + 2 = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "-x**3 - 4*x**2 + 4*x + 2",
+     "variable": "x"
+    },
+    "result": [
+     "-4/3 - 28/(3*(-1/2 - sqrt(3)*I/2)*(109 + 3*sqrt(1119)*I)**(1/3)) - (-1/2 - sqrt(3)*I/2)*(109 + 3*sqrt(1119)*I)**(1/3)/3",
+     "-4/3 - (-1/2 + sqrt(3)*I/2)*(109 + 3*sqrt(1119)*I)**(1/3)/3 - 28/(3*(-1/2 + sqrt(3)*I/2)*(109 + 3*sqrt(1119)*I)**(1/3))",
+     "-4/3 - (109 + 3*sqrt(1119)*I)**(1/3)/3 - 28/(3*(109 + 3*sqrt(1119)*I)**(1/3))"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "-x**3 - 4*x**2 + 4*x + 2",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-006"
+  },
+  {
+   "question": "divergence of (4*s*r, r*s^2, s*t)",
+   "question_long": "How much does the field (4*s*r, r*s^2, s*t) spread out at a point? Give the divergence, with respect to r, s, t",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "4*s*r, r*s**2, s*t",
+     "variables": "r,s,t"
+    },
+    "result": "s*(2*r + 5)",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "4*s*r",
+      "r*s**2",
+      "s*t"
+     ],
+     "names": [
+      "r",
+      "s",
+      "t"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-007"
+  },
+  {
+   "question": "determinant of [[4, 5], [3, 2]]",
+   "question_long": "Work out the determinant of this matrix: the matrix with rows (4, 5) and (3, 2)",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[4, 5], [3, 2]]"
+    },
+    "result": "-7",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       4,
+       5
+      ],
+      [
+       3,
+       2
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-008"
+  },
+  {
+   "question": "integral of cos(3*u) du",
+   "question_long": "Give me an antiderivative for cos(3u).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "cos(3*u)",
+     "variable": "u"
+    },
+    "result": "sin(3*u)/3",
+    "spec": {
+     "kind": "int",
+     "expr": "cos(3*u)",
+     "var": "u"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-009"
+  },
+  {
+   "question": "limit of (1 + 1/t)^t as t -> infinity",
+   "question_long": "As t gets closer and closer to positive infinity, what value does (1 + 1/t)**t settle on?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "(1 + 1/t)**t",
+     "variable": "t",
+     "point": "oo"
+    },
+    "result": "E",
+    "spec": {
+     "kind": "limit",
+     "expr": "(1 + 1/t)**t",
+     "var": "t",
+     "point": "oo",
+     "dir": "+-"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-010"
+  },
+  {
+   "question": "inverse of [[-2, 1, 3], [-1, -1, -4], [0, 3, 3]]",
+   "question_long": "Give me the matrix that undoes [-2 1 3; -1 -1 -4; 0 3 3].",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[-2, 1, 3], [-1, -1, -4], [0, 3, 3]]"
+    },
+    "result": "[[-3/8, -1/4, 1/24], [-1/8, 1/4, 11/24], [1/8, -1/4, -1/8]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       -2,
+       1,
+       3
+      ],
+      [
+       -1,
+       -1,
+       -4
+      ],
+      [
+       0,
+       3,
+       3
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-011"
+  },
+  {
+   "question": "solve y'' - 9*y' + 20*y = 0",
+   "question_long": "Give me every function y(x) with y'' - 9y' + 20y = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y'' - 9*y' + 20*y"
+    },
+    "result": "Eq(y(x), (C1 + C2*exp(x))*exp(4*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y'' - 9*y' + 20*y",
+     "fn": "y",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-012"
+  },
+  {
+   "question": "limit of x^2/exp(x) as x -> infinity",
+   "question_long": "Determine lim x^2/e^x when x → infinity.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "x**2/exp(x)",
+     "point": "oo"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "limit",
+     "expr": "x**2/exp(x)",
+     "var": "x",
+     "point": "oo",
+     "dir": "+-"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-013"
+  },
+  {
+   "question": "[[-3, 5, -4], [4, -1, 0], [0, -1, 4]] * [[-1, -4, -1], [1, -2, -4], [4, 1, -2]]",
+   "question_long": "What do you get when you multiply [[-3, 5, -4], [4, -1, 0], [0, -1, 4]] on the right by [[-1, -4, -1], [1, -2, -4], [4, 1, -2]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[-3, 5, -4], [4, -1, 0], [0, -1, 4]]",
+     "matrix_b": "[[-1, -4, -1], [1, -2, -4], [4, 1, -2]]"
+    },
+    "result": "[[-8, -2, -9], [-5, -14, 0], [15, 6, -4]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       -3,
+       5,
+       -4
+      ],
+      [
+       4,
+       -1,
+       0
+      ],
+      [
+       0,
+       -1,
+       4
+      ]
+     ],
+     "B": [
+      [
+       -1,
+       -4,
+       -1
+      ],
+      [
+       1,
+       -2,
+       -4
+      ],
+      [
+       4,
+       1,
+       -2
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-014"
+  },
+  {
+   "question": "Laplace transform of sin(2*t)",
+   "question_long": "Apply the Laplace transform to sine of 2 t.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "sin(2*t)"
+    },
+    "result": "2/(s**2 + 4)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "sin(2*t)",
+     "var": "t",
+     "svar": "s"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-015"
+  },
+  {
+   "question": "eigenvalues of [[8, 4], [0, 4]]",
+   "question_long": "Which numbers λ satisfy det(A - λI) = 0 for A = [[8, 4], [0, 4]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[8, 4], [0, 4]]"
+    },
+    "result": [
+     "4",
+     "8"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       8,
+       4
+      ],
+      [
+       0,
+       4
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-016"
+  },
+  {
+   "question": "solve u' - 6*u = 0 for u(t)",
+   "question_long": "Give me every function u(t) with u' - 6*u = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "u' - 6*u",
+     "func": "u",
+     "variable": "t"
+    },
+    "result": "Eq(u(t), C1*exp(6*t))",
+    "spec": {
+     "kind": "ode",
+     "eq": "u' - 6*u",
+     "fn": "u",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-017"
+  },
+  {
+   "question": "sum of 2*n + 1 for n from 1 to 20",
+   "question_long": "what does Σ_(n=1)^20 2n + 1 come to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "2*n + 1",
+     "variable": "n",
+     "lower": "1",
+     "upper": "20"
+    },
+    "result": "440",
+    "spec": {
+     "kind": "sum",
+     "expr": "2*n + 1",
+     "var": "n",
+     "lo": "1",
+     "hi": "20"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-018"
+  },
+  {
+   "question": "solve 6*x^2 + 7*x - 8 = 0 for x",
+   "question_long": "Where does 6x² + 7x - 8 cross zero",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "6*x**2 + 7*x - 8",
+     "variable": "x"
+    },
+    "result": [
+     "-7/12 + sqrt(241)/12",
+     "-sqrt(241)/12 - 7/12"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "6*x**2 + 7*x - 8",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-16-019"
+  },
+  {
+   "question": "How many joules of electricity does a plant make from 5.55 kg of uranium-235 if its efficiency is 39.7 percent?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 39.7,
+     "value": 455654108261793.2
+    },
+    "result": 180894680979931.9,
+    "units": "",
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 5.55,
+       "isotope": "U235"
+      }
+     },
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 39.7,
+       "value": "$1"
+      }
+     }
+    ],
+    "recipe": "fission_electricity",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-020"
+  },
+  {
+   "question": "A 2.63 Ω load carries 9.36 mA; how many watts does it consume?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "electrical_power",
+    "args": {
+     "voltage_v": 0.0246168,
+     "current_a": 0.00936
+    },
+    "result": 0.00023041324800000002,
+    "units": "W",
+    "plan": [
+     {
+      "tool": "ohms_law_voltage",
+      "args": {
+       "current_a": 0.00936,
+       "resistance_ohm": 2.63
+      }
+     },
+     {
+      "tool": "electrical_power",
+      "args": {
+       "voltage_v": "$1",
+       "current_a": 0.00936
+      }
+     }
+    ],
+    "recipe": "ohm_voltage_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-021"
+  },
+  {
+   "question": "What mass disappears in a 18.6-kiloton nuclear explosion?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "energy_to_mass",
+    "args": {
+     "energy_j": 77822400000000.0
+    },
+    "result": 0.0008658909772222712,
+    "units": "kg",
+    "plan": [
+     {
+      "tool": "tnt_to_joules",
+      "args": {
+       "tnt_amount": 18.6,
+       "unit": "kt"
+      }
+     },
+     {
+      "tool": "energy_to_mass",
+      "args": {
+       "energy_j": "$1"
+      }
+     }
+    ],
+    "recipe": "tnt_to_mass",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-022"
+  },
+  {
+   "question": "A 150 Ω load carries 0.275 A; how many watts does it consume?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "electrical_power",
+    "args": {
+     "voltage_v": 41.25,
+     "current_a": 0.275
+    },
+    "result": 11.343750000000002,
+    "units": "W",
+    "plan": [
+     {
+      "tool": "ohms_law_voltage",
+      "args": {
+       "current_a": 0.275,
+       "resistance_ohm": 150.0
+      }
+     },
+     {
+      "tool": "electrical_power",
+      "args": {
+       "voltage_v": "$1",
+       "current_a": 0.275
+      }
+     }
+    ],
+    "recipe": "ohm_voltage_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-023"
+  },
+  {
+   "question": "A 86.2 kg stone falls freely for 482 m. Kinetic energy at the bottom?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 86.2,
+     "velocity_m_s": 97.22967962510212
+    },
+    "result": 407450.61685999995,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "free_fall_velocity",
+      "args": {
+       "height_m": 482.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 86.2,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "drop_impact_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-024"
+  },
+  {
+   "question": "Convert 18.5 keV to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 18.5,
+     "from_units": "keV",
+     "to_units": "J"
+    },
+    "result": 2.9640267728999998e-15,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 18.5,
+       "from_units": "keV",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_kev_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-025"
+  },
+  {
+   "question": "Convert 81.7 km/h to metres per second.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 81.7,
+     "from_units": "km/h",
+     "to_units": "m/s"
+    },
+    "result": 22.694444444444446,
+    "units": "meter / second",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 81.7,
+       "from_units": "km/h",
+       "to_units": "m/s"
+      }
+     }
+    ],
+    "recipe": "convert_kmh_ms",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-026"
+  },
+  {
+   "question": "Convert 1.88 eV to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 1.88,
+     "from_units": "eV",
+     "to_units": "J"
+    },
+    "result": 3.01209207192e-19,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 1.88,
+       "from_units": "eV",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_ev_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-027"
+  },
+  {
+   "question": "Fully splitting 3.04 kg of Pu-239 releases how many megatons of TNT?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 245398730782839.78,
+     "unit": "MT"
+    },
+    "result": 0.05865170429800186,
+    "units": "MT_TNT",
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 3.04,
+       "isotope": "Pu239"
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1",
+       "unit": "MT"
+      }
+     }
+    ],
+    "recipe": "fission_tnt_megatons",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-028"
+  },
+  {
+   "question": "What is 80.1 percent of 6.03 kg?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 80.1,
+     "value": 6.03
+    },
+    "result": 4.83003,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 80.1,
+       "value": 6.03
+      }
+     }
+    ],
+    "recipe": "percent_of_mass",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-029"
+  },
+  {
+   "question": "What is 15.2 percent of 22.6 W?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 15.2,
+     "value": 22.6
+    },
+    "result": 3.4352,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 15.2,
+       "value": 22.6
+      }
+     }
+    ],
+    "recipe": "percent_of_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-030"
+  },
+  {
+   "question": "Fully splitting 1.54 kg of Pu-239 releases how many megatons of TNT?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 124313830725517.48,
+     "unit": "MT"
+    },
+    "result": 0.02971171862464567,
+    "units": "MT_TNT",
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 1.54,
+       "isotope": "Pu239"
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1",
+       "unit": "MT"
+      }
+     }
+    ],
+    "recipe": "fission_tnt_megatons",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-031"
+  },
+  {
+   "question": "doubly ionized lithium: how much energy is the n = 5 level?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "hydrogen_like_energy_level",
+    "args": {
+     "n": 5,
+     "atomic_number": 3
+    },
+    "result": -4.89804952427784,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "hydrogen_like_energy_level",
+      "args": {
+       "n": 5,
+       "atomic_number": 3
+      }
+     }
+    ],
+    "recipe": "level_hydrogen_like",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-032"
+  },
+  {
+   "question": "What is the first ionization energy of silicon?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "first_ionization_energy",
+    "args": {
+     "element_symbol": "Si"
+    },
+    "result": 8.152,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "first_ionization_energy",
+      "args": {
+       "element_symbol": "Si"
+      }
+     }
+    ],
+    "recipe": "ionization_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-033"
+  },
+  {
+   "question": "At what radius can light orbit a black hole of 3.96 solar masses?",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "photon_sphere_radius",
+    "args": {
+     "mass_kg": 7.87410308796e+30
+    },
+    "result": 17542.305452025947,
+    "units": "m",
+    "plan": [
+     {
+      "tool": "photon_sphere_radius",
+      "args": {
+       "mass_kg": 7.87410308796e+30
+      }
+     }
+    ],
+    "recipe": "solar_photon_sphere_radius",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-16-034"
+  }
+ ]
+}
