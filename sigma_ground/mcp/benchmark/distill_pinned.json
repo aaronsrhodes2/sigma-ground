@@ -855,6 +855,29 @@
     ],
     "oracle": "agrees"
    }
+  },
+  {
+   "id": "distill-2026-11-16-003",
+   "day": "2026-11-16",
+   "reason": "fixed_miss",
+   "question": "curl of (w^2, 0, 0)",
+   "domain": "math",
+   "signature": [
+    "curl"
+   ],
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "w**2, 0, 0",
+     "variables": "u,v,w"
+    },
+    "result": [
+     "0",
+     "2*w",
+     "0"
+    ],
+    "oracle": "agrees"
+   }
   }
  ],
  "open_misses": [
@@ -953,6 +976,38 @@
    "cause": "wrong_value",
    "tool": "fourier_transform",
    "got": "0"
+  },
+  {
+   "id": "distill-2026-11-16-004",
+   "day": "2026-11-16",
+   "question": "divergence of (t*s^2, 0, t)",
+   "cause": "no_route",
+   "tool": "divergence",
+   "got": null
+  },
+  {
+   "id": "distill-2026-11-16-007",
+   "day": "2026-11-16",
+   "question": "divergence of (4*s*r, r*s^2, s*t)",
+   "cause": "wrong_value",
+   "tool": "divergence",
+   "got": "s**2 + t"
+  },
+  {
+   "id": "distill-2026-11-16-028",
+   "day": "2026-11-16",
+   "question": "Fully splitting 3.04 kg of Pu-239 releases how many megatons of TNT?",
+   "cause": "wrong_value",
+   "tool": "joules_to_TNT",
+   "got": 65.30152350286629
+  },
+  {
+   "id": "distill-2026-11-16-031",
+   "day": "2026-11-16",
+   "question": "Fully splitting 1.54 kg of Pu-239 releases how many megatons of TNT?",
+   "cause": "wrong_value",
+   "tool": "joules_to_TNT",
+   "got": 33.08037703763621
   }
  ]
 }
