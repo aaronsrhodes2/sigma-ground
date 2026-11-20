@@ -1008,6 +1008,14 @@
    "cause": "wrong_value",
    "tool": "joules_to_TNT",
    "got": 33.08037703763621
+  },
+  {
+   "id": "distill-2026-11-19-006",
+   "day": "2026-11-19",
+   "question": "divergence of (0, v*u, v^2 - u)",
+   "cause": "no_route",
+   "tool": "divergence",
+   "got": null
   }
  ]
 }
