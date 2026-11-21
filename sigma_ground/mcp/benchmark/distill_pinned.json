@@ -1016,6 +1016,14 @@
    "cause": "no_route",
    "tool": "divergence",
    "got": null
+  },
+  {
+   "id": "distill-2026-11-20-034",
+   "day": "2026-11-20",
+   "question": "Profile a 60 solar masses black hole.",
+   "cause": "wrong_value",
+   "tool": "procedure_black_hole_profile",
+   "got": 177195.004566015
   }
  ]
 }
