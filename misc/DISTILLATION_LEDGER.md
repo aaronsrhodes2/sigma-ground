@@ -25,6 +25,7 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | 2026-11-16 | 35 | 35 | 30 | no_route 1, wrong_value 4 | 0 | 25 / 10 | 12 / 9 | bfb2892 |
 | 2026-11-19 | 35 | 35 | 34 | no_route 1 | 0 | 23 / 12 | 12 / 7 | bfb2892 |
 | 2026-11-20 | 35 | 35 | 34 | wrong_value 1 | 0 | 25 / 10 | 13 / 8 | bfb2892 |
+| 2026-11-21 | 35 | 35 | 35 | none | 0 | 24 / 11 | 14 / 3 | bfb2892 |
 
 ## Causes, grouped: the candidate fixes
 
