@@ -1,0 +1,977 @@
+{
+ "suite": "distill-2026-11-22",
+ "generator": {
+  "date": "2026-11-22",
+  "seed": 3750637864,
+  "rota": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "known_before": 1257,
+  "wild": [],
+  "made": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 2,
+   "astronomy": 1
+  },
+  "oracles": {
+   "agrees": 20,
+   "unchecked": 0,
+   "tool": 15,
+   "none": 0
+  }
+ },
+ "items": [
+  {
+   "question": "solve y' - y = 0 for y(t)",
+   "question_long": "Give me every function y(t) with y' - y = 0",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y' - y",
+     "variable": "t"
+    },
+    "result": "Eq(y(t), C1*exp(t))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y' - y",
+     "fn": "y",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-000"
+  },
+  {
+   "question": "[[2, -2, 1], [-1, 3, 4], [5, -4, -3]] * [[-1, 3, 1], [2, -3, -1], [4, 5, 3]]",
+   "question_long": "What do you get when you multiply [[2, -2, 1], [-1, 3, 4], [5, -4, -3]] on the right by [[-1, 3, 1], [2, -3, -1], [4, 5, 3]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[2, -2, 1], [-1, 3, 4], [5, -4, -3]]",
+     "matrix_b": "[[-1, 3, 1], [2, -3, -1], [4, 5, 3]]"
+    },
+    "result": "[[-2, 17, 7], [23, 8, 8], [-25, 12, 0]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       2,
+       -2,
+       1
+      ],
+      [
+       -1,
+       3,
+       4
+      ],
+      [
+       5,
+       -4,
+       -3
+      ]
+     ],
+     "B": [
+      [
+       -1,
+       3,
+       1
+      ],
+      [
+       2,
+       -3,
+       -1
+      ],
+      [
+       4,
+       5,
+       3
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-001"
+  },
+  {
+   "question": "simplify (x + 1)^2 - (x - 1)^2",
+   "question_long": "Put (x + 1)² - (x - 1)² in its simplest form.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "simplify_expr",
+    "args": {
+     "expression": "(x + 1)**2 - (x - 1)**2"
+    },
+    "result": "4*x",
+    "spec": {
+     "kind": "simplify",
+     "expr": "(x + 1)**2 - (x - 1)**2",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-002"
+  },
+  {
+   "question": "derivative of (x^2 - 9)/(x - 3)",
+   "question_long": "I need the rate of change of (x^2 - 9)/(x - 3) with respect to x.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "(x**2 - 9)/(x - 3)",
+     "variable": "x"
+    },
+    "result": "2*x/(x - 3) - (x**2 - 9)/(x - 3)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "(x**2 - 9)/(x - 3)",
+     "var": "x",
+     "order": 1
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-003"
+  },
+  {
+   "question": "solve x^2 - 7 = 0 for x",
+   "question_long": "Find every x that satisfies x squared minus 7 = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 - 7",
+     "variable": "x"
+    },
+    "result": [
+     "-sqrt(7)",
+     "sqrt(7)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "x**2 - 7",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-004"
+  },
+  {
+   "question": "expand (x - 4)^2",
+   "question_long": "Multiply out the brackets in (x - 4)**2?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x - 4)**2"
+    },
+    "result": "x**2 - 8*x + 16",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x - 4)**2",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-005"
+  },
+  {
+   "question": "determinant of [[2, 3, 0], [4, 1, 1], [1, 5, 3]]",
+   "question_long": "What is |A| for A = [[2, 3, 0], [4, 1, 1], [1, 5, 3]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[2, 3, 0], [4, 1, 1], [1, 5, 3]]"
+    },
+    "result": "-37",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       2,
+       3,
+       0
+      ],
+      [
+       4,
+       1,
+       1
+      ],
+      [
+       1,
+       5,
+       3
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-006"
+  },
+  {
+   "question": "solve t^2 - 4*t + 6 = 0 for t",
+   "question_long": "Find every t that satisfies t**2 - 4*t + 6 = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "t**2 - 4*t + 6",
+     "variable": "t"
+    },
+    "result": [
+     "2 - sqrt(2)*I",
+     "2 + sqrt(2)*I"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "t**2 - 4*t + 6",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-007"
+  },
+  {
+   "question": "series expansion of sqrt(1 + x) at x = 0 to order 4",
+   "question_long": "Series for sqrt(1 + x) around 0, to order 4.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "sqrt(1 + x)",
+     "variable": "x",
+     "point": "0",
+     "order": 4
+    },
+    "result": "x**3/16 - x**2/8 + x/2 + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "sqrt(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 4
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-008"
+  },
+  {
+   "question": "limit of t*log(t) as t -> 0",
+   "question_long": "Approaching 0 from the right, what does t*log(t) tend to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "t*log(t)",
+     "variable": "t",
+     "point": "0",
+     "direction": "+"
+    },
+    "result": "0",
+    "spec": {
+     "kind": "limit",
+     "expr": "t*log(t)",
+     "var": "t",
+     "point": "0",
+     "dir": "+"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-009"
+  },
+  {
+   "question": "[[1, 1], [-3, 1], [1, 1]] * [[-1, 2, -4], [2, 2, -1]]",
+   "question_long": "What do you get when you multiply [[1, 1], [-3, 1], [1, 1]] on the right by [[-1, 2, -4], [2, 2, -1]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[1, 1], [-3, 1], [1, 1]]",
+     "matrix_b": "[[-1, 2, -4], [2, 2, -1]]"
+    },
+    "result": "[[1, 4, -5], [5, -4, 11], [1, 4, -5]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       1,
+       1
+      ],
+      [
+       -3,
+       1
+      ],
+      [
+       1,
+       1
+      ]
+     ],
+     "B": [
+      [
+       -1,
+       2,
+       -4
+      ],
+      [
+       2,
+       2,
+       -1
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-010"
+  },
+  {
+   "question": "integrate -7*x^4 - 3*x^3 + 5*x^2 - x + 1 from 0 to 3",
+   "question_long": "Find the exact value of ∫(-7*x**4 - 3*x**3 + 5*x**2 - x + 1) dx for x running from 0 up to 3.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "-7*x**4 - 3*x**3 + 5*x**2 - x + 1",
+     "variable": "x",
+     "lower": "0",
+     "upper": "3"
+    },
+    "result": "-7149/20",
+    "spec": {
+     "kind": "int_def",
+     "expr": "-7*x**4 - 3*x**3 + 5*x**2 - x + 1",
+     "var": "x",
+     "lo": "0",
+     "hi": "3"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-011"
+  },
+  {
+   "question": "integral of exp(x)*sin(x) dx",
+   "question_long": "Give me an antiderivative for e^x sin(x).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(x)*sin(x)"
+    },
+    "result": "exp(x)*sin(x)/2 - exp(x)*cos(x)/2",
+    "spec": {
+     "kind": "int",
+     "expr": "exp(x)*sin(x)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-012"
+  },
+  {
+   "question": "sum of 2*n for n from 1 to 5",
+   "question_long": "Total up 2*n with n going from 1 to 5.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "2*n",
+     "variable": "n",
+     "lower": "1",
+     "upper": "5"
+    },
+    "result": "30",
+    "spec": {
+     "kind": "sum",
+     "expr": "2*n",
+     "var": "n",
+     "lo": "1",
+     "hi": "5"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-013"
+  },
+  {
+   "question": "solve 2*x^2 - x + 3 = 7 for x",
+   "question_long": "If 2*x**2 - x + 3 = 7, what is x",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "2*x**2 - x + 3 = 7",
+     "variable": "x"
+    },
+    "result": [
+     "1/4 - sqrt(33)/4",
+     "1/4 + sqrt(33)/4"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "2*x**2 - x + 3 = 7",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-014"
+  },
+  {
+   "question": "derivative of tan(x)",
+   "question_long": "I need the rate of change of tan(x)?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "tan(x)"
+    },
+    "result": "tan(x)**2 + 1",
+    "spec": {
+     "kind": "diff",
+     "expr": "tan(x)",
+     "var": "x",
+     "order": 1
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-015"
+  },
+  {
+   "question": "solve t^2 - t + 12 = 0 for t",
+   "question_long": "Find every t that satisfies t² - t + 12 = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "t**2 - t + 12",
+     "variable": "t"
+    },
+    "result": [
+     "1/2 - sqrt(47)*I/2",
+     "1/2 + sqrt(47)*I/2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "t**2 - t + 12",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-016"
+  },
+  {
+   "question": "determinant of [[-4, -3], [-1, 3]]",
+   "question_long": "Work out the determinant of this matrix: [[-4, -3], [-1, 3]]",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[-4, -3], [-1, 3]]"
+    },
+    "result": "-15",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       -4,
+       -3
+      ],
+      [
+       -1,
+       3
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-017"
+  },
+  {
+   "question": "divergence of (v + u, v, u + v)",
+   "question_long": "How much does the field (v + u, v, u + v) spread out at a point? Give the divergence, with respect to u, v, w",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "v + u, v, u + v",
+     "variables": "u,v,w"
+    },
+    "result": "2",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "v + u",
+      "v",
+      "u + v"
+     ],
+     "names": [
+      "u",
+      "v",
+      "w"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-018"
+  },
+  {
+   "question": "derivative of sqrt(x^2 + 1)",
+   "question_long": "I need the rate of change of sqrt(x² + 1) with respect to x.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sqrt(x**2 + 1)",
+     "variable": "x"
+    },
+    "result": "x/sqrt(x**2 + 1)",
+    "spec": {
+     "kind": "diff",
+     "expr": "sqrt(x**2 + 1)",
+     "var": "x",
+     "order": 1
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-22-019"
+  },
+  {
+   "question": "A 3.7 tonnes vehicle is moving at 2.32 km/s. How many tons of TNT equal its kinetic energy?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 9957440000.0
+    },
+    "result": 2.379885277246654,
+    "units": "ton_TNT",
+    "plan": [
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 3700.0,
+       "velocity_m_s": 2320.0
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "kinetic_energy_tnt",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-020"
+  },
+  {
+   "question": "What mass disappears in a 252-megaton nuclear explosion?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "energy_to_mass",
+    "args": {
+     "energy_j": 1.054368e+18
+    },
+    "result": 11.731426143011417,
+    "units": "kg",
+    "plan": [
+     {
+      "tool": "tnt_to_joules",
+      "args": {
+       "tnt_amount": 252.0,
+       "unit": "MT"
+      }
+     },
+     {
+      "tool": "energy_to_mass",
+      "args": {
+       "energy_j": "$1"
+      }
+     }
+    ],
+    "recipe": "tnt_to_mass",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-021"
+  },
+  {
+   "question": "What is 16.8 percent of 3.01 W?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 16.8,
+     "value": 3.01
+    },
+    "result": 0.50568,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 16.8,
+       "value": 3.01
+      }
+     }
+    ],
+    "recipe": "percent_of_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-022"
+  },
+  {
+   "question": "A 14.2 Ω heating element runs on 252 V. How many watts is that?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "electrical_power",
+    "args": {
+     "voltage_v": 252.0,
+     "current_a": 17.746478873239436
+    },
+    "result": 4472.1126760563375,
+    "units": "W",
+    "plan": [
+     {
+      "tool": "ohms_law_current",
+      "args": {
+       "voltage_v": 252.0,
+       "resistance_ohm": 14.2
+      }
+     },
+     {
+      "tool": "electrical_power",
+      "args": {
+       "voltage_v": 252.0,
+       "current_a": "$1"
+      }
+     }
+    ],
+    "recipe": "ohm_current_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-023"
+  },
+  {
+   "question": "Convert 208 mph to metres per second.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 208.0,
+     "from_units": "mph",
+     "to_units": "m/s"
+    },
+    "result": 92.98432,
+    "units": "meter / second",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 208.0,
+       "from_units": "mph",
+       "to_units": "m/s"
+      }
+     }
+    ],
+    "recipe": "convert_mph_ms",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-024"
+  },
+  {
+   "question": "Convert 1.05e3 km/h to metres per second.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 1050.0,
+     "from_units": "km/h",
+     "to_units": "m/s"
+    },
+    "result": 291.6666666666667,
+    "units": "meter / second",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 1050.0,
+       "from_units": "km/h",
+       "to_units": "m/s"
+      }
+     }
+    ],
+    "recipe": "convert_kmh_ms",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-025"
+  },
+  {
+   "question": "Convert 0.21 atm to pascals.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 0.21,
+     "from_units": "atm",
+     "to_units": "Pa"
+    },
+    "result": 21278.25,
+    "units": "pascal",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 0.21,
+       "from_units": "atm",
+       "to_units": "Pa"
+      }
+     }
+    ],
+    "recipe": "convert_atm_pa",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-026"
+  },
+  {
+   "question": "Convert 65.8 kWh to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 65.8,
+     "from_units": "kWh",
+     "to_units": "J"
+    },
+    "result": 236880000.0,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 65.8,
+       "from_units": "kWh",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_kwh_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-027"
+  },
+  {
+   "question": "Convert 76.4 GeV to megaelectronvolts.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 76.4,
+     "from_units": "GeV",
+     "to_units": "MeV"
+    },
+    "result": 76400.0,
+    "units": "megaelectron_volt",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 76.4,
+       "from_units": "GeV",
+       "to_units": "MeV"
+      }
+     }
+    ],
+    "recipe": "convert_gev_mev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-028"
+  },
+  {
+   "question": "What is 81.6 percent of 15.3 m?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 81.6,
+     "value": 15.3
+    },
+    "result": 12.4848,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 81.6,
+       "value": 15.3
+      }
+     }
+    ],
+    "recipe": "percent_of_length",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-029"
+  },
+  {
+   "question": "What is 61.3 percent of 20.2 W?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 61.3,
+     "value": 20.2
+    },
+    "result": 12.3826,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 61.3,
+       "value": 20.2
+      }
+     }
+    ],
+    "recipe": "percent_of_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-030"
+  },
+  {
+   "question": "What is 44 percent of 1.53 kW?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 44.0,
+     "value": 1530.0
+    },
+    "result": 673.2,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 44.0,
+       "value": 1530.0
+      }
+     }
+    ],
+    "recipe": "percent_of_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-031"
+  },
+  {
+   "question": "singly ionized helium: how much energy is the n = 6 level?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "hydrogen_like_energy_level",
+    "args": {
+     "n": 6,
+     "atomic_number": 2
+    },
+    "result": -1.5117436803326667,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "hydrogen_like_energy_level",
+      "args": {
+       "n": 6,
+       "atomic_number": 2
+      }
+     }
+    ],
+    "recipe": "level_hydrogen_like",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-032"
+  },
+  {
+   "question": "singly ionized helium: how much energy is the n = 4 level?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "hydrogen_like_energy_level",
+    "args": {
+     "n": 4,
+     "atomic_number": 2
+    },
+    "result": -3.4014232807485,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "hydrogen_like_energy_level",
+      "args": {
+       "n": 4,
+       "atomic_number": 2
+      }
+     }
+    ],
+    "recipe": "level_hydrogen_like",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-033"
+  },
+  {
+   "question": "Horizon radius for 0.961 solar masses of collapsed matter?",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "schwarzschild_radius",
+    "args": {
+     "mass_kg": 1.91086188574e+30
+    },
+    "result": 2838.0733231311115,
+    "units": "m",
+    "plan": [
+     {
+      "tool": "schwarzschild_radius",
+      "args": {
+       "mass_kg": 1.91086188574e+30
+      }
+     }
+    ],
+    "recipe": "solar_schwarzschild_radius",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-22-034"
+  }
+ ]
+}
