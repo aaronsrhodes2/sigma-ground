@@ -1,0 +1,981 @@
+{
+ "suite": "distill-2026-11-23",
+ "generator": {
+  "date": "2026-11-23",
+  "seed": 4036715454,
+  "rota": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "known_before": 1292,
+  "wild": [],
+  "made": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 2,
+   "astronomy": 1
+  },
+  "oracles": {
+   "agrees": 20,
+   "unchecked": 0,
+   "tool": 15,
+   "none": 0
+  }
+ },
+ "items": [
+  {
+   "question": "sum of 1/i^2 for i from 1 to infinity",
+   "question_long": "What does Σ_(i=1)^∞ 1/i^2 come to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "1/i**2",
+     "variable": "i",
+     "lower": "1",
+     "upper": "oo"
+    },
+    "result": "pi**2/6",
+    "spec": {
+     "kind": "sum",
+     "expr": "1/i**2",
+     "var": "i",
+     "lo": "1",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-000"
+  },
+  {
+   "question": "Laplace transform of 1",
+   "question_long": "What does 1 become under the Laplace transform?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "1"
+    },
+    "result": "1/s",
+    "spec": {
+     "kind": "laplace",
+     "expr": "1",
+     "var": "t",
+     "svar": "s"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-001"
+  },
+  {
+   "question": "limit of abs(x)/x as x -> 0",
+   "question_long": "Approaching 0 from the right, what does abs(x)/x tend to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "compute_limit",
+    "args": {
+     "expression": "abs(x)/x",
+     "variable": "x",
+     "point": "0",
+     "direction": "+"
+    },
+    "result": "1",
+    "spec": {
+     "kind": "limit",
+     "expr": "abs(x)/x",
+     "var": "x",
+     "point": "0",
+     "dir": "+"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-002"
+  },
+  {
+   "question": "eigenvalues of [[1, 1, -1], [0, 5, 1], [0, 0, -3]]",
+   "question_long": "Which numbers λ satisfy det(A - λI) = 0 for A = [1 1 -1; 0 5 1; 0 0 -3]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[1, 1, -1], [0, 5, 1], [0, 0, -3]]"
+    },
+    "result": [
+     "-3",
+     "5",
+     "1"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       1,
+       1,
+       -1
+      ],
+      [
+       0,
+       5,
+       1
+      ],
+      [
+       0,
+       0,
+       -3
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-003"
+  },
+  {
+   "question": "integral of cos(2*x) dx",
+   "question_long": "Give me an antiderivative for cosine of 2 x.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "cos(2*x)",
+     "variable": "x"
+    },
+    "result": "sin(2*x)/2",
+    "spec": {
+     "kind": "int",
+     "expr": "cos(2*x)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-004"
+  },
+  {
+   "question": "divergence of (x*y, y^2 - z, x)",
+   "question_long": "How much does the field (x*y, y**2 - z, x) spread out at a point? Give the divergence.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x*y, y**2 - z, x"
+    },
+    "result": "3*y",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "x*y",
+      "y**2 - z",
+      "x"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-005"
+  },
+  {
+   "question": "factor t^2 - 12*t + 36",
+   "question_long": "Express t squared minus 12 t plus 36 as a product.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "t**2 - 12*t + 36"
+    },
+    "result": "(t - 6)**2",
+    "spec": {
+     "kind": "factor",
+     "expr": "t**2 - 12*t + 36",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-006"
+  },
+  {
+   "question": "sum of 2*k for k from 2 to 20",
+   "question_long": "Total up 2*k with k going from 2 to 20.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "2*k",
+     "variable": "k",
+     "lower": "2",
+     "upper": "20"
+    },
+    "result": "418",
+    "spec": {
+     "kind": "sum",
+     "expr": "2*k",
+     "var": "k",
+     "lo": "2",
+     "hi": "20"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-007"
+  },
+  {
+   "question": "solve 3*x^2 + x = 10 for x",
+   "question_long": "If 3x^2 + x = 10, what is x?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "3*x**2 + x = 10",
+     "variable": "x"
+    },
+    "result": [
+     "-2",
+     "5/3"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "3*x**2 + x = 10",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-008"
+  },
+  {
+   "question": "factor y^2 - 8*y + 16",
+   "question_long": "Express y^2 - 8y + 16 as a product.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "y**2 - 8*y + 16"
+    },
+    "result": "(y - 4)**2",
+    "spec": {
+     "kind": "factor",
+     "expr": "y**2 - 8*y + 16",
+     "var": "y"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-009"
+  },
+  {
+   "question": "solve x^2 - 3*x + 7 = 0 for x",
+   "question_long": "find every x that satisfies x**2 - 3*x + 7 = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 - 3*x + 7",
+     "variable": "x"
+    },
+    "result": [
+     "3/2 - sqrt(19)*I/2",
+     "3/2 + sqrt(19)*I/2"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "x**2 - 3*x + 7",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-010"
+  },
+  {
+   "question": "solve 3*x^3 - 7*x^2 - 7*x - 1 = 0 for x",
+   "question_long": "Where does 3x^3 - 7x^2 - 7x - 1 cross zero?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "3*x**3 - 7*x**2 - 7*x - 1",
+     "variable": "x"
+    },
+    "result": [
+     "7/9 + (-1/2 - sqrt(3)*I/2)*(1126/729 + 2*sqrt(47)*I/27)**(1/3) + 112/(81*(-1/2 - sqrt(3)*I/2)*(1126/729 + 2*sqrt(47)*I/27)**(1/3))",
+     "7/9 + 112/(81*(-1/2 + sqrt(3)*I/2)*(1126/729 + 2*sqrt(47)*I/27)**(1/3)) + (-1/2 + sqrt(3)*I/2)*(1126/729 + 2*sqrt(47)*I/27)**(1/3)",
+     "7/9 + 112/(81*(1126/729 + 2*sqrt(47)*I/27)**(1/3)) + (1126/729 + 2*sqrt(47)*I/27)**(1/3)"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "3*x**3 - 7*x**2 - 7*x - 1",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-011"
+  },
+  {
+   "question": "factor x^2 - 49",
+   "question_long": "Break x squared minus 49 into factors",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 49"
+    },
+    "result": "(x - 7)*(x + 7)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 49",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-012"
+  },
+  {
+   "question": "eigenvalues of [[1, 1, 0], [0, 1, 1], [0, 0, 2]]",
+   "question_long": "Which numbers λ satisfy det(A - λI) = 0 for A = [1 1 0; 0 1 1; 0 0 2]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[1, 1, 0], [0, 1, 1], [0, 0, 2]]"
+    },
+    "result": [
+     "2",
+     "1",
+     "1"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       1,
+       1,
+       0
+      ],
+      [
+       0,
+       1,
+       1
+      ],
+      [
+       0,
+       0,
+       2
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-013"
+  },
+  {
+   "question": "sum of k^2 for k from 1 to 20",
+   "question_long": "Total up k^2 with k going from 1 to 20.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "k**2",
+     "variable": "k",
+     "lower": "1",
+     "upper": "20"
+    },
+    "result": "2870",
+    "spec": {
+     "kind": "sum",
+     "expr": "k**2",
+     "var": "k",
+     "lo": "1",
+     "hi": "20"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-014"
+  },
+  {
+   "question": "integral of exp(-3*x) dx",
+   "question_long": "I want to integrate e to the minus 3 x in x. What is it?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "exp(-3*x)",
+     "variable": "x"
+    },
+    "result": "-exp(-3*x)/3",
+    "spec": {
+     "kind": "int",
+     "expr": "exp(-3*x)",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-015"
+  },
+  {
+   "question": "[[-1, 3], [1, -1]] * [[4, -4], [3, -4]]",
+   "question_long": "what do you get when you multiply [[-1, 3], [1, -1]] on the right by [[4, -4], [3, -4]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_multiply",
+    "args": {
+     "matrix_a": "[[-1, 3], [1, -1]]",
+     "matrix_b": "[[4, -4], [3, -4]]"
+    },
+    "result": "[[5, -8], [1, 0]]",
+    "spec": {
+     "kind": "mul",
+     "A": [
+      [
+       -1,
+       3
+      ],
+      [
+       1,
+       -1
+      ]
+     ],
+     "B": [
+      [
+       4,
+       -4
+      ],
+      [
+       3,
+       -4
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-016"
+  },
+  {
+   "question": "determinant of [[1, -3], [1, 1]]",
+   "question_long": "What is |A| for A = [1 -3; 1 1]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_determinant",
+    "args": {
+     "matrix": "[[1, -3], [1, 1]]"
+    },
+    "result": "4",
+    "spec": {
+     "kind": "det",
+     "M": [
+      [
+       1,
+       -3
+      ],
+      [
+       1,
+       1
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-017"
+  },
+  {
+   "question": "solve 3*n^2 + n + 4 = 12 for n",
+   "question_long": "If 3n^2 + n + 4 = 12, what is n?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "3*n**2 + n + 4 = 12",
+     "variable": "n"
+    },
+    "result": [
+     "-1/6 + sqrt(97)/6",
+     "-sqrt(97)/6 - 1/6"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "3*n**2 + n + 4 = 12",
+     "var": "n"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-018"
+  },
+  {
+   "question": "inverse of [[2, 1], [-3, 4]]",
+   "question_long": "What is A^-1 for A = [[2, 1], [-3, 4]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[2, 1], [-3, 4]]"
+    },
+    "result": "[[4/11, -1/11], [3/11, 2/11]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       2,
+       1
+      ],
+      [
+       -3,
+       4
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-23-019"
+  },
+  {
+   "question": "A 248 Ω load carries 4.62 mA; how many watts does it consume?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "electrical_power",
+    "args": {
+     "voltage_v": 1.14576,
+     "current_a": 0.00462
+    },
+    "result": 0.0052934112,
+    "units": "W",
+    "plan": [
+     {
+      "tool": "ohms_law_voltage",
+      "args": {
+       "current_a": 0.00462,
+       "resistance_ohm": 248.0
+      }
+     },
+     {
+      "tool": "electrical_power",
+      "args": {
+       "voltage_v": "$1",
+       "current_a": 0.00462
+      }
+     }
+    ],
+    "recipe": "ohm_voltage_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-020"
+  },
+  {
+   "question": "Convert 4.91 MeV to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 4.91,
+     "from_units": "MeV",
+     "to_units": "J"
+    },
+    "result": 7.866687272939999e-13,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 4.91,
+       "from_units": "MeV",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_mev_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-021"
+  },
+  {
+   "question": "Photon energy at the Wien peak for 1.31e4 K?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "photon_energy_from_wavelength",
+    "args": {
+     "wavelength_m": 2.2120396603053436e-07
+    },
+    "result": 8.980154793687523e-19,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "blackbody_peak_wavelength",
+      "args": {
+       "temperature_k": 13100.0
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "recipe": "blackbody_peak_photon",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-022"
+  },
+  {
+   "question": "Momentum of a 61.8 kg moon going round a 2.35e26 kg planet at 156 million km from the centre?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "momentum",
+    "args": {
+     "mass_kg": 61.8,
+     "velocity_m_s": 317.0841209262768
+    },
+    "result": 19595.798673243906,
+    "units": "kg m/s",
+    "plan": [
+     {
+      "tool": "circular_orbit_velocity",
+      "args": {
+       "central_mass_kg": 2.35e+26,
+       "radius_m": 156000000000.0
+      }
+     },
+     {
+      "tool": "momentum",
+      "args": {
+       "mass_kg": 61.8,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "orbit_momentum",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-023"
+  },
+  {
+   "question": "Kinetic energy in eV of a 1.69e-28 kg particle travelling at 920 km/s?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 7.15208e-17
+    },
+    "result": 446.3977222126934,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 1.69e-28,
+       "velocity_m_s": 920000.0
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "kinetic_energy_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-024"
+  },
+  {
+   "question": "Photon energy for the hydrogen transition 4 → 2?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "photon_energy_from_wavelength",
+    "args": {
+     "wavelength_m": 4.860090936439399e-07
+    },
+    "result": 4.0872606745648787e-19,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "rydberg_hydrogen_wavelength",
+      "args": {
+       "n_initial": 4,
+       "n_final": 2
+      }
+     },
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": "$1"
+      }
+     }
+    ],
+    "recipe": "hydrogen_photon_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-025"
+  },
+  {
+   "question": "Convert 58.5 GeV to megaelectronvolts.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 58.5,
+     "from_units": "GeV",
+     "to_units": "MeV"
+    },
+    "result": 58500.0,
+    "units": "megaelectron_volt",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 58.5,
+       "from_units": "GeV",
+       "to_units": "MeV"
+      }
+     }
+    ],
+    "recipe": "convert_gev_mev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-026"
+  },
+  {
+   "question": "What is 91.1 percent of 88.7 kJ?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 91.1,
+     "value": 88700.0
+    },
+    "result": 80805.7,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 91.1,
+       "value": 88700.0
+      }
+     }
+    ],
+    "recipe": "percent_of_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-027"
+  },
+  {
+   "question": "A 13 Ω heating element runs on 1.38 V. How many watts is that?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "electrical_power",
+    "args": {
+     "voltage_v": 1.38,
+     "current_a": 0.10615384615384614
+    },
+    "result": 0.14649230769230767,
+    "units": "W",
+    "plan": [
+     {
+      "tool": "ohms_law_current",
+      "args": {
+       "voltage_v": 1.38,
+       "resistance_ohm": 13.0
+      }
+     },
+     {
+      "tool": "electrical_power",
+      "args": {
+       "voltage_v": 1.38,
+       "current_a": "$1"
+      }
+     }
+    ],
+    "recipe": "ohm_current_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-028"
+  },
+  {
+   "question": "A photon has a wavelength of 11.1 µm. Give its energy in eV.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 1.7895908611998153e-20
+    },
+    "result": 0.11169747599750698,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "photon_energy_from_wavelength",
+      "args": {
+       "wavelength_m": 1.11e-05
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "photon_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-029"
+  },
+  {
+   "question": "Convert 8.02 atm to pascals.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 8.02,
+     "from_units": "atm",
+     "to_units": "Pa"
+    },
+    "result": 812626.5,
+    "units": "pascal",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 8.02,
+       "from_units": "atm",
+       "to_units": "Pa"
+      }
+     }
+    ],
+    "recipe": "convert_atm_pa",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-030"
+  },
+  {
+   "question": "What is 74.5 percent of 37.4 W?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 74.5,
+     "value": 37.4
+    },
+    "result": 27.863,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 74.5,
+       "value": 37.4
+      }
+     }
+    ],
+    "recipe": "percent_of_power",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-031"
+  },
+  {
+   "question": "What is the first ionization energy of lithium?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "first_ionization_energy",
+    "args": {
+     "element_symbol": "Li"
+    },
+    "result": 5.392,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "first_ionization_energy",
+      "args": {
+       "element_symbol": "Li"
+      }
+     }
+    ],
+    "recipe": "ionization_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-032"
+  },
+  {
+   "question": "singly ionized helium: how much energy is the n = 2 level?",
+   "domain": "chemistry",
+   "kind": "spec",
+   "expected": {
+    "tool": "hydrogen_like_energy_level",
+    "args": {
+     "n": 2,
+     "atomic_number": 2
+    },
+    "result": -13.605693122994,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "hydrogen_like_energy_level",
+      "args": {
+       "n": 2,
+       "atomic_number": 2
+      }
+     }
+    ],
+    "recipe": "level_hydrogen_like",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-033"
+  },
+  {
+   "question": "Profile a 15.6 solar masses black hole.",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "procedure_black_hole_profile",
+    "args": {
+     "mass_kg": 3.10191939829e+31
+    },
+    "result": "{\"steps\": [{\"label\": \"Schwarzschild radius r_s\", \"value\": 46070.70118717935, \"units\": \"m\", \"formula\": \"r_s = 2 G M / c^2\", \"source\": \"sigma_ground.field.gr_basics (standard Schwarzschild)\"}, {\"label\":",
+    "units": "",
+    "plan": [
+     {
+      "tool": "procedure_black_hole_profile",
+      "args": {
+       "mass_kg": 3.10191939829e+31
+      }
+     }
+    ],
+    "recipe": "solar_procedure_black_hole_profile",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-23-034"
+  }
+ ]
+}
