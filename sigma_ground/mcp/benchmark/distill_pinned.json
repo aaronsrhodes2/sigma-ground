@@ -1024,6 +1024,22 @@
    "cause": "wrong_value",
    "tool": "procedure_black_hole_profile",
    "got": 177195.004566015
+  },
+  {
+   "id": "distill-2026-11-22-018",
+   "day": "2026-11-22",
+   "question": "divergence of (v + u, v, u + v)",
+   "cause": "no_route",
+   "tool": "divergence",
+   "got": null
+  },
+  {
+   "id": "distill-2026-11-22-021",
+   "day": "2026-11-22",
+   "question": "What mass disappears in a 252-megaton nuclear explosion?",
+   "cause": "wrong_value",
+   "tool": "energy_to_mass",
+   "got": 1.054368e+18
   }
  ]
 }
