@@ -1040,6 +1040,14 @@
    "cause": "wrong_value",
    "tool": "energy_to_mass",
    "got": 1.054368e+18
+  },
+  {
+   "id": "distill-2026-11-23-034",
+   "day": "2026-11-23",
+   "question": "Profile a 15.6 solar masses black hole.",
+   "cause": "wrong_value",
+   "tool": "procedure_black_hole_profile",
+   "got": 46070.70118716389
   }
  ]
 }
