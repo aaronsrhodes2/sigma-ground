@@ -1,0 +1,911 @@
+{
+ "suite": "distill-2026-11-26",
+ "generator": {
+  "date": "2026-11-26",
+  "seed": 3832732755,
+  "rota": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 5,
+   "astronomy": 3
+  },
+  "known_before": 1361,
+  "wild": [],
+  "made": {
+   "math": 20,
+   "physics": 12,
+   "chemistry": 0,
+   "astronomy": 1
+  },
+  "oracles": {
+   "agrees": 20,
+   "unchecked": 0,
+   "tool": 13,
+   "none": 0
+  }
+ },
+ "items": [
+  {
+   "question": "derivative of sin(x)*cos(x)",
+   "question_long": "Work out d/dx(sine of x times cosine of x).",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "differentiate_expr",
+    "args": {
+     "expression": "sin(x)*cos(x)",
+     "variable": "x"
+    },
+    "result": "-sin(x)**2 + cos(x)**2",
+    "spec": {
+     "kind": "diff",
+     "expr": "sin(x)*cos(x)",
+     "var": "x",
+     "order": 1
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-000"
+  },
+  {
+   "question": "divergence of (4*z*y, y, 3*z*y)",
+   "question_long": "How much does the field (4*z*y, y, 3*z*y) spread out at a point? Give the divergence.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "4*z*y, y, 3*z*y"
+    },
+    "result": "3*y + 1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "4*z*y",
+      "y",
+      "3*z*y"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-001"
+  },
+  {
+   "question": "sum of n^3 for n from 2 to 50",
+   "question_long": "Total up n**3 with n going from 2 to 50.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "n**3",
+     "variable": "n",
+     "lower": "2",
+     "upper": "50"
+    },
+    "result": "1625624",
+    "spec": {
+     "kind": "sum",
+     "expr": "n**3",
+     "var": "n",
+     "lo": "2",
+     "hi": "50"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-002"
+  },
+  {
+   "question": "series expansion of exp(x) at x = 0 to order 4",
+   "question_long": "Series for e^x around 0, to order 4.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "exp(x)",
+     "variable": "x",
+     "point": "0",
+     "order": 4
+    },
+    "result": "x**3/6 + x**2/2 + x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "exp(x)",
+     "var": "x",
+     "point": "0",
+     "order": 4
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-003"
+  },
+  {
+   "question": "factor x^2 - 6*x + 8",
+   "question_long": "Break x^2 - 6x + 8 into factors.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "factor_expression",
+    "args": {
+     "expression": "x**2 - 6*x + 8"
+    },
+    "result": "(x - 4)*(x - 2)",
+    "spec": {
+     "kind": "factor",
+     "expr": "x**2 - 6*x + 8",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-004"
+  },
+  {
+   "question": "curl of (2*w, w, sin(w))",
+   "question_long": "How much does the field (2*w, w, sin(w)) rotate? Give the curl in the variables u, v, w",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "curl",
+    "args": {
+     "vector_field": "2*w, w, sin(w)",
+     "variables": "u,v,w"
+    },
+    "result": [
+     "-1",
+     "2",
+     "0"
+    ],
+    "spec": {
+     "kind": "curl",
+     "comps": [
+      "2*w",
+      "w",
+      "sin(w)"
+     ],
+     "names": [
+      "u",
+      "v",
+      "w"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-005"
+  },
+  {
+   "question": "solve y' - 9*y = 0",
+   "question_long": "Give me every function y(x) with y' - 9*y = 0?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y' - 9*y"
+    },
+    "result": "Eq(y(x), C1*exp(9*x))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y' - 9*y",
+     "fn": "y",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-006"
+  },
+  {
+   "question": "Laplace transform of exp(-3*t)",
+   "question_long": "Apply the Laplace transform to e to the minus 3 t",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "laplace_transform",
+    "args": {
+     "expression": "exp(-3*t)"
+    },
+    "result": "1/(s + 3)",
+    "spec": {
+     "kind": "laplace",
+     "expr": "exp(-3*t)",
+     "var": "t",
+     "svar": "s"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-007"
+  },
+  {
+   "question": "sum of (2/3)^k for k from 0 to infinity",
+   "question_long": "What does Σ_(k=0)^positive infinity (2/3)**k come to?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "(2/3)**k",
+     "variable": "k",
+     "lower": "0",
+     "upper": "oo"
+    },
+    "result": "3",
+    "spec": {
+     "kind": "sum",
+     "expr": "(2/3)**k",
+     "var": "k",
+     "lo": "0",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-008"
+  },
+  {
+   "question": "inverse of [[2, -1], [4, -4]]",
+   "question_long": "Give me the matrix that undoes [2 -1; 4 -4].",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_inverse",
+    "args": {
+     "matrix": "[[2, -1], [4, -4]]"
+    },
+    "result": "[[1, -1/4], [1, -1/2]]",
+    "spec": {
+     "kind": "inv",
+     "M": [
+      [
+       2,
+       -1
+      ],
+      [
+       4,
+       -4
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-009"
+  },
+  {
+   "question": "solve x^2 - 4*x + 8 = 0 for x",
+   "question_long": "Where does x**2 - 4*x + 8 cross zero?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "x**2 - 4*x + 8",
+     "variable": "x"
+    },
+    "result": [
+     "2 - 2*I",
+     "2 + 2*I"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "x**2 - 4*x + 8",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-010"
+  },
+  {
+   "question": "series expansion of 1/(1 + x) at x = 0 to order 3",
+   "question_long": "Approximate 1 over (1 plus x) near x = 0 with a polynomial of order 3?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "series_expansion",
+    "args": {
+     "expression": "1/(1 + x)",
+     "variable": "x",
+     "point": "0",
+     "order": 3
+    },
+    "result": "x**2 - x + 1",
+    "spec": {
+     "kind": "series",
+     "expr": "1/(1 + x)",
+     "var": "x",
+     "point": "0",
+     "order": 3
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-011"
+  },
+  {
+   "question": "integrate 1/(t^2 + 9) from -infinity to infinity with respect to t",
+   "question_long": "Over the interval [-∞, positive infinity], what is the integral of 1/(t^2 + 9)?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "integrate_expr",
+    "args": {
+     "expression": "1/(t**2 + 9)",
+     "variable": "t",
+     "lower": "-oo",
+     "upper": "oo"
+    },
+    "result": "pi/3",
+    "spec": {
+     "kind": "int_def",
+     "expr": "1/(t**2 + 9)",
+     "var": "t",
+     "lo": "-oo",
+     "hi": "oo"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-012"
+  },
+  {
+   "question": "solve sin(x) = 1/2 for x",
+   "question_long": "Solve sine of x = 1/2 for x.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_equation",
+    "args": {
+     "equation": "sin(x) = 1/2",
+     "variable": "x"
+    },
+    "result": [
+     "pi/6",
+     "5*pi/6"
+    ],
+    "spec": {
+     "kind": "solve",
+     "eq": "sin(x) = 1/2",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-013"
+  },
+  {
+   "question": "eigenvalues of [[6, 4, 3], [0, -3, -2], [0, 0, -1]]",
+   "question_long": "Which numbers λ satisfy det(A - λI) = 0 for A = [[6, 4, 3], [0, -3, -2], [0, 0, -1]]?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "matrix_eigenvalues",
+    "args": {
+     "matrix": "[[6, 4, 3], [0, -3, -2], [0, 0, -1]]"
+    },
+    "result": [
+     "-1",
+     "-3",
+     "6"
+    ],
+    "spec": {
+     "kind": "eig",
+     "M": [
+      [
+       6,
+       4,
+       3
+      ],
+      [
+       0,
+       -3,
+       -2
+      ],
+      [
+       0,
+       0,
+       -1
+      ]
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-014"
+  },
+  {
+   "question": "sum of i^3 for i from 1 to 20",
+   "question_long": "Total up i^3 with i going from 1 to 20.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "summation",
+    "args": {
+     "expression": "i**3",
+     "variable": "i",
+     "lower": "1",
+     "upper": "20"
+    },
+    "result": "44100",
+    "spec": {
+     "kind": "sum",
+     "expr": "i**3",
+     "var": "i",
+     "lo": "1",
+     "hi": "20"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-015"
+  },
+  {
+   "question": "divergence of (x + z, 0, sin(z))",
+   "question_long": "How much does the field (x + z, 0, sin(z)) spread out at a point? Give the divergence?",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x + z, 0, sin(z)"
+    },
+    "result": "cos(z) + 1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "x + z",
+      "0",
+      "sin(z)"
+     ],
+     "names": [
+      "x",
+      "y",
+      "z"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-016"
+  },
+  {
+   "question": "solve y'' - 5*y' + 4*y = 0 for y(t)",
+   "question_long": "Give me every function y(t) with y'' - 5y' + 4y = 0.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "solve_ode",
+    "args": {
+     "equation": "y'' - 5*y' + 4*y",
+     "variable": "t"
+    },
+    "result": "Eq(y(t), (C1 + C2*exp(3*t))*exp(t))",
+    "spec": {
+     "kind": "ode",
+     "eq": "y'' - 5*y' + 4*y",
+     "fn": "y",
+     "var": "t"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-017"
+  },
+  {
+   "question": "divergence of (x^2 - y, x^2 - y)",
+   "question_long": "How much does the field (x**2 - y, x**2 - y) spread out at a point? Give the divergence, with respect to x and y",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "divergence",
+    "args": {
+     "vector_field": "x**2 - y, x**2 - y",
+     "variables": "x,y"
+    },
+    "result": "2*x - 1",
+    "spec": {
+     "kind": "div",
+     "comps": [
+      "x**2 - y",
+      "x**2 - y"
+     ],
+     "names": [
+      "x",
+      "y"
+     ]
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-018"
+  },
+  {
+   "question": "expand (x + 1)^2",
+   "question_long": "Write (x + 1)^2 without brackets.",
+   "domain": "math",
+   "kind": "spec",
+   "expected": {
+    "tool": "expand_expression",
+    "args": {
+     "expression": "(x + 1)**2"
+    },
+    "result": "x**2 + 2*x + 1",
+    "spec": {
+     "kind": "expand",
+     "expr": "(x + 1)**2",
+     "var": "x"
+    },
+    "oracle": "agrees"
+   },
+   "id": "distill-2026-11-26-019"
+  },
+  {
+   "question": "Convert 1.65 eV to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 1.65,
+     "from_units": "eV",
+     "to_units": "J"
+    },
+    "result": 2.6435914460999996e-19,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 1.65,
+       "from_units": "eV",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_ev_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-020"
+  },
+  {
+   "question": "Escape energy for a 12.3 tonnes lander on a 3.08e23 kg planet whose radius is 9.37e6 m?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "kinetic_energy",
+    "args": {
+     "mass_kg": 12300.0,
+     "velocity_m_s": 2094.7076677778145
+    },
+    "result": 26984971312.700104,
+    "units": "J",
+    "plan": [
+     {
+      "tool": "escape_velocity",
+      "args": {
+       "mass_kg": 3.08e+23,
+       "radius_m": 9370000.0
+      }
+     },
+     {
+      "tool": "kinetic_energy",
+      "args": {
+       "mass_kg": 12300.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "escape_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-021"
+  },
+  {
+   "question": "What is 22.9 percent of 936 kg?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 22.9,
+     "value": 936.0
+    },
+    "result": 214.344,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 22.9,
+       "value": 936.0
+      }
+     }
+    ],
+    "recipe": "percent_of_mass",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-022"
+  },
+  {
+   "question": "Momentum on impact of a 20 kg ball dropped from 6.21 m?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "momentum",
+    "args": {
+     "mass_kg": 20.0,
+     "velocity_m_s": 11.036239984704936
+    },
+    "result": 220.72479969409872,
+    "units": "kg m/s",
+    "plan": [
+     {
+      "tool": "free_fall_velocity",
+      "args": {
+       "height_m": 6.21
+      }
+     },
+     {
+      "tool": "momentum",
+      "args": {
+       "mass_kg": 20.0,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "drop_impact_momentum",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-023"
+  },
+  {
+   "question": "What is 62.1 percent of 1.04 tonnes?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 62.1,
+     "value": 1040.0
+    },
+    "result": 645.84,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 62.1,
+       "value": 1040.0
+      }
+     }
+    ],
+    "recipe": "percent_of_mass",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-024"
+  },
+  {
+   "question": "Thermal de Broglie wavelength for molecules of 2.46e-27 kg at 45.6 K?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "de_broglie_wavelength",
+    "args": {
+     "mass_kg": 2.46e-27,
+     "velocity_m_s": 715.4371817117208
+    },
+    "result": 3.764865062121513e-10,
+    "units": "m",
+    "plan": [
+     {
+      "tool": "maxwell_boltzmann_most_probable_speed",
+      "args": {
+       "temperature_k": 45.6,
+       "molecular_mass_kg": 2.46e-27
+      }
+     },
+     {
+      "tool": "de_broglie_wavelength",
+      "args": {
+       "mass_kg": 2.46e-27,
+       "velocity_m_s": "$1"
+      }
+     }
+    ],
+    "recipe": "thermal_de_broglie",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-025"
+  },
+  {
+   "question": "What is 51.3 percent of 13.9 kJ?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "percent_of",
+    "args": {
+     "percent": 51.3,
+     "value": 13900.0
+    },
+    "result": 7130.7,
+    "units": "",
+    "plan": [
+     {
+      "tool": "percent_of",
+      "args": {
+       "percent": 51.3,
+       "value": 13900.0
+      }
+     }
+    ],
+    "recipe": "percent_of_energy",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-026"
+  },
+  {
+   "question": "The full mass-energy of 3.88 kg, in tons of TNT?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 3.4871700934988525e+17
+    },
+    "result": 83345365.52339514,
+    "units": "ton_TNT",
+    "plan": [
+     {
+      "tool": "mass_to_energy",
+      "args": {
+       "mass_kg": 3.88
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "mass_to_tnt",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-027"
+  },
+  {
+   "question": "Convert 483 mph to metres per second.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 483.0,
+     "from_units": "mph",
+     "to_units": "m/s"
+    },
+    "result": 215.92032,
+    "units": "meter / second",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 483.0,
+       "from_units": "mph",
+       "to_units": "m/s"
+      }
+     }
+    ],
+    "recipe": "convert_mph_ms",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-028"
+  },
+  {
+   "question": "A bomb fissions 37.1 kg of uranium-235. Give its yield as tons of TNT.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_TNT",
+    "args": {
+     "energy_joules": 3045904039011266.5
+    },
+    "result": 727988.5370485819,
+    "units": "ton_TNT",
+    "plan": [
+     {
+      "tool": "fission_energy_release",
+      "args": {
+       "mass_kg": 37.1,
+       "isotope": "U235"
+      }
+     },
+     {
+      "tool": "joules_to_TNT",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "fission_tnt",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-029"
+  },
+  {
+   "question": "Convert 0.176 kWh to joules.",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "convert_units",
+    "args": {
+     "value": 0.176,
+     "from_units": "kWh",
+     "to_units": "J"
+    },
+    "result": 633600.0,
+    "units": "joule",
+    "plan": [
+     {
+      "tool": "convert_units",
+      "args": {
+       "value": 0.176,
+       "from_units": "kWh",
+       "to_units": "J"
+      }
+     }
+    ],
+    "recipe": "convert_kwh_j",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-030"
+  },
+  {
+   "question": "Mean thermal energy per molecule at 4.61e3 K, expressed in eV?",
+   "domain": "physics",
+   "kind": "spec",
+   "expected": {
+    "tool": "joules_to_eV",
+    "args": {
+     "energy_joules": 9.547187835e-20
+    },
+    "result": 0.595888595077339,
+    "units": "eV",
+    "plan": [
+     {
+      "tool": "thermal_energy_per_molecule",
+      "args": {
+       "temperature_k": 4610.0
+      }
+     },
+     {
+      "tool": "joules_to_eV",
+      "args": {
+       "energy_joules": "$1"
+      }
+     }
+    ],
+    "recipe": "thermal_energy_ev",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-031"
+  },
+  {
+   "question": "At what radius can light orbit a black hole of 10.4 solar masses?",
+   "domain": "astronomy",
+   "kind": "spec",
+   "expected": {
+    "tool": "photon_sphere_radius",
+    "args": {
+     "mass_kg": 2.06794626553e+31
+    },
+    "result": 46070.7011872536,
+    "units": "m",
+    "plan": [
+     {
+      "tool": "photon_sphere_radius",
+      "args": {
+       "mass_kg": 2.06794626553e+31
+      }
+     }
+    ],
+    "recipe": "solar_photon_sphere_radius",
+    "oracle": "tool"
+   },
+   "id": "distill-2026-11-26-032"
+  }
+ ]
+}
