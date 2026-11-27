@@ -29,6 +29,7 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | 2026-11-22 | 35 | 35 | 33 | no_route 1, wrong_value 1 | 0 | 28 / 7 | 17 / 8 | bfb2892 |
 | 2026-11-23 | 35 | 35 | 34 | wrong_value 1 | 0 | 26 / 9 | 17 / 3 | bfb2892 |
 | 2026-11-24 | 34 | 34 | 32 | wrong_value 2 | 0 | 23 / 11 | 12 / 7 | bfb2892 |
+| 2026-11-26 | 33 | 33 | 32 | no_route 1 | 0 | 25 / 8 | 13 / 7 | bfb2892 |
 
 ## Causes, grouped: the candidate fixes
 
@@ -42,6 +43,7 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | set wording f0a0e56 |
 | wrong_value | divergence | 1 | `divergence of (4*s*r, r*s^2, s*t)` (got s**2 + t via divergence) | open |
 | wrong_value | energy_to_mass | 1 | `What mass disappears in a 252-megaton nuclear explosion?` (got 1.054368e+18 via None) | open |
+| no_route | curl | 1 | `curl of (2*w, w, sin(w))` ({'cascade': 'no stage matched', 'directive': 'no such tool | open |
 
 ## Unverified (60): wild questions with no oracle, for a person to read
 

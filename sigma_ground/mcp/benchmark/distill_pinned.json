@@ -1064,6 +1064,14 @@
    "cause": "wrong_value",
    "tool": "procedure_black_hole_profile",
    "got": 21115.738044116784
+  },
+  {
+   "id": "distill-2026-11-26-005",
+   "day": "2026-11-26",
+   "question": "curl of (2*w, w, sin(w))",
+   "cause": "no_route",
+   "tool": "curl",
+   "got": null
   }
  ]
 }
