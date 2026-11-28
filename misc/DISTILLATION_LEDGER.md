@@ -30,19 +30,20 @@ Written by `sigma_ground/mcp/benchmark/distill_score.py` from the trickle's expo
 | 2026-11-23 | 35 | 35 | 34 | wrong_value 1 | 0 | 26 / 9 | 17 / 3 | bfb2892 |
 | 2026-11-24 | 34 | 34 | 32 | wrong_value 2 | 0 | 23 / 11 | 12 / 7 | bfb2892 |
 | 2026-11-26 | 33 | 33 | 32 | no_route 1 | 0 | 25 / 8 | 13 / 7 | bfb2892 |
+| 2026-11-27 | 33 | 33 | 30 | wrong_value 3 | 0 | 23 / 10 | 14 / 6 | bfb2892 |
 
 ## Causes, grouped: the candidate fixes
 
 | cause | expected tool | rows | examples | status |
 |---|---|---|---|---|
-| wrong_value | joules_to_TNT | 8 | `Fully splitting 1.74 g of Pu-239 releases how many megatons of TNT?` (got 0.03737652989966689 via None); `Fully splitting 6.01 kg of Pu-239 releases how many megatons of TNT?` (got 129.09939350402183 via None) | open |
+| wrong_value | joules_to_TNT | 9 | `Fully splitting 1.74 g of Pu-239 releases how many megatons of TNT?` (got 0.03737652989966689 via None); `Fully splitting 6.01 kg of Pu-239 releases how many megatons of TNT?` (got 129.09939350402183 via None) | open |
 | wrong_value | fourier_transform | 6 | `Fourier transform of exp(-2*t^2)` (got 0 via fourier_transform); `Fourier transform of exp(-2*x^2)` (got sqrt(2)*sqrt(pi)*exp via fourier_transform) | open |
-| wrong_value | procedure_black_hole_profile | 4 | `Profile a 0.914 solar masses black hole.` (got 2699.2705695556283 via None); `Profile a 60 solar masses black hole.` (got 177195.004566015 via None) | open |
+| wrong_value | procedure_black_hole_profile | 5 | `Profile a 0.914 solar masses black hole.` (got 2699.2705695556283 via None); `Profile a 60 solar masses black hole.` (got 177195.004566015 via None) | open |
 | wrong_value | curl | 3 | `curl of (0, t + s, r*s)` (got ['s - 1', '0', '1'] via curl); `curl of (t + r, 0, 2*t)` (got ['0', '-2', '-1'] via curl) | fixed 2cdb61d |
 | no_route | divergence | 3 | `divergence of (t*s^2, 0, t)` ({'cascade': 'no stage matched', 'directive': 'no tool name; `divergence of (0, v*u, v^2 - u)` ({'cascade': 'no stage matched', 'directive': 'no tool name | open |
+| wrong_value | energy_to_mass | 2 | `What mass disappears in a 252-megaton nuclear explosion?` (got 1.054368e+18 via None); `What mass disappears in a 0.173-megaton nuclear explosion?` (got 723832000000000.0 via None) | open |
 | wrong_value | solve_ode | 1 | `solve y'' + y = 0` (got Eq(y(x), C1*sin(x) + via solve_ode) | set wording f0a0e56 |
 | wrong_value | divergence | 1 | `divergence of (4*s*r, r*s^2, s*t)` (got s**2 + t via divergence) | open |
-| wrong_value | energy_to_mass | 1 | `What mass disappears in a 252-megaton nuclear explosion?` (got 1.054368e+18 via None) | open |
 | no_route | curl | 1 | `curl of (2*w, w, sin(w))` ({'cascade': 'no stage matched', 'directive': 'no such tool | open |
 
 ## Unverified (60): wild questions with no oracle, for a person to read
